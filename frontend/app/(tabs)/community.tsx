@@ -1,11 +1,48 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../design-system/colors';
+import { addToWaitlist } from '../../services/database';
 
 export default function CommunityScreen() {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const handleSubmit = async () => {
+    if (!email.trim()) {
+      setError('Please enter your email');
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email');
+      return;
+    }
+
+    Keyboard.dismiss();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await addToWaitlist(email, 'community');
+      setSubmitted(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -92,13 +129,59 @@ export default function CommunityScreen() {
           </View>
         </View>
 
-        {/* Stay Tuned */}
-        <View style={styles.stayTunedCard}>
-          <Ionicons name="notifications" size={32} color={colors.primary.duffPink} />
-          <Text style={styles.stayTunedTitle}>Stay Tuned!</Text>
-          <Text style={styles.stayTunedText}>
-            We're working hard to bring you the best community experience. Check back soon for updates!
-          </Text>
+        {/* Waitlist Signup */}
+        <View style={styles.waitlistCard}>
+          {submitted ? (
+            <>
+              <View style={styles.successIcon}>
+                <Ionicons name="checkmark-circle" size={48} color="#10B981" />
+              </View>
+              <Text style={styles.successTitle}>You're on the list!</Text>
+              <Text style={styles.successText}>
+                We'll notify you when Community Hub launches. Thanks for your interest!
+              </Text>
+            </>
+          ) : (
+            <>
+              <Ionicons name="mail" size={32} color={colors.primary.trackOrange} />
+              <Text style={styles.waitlistTitle}>Get Notified</Text>
+              <Text style={styles.waitlistText}>
+                Be the first to know when Community Hub launches
+              </Text>
+
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.emailInput}
+                  placeholder="Enter your email"
+                  placeholderTextColor={colors.text.muted}
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    setError(null);
+                  }}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!loading}
+                />
+                <TouchableOpacity
+                  style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+                  onPress={handleSubmit}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator size="small" color={colors.text.white} />
+                  ) : (
+                    <Ionicons name="arrow-forward" size={20} color={colors.text.white} />
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              {error && (
+                <Text style={styles.errorText}>{error}</Text>
+              )}
+            </>
+          )}
         </View>
 
         <View style={styles.bottomSpacing} />
@@ -236,26 +319,85 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 
-  // Stay Tuned Card
-  stayTunedCard: {
+  // Waitlist Card
+  waitlistCard: {
     marginHorizontal: 20,
     marginTop: 28,
     backgroundColor: colors.backgrounds.white,
     borderRadius: 20,
-    borderWidth: 3,
+    borderWidth: 4,
     borderColor: colors.borders.thick,
-    borderStyle: 'dashed',
     padding: 28,
     alignItems: 'center',
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
   },
-  stayTunedTitle: {
-    fontSize: 20,
+  waitlistTitle: {
+    fontSize: 22,
     fontWeight: '900',
     color: colors.text.primary,
     marginTop: 12,
     marginBottom: 8,
   },
-  stayTunedText: {
+  waitlistText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text.tertiary,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    gap: 10,
+  },
+  emailInput: {
+    flex: 1,
+    height: 50,
+    backgroundColor: colors.backgrounds.cream,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text.primary,
+  },
+  submitButton: {
+    width: 50,
+    height: 50,
+    backgroundColor: colors.primary.trackOrange,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  submitButtonDisabled: {
+    opacity: 0.7,
+  },
+  errorText: {
+    marginTop: 12,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FF6B6B',
+  },
+
+  // Success State
+  successIcon: {
+    marginBottom: 8,
+  },
+  successTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#10B981',
+    marginBottom: 8,
+  },
+  successText: {
     fontSize: 14,
     fontWeight: '600',
     color: colors.text.tertiary,

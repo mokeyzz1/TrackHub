@@ -621,3 +621,26 @@ export async function getHeadToHead(athleteId1: number, athleteId2: number, even
     races: commonRaces,
   };
 }
+
+// Add email to waitlist
+export async function addToWaitlist(email: string, feature: string = 'community') {
+  const { data, error } = await supabase
+    .from('waitlist')
+    .insert({
+      email: email.toLowerCase().trim(),
+      feature,
+      created_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+
+  if (error) {
+    // Check if duplicate email
+    if (error.code === '23505') {
+      return { success: true, alreadyExists: true };
+    }
+    throw error;
+  }
+
+  return { success: true, alreadyExists: false, data };
+}
