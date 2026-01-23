@@ -1,0 +1,30 @@
+name: Check Live Meet Status
+
+on:
+  # Run hourly on Fri/Sat/Sun during meet hours (8 AM - 7 PM Central = 14:00 - 01:00 UTC)
+  schedule:
+    - cron: '0 14-23 * * 5,6'   # Fri/Sat 8 AM - 5 PM Central
+    - cron: '0 0-1 * * 6,0'     # Sat/Sun 6-7 PM Central (next day UTC)
+    - cron: '0 14-23 * * 0'     # Sunday 8 AM - 5 PM Central
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  check-status:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check live status
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: node scrapers/meets/check_live_status.js
