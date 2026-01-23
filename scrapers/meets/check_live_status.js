@@ -20,8 +20,8 @@ if (!SUPABASE_KEY) {
 }
 
 // Meet hours (Central time)
-const MEET_START_HOUR = 9;  // 9 AM - meets typically start
-const MEET_END_HOUR = 18;   // 6 PM - meets typically end
+const MEET_START_HOUR = 9;   // 9 AM - meets typically start
+const MEET_END_HOUR = 23;    // 11 PM - meets can run late
 
 function log(msg) {
   console.log(`[${new Date().toISOString()}] ${msg}`);

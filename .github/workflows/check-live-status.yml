@@ -1,11 +1,11 @@
 name: Check Live Meet Status
 
 on:
-  # Run hourly on Fri/Sat/Sun during meet hours (8 AM - 7 PM Central = 14:00 - 01:00 UTC)
+  # Run hourly on Fri/Sat/Sun during meet hours (8 AM - 11 PM Central)
+  # Central to UTC: add 6 hours (winter)
   schedule:
-    - cron: '0 14-23 * * 5,6'   # Fri/Sat 8 AM - 5 PM Central
-    - cron: '0 0-1 * * 6,0'     # Sat/Sun 6-7 PM Central (next day UTC)
-    - cron: '0 14-23 * * 0'     # Sunday 8 AM - 5 PM Central
+    - cron: '0 14-23 * * 5,6,0'  # 8 AM - 5 PM Central
+    - cron: '0 0-5 * * 6,0,1'    # 6 PM - 11 PM Central (next day UTC)
 
   # Allow manual trigger
   workflow_dispatch:
