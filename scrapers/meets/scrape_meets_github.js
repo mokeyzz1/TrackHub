@@ -204,12 +204,13 @@ async function upsertMeets(meets) {
       const existing = checkRes.data && checkRes.data.length > 0 ? checkRes.data[0] : null;
 
       if (existing) {
+        // Update timing URL if we have a new one that's different
         if (meet.timingUrl && meet.timingUrl !== existing.meet_url) {
           await supabaseRequest('PATCH', `meets?meet_id=eq.${existing.meet_id}`, {
             meet_url: meet.timingUrl,
             updated_at: new Date().toISOString()
           });
-          log(`  Updated: ${meet.name}`);
+          log(`  Updated timing URL: ${meet.name}`);
           updatedCount++;
         } else {
           skippedCount++;

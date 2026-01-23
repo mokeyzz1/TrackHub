@@ -1,10 +1,10 @@
 name: Scrape Final Results (TFRRS)
 
 on:
-  # Run Sunday and Monday at 8 AM UTC (2-3 AM EST)
+  # Run Sunday and Monday at 6 AM Central (12 PM UTC)
   # Catches final results after weekend meets
   schedule:
-    - cron: '0 8 * * 0,1'
+    - cron: '0 12 * * 0,1'
 
   # Allow manual trigger
   workflow_dispatch:

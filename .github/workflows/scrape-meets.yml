@@ -1,10 +1,10 @@
 name: Scrape College Meets
 
 on:
-  # Run Monday, Thursday, and Friday at 6 AM UTC
+  # Run Monday, Thursday, and Friday at 6 AM Central (12 PM UTC)
   # Friday run catches timing URLs posted right before weekend meets
   schedule:
-    - cron: '0 6 * * 1,4,5'
+    - cron: '0 12 * * 1,4,5'
 
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
