@@ -1,0 +1,3712 @@
+{
+  "meetUrl": "https://results.blacksquirreltiming.com/meets/59178",
+  "scrapedAt": "2025-12-16T19:50:04.334Z",
+  "events": [
+    {
+      "name": "Men 5000m      2",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176064",
+      "results": [
+        {
+          "place": 4,
+          "athlete": "Roland Prenzler",
+          "school": "Unattached",
+          "mark": "14:54.75"
+        },
+        {
+          "place": 6,
+          "athlete": "Brett Schoenhofer",
+          "school": "Unattached",
+          "mark": "14:59.26"
+        },
+        {
+          "place": 10,
+          "athlete": "Andrew Figueroa",
+          "school": "Unattached",
+          "mark": "15:18.00"
+        },
+        {
+          "place": 17,
+          "athlete": "Ahmed Thabit",
+          "school": "Unattached",
+          "mark": "15:34.31"
+        },
+        {
+          "place": 18,
+          "athlete": "Jacob Gutzman",
+          "school": "Truman",
+          "mark": "15:37.65"
+        },
+        {
+          "place": 20,
+          "athlete": "Nathan Hawbaker",
+          "school": "Evangel",
+          "mark": "15:44.68"
+        },
+        {
+          "place": 23,
+          "athlete": "Nolan Meara",
+          "school": "Truman",
+          "mark": "15:48.06"
+        },
+        {
+          "place": 26,
+          "athlete": "Jacob Snyder",
+          "school": "Truman",
+          "mark": "16:06.18"
+        },
+        {
+          "place": 29,
+          "athlete": "Brenden Duncan",
+          "school": "Unattached",
+          "mark": "16:16.76"
+        },
+        {
+          "place": 30,
+          "athlete": "Andrew Kuehler",
+          "school": "Truman",
+          "mark": "16:17.93"
+        },
+        {
+          "place": 31,
+          "athlete": "Michael Knaussman",
+          "school": "Baker",
+          "mark": "16:34.32"
+        },
+        {
+          "place": 34,
+          "athlete": "Logan Ghormley",
+          "school": "Truman",
+          "mark": "16:56.20"
+        },
+        {
+          "place": 36,
+          "athlete": "Noah Thompson",
+          "school": "Truman",
+          "mark": "17:28.50"
+        },
+        {
+          "place": 37,
+          "athlete": "Zane Champion",
+          "school": "Evangel",
+          "mark": "17:33.00"
+        },
+        {
+          "place": 40,
+          "athlete": "Jay Stoa III",
+          "school": "Midland",
+          "mark": "19:06.50"
+        }
+      ]
+    },
+    {
+      "name": "Women 5000m      2",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176055",
+      "results": [
+        {
+          "place": 6,
+          "athlete": "Kate Doyle",
+          "school": "Truman",
+          "mark": "19:09.06"
+        },
+        {
+          "place": 8,
+          "athlete": "Breanna Mathes",
+          "school": "Truman",
+          "mark": "19:14.91"
+        },
+        {
+          "place": 9,
+          "athlete": "Ellie Webb",
+          "school": "Truman",
+          "mark": "19:16.46"
+        },
+        {
+          "place": 11,
+          "athlete": "Kadence Oehlschlager",
+          "school": "Evangel",
+          "mark": "19:31.83"
+        },
+        {
+          "place": 12,
+          "athlete": "Andrea Riley",
+          "school": "Truman",
+          "mark": "19:42.76"
+        },
+        {
+          "place": 15,
+          "athlete": "Addison Barringhaus",
+          "school": "Truman",
+          "mark": "19:58.80"
+        },
+        {
+          "place": 16,
+          "athlete": "Maddie Bergstrom",
+          "school": "Midland",
+          "mark": "20:04.59"
+        },
+        {
+          "place": 23,
+          "athlete": "Vanessa Perona",
+          "school": "Evangel",
+          "mark": "21:54.40"
+        },
+        {
+          "place": 24,
+          "athlete": "Brooklyn Chambers",
+          "school": "Evangel",
+          "mark": "22:34.04"
+        }
+      ]
+    },
+    {
+      "name": "Men 1000m      2",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176080",
+      "results": [
+        {
+          "place": 2,
+          "athlete": "Koen Steenblok",
+          "school": "Midland",
+          "mark": "2:29.12"
+        },
+        {
+          "place": 3,
+          "athlete": "Ethan Smith",
+          "school": "Evangel",
+          "mark": "2:30.05"
+        },
+        {
+          "place": 5,
+          "athlete": "Braden Taylor",
+          "school": "Midland",
+          "mark": "2:33.83"
+        },
+        {
+          "place": 6,
+          "athlete": "Owen Dierenfeldt",
+          "school": "Kan.",
+          "mark": "2:37.73"
+        },
+        {
+          "place": 8,
+          "athlete": "Lukas Hein",
+          "school": "Kan.",
+          "mark": "2:41.64"
+        },
+        {
+          "place": 9,
+          "athlete": "Rylee Johnson",
+          "school": "Kan.",
+          "mark": "2:43.19"
+        },
+        {
+          "place": 10,
+          "athlete": "Rodree Robinson",
+          "school": "Baker",
+          "mark": "2:44.91"
+        },
+        {
+          "place": 13,
+          "athlete": "Jonah McGivern",
+          "school": "Kan.",
+          "mark": "2:46.80"
+        },
+        {
+          "place": 14,
+          "athlete": "Chance Peters",
+          "school": "Kan.",
+          "mark": "2:49.72"
+        },
+        {
+          "place": 16,
+          "athlete": "Ean Pierce",
+          "school": "Kan.",
+          "mark": "2:51.54"
+        }
+      ]
+    },
+    {
+      "name": "Women 1000m      1",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176073",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Carly Holadia",
+          "school": "Kan.",
+          "mark": "2:59.31"
+        }
+      ]
+    },
+    {
+      "name": "Men 60mH       Prelims 5",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176056",
+      "results": [
+        {
+          "place": 3,
+          "athlete": "Martin Barno",
+          "school": "Rockhurst",
+          "mark": "8.43"
+        },
+        {
+          "place": 4,
+          "athlete": "Omarion Udell",
+          "school": "Kan.",
+          "mark": "8.44"
+        },
+        {
+          "place": 7,
+          "athlete": "Caden Green",
+          "school": "Drury",
+          "mark": "8.62"
+        },
+        {
+          "place": 8,
+          "athlete": "Benjamin Ipock",
+          "school": "Evangel",
+          "mark": "8.67"
+        },
+        {
+          "place": 9,
+          "athlete": "Trevor Norman",
+          "school": "Truman",
+          "mark": "8.68"
+        },
+        {
+          "place": 11,
+          "athlete": "Chris Vineyard",
+          "school": "Evangel",
+          "mark": "8.718.701"
+        },
+        {
+          "place": 14,
+          "athlete": "Blaize Vaughn",
+          "school": "Kan.",
+          "mark": "8.78"
+        },
+        {
+          "place": 18,
+          "athlete": "Keaton Schrimpf",
+          "school": "Rockhurst",
+          "mark": "9.008.991"
+        },
+        {
+          "place": 19,
+          "athlete": "EJ Dennis",
+          "school": "Kan.",
+          "mark": "9.008.996"
+        },
+        {
+          "place": 20,
+          "athlete": "Reed Layton",
+          "school": "Mo.",
+          "mark": "9.008.999"
+        },
+        {
+          "place": 21,
+          "athlete": "Anthony Todd",
+          "school": "Kan.",
+          "mark": "9.16"
+        },
+        {
+          "place": 26,
+          "athlete": "Eithan Kodger",
+          "school": "Baker",
+          "mark": "9.269.258"
+        },
+        {
+          "place": 28,
+          "athlete": "Caden Cohee",
+          "school": "Baker",
+          "mark": "9.29"
+        },
+        {
+          "place": 30,
+          "athlete": "Joel Bichelmeyer",
+          "school": "Kan.",
+          "mark": "9.51"
+        },
+        {
+          "place": 31,
+          "athlete": "Justin Johnston",
+          "school": "Kan.",
+          "mark": "9.78"
+        },
+        {
+          "place": 32,
+          "athlete": "Logan Hammersmith",
+          "school": "Kan.",
+          "mark": "10.09"
+        }
+      ]
+    },
+    {
+      "name": "Women 60mH       Prelims 4",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176058",
+      "results": [
+        {
+          "place": 3,
+          "athlete": "Hope Crabtree",
+          "school": "Kan.",
+          "mark": "9.14"
+        },
+        {
+          "place": 5,
+          "athlete": "Montgomery Keck",
+          "school": "Mo.",
+          "mark": "9.17"
+        },
+        {
+          "place": 11,
+          "athlete": "Addie Budig",
+          "school": "Unattached",
+          "mark": "9.50"
+        },
+        {
+          "place": 14,
+          "athlete": "Maria Connealy",
+          "school": "Kan.",
+          "mark": "9.58"
+        },
+        {
+          "place": 15,
+          "athlete": "Ellie Ochs",
+          "school": "Rockhurst",
+          "mark": "9.65"
+        },
+        {
+          "place": 17,
+          "athlete": "Liberty Wiles",
+          "school": "Evangel",
+          "mark": "9.74"
+        },
+        {
+          "place": 18,
+          "athlete": "Makena Hall",
+          "school": "Evangel",
+          "mark": "9.75"
+        },
+        {
+          "place": 19,
+          "athlete": "Jordyn Miller-Knuckles",
+          "school": "Kan.",
+          "mark": "9.76"
+        },
+        {
+          "place": 22,
+          "athlete": "Kaela Perez",
+          "school": "Truman",
+          "mark": "9.92"
+        },
+        {
+          "place": 24,
+          "athlete": "Millie Wempen",
+          "school": "Unattached",
+          "mark": "10.08"
+        },
+        {
+          "place": 25,
+          "athlete": "Aileen Ambuul",
+          "school": "Kan.",
+          "mark": "10.63"
+        },
+        {
+          "place": 26,
+          "athlete": "Kylee Sipes",
+          "school": "Kan.",
+          "mark": "10.77"
+        }
+      ]
+    },
+    {
+      "name": "Men 60m       Prelims 12",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176076",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Isaac Dorn",
+          "school": "Midland",
+          "mark": "6.77"
+        },
+        {
+          "place": 3,
+          "athlete": "Isaiah Dorn",
+          "school": "Midland",
+          "mark": "6.90"
+        },
+        {
+          "place": 6,
+          "athlete": "Myles Jackson",
+          "school": "Rockhurst",
+          "mark": "6.93"
+        },
+        {
+          "place": 9,
+          "athlete": "Brandon Howard",
+          "school": "Truman",
+          "mark": "6.97"
+        },
+        {
+          "place": 10,
+          "athlete": "Anthony Shivers",
+          "school": "Evangel",
+          "mark": "7.027.012"
+        },
+        {
+          "place": 13,
+          "athlete": "Aiden Mountain",
+          "school": "Midland",
+          "mark": "7.027.019"
+        },
+        {
+          "place": 16,
+          "athlete": "Ja'Myri Bernard",
+          "school": "Midland",
+          "mark": "7.057.050"
+        },
+        {
+          "place": 18,
+          "athlete": "Noah Arndt",
+          "school": "Kan.",
+          "mark": "7.067.056"
+        },
+        {
+          "place": 19,
+          "athlete": "Daniel Craig",
+          "school": "Kan.",
+          "mark": "7.07"
+        },
+        {
+          "place": 22,
+          "athlete": "Ash Skeels",
+          "school": "Rockhurst",
+          "mark": "7.107.091"
+        },
+        {
+          "place": 25,
+          "athlete": "Brandon Allen",
+          "school": "Evangel",
+          "mark": "7.12"
+        },
+        {
+          "place": 26,
+          "athlete": "Bryan Lane",
+          "school": "Rockhurst",
+          "mark": "7.137.121"
+        },
+        {
+          "place": 27,
+          "athlete": "Jakob Buchberger",
+          "school": "Drury",
+          "mark": "7.137.125"
+        },
+        {
+          "place": 28,
+          "athlete": "Zak Venouziou",
+          "school": "Midland",
+          "mark": "7.137.127"
+        },
+        {
+          "place": 29,
+          "athlete": "Tristian Rogers",
+          "school": "Kan.",
+          "mark": "7.15"
+        },
+        {
+          "place": 31,
+          "athlete": "Ben Musa",
+          "school": "Rockhurst",
+          "mark": "7.197.185"
+        },
+        {
+          "place": 34,
+          "athlete": "Ryan Harvey",
+          "school": "Mo.",
+          "mark": "7.207.196"
+        },
+        {
+          "place": 35,
+          "athlete": "Daimond Kangiela",
+          "school": "Unattached",
+          "mark": "7.217.202"
+        },
+        {
+          "place": 36,
+          "athlete": "Sheldon Bergheger",
+          "school": "Mo.",
+          "mark": "7.217.206"
+        },
+        {
+          "place": 38,
+          "athlete": "Hunter Keene",
+          "school": "Truman",
+          "mark": "7.227.220"
+        },
+        {
+          "place": 39,
+          "athlete": "Cash Emgarten",
+          "school": "Unattached",
+          "mark": "7.237.221"
+        },
+        {
+          "place": 40,
+          "athlete": "Cole McGrath",
+          "school": "Kan.",
+          "mark": "7.237.223"
+        },
+        {
+          "place": 40,
+          "athlete": "Don-Divin Ngombo",
+          "school": "Unattached",
+          "mark": "7.237.223"
+        },
+        {
+          "place": 42,
+          "athlete": "Jameson Painter",
+          "school": "Midland",
+          "mark": "7.247.233"
+        },
+        {
+          "place": 43,
+          "athlete": "Mason St. Clair",
+          "school": "Drury",
+          "mark": "7.247.234"
+        },
+        {
+          "place": 44,
+          "athlete": "Riley Gibbs",
+          "school": "Kan.",
+          "mark": "7.257.242"
+        },
+        {
+          "place": 45,
+          "athlete": "Savion Jones",
+          "school": "Unattached",
+          "mark": "7.257.245"
+        },
+        {
+          "place": 47,
+          "athlete": "Brooks Tomlinson",
+          "school": "Rockhurst",
+          "mark": "7.267.251"
+        },
+        {
+          "place": 48,
+          "athlete": "Jason Jeffers",
+          "school": "Midland",
+          "mark": "7.267.258"
+        },
+        {
+          "place": 49,
+          "athlete": "Troy Huff",
+          "school": "Drury",
+          "mark": "7.267.259"
+        },
+        {
+          "place": 52,
+          "athlete": "Esais Baird",
+          "school": "Drury",
+          "mark": "7.31"
+        },
+        {
+          "place": 53,
+          "athlete": "Landon Cox",
+          "school": "Kan.",
+          "mark": "7.327.311"
+        },
+        {
+          "place": 57,
+          "athlete": "Gavin Pike",
+          "school": "Truman",
+          "mark": "7.35"
+        },
+        {
+          "place": 60,
+          "athlete": "Caden Green",
+          "school": "Drury",
+          "mark": "7.387.377"
+        },
+        {
+          "place": 61,
+          "athlete": "Dawson Turner",
+          "school": "Kan.",
+          "mark": "7.387.379"
+        },
+        {
+          "place": 65,
+          "athlete": "Easton Haslag",
+          "school": "Mo.",
+          "mark": "7.42"
+        },
+        {
+          "place": 67,
+          "athlete": "Armani Hays",
+          "school": "Evangel",
+          "mark": "7.447.434"
+        },
+        {
+          "place": 68,
+          "athlete": "Gideon Carter",
+          "school": "Drury",
+          "mark": "7.45"
+        },
+        {
+          "place": 70,
+          "athlete": "Alexander Rowan",
+          "school": "Mo.",
+          "mark": "7.467.457"
+        },
+        {
+          "place": 72,
+          "athlete": "Hayden Long",
+          "school": "Truman",
+          "mark": "7.48"
+        },
+        {
+          "place": 73,
+          "athlete": "Kaiden Tripp",
+          "school": "Drury",
+          "mark": "7.527.515"
+        },
+        {
+          "place": 74,
+          "athlete": "Dominic Navin",
+          "school": "Evangel",
+          "mark": "7.527.516"
+        },
+        {
+          "place": 76,
+          "athlete": "Mason Curtis",
+          "school": "Rockhurst",
+          "mark": "7.527.519"
+        },
+        {
+          "place": 77,
+          "athlete": "Gus Lawler",
+          "school": "Truman",
+          "mark": "7.537.527"
+        },
+        {
+          "place": 78,
+          "athlete": "Joshua Nold",
+          "school": "Evangel",
+          "mark": "7.537.528"
+        },
+        {
+          "place": 80,
+          "athlete": "Dean DaMask",
+          "school": "Kan.",
+          "mark": "7.567.554"
+        },
+        {
+          "place": 81,
+          "athlete": "Theodore Rodgers",
+          "school": "Unattached",
+          "mark": "7.567.556"
+        },
+        {
+          "place": 82,
+          "athlete": "Marcos Riano Aransay",
+          "school": "Midland",
+          "mark": "7.58"
+        },
+        {
+          "place": 83,
+          "athlete": "Reed Lynn",
+          "school": "Kan.",
+          "mark": "7.63"
+        },
+        {
+          "place": 85,
+          "athlete": "Drew Hawkins",
+          "school": "Evangel",
+          "mark": "7.68"
+        },
+        {
+          "place": 86,
+          "athlete": "Jabari Ford",
+          "school": "Unattached",
+          "mark": "7.70"
+        },
+        {
+          "place": 87,
+          "athlete": "Pampa Raffin",
+          "school": "Midland",
+          "mark": "7.827.815"
+        },
+        {
+          "place": 88,
+          "athlete": "Nick Fuess",
+          "school": "Truman",
+          "mark": "7.827.819"
+        }
+      ]
+    },
+    {
+      "name": "Women 60m       Prelims 9",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176066",
+      "results": [
+        {
+          "place": 7,
+          "athlete": "Morgan Lilly",
+          "school": "Evangel",
+          "mark": "7.74"
+        },
+        {
+          "place": 10,
+          "athlete": "Deslyne Cooper",
+          "school": "Kan.",
+          "mark": "7.77"
+        },
+        {
+          "place": 12,
+          "athlete": "Lauren Coleman",
+          "school": "Drury",
+          "mark": "7.86"
+        },
+        {
+          "place": 13,
+          "athlete": "Haley Sampson",
+          "school": "Kan.",
+          "mark": "7.88"
+        },
+        {
+          "place": 14,
+          "athlete": "Alivia Parker",
+          "school": "Evangel",
+          "mark": "7.89"
+        },
+        {
+          "place": 16,
+          "athlete": "Autumn Nold",
+          "school": "Evangel",
+          "mark": "7.93"
+        },
+        {
+          "place": 17,
+          "athlete": "Thea Smith",
+          "school": "Rockhurst",
+          "mark": "7.957.943"
+        },
+        {
+          "place": 19,
+          "athlete": "Kylie Rice",
+          "school": "Rockhurst",
+          "mark": "7.96"
+        },
+        {
+          "place": 20,
+          "athlete": "Caelianna Risler",
+          "school": "Midland",
+          "mark": "7.99"
+        },
+        {
+          "place": 21,
+          "athlete": "Jamari Ervin",
+          "school": "Unattached",
+          "mark": "8.007.992"
+        },
+        {
+          "place": 23,
+          "athlete": "Maria Sander",
+          "school": "Midland",
+          "mark": "8.038.025"
+        },
+        {
+          "place": 24,
+          "athlete": "Taylor Collins",
+          "school": "Evangel",
+          "mark": "8.038.030"
+        },
+        {
+          "place": 25,
+          "athlete": "Hope Crabtree",
+          "school": "Kan.",
+          "mark": "8.078.061"
+        },
+        {
+          "place": 25,
+          "athlete": "Aurora Griffin",
+          "school": "Midland",
+          "mark": "8.078.061"
+        },
+        {
+          "place": 28,
+          "athlete": "Liberty Cragun",
+          "school": "Drury",
+          "mark": "8.09"
+        },
+        {
+          "place": 29,
+          "athlete": "Riley Jahner",
+          "school": "Rockhurst",
+          "mark": "8.10"
+        },
+        {
+          "place": 30,
+          "athlete": "Ally Steiner",
+          "school": "Kan.",
+          "mark": "8.138.124"
+        },
+        {
+          "place": 30,
+          "athlete": "Kyndall Stewart",
+          "school": "Mo.",
+          "mark": "8.138.124"
+        },
+        {
+          "place": 33,
+          "athlete": "Tanja Zubrod",
+          "school": "Midland",
+          "mark": "8.148.137"
+        },
+        {
+          "place": 35,
+          "athlete": "Leah Heck",
+          "school": "Rockhurst",
+          "mark": "8.16"
+        },
+        {
+          "place": 36,
+          "athlete": "Anna Talbot",
+          "school": "Drury",
+          "mark": "8.17"
+        },
+        {
+          "place": 37,
+          "athlete": "Adelyn Bauer",
+          "school": "Kan.",
+          "mark": "8.188.172"
+        },
+        {
+          "place": 38,
+          "athlete": "Rianna Greene",
+          "school": "Midland",
+          "mark": "8.188.178"
+        },
+        {
+          "place": 40,
+          "athlete": "Jordyn Miller-Knuckles",
+          "school": "Kan.",
+          "mark": "8.22"
+        },
+        {
+          "place": 41,
+          "athlete": "Amber van Beugen",
+          "school": "Midland",
+          "mark": "8.23"
+        },
+        {
+          "place": 42,
+          "athlete": "Farrah Wilson",
+          "school": "Midland",
+          "mark": "8.24"
+        },
+        {
+          "place": 44,
+          "athlete": "Cierra Stigger",
+          "school": "Unattached",
+          "mark": "8.27"
+        },
+        {
+          "place": 45,
+          "athlete": "Jayleign Flood",
+          "school": "Evangel",
+          "mark": "8.28"
+        },
+        {
+          "place": 47,
+          "athlete": "Havana Achilleos",
+          "school": "Rockhurst",
+          "mark": "8.31"
+        },
+        {
+          "place": 49,
+          "athlete": "Anna Badger",
+          "school": "Kan.",
+          "mark": "8.38"
+        },
+        {
+          "place": 51,
+          "athlete": "Meike Lahuis",
+          "school": "Midland",
+          "mark": "8.398.388"
+        },
+        {
+          "place": 52,
+          "athlete": "Marianna Tomc",
+          "school": "Mo.",
+          "mark": "8.428.413"
+        },
+        {
+          "place": 55,
+          "athlete": "Kayli Carey",
+          "school": "Midland",
+          "mark": "8.51"
+        },
+        {
+          "place": 58,
+          "athlete": "Whitney Shinn",
+          "school": "Mo.",
+          "mark": "8.77"
+        },
+        {
+          "place": 63,
+          "athlete": "Stevie McCanse",
+          "school": "Evangel",
+          "mark": "9.13"
+        }
+      ]
+    },
+    {
+      "name": "Men 1 Mile      4",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176084",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Lucas Hjortkjaer",
+          "school": "Midland",
+          "mark": "4:16.04"
+        },
+        {
+          "place": 2,
+          "athlete": "Lindegren Max",
+          "school": "Unattached",
+          "mark": "4:16.19"
+        },
+        {
+          "place": 9,
+          "athlete": "Ryan Gustafson",
+          "school": "Truman",
+          "mark": "4:26.09"
+        },
+        {
+          "place": 10,
+          "athlete": "Arturo Martinez",
+          "school": "Drury",
+          "mark": "4:26.94"
+        },
+        {
+          "place": 12,
+          "athlete": "Elijah Thompson",
+          "school": "Rockhurst",
+          "mark": "4:31.09"
+        },
+        {
+          "place": 14,
+          "athlete": "Evan Wilke",
+          "school": "Truman",
+          "mark": "4:31.91"
+        },
+        {
+          "place": 18,
+          "athlete": "Jacob McGlasson",
+          "school": "Baker",
+          "mark": "4:37.77"
+        },
+        {
+          "place": 19,
+          "athlete": "Cutter Meade",
+          "school": "Baker",
+          "mark": "4:38.37"
+        },
+        {
+          "place": 22,
+          "athlete": "Timothy Thuku",
+          "school": "Rockhurst",
+          "mark": "4:41.57"
+        },
+        {
+          "place": 25,
+          "athlete": "Gavin Shaughnessy",
+          "school": "Rockhurst",
+          "mark": "4:43.89"
+        },
+        {
+          "place": 26,
+          "athlete": "Luke Persson",
+          "school": "Baker",
+          "mark": "4:43.99"
+        },
+        {
+          "place": 28,
+          "athlete": "Austin Drewry",
+          "school": "Baker",
+          "mark": "4:46.79"
+        },
+        {
+          "place": 30,
+          "athlete": "Kelvin Korir",
+          "school": "Midland",
+          "mark": "4:48.76"
+        },
+        {
+          "place": 32,
+          "athlete": "Noah Combs",
+          "school": "Truman",
+          "mark": "4:50.08"
+        },
+        {
+          "place": 34,
+          "athlete": "Nathaniel Sprinkel",
+          "school": "Evangel",
+          "mark": "4:50.91"
+        },
+        {
+          "place": 35,
+          "athlete": "Cal Pritchett",
+          "school": "Rockhurst",
+          "mark": "4:53.68"
+        },
+        {
+          "place": 36,
+          "athlete": "Henry Lance",
+          "school": "Kan.",
+          "mark": "4:54.12"
+        },
+        {
+          "place": 37,
+          "athlete": "Daniel Fullman",
+          "school": "Evangel",
+          "mark": "4:54.53"
+        },
+        {
+          "place": 41,
+          "athlete": "Marshall Heck",
+          "school": "Rockhurst",
+          "mark": "5:05.08"
+        },
+        {
+          "place": 42,
+          "athlete": "Preston Penney",
+          "school": "Midland",
+          "mark": "5:06.98"
+        }
+      ]
+    },
+    {
+      "name": "Women 1 Mile      3",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176083",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Anna Ripley",
+          "school": "Truman",
+          "mark": "5:16.80"
+        },
+        {
+          "place": 2,
+          "athlete": "McKenna Ledgerwood",
+          "school": "Truman",
+          "mark": "5:17.26"
+        },
+        {
+          "place": 3,
+          "athlete": "Phoebe Canatsey",
+          "school": "Truman",
+          "mark": "5:17.41"
+        },
+        {
+          "place": 4,
+          "athlete": "Sarah Williams",
+          "school": "Truman",
+          "mark": "5:19.20"
+        },
+        {
+          "place": 5,
+          "athlete": "Clare Stahr",
+          "school": "Truman",
+          "mark": "5:24.09"
+        },
+        {
+          "place": 7,
+          "athlete": "Kendra Zeilstra",
+          "school": "Truman",
+          "mark": "5:28.42"
+        },
+        {
+          "place": 10,
+          "athlete": "Sophia Kim",
+          "school": "Truman",
+          "mark": "5:32.38"
+        },
+        {
+          "place": 13,
+          "athlete": "Adriana McGregor",
+          "school": "Evangel",
+          "mark": "5:37.63"
+        },
+        {
+          "place": 15,
+          "athlete": "Kate Yates",
+          "school": "Truman",
+          "mark": "5:41.24"
+        },
+        {
+          "place": 16,
+          "athlete": "Kayden Jones",
+          "school": "Evangel",
+          "mark": "5:41.65"
+        },
+        {
+          "place": 17,
+          "athlete": "Carly Carstens",
+          "school": "Midland",
+          "mark": "5:43.53"
+        },
+        {
+          "place": 19,
+          "athlete": "Natalie Kennedy",
+          "school": "Baker",
+          "mark": "5:45.41"
+        },
+        {
+          "place": 20,
+          "athlete": "Bridget Kemp",
+          "school": "Truman",
+          "mark": "5:47.27"
+        },
+        {
+          "place": 21,
+          "athlete": "Nataly Gutierrez",
+          "school": "Mo.",
+          "mark": "5:49.90"
+        },
+        {
+          "place": 22,
+          "athlete": "Bridget Meier",
+          "school": "Midland",
+          "mark": "5:55.26"
+        },
+        {
+          "place": 23,
+          "athlete": "Samantha Slife",
+          "school": "Baker",
+          "mark": "5:55.71"
+        },
+        {
+          "place": 25,
+          "athlete": "Mary Salanski",
+          "school": "Rockhurst",
+          "mark": "5:58.59"
+        },
+        {
+          "place": 27,
+          "athlete": "Danika Leuenberger",
+          "school": "Midland",
+          "mark": "6:10.55"
+        },
+        {
+          "place": 28,
+          "athlete": "Ariyanna Eckert",
+          "school": "Evangel",
+          "mark": "6:15.06"
+        },
+        {
+          "place": 29,
+          "athlete": "Delanie Tally",
+          "school": "Midland",
+          "mark": "6:16.30"
+        }
+      ]
+    },
+    {
+      "name": "Men 300m      5",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176060",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Myles Jackson",
+          "school": "Rockhurst",
+          "mark": "35.01"
+        },
+        {
+          "place": 5,
+          "athlete": "Nate Giffin",
+          "school": "Unattached",
+          "mark": "36.55"
+        },
+        {
+          "place": 6,
+          "athlete": "Caden Cohee",
+          "school": "Baker",
+          "mark": "36.88"
+        },
+        {
+          "place": 7,
+          "athlete": "Dylan Masters",
+          "school": "Unattached",
+          "mark": "36.95"
+        },
+        {
+          "place": 8,
+          "athlete": "Carson Scarbrough",
+          "school": "Rockhurst",
+          "mark": "37.06"
+        },
+        {
+          "place": 9,
+          "athlete": "Brooks Tomlinson",
+          "school": "Rockhurst",
+          "mark": "37.34"
+        },
+        {
+          "place": 14,
+          "athlete": "Eithan Kodger",
+          "school": "Baker",
+          "mark": "37.85"
+        },
+        {
+          "place": 17,
+          "athlete": "Daimond Kangiela",
+          "school": "Unattached",
+          "mark": "38.26"
+        },
+        {
+          "place": 19,
+          "athlete": "Jabari Ford",
+          "school": "Unattached",
+          "mark": "38.70"
+        },
+        {
+          "place": 20,
+          "athlete": "Darian Jordan",
+          "school": "Unattached",
+          "mark": "39.84"
+        }
+      ]
+    },
+    {
+      "name": "Women 300m      2",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176050",
+      "results": [
+        {
+          "place": 2,
+          "athlete": "Makenna Longacre",
+          "school": "Baker",
+          "mark": "43.33"
+        },
+        {
+          "place": 3,
+          "athlete": "Addie Budig",
+          "school": "Unattached",
+          "mark": "44.33"
+        },
+        {
+          "place": 5,
+          "athlete": "Ayn Olsen",
+          "school": "Kan.",
+          "mark": "45.26"
+        },
+        {
+          "place": 7,
+          "athlete": "Aileen Ambuul",
+          "school": "Kan.",
+          "mark": "47.71"
+        }
+      ]
+    },
+    {
+      "name": "Men 60mH       Finals 1",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176057",
+      "results": [
+        {
+          "place": 2,
+          "athlete": "Martin Barno",
+          "school": "Rockhurst",
+          "mark": "8.26"
+        },
+        {
+          "place": 4,
+          "athlete": "Omarion Udell",
+          "school": "Kan.",
+          "mark": "8.47"
+        },
+        {
+          "place": 7,
+          "athlete": "Caden Green",
+          "school": "Drury",
+          "mark": "8.64"
+        },
+        {
+          "place": 8,
+          "athlete": "Benjamin Ipock",
+          "school": "Evangel",
+          "mark": "8.77"
+        }
+      ]
+    },
+    {
+      "name": "Women 60mH       Finals 1",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176059",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Montgomery Keck",
+          "school": "Mo.",
+          "mark": "9.06"
+        },
+        {
+          "place": 4,
+          "athlete": "Hope Crabtree",
+          "school": "Kan.",
+          "mark": "9.21"
+        }
+      ]
+    },
+    {
+      "name": "Men 60m       Finals 1",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176077",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Isaac Dorn",
+          "school": "Midland",
+          "mark": "6.77"
+        },
+        {
+          "place": 2,
+          "athlete": "Isaiah Dorn",
+          "school": "Midland",
+          "mark": "6.86"
+        },
+        {
+          "place": 6,
+          "athlete": "Myles Jackson",
+          "school": "Rockhurst",
+          "mark": "6.96"
+        }
+      ]
+    },
+    {
+      "name": "Women 60m       Finals 1",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176067",
+      "results": [
+        {
+          "place": 8,
+          "athlete": "Morgan Lilly",
+          "school": "Evangel",
+          "mark": "7.81"
+        }
+      ]
+    },
+    {
+      "name": "Men 400m      10",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176072",
+      "results": [
+        {
+          "place": 5,
+          "athlete": "Bernard Bailey",
+          "school": "Mo.",
+          "mark": "49.94"
+        },
+        {
+          "place": 6,
+          "athlete": "Rylan Malloy",
+          "school": "Drury",
+          "mark": "50.04"
+        },
+        {
+          "place": 7,
+          "athlete": "Trot Wood",
+          "school": "Baker",
+          "mark": "50.07"
+        },
+        {
+          "place": 8,
+          "athlete": "Will Benson",
+          "school": "Kan.",
+          "mark": "50.20"
+        },
+        {
+          "place": 9,
+          "athlete": "Ethan Beach",
+          "school": "Rockhurst",
+          "mark": "50.23"
+        },
+        {
+          "place": 11,
+          "athlete": "Qwentin Luginbill",
+          "school": "Drury",
+          "mark": "50.42"
+        },
+        {
+          "place": 13,
+          "athlete": "Benjamin Ipock",
+          "school": "Evangel",
+          "mark": "50.87"
+        },
+        {
+          "place": 14,
+          "athlete": "Kj Davis",
+          "school": "Rockhurst",
+          "mark": "51.00"
+        },
+        {
+          "place": 15,
+          "athlete": "Alex Marberry",
+          "school": "Truman",
+          "mark": "51.06"
+        },
+        {
+          "place": 17,
+          "athlete": "Raheem Richards",
+          "school": "Midland",
+          "mark": "51.48"
+        },
+        {
+          "place": 22,
+          "athlete": "Chris Medlock",
+          "school": "Midland",
+          "mark": "51.67"
+        },
+        {
+          "place": 23,
+          "athlete": "Jace Carr",
+          "school": "Mo.",
+          "mark": "51.75"
+        },
+        {
+          "place": 24,
+          "athlete": "Steven Banks",
+          "school": "Rockhurst",
+          "mark": "51.96"
+        },
+        {
+          "place": 25,
+          "athlete": "Trevor Norman",
+          "school": "Truman",
+          "mark": "51.99"
+        },
+        {
+          "place": 28,
+          "athlete": "Chris Vineyard",
+          "school": "Evangel",
+          "mark": "52.15"
+        },
+        {
+          "place": 32,
+          "athlete": "Savion Jones",
+          "school": "Unattached",
+          "mark": "52.91"
+        },
+        {
+          "place": 33,
+          "athlete": "Armani Hays",
+          "school": "Evangel",
+          "mark": "52.94"
+        },
+        {
+          "place": 35,
+          "athlete": "Gideon Carter",
+          "school": "Drury",
+          "mark": "52.99"
+        },
+        {
+          "place": 37,
+          "athlete": "Dominic Navin",
+          "school": "Evangel",
+          "mark": "53.19"
+        },
+        {
+          "place": 38,
+          "athlete": "Drew Hawkins",
+          "school": "Evangel",
+          "mark": "53.20"
+        },
+        {
+          "place": 39,
+          "athlete": "Owen Dulac",
+          "school": "Kan.",
+          "mark": "53.30"
+        },
+        {
+          "place": 40,
+          "athlete": "Luke Heck",
+          "school": "Rockhurst",
+          "mark": "53.80"
+        },
+        {
+          "place": 41,
+          "athlete": "Mason Curtis",
+          "school": "Rockhurst",
+          "mark": "54.17"
+        },
+        {
+          "place": 42,
+          "athlete": "Riley Connell",
+          "school": "Truman",
+          "mark": "54.27"
+        },
+        {
+          "place": 45,
+          "athlete": "Triston Collins",
+          "school": "Midland",
+          "mark": "55.21"
+        },
+        {
+          "place": 46,
+          "athlete": "Adonnis Delgado",
+          "school": "Rockhurst",
+          "mark": "55.45"
+        },
+        {
+          "place": 49,
+          "athlete": "Harrison Knernschield",
+          "school": "Mo.",
+          "mark": "57.62"
+        },
+        {
+          "place": 50,
+          "athlete": "Julian Rea",
+          "school": "Drury",
+          "mark": "58.34"
+        }
+      ]
+    },
+    {
+      "name": "Women 400m      9",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176081",
+      "results": [
+        {
+          "place": 3,
+          "athlete": "Autumn Nold",
+          "school": "Evangel",
+          "mark": "57.67"
+        },
+        {
+          "place": 6,
+          "athlete": "Delaney Riekert",
+          "school": "Drury",
+          "mark": "58.50"
+        },
+        {
+          "place": 8,
+          "athlete": "Alya Diable",
+          "school": "Drury",
+          "mark": "58.98"
+        },
+        {
+          "place": 9,
+          "athlete": "Claire Burks",
+          "school": "Truman",
+          "mark": "59.37"
+        },
+        {
+          "place": 10,
+          "athlete": "Rhema Stemmons",
+          "school": "Rockhurst",
+          "mark": "59.97"
+        },
+        {
+          "place": 11,
+          "athlete": "Taylor Collins",
+          "school": "Evangel",
+          "mark": "1:00.20"
+        },
+        {
+          "place": 13,
+          "athlete": "Maia Maury",
+          "school": "Rockhurst",
+          "mark": "1:00.43"
+        },
+        {
+          "place": 15,
+          "athlete": "Brynna Gormley",
+          "school": "Kan.",
+          "mark": "1:01.09"
+        },
+        {
+          "place": 16,
+          "athlete": "Alivia Parker",
+          "school": "Evangel",
+          "mark": "1:01.29"
+        },
+        {
+          "place": 17,
+          "athlete": "Antonia Smith",
+          "school": "Kan.",
+          "mark": "1:01.53"
+        },
+        {
+          "place": 18,
+          "athlete": "Haylei Potter",
+          "school": "Baker",
+          "mark": "1:01.59"
+        },
+        {
+          "place": 19,
+          "athlete": "Tess Harper",
+          "school": "Truman",
+          "mark": "1:01.75"
+        },
+        {
+          "place": 20,
+          "athlete": "Ashby Graham",
+          "school": "Baker",
+          "mark": "1:01.76"
+        },
+        {
+          "place": 22,
+          "athlete": "Julia Brown",
+          "school": "Truman",
+          "mark": "1:01.90"
+        },
+        {
+          "place": 23,
+          "athlete": "Caleigh Huot",
+          "school": "Mo.",
+          "mark": "1:02.06"
+        },
+        {
+          "place": 25,
+          "athlete": "Taylor Hopper",
+          "school": "Drury",
+          "mark": "1:02.54"
+        },
+        {
+          "place": 27,
+          "athlete": "Maddy Hall",
+          "school": "Truman",
+          "mark": "1:03.06"
+        },
+        {
+          "place": 29,
+          "athlete": "Kaela Perez",
+          "school": "Truman",
+          "mark": "1:03.24"
+        },
+        {
+          "place": 30,
+          "athlete": "Liberty Wiles",
+          "school": "Evangel",
+          "mark": "1:03.36"
+        },
+        {
+          "place": 31,
+          "athlete": "Rachel Hargis",
+          "school": "Mo.",
+          "mark": "1:03.64"
+        },
+        {
+          "place": 32,
+          "athlete": "Rylie Bales",
+          "school": "Drury",
+          "mark": "1:04.02"
+        },
+        {
+          "place": 33,
+          "athlete": "Jayleign Flood",
+          "school": "Evangel",
+          "mark": "1:04.37"
+        },
+        {
+          "place": 35,
+          "athlete": "Abby Rochelle",
+          "school": "Drury",
+          "mark": "1:05.59"
+        },
+        {
+          "place": 37,
+          "athlete": "Lyla Rider",
+          "school": "Truman",
+          "mark": "1:07.49"
+        },
+        {
+          "place": 38,
+          "athlete": "Maria Gergley",
+          "school": "Kan.",
+          "mark": "1:07.65"
+        },
+        {
+          "place": 39,
+          "athlete": "Molly Eversman",
+          "school": "Kan.",
+          "mark": "1:07.70"
+        },
+        {
+          "place": 40,
+          "athlete": "Corina Sisk",
+          "school": "Rockhurst",
+          "mark": "1:07.85"
+        },
+        {
+          "place": 41,
+          "athlete": "Kylee Sipes",
+          "school": "Kan.",
+          "mark": "1:08.46"
+        },
+        {
+          "place": 42,
+          "athlete": "Adelyn Bauer",
+          "school": "Kan.",
+          "mark": "1:08.55"
+        },
+        {
+          "place": 43,
+          "athlete": "Marykathryn Smith",
+          "school": "Kan.",
+          "mark": "1:09.28"
+        },
+        {
+          "place": 46,
+          "athlete": "Leilani Green",
+          "school": "Mo.",
+          "mark": "1:10.21"
+        },
+        {
+          "place": 48,
+          "athlete": "Makayla Lockard",
+          "school": "Kan.",
+          "mark": "1:11.26"
+        }
+      ]
+    },
+    {
+      "name": "Men 800m      4",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176071",
+      "results": [
+        {
+          "place": 2,
+          "athlete": "Lindegren Max",
+          "school": "Unattached",
+          "mark": "1:55.05"
+        },
+        {
+          "place": 7,
+          "athlete": "Brycen Compton",
+          "school": "Truman",
+          "mark": "1:57.63"
+        },
+        {
+          "place": 10,
+          "athlete": "Campbell Nichols",
+          "school": "Mo.",
+          "mark": "1:58.57"
+        },
+        {
+          "place": 11,
+          "athlete": "Elijah Thompson",
+          "school": "Rockhurst",
+          "mark": "1:58.88"
+        },
+        {
+          "place": 12,
+          "athlete": "Micah Sanders",
+          "school": "Baker",
+          "mark": "1:58.93"
+        },
+        {
+          "place": 13,
+          "athlete": "Liam Lyon",
+          "school": "Mo.",
+          "mark": "1:59.21"
+        },
+        {
+          "place": 14,
+          "athlete": "Max Stephan",
+          "school": "Mo.",
+          "mark": "1:59.67"
+        },
+        {
+          "place": 15,
+          "athlete": "Wyatt Gustafson",
+          "school": "Truman",
+          "mark": "1:59.92"
+        },
+        {
+          "place": 18,
+          "athlete": "Michael Bottary",
+          "school": "Truman",
+          "mark": "2:01.12"
+        },
+        {
+          "place": 21,
+          "athlete": "Coen Buxton",
+          "school": "Mo.",
+          "mark": "2:01.68"
+        },
+        {
+          "place": 24,
+          "athlete": "Willem Hummel",
+          "school": "Truman",
+          "mark": "2:02.61"
+        },
+        {
+          "place": 25,
+          "athlete": "Blake Borum",
+          "school": "Rockhurst",
+          "mark": "2:03.32"
+        },
+        {
+          "place": 28,
+          "athlete": "Gavin Shaughnessy",
+          "school": "Rockhurst",
+          "mark": "2:04.10"
+        },
+        {
+          "place": 29,
+          "athlete": "Kaden Harvie",
+          "school": "Rockhurst",
+          "mark": "2:04.93"
+        },
+        {
+          "place": 31,
+          "athlete": "Cal Pritchett",
+          "school": "Rockhurst",
+          "mark": "2:06.46"
+        },
+        {
+          "place": 32,
+          "athlete": "Francisco Juarez",
+          "school": "Rockhurst",
+          "mark": "2:06.76"
+        },
+        {
+          "place": 35,
+          "athlete": "Conner Diaz",
+          "school": "Mo.",
+          "mark": "2:13.03"
+        },
+        {
+          "place": 36,
+          "athlete": "Nick Fuess",
+          "school": "Truman",
+          "mark": "2:13.78"
+        },
+        {
+          "place": 37,
+          "athlete": "Hayden Long",
+          "school": "Truman",
+          "mark": "2:18.24"
+        }
+      ]
+    },
+    {
+      "name": "Women 800m      2",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176051",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Raina Baker",
+          "school": "Truman",
+          "mark": "2:19.26"
+        },
+        {
+          "place": 3,
+          "athlete": "Phoebe Canatsey",
+          "school": "Truman",
+          "mark": "2:22.94"
+        },
+        {
+          "place": 5,
+          "athlete": "Maddie Sims",
+          "school": "Truman",
+          "mark": "2:24.48"
+        },
+        {
+          "place": 6,
+          "athlete": "Kendra Zeilstra",
+          "school": "Truman",
+          "mark": "2:27.54"
+        },
+        {
+          "place": 7,
+          "athlete": "Sarah Williams",
+          "school": "Truman",
+          "mark": "2:27.92"
+        },
+        {
+          "place": 8,
+          "athlete": "Anna Ripley",
+          "school": "Truman",
+          "mark": "2:28.42"
+        },
+        {
+          "place": 9,
+          "athlete": "McKenna Ledgerwood",
+          "school": "Truman",
+          "mark": "2:28.68"
+        },
+        {
+          "place": 10,
+          "athlete": "Ellie Beck",
+          "school": "Rockhurst",
+          "mark": "2:30.29"
+        },
+        {
+          "place": 11,
+          "athlete": "Clare Stahr",
+          "school": "Truman",
+          "mark": "2:30.79"
+        },
+        {
+          "place": 12,
+          "athlete": "Sophia Kim",
+          "school": "Truman",
+          "mark": "2:30.97"
+        },
+        {
+          "place": 13,
+          "athlete": "Carly Carstens",
+          "school": "Midland",
+          "mark": "2:36.68"
+        },
+        {
+          "place": 14,
+          "athlete": "Bridget Kemp",
+          "school": "Truman",
+          "mark": "2:37.69"
+        },
+        {
+          "place": 15,
+          "athlete": "Madeline Hutchison",
+          "school": "Evangel",
+          "mark": "2:39.74"
+        },
+        {
+          "place": 16,
+          "athlete": "Danika Leuenberger",
+          "school": "Midland",
+          "mark": "2:51.55"
+        },
+        {
+          "place": 17,
+          "athlete": "Kya O'Hanlon",
+          "school": "Mo.",
+          "mark": "2:58.38"
+        },
+        {
+          "place": 18,
+          "athlete": "Jacey Cook",
+          "school": "Unattached",
+          "mark": "3:01.34"
+        }
+      ]
+    },
+    {
+      "name": "Men 600y      5",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176070",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Josh Fraker",
+          "school": "Unattached",
+          "mark": "1:11.00"
+        },
+        {
+          "place": 6,
+          "athlete": "Breck Brown",
+          "school": "Unattached",
+          "mark": "1:13.16"
+        },
+        {
+          "place": 8,
+          "athlete": "John Philip Butler",
+          "school": "Kan.",
+          "mark": "1:14.00"
+        },
+        {
+          "place": 11,
+          "athlete": "Charlie Warren",
+          "school": "Unattached",
+          "mark": "1:15.51"
+        },
+        {
+          "place": 16,
+          "athlete": "Owen Dierenfeldt",
+          "school": "Kan.",
+          "mark": "1:16.99"
+        },
+        {
+          "place": 18,
+          "athlete": "Lukas Hein",
+          "school": "Kan.",
+          "mark": "1:18.83"
+        },
+        {
+          "place": 19,
+          "athlete": "Jonah McGivern",
+          "school": "Kan.",
+          "mark": "1:19.16"
+        },
+        {
+          "place": 20,
+          "athlete": "Rylee Johnson",
+          "school": "Kan.",
+          "mark": "1:21.08"
+        },
+        {
+          "place": 21,
+          "athlete": "Ismael Amraoui",
+          "school": "Midland",
+          "mark": "1:21.36"
+        },
+        {
+          "place": 22,
+          "athlete": "Chance Peters",
+          "school": "Kan.",
+          "mark": "1:22.18"
+        },
+        {
+          "place": 23,
+          "athlete": "Ean Pierce",
+          "school": "Kan.",
+          "mark": "1:24.33"
+        }
+      ]
+    },
+    {
+      "name": "Women 600y      3",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176078",
+      "results": [
+        {
+          "place": 11,
+          "athlete": "Ja'Mariah Clay",
+          "school": "Truman",
+          "mark": "1:44.45"
+        },
+        {
+          "place": 12,
+          "athlete": "Addy Winder",
+          "school": "Truman",
+          "mark": "1:46.25"
+        },
+        {
+          "place": 14,
+          "athlete": "Vada Moore",
+          "school": "Truman",
+          "mark": "1:57.82"
+        }
+      ]
+    },
+    {
+      "name": "Men 200m      19",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176069",
+      "results": [
+        {
+          "place": 2,
+          "athlete": "Kyle Emerson",
+          "school": "Unattached",
+          "mark": "21.78"
+        },
+        {
+          "place": 3,
+          "athlete": "Isaac Dorn",
+          "school": "Midland",
+          "mark": "21.79"
+        },
+        {
+          "place": 4,
+          "athlete": "Isaiah Dorn",
+          "school": "Midland",
+          "mark": "22.11"
+        },
+        {
+          "place": 6,
+          "athlete": "Daniel Craig",
+          "school": "Kan.",
+          "mark": "22.31"
+        },
+        {
+          "place": 12,
+          "athlete": "Jameson Painter",
+          "school": "Midland",
+          "mark": "22.56"
+        },
+        {
+          "place": 13,
+          "athlete": "Anthony Shivers",
+          "school": "Evangel",
+          "mark": "22.57"
+        },
+        {
+          "place": 15,
+          "athlete": "Brandon Howard",
+          "school": "Truman",
+          "mark": "22.62"
+        },
+        {
+          "place": 16,
+          "athlete": "Ja'Myri Bernard",
+          "school": "Midland",
+          "mark": "22.71"
+        },
+        {
+          "place": 17,
+          "athlete": "Tristian Rogers",
+          "school": "Kan.",
+          "mark": "22.73"
+        },
+        {
+          "place": 20,
+          "athlete": "Ash Skeels",
+          "school": "Rockhurst",
+          "mark": "22.81"
+        },
+        {
+          "place": 21,
+          "athlete": "Cash Emgarten",
+          "school": "Unattached",
+          "mark": "22.8322.822"
+        },
+        {
+          "place": 22,
+          "athlete": "Rylan Malloy",
+          "school": "Drury",
+          "mark": "22.8322.824"
+        },
+        {
+          "place": 23,
+          "athlete": "Brandon Allen",
+          "school": "Evangel",
+          "mark": "22.8622.854"
+        },
+        {
+          "place": 25,
+          "athlete": "Aiden Mountain",
+          "school": "Midland",
+          "mark": "22.90"
+        },
+        {
+          "place": 28,
+          "athlete": "Will Benson",
+          "school": "Kan.",
+          "mark": "23.0223.013"
+        },
+        {
+          "place": 30,
+          "athlete": "Kyman Lee",
+          "school": "Unattached",
+          "mark": "23.0323.022"
+        },
+        {
+          "place": 31,
+          "athlete": "Jakob Buchberger",
+          "school": "Drury",
+          "mark": "23.0323.026"
+        },
+        {
+          "place": 33,
+          "athlete": "Bernard Bailey",
+          "school": "Mo.",
+          "mark": "23.06"
+        },
+        {
+          "place": 35,
+          "athlete": "Zak Venouziou",
+          "school": "Midland",
+          "mark": "23.10"
+        },
+        {
+          "place": 36,
+          "athlete": "Nate Giffin",
+          "school": "Unattached",
+          "mark": "23.1223.113"
+        },
+        {
+          "place": 37,
+          "athlete": "Troy Huff",
+          "school": "Drury",
+          "mark": "23.1223.119"
+        },
+        {
+          "place": 38,
+          "athlete": "Omarion Udell",
+          "school": "Kan.",
+          "mark": "23.19"
+        },
+        {
+          "place": 39,
+          "athlete": "Ethan Beach",
+          "school": "Rockhurst",
+          "mark": "23.21"
+        },
+        {
+          "place": 40,
+          "athlete": "Cole McGrath",
+          "school": "Kan.",
+          "mark": "23.22"
+        },
+        {
+          "place": 42,
+          "athlete": "Savion Jones",
+          "school": "Unattached",
+          "mark": "23.28"
+        },
+        {
+          "place": 44,
+          "athlete": "Qwentin Luginbill",
+          "school": "Drury",
+          "mark": "23.2923.289"
+        },
+        {
+          "place": 46,
+          "athlete": "Jace Carr",
+          "school": "Mo.",
+          "mark": "23.3023.297"
+        },
+        {
+          "place": 49,
+          "athlete": "Esais Baird",
+          "school": "Drury",
+          "mark": "23.45"
+        },
+        {
+          "place": 50,
+          "athlete": "Carson Scarbrough",
+          "school": "Rockhurst",
+          "mark": "23.4623.453"
+        },
+        {
+          "place": 54,
+          "athlete": "Sheldon Bergheger",
+          "school": "Mo.",
+          "mark": "23.49"
+        },
+        {
+          "place": 55,
+          "athlete": "Joshua Nold",
+          "school": "Evangel",
+          "mark": "23.52"
+        },
+        {
+          "place": 56,
+          "athlete": "Todd Hicks",
+          "school": "Kan.",
+          "mark": "23.60"
+        },
+        {
+          "place": 57,
+          "athlete": "Brooks Tomlinson",
+          "school": "Rockhurst",
+          "mark": "23.62"
+        },
+        {
+          "place": 59,
+          "athlete": "Ryan Harvey",
+          "school": "Mo.",
+          "mark": "23.70"
+        },
+        {
+          "place": 60,
+          "athlete": "Easton Haslag",
+          "school": "Mo.",
+          "mark": "23.72"
+        },
+        {
+          "place": 61,
+          "athlete": "Steven Banks",
+          "school": "Rockhurst",
+          "mark": "23.7423.732"
+        },
+        {
+          "place": 62,
+          "athlete": "Kj Davis",
+          "school": "Rockhurst",
+          "mark": "23.7423.733"
+        },
+        {
+          "place": 63,
+          "athlete": "Bryan Lane",
+          "school": "Rockhurst",
+          "mark": "23.7423.740"
+        },
+        {
+          "place": 64,
+          "athlete": "Don-Divin Ngombo",
+          "school": "Unattached",
+          "mark": "23.7623.752"
+        },
+        {
+          "place": 66,
+          "athlete": "Dean DaMask",
+          "school": "Kan.",
+          "mark": "23.78"
+        },
+        {
+          "place": 68,
+          "athlete": "EJ Dennis",
+          "school": "Kan.",
+          "mark": "23.87"
+        },
+        {
+          "place": 69,
+          "athlete": "Keaton Schrimpf",
+          "school": "Rockhurst",
+          "mark": "24.02"
+        },
+        {
+          "place": 70,
+          "athlete": "Daimond Kangiela",
+          "school": "Unattached",
+          "mark": "24.15"
+        },
+        {
+          "place": 72,
+          "athlete": "Blaize Vaughn",
+          "school": "Kan.",
+          "mark": "24.28"
+        },
+        {
+          "place": 73,
+          "athlete": "Owen Dulac",
+          "school": "Kan.",
+          "mark": "24.30"
+        },
+        {
+          "place": 74,
+          "athlete": "Dawson Turner",
+          "school": "Kan.",
+          "mark": "24.31"
+        },
+        {
+          "place": 76,
+          "athlete": "Theodore Rodgers",
+          "school": "Unattached",
+          "mark": "24.37"
+        },
+        {
+          "place": 77,
+          "athlete": "Triston Collins",
+          "school": "Midland",
+          "mark": "24.48"
+        },
+        {
+          "place": 78,
+          "athlete": "Darian Jordan",
+          "school": "Unattached",
+          "mark": "24.65"
+        },
+        {
+          "place": 79,
+          "athlete": "Landon Cox",
+          "school": "Kan.",
+          "mark": "24.97"
+        },
+        {
+          "place": 80,
+          "athlete": "Julian Rea",
+          "school": "Drury",
+          "mark": "25.56"
+        },
+        {
+          "place": 82,
+          "athlete": "Harrison Knernschield",
+          "school": "Mo.",
+          "mark": "26.12"
+        }
+      ]
+    },
+    {
+      "name": "Women 200m      16",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176079",
+      "results": [
+        {
+          "place": 2,
+          "athlete": "Delaney Riekert",
+          "school": "Drury",
+          "mark": "25.02"
+        },
+        {
+          "place": 3,
+          "athlete": "Deslyne Cooper",
+          "school": "Kan.",
+          "mark": "25.20"
+        },
+        {
+          "place": 7,
+          "athlete": "Lauren Coleman",
+          "school": "Drury",
+          "mark": "25.69"
+        },
+        {
+          "place": 8,
+          "athlete": "Tanja Zubrod",
+          "school": "Midland",
+          "mark": "25.80"
+        },
+        {
+          "place": 9,
+          "athlete": "Haley Sampson",
+          "school": "Kan.",
+          "mark": "25.95"
+        },
+        {
+          "place": 10,
+          "athlete": "Morgan Lilly",
+          "school": "Evangel",
+          "mark": "26.17"
+        },
+        {
+          "place": 12,
+          "athlete": "Ally Steiner",
+          "school": "Kan.",
+          "mark": "26.30"
+        },
+        {
+          "place": 14,
+          "athlete": "Brynna Gormley",
+          "school": "Kan.",
+          "mark": "26.37"
+        },
+        {
+          "place": 15,
+          "athlete": "Hope Crabtree",
+          "school": "Kan.",
+          "mark": "26.45"
+        },
+        {
+          "place": 16,
+          "athlete": "Taylor Hopper",
+          "school": "Drury",
+          "mark": "26.46"
+        },
+        {
+          "place": 18,
+          "athlete": "Jordyn Miller-Knuckles",
+          "school": "Kan.",
+          "mark": "26.53"
+        },
+        {
+          "place": 19,
+          "athlete": "Maria Sander",
+          "school": "Midland",
+          "mark": "26.60"
+        },
+        {
+          "place": 20,
+          "athlete": "Alya Diable",
+          "school": "Drury",
+          "mark": "26.62"
+        },
+        {
+          "place": 21,
+          "athlete": "Vanessa Rice",
+          "school": "Midland",
+          "mark": "26.70"
+        },
+        {
+          "place": 24,
+          "athlete": "Ashby Graham",
+          "school": "Baker",
+          "mark": "26.7426.734"
+        },
+        {
+          "place": 25,
+          "athlete": "Rhema Stemmons",
+          "school": "Rockhurst",
+          "mark": "26.83"
+        },
+        {
+          "place": 27,
+          "athlete": "Liberty Cragun",
+          "school": "Drury",
+          "mark": "27.01"
+        },
+        {
+          "place": 28,
+          "athlete": "Caleigh Huot",
+          "school": "Mo.",
+          "mark": "27.09"
+        },
+        {
+          "place": 29,
+          "athlete": "Aurora Griffin",
+          "school": "Midland",
+          "mark": "27.15"
+        },
+        {
+          "place": 30,
+          "athlete": "Haylei Potter",
+          "school": "Baker",
+          "mark": "27.17"
+        },
+        {
+          "place": 32,
+          "athlete": "Caelianna Risler",
+          "school": "Midland",
+          "mark": "27.23"
+        },
+        {
+          "place": 35,
+          "athlete": "Amber van Beugen",
+          "school": "Midland",
+          "mark": "27.33"
+        },
+        {
+          "place": 36,
+          "athlete": "Leah Heck",
+          "school": "Rockhurst",
+          "mark": "27.34"
+        },
+        {
+          "place": 37,
+          "athlete": "Miley Ward",
+          "school": "Rockhurst",
+          "mark": "27.37"
+        },
+        {
+          "place": 38,
+          "athlete": "Riley Jahner",
+          "school": "Rockhurst",
+          "mark": "27.38"
+        },
+        {
+          "place": 39,
+          "athlete": "Makenna Longacre",
+          "school": "Baker",
+          "mark": "27.44"
+        },
+        {
+          "place": 40,
+          "athlete": "Kylie Rice",
+          "school": "Rockhurst",
+          "mark": "27.57"
+        },
+        {
+          "place": 41,
+          "athlete": "Meike Lahuis",
+          "school": "Midland",
+          "mark": "27.59"
+        },
+        {
+          "place": 45,
+          "athlete": "Ellie Ochs",
+          "school": "Rockhurst",
+          "mark": "27.73"
+        },
+        {
+          "place": 47,
+          "athlete": "Kyndall Stewart",
+          "school": "Mo.",
+          "mark": "27.91"
+        },
+        {
+          "place": 48,
+          "athlete": "Anna Badger",
+          "school": "Kan.",
+          "mark": "28.04"
+        },
+        {
+          "place": 49,
+          "athlete": "Adelyn Bauer",
+          "school": "Kan.",
+          "mark": "28.09"
+        },
+        {
+          "place": 51,
+          "athlete": "Rachel Hargis",
+          "school": "Mo.",
+          "mark": "28.17"
+        },
+        {
+          "place": 53,
+          "athlete": "Rylie Bales",
+          "school": "Drury",
+          "mark": "28.27"
+        },
+        {
+          "place": 56,
+          "athlete": "Cierra Stigger",
+          "school": "Unattached",
+          "mark": "28.44"
+        },
+        {
+          "place": 57,
+          "athlete": "Kayli Carey",
+          "school": "Midland",
+          "mark": "28.46"
+        },
+        {
+          "place": 59,
+          "athlete": "Maria Gergley",
+          "school": "Kan.",
+          "mark": "28.6128.601"
+        },
+        {
+          "place": 60,
+          "athlete": "Jamari Ervin",
+          "school": "Unattached",
+          "mark": "28.6128.602"
+        },
+        {
+          "place": 61,
+          "athlete": "Kiasia Burns",
+          "school": "Mo.",
+          "mark": "28.74"
+        },
+        {
+          "place": 63,
+          "athlete": "Ayn Olsen",
+          "school": "Kan.",
+          "mark": "28.81"
+        },
+        {
+          "place": 64,
+          "athlete": "Anyah Ranson",
+          "school": "Mo.",
+          "mark": "28.99"
+        },
+        {
+          "place": 65,
+          "athlete": "Isabel Reinebach",
+          "school": "Rockhurst",
+          "mark": "29.23"
+        },
+        {
+          "place": 66,
+          "athlete": "Molly Eversman",
+          "school": "Kan.",
+          "mark": "29.25"
+        },
+        {
+          "place": 68,
+          "athlete": "Abby Rochelle",
+          "school": "Drury",
+          "mark": "29.56"
+        },
+        {
+          "place": 69,
+          "athlete": "Marykathryn Smith",
+          "school": "Kan.",
+          "mark": "29.71"
+        },
+        {
+          "place": 70,
+          "athlete": "Whitney Shinn",
+          "school": "Mo.",
+          "mark": "29.75"
+        },
+        {
+          "place": 75,
+          "athlete": "Aileen Ambuul",
+          "school": "Kan.",
+          "mark": "30.5230.514"
+        },
+        {
+          "place": 77,
+          "athlete": "Leilani Green",
+          "school": "Mo.",
+          "mark": "31.10"
+        },
+        {
+          "place": 78,
+          "athlete": "Stevie McCanse",
+          "school": "Evangel",
+          "mark": "31.68"
+        }
+      ]
+    },
+    {
+      "name": "Men 3000m      2",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176082",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Grant Bradley",
+          "school": "Unattached",
+          "mark": "7:59.83"
+        },
+        {
+          "place": 5,
+          "athlete": "Lucas Hjortkjaer",
+          "school": "Midland",
+          "mark": "8:57.65"
+        },
+        {
+          "place": 7,
+          "athlete": "Koen Steenblok",
+          "school": "Midland",
+          "mark": "9:07.84"
+        },
+        {
+          "place": 8,
+          "athlete": "Josh Stevenson",
+          "school": "Unattached",
+          "mark": "9:11.25"
+        },
+        {
+          "place": 10,
+          "athlete": "Caleb Gamble",
+          "school": "Evangel",
+          "mark": "9:16.19"
+        },
+        {
+          "place": 12,
+          "athlete": "Blake Smith",
+          "school": "Evangel",
+          "mark": "9:20.21"
+        },
+        {
+          "place": 14,
+          "athlete": "Michael Knaussman",
+          "school": "Baker",
+          "mark": "9:23.68"
+        },
+        {
+          "place": 15,
+          "athlete": "Jacob McGlasson",
+          "school": "Baker",
+          "mark": "9:30.42"
+        },
+        {
+          "place": 17,
+          "athlete": "Braden Taylor",
+          "school": "Midland",
+          "mark": "9:31.93"
+        },
+        {
+          "place": 21,
+          "athlete": "Luke Persson",
+          "school": "Baker",
+          "mark": "9:46.66"
+        },
+        {
+          "place": 22,
+          "athlete": "Kelvin Korir",
+          "school": "Midland",
+          "mark": "9:48.12"
+        },
+        {
+          "place": 27,
+          "athlete": "Preston Penney",
+          "school": "Midland",
+          "mark": "10:40.79"
+        },
+        {
+          "place": 28,
+          "athlete": "James Letterman",
+          "school": "Evangel",
+          "mark": "10:48.89"
+        }
+      ]
+    },
+    {
+      "name": "Women 3000m      1",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176054",
+      "results": [
+        {
+          "place": 5,
+          "athlete": "Molly McClung",
+          "school": "Rockhurst",
+          "mark": "11:22.20"
+        },
+        {
+          "place": 8,
+          "athlete": "Bridget Meier",
+          "school": "Midland",
+          "mark": "11:50.10"
+        },
+        {
+          "place": 9,
+          "athlete": "Judy Chepkorir",
+          "school": "Midland",
+          "mark": "12:28.56"
+        },
+        {
+          "place": 10,
+          "athlete": "Belinda Jepkemboi",
+          "school": "Midland",
+          "mark": "12:58.50"
+        }
+      ]
+    },
+    {
+      "name": "Men 4x400mR      4",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/relay/373654",
+      "results": []
+    },
+    {
+      "name": "Women 4x400mR      3",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/relay/373655",
+      "results": []
+    },
+    {
+      "name": "Men Pole Vault",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176617",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Tomas Gonzalez",
+          "school": "Unattached",
+          "mark": "4.80"
+        },
+        {
+          "place": 3,
+          "athlete": "Kevin Taylor",
+          "school": "Kan.",
+          "mark": "4.50"
+        },
+        {
+          "place": 4,
+          "athlete": "Christopher Coyne",
+          "school": "Kan.",
+          "mark": "4.20"
+        },
+        {
+          "place": 5,
+          "athlete": "Nate Giffin",
+          "school": "Unattached",
+          "mark": "4.05"
+        },
+        {
+          "place": 7,
+          "athlete": "Kurt Wallace",
+          "school": "Unattached",
+          "mark": "4.05"
+        },
+        {
+          "place": 9,
+          "athlete": "John Philip Butler",
+          "school": "Kan.",
+          "mark": "3.90"
+        },
+        {
+          "place": 9,
+          "athlete": "Pampa Raffin",
+          "school": "Midland",
+          "mark": "3.90"
+        },
+        {
+          "place": 11,
+          "athlete": "Walker Ott",
+          "school": "Midland",
+          "mark": "3.90"
+        },
+        {
+          "place": 12,
+          "athlete": "Jace Ohlson",
+          "school": "Kan.",
+          "mark": "3.90"
+        },
+        {
+          "place": 13,
+          "athlete": "Cael Wilson",
+          "school": "Kan.",
+          "mark": "3.75"
+        },
+        {
+          "place": 14,
+          "athlete": "Anthony Todd",
+          "school": "Kan.",
+          "mark": "3.60"
+        },
+        {
+          "place": 15,
+          "athlete": "Joel Bichelmeyer",
+          "school": "Kan.",
+          "mark": "3.30"
+        },
+        {
+          "place": 15,
+          "athlete": "Reed Lynn",
+          "school": "Kan.",
+          "mark": "3.30"
+        },
+        {
+          "place": 17,
+          "athlete": "Marcos Riano Aransay",
+          "school": "Midland",
+          "mark": "3.30"
+        },
+        {
+          "place": 18,
+          "athlete": "Jamaal Mason",
+          "school": "Baker",
+          "mark": "3.00"
+        }
+      ]
+    },
+    {
+      "name": "Women Weight Throw",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176049",
+      "results": [
+        {
+          "place": 2,
+          "athlete": "Sara Diew",
+          "school": "Midland",
+          "mark": "16.95"
+        },
+        {
+          "place": 3,
+          "athlete": "Destiny Zimdars",
+          "school": "Truman",
+          "mark": "15.71"
+        },
+        {
+          "place": 6,
+          "athlete": "Mary Lorang",
+          "school": "Kan.",
+          "mark": "15.24"
+        },
+        {
+          "place": 7,
+          "athlete": "Ellie Berendzen",
+          "school": "Mo.",
+          "mark": "14.90"
+        },
+        {
+          "place": 9,
+          "athlete": "Hayden Kramer",
+          "school": "Mo.",
+          "mark": "14.70"
+        },
+        {
+          "place": 10,
+          "athlete": "Paulina Sroka",
+          "school": "Kan.",
+          "mark": "13.98"
+        },
+        {
+          "place": 12,
+          "athlete": "Emily Struckman",
+          "school": "Kan.",
+          "mark": "13.93"
+        },
+        {
+          "place": 15,
+          "athlete": "Carolyne Argana",
+          "school": "Kan.",
+          "mark": "13.40"
+        },
+        {
+          "place": 18,
+          "athlete": "Elizabeth Geist",
+          "school": "Kan.",
+          "mark": "13.27"
+        },
+        {
+          "place": 19,
+          "athlete": "Abigail Becker",
+          "school": "Mo.",
+          "mark": "13.22"
+        },
+        {
+          "place": 20,
+          "athlete": "Laurie Leroy",
+          "school": "Truman",
+          "mark": "13.13"
+        },
+        {
+          "place": 21,
+          "athlete": "Christina Stanley",
+          "school": "Truman",
+          "mark": "12.95"
+        },
+        {
+          "place": 22,
+          "athlete": "Addy Brown",
+          "school": "Truman",
+          "mark": "12.89"
+        },
+        {
+          "place": 23,
+          "athlete": "Gracelynn Brown",
+          "school": "Unattached",
+          "mark": "12.88"
+        },
+        {
+          "place": 25,
+          "athlete": "Claudia Dixon",
+          "school": "Mo.",
+          "mark": "12.81"
+        },
+        {
+          "place": 26,
+          "athlete": "Penny Hansen",
+          "school": "Mo.",
+          "mark": "12.66"
+        },
+        {
+          "place": 28,
+          "athlete": "Julie Coffey",
+          "school": "Baker",
+          "mark": "12.32"
+        },
+        {
+          "place": 29,
+          "athlete": "Sid Koehler",
+          "school": "Unattached",
+          "mark": "12.08"
+        },
+        {
+          "place": 30,
+          "athlete": "Kayla Spieler",
+          "school": "Truman",
+          "mark": "11.90"
+        },
+        {
+          "place": 31,
+          "athlete": "Brigid Gormley",
+          "school": "Kan.",
+          "mark": "11.43"
+        },
+        {
+          "place": 32,
+          "athlete": "Emma Prettyman",
+          "school": "Mo.",
+          "mark": "11.07"
+        },
+        {
+          "place": 33,
+          "athlete": "Katie Holtmeyer",
+          "school": "Mo.",
+          "mark": "11.06"
+        },
+        {
+          "place": 35,
+          "athlete": "Ava De Santos",
+          "school": "Kan.",
+          "mark": "10.55"
+        },
+        {
+          "place": 37,
+          "athlete": "Erin Mermis",
+          "school": "Kan.",
+          "mark": "10.44"
+        },
+        {
+          "place": 38,
+          "athlete": "Brynn Hanway",
+          "school": "Mo.",
+          "mark": "10.38"
+        },
+        {
+          "place": 39,
+          "athlete": "Emily Harris",
+          "school": "Truman",
+          "mark": "10.25"
+        },
+        {
+          "place": 41,
+          "athlete": "Gianna Horinek",
+          "school": "Kan.",
+          "mark": "10.03"
+        },
+        {
+          "place": 45,
+          "athlete": "Josie Johnston",
+          "school": "Rockhurst",
+          "mark": "9.17"
+        },
+        {
+          "place": 46,
+          "athlete": "Cora Wulfkuhle",
+          "school": "Baker",
+          "mark": "8.93"
+        },
+        {
+          "place": 47,
+          "athlete": "Ruth Mutuku",
+          "school": "Baker",
+          "mark": "8.92"
+        },
+        {
+          "place": 48,
+          "athlete": "Jayla Smith",
+          "school": "Rockhurst",
+          "mark": "8.48"
+        },
+        {
+          "place": 49,
+          "athlete": "Megan McClain",
+          "school": "Baker",
+          "mark": "8.25"
+        }
+      ]
+    },
+    {
+      "name": "Men Shot Put",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176068",
+      "results": [
+        {
+          "place": 2,
+          "athlete": "Brenin Howell",
+          "school": "Mo.",
+          "mark": "17.08"
+        },
+        {
+          "place": 3,
+          "athlete": "Ethan Gaschler",
+          "school": "Unattached",
+          "mark": "16.96"
+        },
+        {
+          "place": 5,
+          "athlete": "Ty Smith",
+          "school": "Unattached",
+          "mark": "16.18"
+        },
+        {
+          "place": 6,
+          "athlete": "Dustin Wurtz",
+          "school": "Unattached",
+          "mark": "15.91"
+        },
+        {
+          "place": 7,
+          "athlete": "Tyler Davis",
+          "school": "Truman",
+          "mark": "15.57"
+        },
+        {
+          "place": 10,
+          "athlete": "Ivan Jirok",
+          "school": "Kan.",
+          "mark": "15.13"
+        },
+        {
+          "place": 11,
+          "athlete": "Alex Wilson",
+          "school": "Unattached",
+          "mark": "14.97"
+        },
+        {
+          "place": 13,
+          "athlete": "Noah Richardson",
+          "school": "Mo.",
+          "mark": "14.28"
+        },
+        {
+          "place": 16,
+          "athlete": "Alex Long",
+          "school": "Truman",
+          "mark": "14.18"
+        },
+        {
+          "place": 17,
+          "athlete": "Justin McKim",
+          "school": "Truman",
+          "mark": "14.02"
+        },
+        {
+          "place": 18,
+          "athlete": "Daunte White",
+          "school": "Mo.",
+          "mark": "13.79"
+        },
+        {
+          "place": 24,
+          "athlete": "Robert Hennig",
+          "school": "Kan.",
+          "mark": "12.93"
+        },
+        {
+          "place": 26,
+          "athlete": "Max Depooter",
+          "school": "Rockhurst",
+          "mark": "12.07"
+        },
+        {
+          "place": 28,
+          "athlete": "Dom Novotny",
+          "school": "Truman",
+          "mark": "11.82"
+        },
+        {
+          "place": 29,
+          "athlete": "Charlie Meyer",
+          "school": "Mo.",
+          "mark": "11.78"
+        },
+        {
+          "place": 30,
+          "athlete": "Jackson Figo",
+          "school": "Truman",
+          "mark": "11.71"
+        },
+        {
+          "place": 34,
+          "athlete": "Dylan Triebel",
+          "school": "Baker",
+          "mark": "11.04"
+        },
+        {
+          "place": 35,
+          "athlete": "Bryce Gray",
+          "school": "Kan.",
+          "mark": "10.94"
+        },
+        {
+          "place": 36,
+          "athlete": "Aiden Littlemoon",
+          "school": "Unattached",
+          "mark": "10.83"
+        },
+        {
+          "place": 40,
+          "athlete": "Cody Longoria",
+          "school": "Mo.",
+          "mark": "10.39"
+        },
+        {
+          "place": 44,
+          "athlete": "Grady Kopp",
+          "school": "Kan.",
+          "mark": "9.62"
+        }
+      ]
+    },
+    {
+      "name": "Men High Jump",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176074",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Genesis Bethea",
+          "school": "Unattached",
+          "mark": "2.01"
+        },
+        {
+          "place": 2,
+          "athlete": "Gunner Bradshaw",
+          "school": "Drury",
+          "mark": "2.01"
+        },
+        {
+          "place": 3,
+          "athlete": "Peyton Ligon",
+          "school": "Evangel",
+          "mark": "1.98"
+        },
+        {
+          "place": 4,
+          "athlete": "Jonathan Edberg",
+          "school": "Midland",
+          "mark": "1.98"
+        },
+        {
+          "place": 6,
+          "athlete": "Kyman Lee",
+          "school": "Unattached",
+          "mark": "1.95"
+        },
+        {
+          "place": 7,
+          "athlete": "Braxton Baker",
+          "school": "Evangel",
+          "mark": "1.95"
+        },
+        {
+          "place": 8,
+          "athlete": "Max McMullin",
+          "school": "Truman",
+          "mark": "1.92"
+        },
+        {
+          "place": 9,
+          "athlete": "Harvey Sayon",
+          "school": "Rockhurst",
+          "mark": "1.92"
+        },
+        {
+          "place": 12,
+          "athlete": "Baden Glass",
+          "school": "Mo.",
+          "mark": "1.87"
+        },
+        {
+          "place": 12,
+          "athlete": "Stephen Caviness",
+          "school": "Mo.",
+          "mark": "1.87"
+        },
+        {
+          "place": 15,
+          "athlete": "Elijah Hellwig",
+          "school": "Evangel",
+          "mark": "1.87"
+        },
+        {
+          "place": 16,
+          "athlete": "Gavin Pike",
+          "school": "Truman",
+          "mark": "1.82"
+        },
+        {
+          "place": 17,
+          "athlete": "Dawson Troth",
+          "school": "Kan.",
+          "mark": "1.82"
+        },
+        {
+          "place": 18,
+          "athlete": "Joel Bichelmeyer",
+          "school": "Kan.",
+          "mark": "1.77"
+        },
+        {
+          "place": 18,
+          "athlete": "Reed Layton",
+          "school": "Mo.",
+          "mark": "1.77"
+        },
+        {
+          "place": 20,
+          "athlete": "Cael Wilson",
+          "school": "Kan.",
+          "mark": "1.77"
+        },
+        {
+          "place": 21,
+          "athlete": "Joe Loughman",
+          "school": "Kan.",
+          "mark": "1.77"
+        },
+        {
+          "place": 22,
+          "athlete": "Brenden Walton",
+          "school": "Midland",
+          "mark": "1.77"
+        },
+        {
+          "place": 22,
+          "athlete": "Anthony Todd",
+          "school": "Kan.",
+          "mark": "1.77"
+        },
+        {
+          "place": 24,
+          "athlete": "Hayden Long",
+          "school": "Truman",
+          "mark": "1.72"
+        }
+      ]
+    },
+    {
+      "name": "Women Long Jump",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176061",
+      "results": [
+        {
+          "place": 2,
+          "athlete": "Anna Talbot",
+          "school": "Drury",
+          "mark": "5.62"
+        },
+        {
+          "place": 4,
+          "athlete": "Haley Sampson",
+          "school": "Kan.",
+          "mark": "5.46"
+        },
+        {
+          "place": 5,
+          "athlete": "Madison Helten",
+          "school": "Kan.",
+          "mark": "5.43"
+        },
+        {
+          "place": 6,
+          "athlete": "Jordyn Miller-Knuckles",
+          "school": "Kan.",
+          "mark": "5.39"
+        },
+        {
+          "place": 9,
+          "athlete": "Miley Ward",
+          "school": "Rockhurst",
+          "mark": "5.33"
+        },
+        {
+          "place": 11,
+          "athlete": "Vanessa Rice",
+          "school": "Midland",
+          "mark": "5.30"
+        },
+        {
+          "place": 12,
+          "athlete": "April Phillips",
+          "school": "Evangel",
+          "mark": "5.29"
+        },
+        {
+          "place": 13,
+          "athlete": "Thea Smith",
+          "school": "Rockhurst",
+          "mark": "5.25"
+        },
+        {
+          "place": 17,
+          "athlete": "Kiasia Burns",
+          "school": "Mo.",
+          "mark": "5.12"
+        },
+        {
+          "place": 19,
+          "athlete": "Hannah Jensen",
+          "school": "Baker",
+          "mark": "5.07"
+        },
+        {
+          "place": 21,
+          "athlete": "Ar'Janay Landers",
+          "school": "Rockhurst",
+          "mark": "5.02"
+        },
+        {
+          "place": 22,
+          "athlete": "Vada Moore",
+          "school": "Truman",
+          "mark": "4.98"
+        },
+        {
+          "place": 23,
+          "athlete": "Isabel Reinebach",
+          "school": "Rockhurst",
+          "mark": "4.97"
+        },
+        {
+          "place": 24,
+          "athlete": "Deslyne Cooper",
+          "school": "Kan.",
+          "mark": "4.97"
+        },
+        {
+          "place": 27,
+          "athlete": "Rachel Hargis",
+          "school": "Mo.",
+          "mark": "4.89"
+        },
+        {
+          "place": 28,
+          "athlete": "Ellie Ochs",
+          "school": "Rockhurst",
+          "mark": "4.77"
+        },
+        {
+          "place": 30,
+          "athlete": "Maria Connealy",
+          "school": "Kan.",
+          "mark": "4.66"
+        },
+        {
+          "place": 31,
+          "athlete": "Alejandra Reyes",
+          "school": "Baker",
+          "mark": "4.61"
+        },
+        {
+          "place": 32,
+          "athlete": "Montgomery Keck",
+          "school": "Mo.",
+          "mark": "4.61"
+        },
+        {
+          "place": 33,
+          "athlete": "Farrah Wilson",
+          "school": "Midland",
+          "mark": "4.60"
+        },
+        {
+          "place": 34,
+          "athlete": "Hailey Derboven",
+          "school": "Truman",
+          "mark": "4.42"
+        },
+        {
+          "place": 35,
+          "athlete": "Raegan Derboven",
+          "school": "Truman",
+          "mark": "4.40"
+        },
+        {
+          "place": 36,
+          "athlete": "Madeline Burton",
+          "school": "Mo.",
+          "mark": "4.39"
+        },
+        {
+          "place": 37,
+          "athlete": "Josie Reiff",
+          "school": "Midland",
+          "mark": "4.39"
+        },
+        {
+          "place": 38,
+          "athlete": "Ja'Mariah Clay",
+          "school": "Truman",
+          "mark": "4.19"
+        },
+        {
+          "place": 39,
+          "athlete": "Kylee Sipes",
+          "school": "Kan.",
+          "mark": "4.08"
+        },
+        {
+          "place": 40,
+          "athlete": "Addy Winder",
+          "school": "Truman",
+          "mark": "3.99"
+        },
+        {
+          "place": 41,
+          "athlete": "Isabella Von Behren",
+          "school": "Truman",
+          "mark": "3.93"
+        }
+      ]
+    },
+    {
+      "name": "Men Long Jump",
+      "url": "https://results.blacksquirreltiming.com/meets/59178/events/individual/2176085",
+      "results": [
+        {
+          "place": 4,
+          "athlete": "Cole Erusha",
+          "school": "Rockhurst",
+          "mark": "7.19"
+        },
+        {
+          "place": 8,
+          "athlete": "Kyman Lee",
+          "school": "Unattached",
+          "mark": "6.70"
+        },
+        {
+          "place": 16,
+          "athlete": "Foli Assiongbon",
+          "school": "Rockhurst",
+          "mark": "6.42"
+        },
+        {
+          "place": 19,
+          "athlete": "Hayden Long",
+          "school": "Truman",
+          "mark": "6.41"
+        },
+        {
+          "place": 20,
+          "athlete": "Mason St. Clair",
+          "school": "Drury",
+          "mark": "6.39"
+        },
+        {
+          "place": 21,
+          "athlete": "Tristian Rogers",
+          "school": "Kan.",
+          "mark": "6.39"
+        },
+        {
+          "place": 23,
+          "athlete": "Tyler Wilson",
+          "school": "Mo.",
+          "mark": "6.32"
+        },
+        {
+          "place": 25,
+          "athlete": "Stephen Caviness",
+          "school": "Mo.",
+          "mark": "6.28"
+        },
+        {
+          "place": 26,
+          "athlete": "Grant Erisman",
+          "school": "Mo.",
+          "mark": "6.28"
+        },
+        {
+          "place": 28,
+          "athlete": "Ethan Barr",
+          "school": "Drury",
+          "mark": "6.22"
+        },
+        {
+          "place": 29,
+          "athlete": "Reed Layton",
+          "school": "Mo.",
+          "mark": "6.22"
+        },
+        {
+          "place": 32,
+          "athlete": "Noah Arndt",
+          "school": "Kan.",
+          "mark": "6.20"
+        },
+        {
+          "place": 34,
+          "athlete": "Cael Wilson",
+          "school": "Kan.",
+          "mark": "6.09"
+        },
+        {
+          "place": 35,
+          "athlete": "Jason Jeffers",
+          "school": "Midland",
+          "mark": "6.09"
+        },
+        {
+          "place": 37,
+          "athlete": "Justin Johnston",
+          "school": "Kan.",
+          "mark": "6.05"
+        },
+        {
+          "place": 38,
+          "athlete": "Ryan Harvey",
+          "school": "Mo.",
+          "mark": "6.05"
+        },
+        {
+          "place": 39,
+          "athlete": "Gavin Pike",
+          "school": "Truman",
+          "mark": "6.01"
+        },
+        {
+          "place": 40,
+          "athlete": "Ethan Surey",
+          "school": "Baker",
+          "mark": "5.91"
+        },
+        {
+          "place": 41,
+          "athlete": "Joel Bichelmeyer",
+          "school": "Kan.",
+          "mark": "5.91"
+        },
+        {
+          "place": 42,
+          "athlete": "Marcos Riano Aransay",
+          "school": "Midland",
+          "mark": "5.81"
+        },
+        {
+          "place": 44,
+          "athlete": "Liam Mcglynn",
+          "school": "Midland",
+          "mark": "5.74"
+        },
+        {
+          "place": 45,
+          "athlete": "Juan Washington",
+          "school": "Kan.",
+          "mark": "5.73"
+        },
+        {
+          "place": 46,
+          "athlete": "Anthony Todd",
+          "school": "Kan.",
+          "mark": "5.71"
+        },
+        {
+          "place": 48,
+          "athlete": "Nick Fuess",
+          "school": "Truman",
+          "mark": "5.60"
+        },
+        {
+          "place": 49,
+          "athlete": "Landon Cox",
+          "school": "Kan.",
+          "mark": "5.57"
+        },
+        {
+          "place": 51,
+          "athlete": "Hunter Keene",
+          "school": "Truman",
+          "mark": "3.50"
+        }
+      ]
+    }
+  ]
+}

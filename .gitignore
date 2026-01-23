@@ -1,0 +1,87 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native builds (Expo managed - regenerated on build)
+ios/
+android/
+frontend/ios/
+frontend/android/
+frontend/dist/
+
+# Large data files (use Supabase instead)
+*.db
+*.sqlite
+*.sqlite3
+frontend/assets/data/*.db
+frontend/assets/data/*.json
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+app-example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+.venv-1/
+env/
+venv/
+ENV/
+*.egg-info/
+
+# Backend
+backend/scripts/*.db
+backend/scripts/*.log
+backend/scripts/__pycache__/
+backend/scripts/data/*.json
+backend/scripts/school_logos/
+backend/scripts/.venv/
+backend/scripts/.venv-1/
+backend/server/*.db
+backend/*.json
+frontend/*.json
+!frontend/package.json
+!frontend/tsconfig.json
+!frontend/app.json
+
+# Supabase
+.env
+.env.local
+supabase/.branches
+supabase/.temp

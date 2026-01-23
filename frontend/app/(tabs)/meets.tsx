@@ -1,0 +1,694 @@
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors } from '../../design-system/colors';
+import { FadeInCard } from '../../components/animations/FadeInCard';
+import { AnimatedCard } from '../../components/animations/AnimatedCard';
+import { HintTooltip } from '../../components/hints/HintTooltip';
+import { useFirstTimeHint } from '../../hooks/useFirstTimeHint';
+import { useMeets } from '../../hooks/useMeets';
+
+export default function MeetsScreen() {
+  const [selectedTab, setSelectedTab] = useState<'live' | 'upcoming' | 'past'>('upcoming');
+  const [refreshing, setRefreshing] = useState(false);
+  const meetsHint = useFirstTimeHint('meets_tab', 1500);
+
+  const { meets, loading, refresh } = useMeets(selectedTab);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refresh();
+    setRefreshing(false);
+  };
+
+  function formatDate(dateString: string) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Meets Hint */}
+      <HintTooltip
+        visible={meetsHint.showHint}
+        text="Browse live, upcoming, and past meets. Tap any meet to see detailed results!"
+        position="top"
+        onDismiss={meetsHint.dismissHint}
+        arrowPosition="center"
+      />
+
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary.trackOrange}
+            colors={[colors.primary.trackOrange]}
+          />
+        }
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Meets</Text>
+          <Text style={styles.subtitle}>Track meet schedules & results</Text>
+        </View>
+
+        {/* Tab Selector */}
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, selectedTab === 'live' && styles.tabActive]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setSelectedTab('live');
+            }}
+            activeOpacity={0.7}
+          >
+            <View style={styles.tabContent}>
+              {selectedTab === 'live' && (
+                <View style={styles.liveDot} />
+              )}
+              <Text style={[styles.tabText, selectedTab === 'live' && styles.tabTextActive]}>
+                Live
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, selectedTab === 'upcoming' && styles.tabActive]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setSelectedTab('upcoming');
+            }}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.tabText, selectedTab === 'upcoming' && styles.tabTextActive]}>
+              Upcoming
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, selectedTab === 'past' && styles.tabActive]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setSelectedTab('past');
+            }}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.tabText, selectedTab === 'past' && styles.tabTextActive]}>
+              Past
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Live Meets */}
+        {selectedTab === 'live' && (
+          <View style={styles.section}>
+            {loading && meets.length === 0 ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary.trackOrange} />
+                <Text style={styles.loadingText}>Loading live meets...</Text>
+              </View>
+            ) : meets.length > 0 ? (
+              meets.map((meet, index) => (
+                <FadeInCard key={meet.meet_id} delay={index * 150}>
+                  <AnimatedCard
+                    style={styles.liveMeetCard}
+                    onPress={() => router.push(`/meet/${meet.meet_id}`)}
+                  >
+                  <LinearGradient
+                    colors={['#FF1B8D', '#FF6B35'] as any}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.liveGradient}
+                  >
+                    <View style={styles.liveBadge}>
+                      <View style={styles.liveIndicator} />
+                      <Text style={styles.liveText}>LIVE NOW</Text>
+                    </View>
+
+                    <Text style={styles.meetName}>{meet.name}</Text>
+
+                    <View style={styles.meetMeta}>
+                      <View style={styles.metaItem}>
+                        <Ionicons name="location" size={14} color={colors.text.white} />
+                        <Text style={styles.metaText}>{meet.location || 'TBD'}</Text>
+                      </View>
+                      <View style={styles.metaItem}>
+                        <Ionicons name="calendar" size={14} color={colors.text.white} />
+                        <Text style={styles.metaText}>{formatDate(meet.date)}</Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.meetDetails}>
+                      <View style={styles.meetDetailItem}>
+                        <Ionicons name="school" size={16} color={colors.text.white} />
+                        <Text style={styles.meetDetailText}>{meet.level}</Text>
+                      </View>
+                      <View style={styles.meetDetailItem}>
+                        <Ionicons name="snow" size={16} color={colors.text.white} />
+                        <Text style={styles.meetDetailText}>{meet.season}</Text>
+                      </View>
+                    </View>
+                  </LinearGradient>
+                  </AnimatedCard>
+                </FadeInCard>
+              ))
+            ) : (
+              <View style={styles.emptyState}>
+                <Ionicons name="time-outline" size={64} color={colors.text.tertiary} />
+                <Text style={styles.emptyText}>No live meets right now</Text>
+                <Text style={styles.emptySubtext}>Check back during meet season!</Text>
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Upcoming Meets */}
+        {selectedTab === 'upcoming' && (
+          <View style={styles.section}>
+            {loading && meets.length === 0 ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary.trackOrange} />
+                <Text style={styles.loadingText}>Loading meets...</Text>
+              </View>
+            ) : meets.length > 0 ? (
+              meets.map((meet, index) => (
+                <FadeInCard key={meet.meet_id} delay={index * 120}>
+                  <AnimatedCard
+                    style={styles.upcomingMeetCard}
+                    onPress={() => router.push(`/meet/${meet.meet_id}`)}
+                  >
+                  <View style={styles.upcomingHeader}>
+                    <View style={styles.upcomingLeft}>
+                      <Text style={styles.upcomingName}>{meet.name}</Text>
+                      <View style={styles.upcomingMeta}>
+                        <Ionicons name="location" size={14} color={colors.text.tertiary} />
+                        <Text style={styles.upcomingLocation}>{meet.location || 'TBD'}</Text>
+                      </View>
+                    </View>
+                    {meet.meet_url && (
+                      <View style={styles.liveLinkBadge}>
+                        <Ionicons name="link" size={14} color={colors.performance.newPR} />
+                        <Text style={styles.liveLinkText}>LIVE</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View style={styles.upcomingDetails}>
+                    <View style={styles.detailItem}>
+                      <Ionicons name="calendar" size={18} color={colors.primary.trackOrange} />
+                      <Text style={styles.detailText}>{formatDate(meet.date)}</Text>
+                    </View>
+                    <View style={styles.detailItem}>
+                      <Ionicons name="school" size={18} color={colors.primary.trackOrange} />
+                      <Text style={styles.detailText}>{meet.level}</Text>
+                    </View>
+                    <View style={styles.detailItem}>
+                      <Ionicons name="snow" size={18} color={colors.primary.trackOrange} />
+                      <Text style={styles.detailText}>{meet.season}</Text>
+                    </View>
+                  </View>
+                  </AnimatedCard>
+                </FadeInCard>
+              ))
+            ) : (
+              <View style={styles.emptyState}>
+                <Ionicons name="calendar-outline" size={64} color={colors.text.tertiary} />
+                <Text style={styles.emptyText}>No upcoming meets</Text>
+                <Text style={styles.emptySubtext}>Check back soon for new meets!</Text>
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Past Meets */}
+        {selectedTab === 'past' && (
+          <View style={styles.section}>
+            {loading && meets.length === 0 ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary.trackOrange} />
+                <Text style={styles.loadingText}>Loading past meets...</Text>
+              </View>
+            ) : meets.length > 0 ? (
+              meets.map((meet, index) => (
+                <FadeInCard key={meet.meet_id} delay={index * 120}>
+                  <AnimatedCard
+                    style={styles.pastMeetCard}
+                    onPress={() => router.push(`/meet/${meet.meet_id}`)}
+                  >
+                  <View style={styles.pastHeader}>
+                    <Text style={styles.pastName}>{meet.name}</Text>
+                    <View style={styles.pastDate}>
+                      <Text style={styles.pastDateText}>{formatDate(meet.date)}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.pastMeta}>
+                    <Ionicons name="location" size={14} color={colors.text.tertiary} />
+                    <Text style={styles.pastLocation}>{meet.location || 'TBD'}</Text>
+                  </View>
+
+                  <View style={styles.pastDetails}>
+                    <View style={styles.pastDetailItem}>
+                      <Ionicons name="school" size={16} color={colors.text.secondary} />
+                      <Text style={styles.pastDetailText}>{meet.level}</Text>
+                    </View>
+                    <View style={styles.pastDetailItem}>
+                      <Ionicons name="snow" size={16} color={colors.text.secondary} />
+                      <Text style={styles.pastDetailText}>{meet.season}</Text>
+                    </View>
+                  </View>
+
+                  {meet.meet_url && (
+                    <View style={styles.resultsAvailableBadge}>
+                      <Ionicons name="checkmark-circle" size={16} color={colors.performance.newPR} />
+                      <Text style={styles.resultsAvailableText}>Results Available</Text>
+                    </View>
+                  )}
+                  </AnimatedCard>
+                </FadeInCard>
+              ))
+            ) : (
+              <View style={styles.emptyState}>
+                <Ionicons name="trophy-outline" size={64} color={colors.text.tertiary} />
+                <Text style={styles.emptyText}>No past meets</Text>
+                <Text style={styles.emptySubtext}>Completed meets will appear here</Text>
+              </View>
+            )}
+          </View>
+        )}
+
+        <View style={styles.bottomSpacing} />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.backgrounds.skyBlue,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
+  },
+  title: {
+    fontSize: 40,
+    fontWeight: '900',
+    color: colors.primary.finishYellow,
+    textShadowColor: colors.borders.thick,
+    textShadowOffset: { width: 3, height: 3 },
+    textShadowRadius: 0,
+    letterSpacing: 1,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: colors.text.primary,
+    marginTop: 4,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    gap: 10,
+    marginBottom: 24,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 16,
+    backgroundColor: colors.backgrounds.white,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    alignItems: 'center',
+  },
+  tabActive: {
+    backgroundColor: colors.primary.trackOrange,
+  },
+  tabContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.text.white,
+  },
+  tabText: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: colors.text.primary,
+  },
+  tabTextActive: {
+    color: colors.text.white,
+  },
+  section: {
+    paddingHorizontal: 20,
+  },
+  // Live Meet Cards
+  liveMeetCard: {
+    marginBottom: 16,
+    borderRadius: 20,
+    borderWidth: 4,
+    borderColor: colors.borders.thick,
+    overflow: 'hidden',
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  liveGradient: {
+    padding: 20,
+  },
+  liveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.text.white,
+    marginBottom: 12,
+  },
+  liveIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.text.white,
+  },
+  liveText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: colors.text.white,
+    letterSpacing: 1,
+  },
+  meetName: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: colors.text.white,
+    marginBottom: 12,
+    textShadowColor: colors.borders.thick,
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 0,
+  },
+  meetMeta: {
+    gap: 8,
+    marginBottom: 16,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  metaText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.text.white,
+  },
+  currentEventBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  currentEventLabel: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: colors.text.white,
+    letterSpacing: 0.5,
+  },
+  currentEventText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: colors.text.white,
+  },
+  teamsCount: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  teamsText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text.white,
+  },
+  // Upcoming Meet Cards
+  upcomingMeetCard: {
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 18,
+    borderWidth: 4,
+    borderColor: colors.borders.thick,
+    padding: 18,
+    marginBottom: 14,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  upcomingHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  upcomingLeft: {
+    flex: 1,
+  },
+  upcomingName: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: colors.text.primary,
+    marginBottom: 6,
+  },
+  upcomingMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  upcomingLocation: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+  },
+  divisionBadge: {
+    backgroundColor: colors.division.d1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.borders.thick,
+  },
+  divisionText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: colors.text.white,
+  },
+  upcomingDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 12,
+    borderTopWidth: 2,
+    borderTopColor: colors.borders.light,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  detailText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text.primary,
+  },
+  // Past Meet Cards
+  pastMeetCard: {
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 18,
+    borderWidth: 4,
+    borderColor: colors.borders.thick,
+    padding: 18,
+    marginBottom: 14,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  pastHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  pastName: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '900',
+    color: colors.text.primary,
+  },
+  pastDate: {
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.borders.thick,
+  },
+  pastDateText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.text.tertiary,
+  },
+  pastMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 12,
+  },
+  pastLocation: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+  },
+  pastWinner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: colors.backgrounds.cream,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.borders.thick,
+    marginBottom: 10,
+  },
+  winnerText: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: colors.text.primary,
+  },
+  highlightsBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  highlightsText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.performance.newPR,
+  },
+  // Empty State
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: colors.text.primary,
+    marginTop: 16,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+    marginTop: 6,
+  },
+  bottomSpacing: {
+    height: 100,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text.secondary,
+    marginTop: 16,
+  },
+  liveLinkBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.performance.newPR,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+  },
+  liveLinkText: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: colors.text.white,
+    letterSpacing: 0.5,
+  },
+  // Live meet details
+  meetDetails: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  meetDetailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  meetDetailText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text.white,
+  },
+  // Past meet details
+  pastDetails: {
+    flexDirection: 'row',
+    gap: 16,
+    paddingTop: 12,
+    borderTopWidth: 2,
+    borderTopColor: colors.borders.light,
+    marginBottom: 12,
+  },
+  pastDetailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  pastDetailText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text.secondary,
+  },
+  resultsAvailableBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.borders.thick,
+  },
+  resultsAvailableText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: colors.performance.newPR,
+  },
+});

@@ -1,0 +1,27 @@
+# Environment variables (NEVER commit!)
+.env
+
+# Dependencies
+node_modules/
+
+# Logs - ignore contents but keep folders
+*/logs/*
+!*/logs/.gitkeep
+
+# Output - ignore contents but keep folders
+*/output/*
+!*/output/.gitkeep
+
+# Data - ignore contents but keep folders
+*/data/*
+!*/data/.gitkeep
+
+# Temporary JSON files (but not package files)
+*.json
+!package.json
+!package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/

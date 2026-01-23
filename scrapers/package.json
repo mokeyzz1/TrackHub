@@ -1,0 +1,18 @@
+{
+  "name": "scrapers",
+  "version": "1.0.0",
+  "description": "Track meet scrapers - meets, entries, live, final results, rosters",
+  "scripts": {
+    "meets": "node meets/scrape_meets.js",
+    "entries": "node entries/entries_scraper.js",
+    "live": "node live/live_scraper.js",
+    "final": "node final/final_scraper.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "puppeteer": "^24.35.0"
+  }
+}

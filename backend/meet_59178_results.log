@@ -1,0 +1,145 @@
+🏃 Complete Athletic.net Results Scraper
+
+URL: https://results.blacksquirreltiming.com/meets/59178
+
+🌐 Loading meet page...
+
+🔍 Found 2 filter buttons:
+   - Saturday Running Events
+   - Saturday Field Events
+
+📋 Clicking filter: Saturday Running Events
+   Found 28 events in this filter
+📋 Clicking filter: Saturday Field Events
+   Found 12 events in this filter
+
+📊 Total unique events found: 40
+
+  Men 5000m      2
+    ✅ 15 results
+
+  Women 5000m      2
+    ✅ 9 results
+
+  Men 1000m      2
+    ✅ 10 results
+
+  Women 1000m      1
+    ✅ 1 results
+
+  Men 60mH       Prelims 5
+    ✅ 16 results
+
+  Women 60mH       Prelims 4
+    ✅ 12 results
+
+  Men 60m       Prelims 12
+    ✅ 53 results
+
+  Women 60m       Prelims 9
+    ✅ 35 results
+
+  Men 1 Mile      4
+    ✅ 20 results
+
+  Women 1 Mile      3
+    ✅ 20 results
+
+  Men 300m      5
+    ✅ 10 results
+
+  Women 300m      2
+    ✅ 4 results
+
+  Men 60mH       Finals 1
+    ✅ 4 results
+
+  Women 60mH       Finals 1
+    ✅ 2 results
+
+  Men 60m       Finals 1
+    ✅ 3 results
+
+  Women 60m       Finals 1
+    ✅ 1 results
+
+  Men 400m      10
+    ✅ 28 results
+
+  Women 400m      9
+    ✅ 32 results
+
+  Men 800m      4
+    ✅ 19 results
+
+  Women 800m      2
+    ✅ 16 results
+
+  Men 600y      5
+    ✅ 11 results
+
+  Women 600y      3
+    ✅ 3 results
+
+  Men 200m      19
+    ✅ 52 results
+
+  Women 200m      16
+    ✅ 49 results
+
+  Men 3000m      2
+    ✅ 13 results
+
+  Women 3000m      1
+    ✅ 4 results
+
+  Men 4x400mR      4
+    ✅ 0 results
+
+  Women 4x400mR      3
+    ✅ 0 results
+
+  Men Pole Vault
+    ✅ 15 results
+
+  Women Weight Throw
+    ✅ 32 results
+
+  Men Shot Put
+    ✅ 21 results
+
+  Men High Jump
+    ✅ 20 results
+
+  Women Long Jump
+    ✅ 28 results
+
+  Men Long Jump
+    ✅ 26 results
+
+  Women Triple Jump
+    ❌ Error: Attempted to use detached Frame '0A06B0E3710961313DB536F9E38DC410'.
+
+  Men Triple Jump
+    ❌ Error: Attempted to use detached Frame '0A06B0E3710961313DB536F9E38DC410'.
+
+  Women High Jump
+    ❌ Error: Attempted to use detached Frame '0A06B0E3710961313DB536F9E38DC410'.
+
+  Women Shot Put
+    ❌ Error: Attempted to use detached Frame '0A06B0E3710961313DB536F9E38DC410'.
+
+  Men Weight Throw
+    ❌ Error: Attempted to use detached Frame '0A06B0E3710961313DB536F9E38DC410'.
+
+  Women Pole Vault
+    ❌ Error: Attempted to use detached Frame '0A06B0E3710961313DB536F9E38DC410'.
+
+💾 Progress saved to complete_meet_results.json
+
+
+✅ COMPLETE!
+📊 Scraped 34 events
+📊 Total results: 584
+💾 Saved to complete_meet_results.json
+

@@ -1,0 +1,774 @@
+{
+  "meetUrl": "https://results.blacksquirreltiming.com/meets/59182",
+  "scrapedAt": "2025-12-16T08:34:36.140Z",
+  "events": [
+    {
+      "name": "Women Pent 60mH  Fri  3:00 PM  EST",
+      "url": "https://results.blacksquirreltiming.com/meets/59182/events/individual/2180778",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Adrianna Rodencal",
+          "school": "Neb.",
+          "mark": "8.43"
+        },
+        {
+          "place": 2,
+          "athlete": "JayOnna Perry",
+          "school": "Ottawa",
+          "mark": "9.03"
+        },
+        {
+          "place": 3,
+          "athlete": "Josi Noble",
+          "school": "Neb.",
+          "mark": "9.63"
+        },
+        {
+          "place": 4,
+          "athlete": "Maria Connealy",
+          "school": "Kan.",
+          "mark": "9.85"
+        },
+        {
+          "place": 5,
+          "athlete": "Addie Reimer",
+          "school": "Neb.",
+          "mark": "10.03"
+        },
+        {
+          "place": 7,
+          "athlete": "Emma Kucera",
+          "school": "Neb.",
+          "mark": "10.07"
+        },
+        {
+          "place": 9,
+          "athlete": "Kennedee Canales",
+          "school": "Neb.",
+          "mark": "10.39"
+        },
+        {
+          "place": 10,
+          "athlete": "Jah-Nisha Campbell",
+          "school": "Ottawa",
+          "mark": "10.54"
+        },
+        {
+          "place": 11,
+          "athlete": "Kylee Sipes",
+          "school": "Kan.",
+          "mark": "10.62"
+        },
+        {
+          "place": 12,
+          "athlete": "Makayla Lockard",
+          "school": "Kan.",
+          "mark": "11.09"
+        },
+        {
+          "place": 14,
+          "athlete": "Kailyssa Caudle",
+          "school": "Kan.",
+          "mark": "11.51"
+        },
+        {
+          "place": 16,
+          "athlete": "Autumn Hickock",
+          "school": "Tabor",
+          "mark": "11.82"
+        }
+      ]
+    },
+    {
+      "name": "Men Hept 60m  Fri  3:15 PM  EST",
+      "url": "https://results.blacksquirreltiming.com/meets/59182/events/individual/2180785",
+      "results": [
+        {
+          "place": 4,
+          "athlete": "Dylan Brei",
+          "school": "Neb.",
+          "mark": "7.35"
+        },
+        {
+          "place": 5,
+          "athlete": "Logan Hammersmith",
+          "school": "Kan.",
+          "mark": "7.36"
+        },
+        {
+          "place": 6,
+          "athlete": "Joel Bichelmeyer",
+          "school": "Kan.",
+          "mark": "7.39"
+        },
+        {
+          "place": 7,
+          "athlete": "Toby Thomes",
+          "school": "Neb.",
+          "mark": "7.41"
+        },
+        {
+          "place": 11,
+          "athlete": "Anthony Todd",
+          "school": "Kan.",
+          "mark": "7.52"
+        },
+        {
+          "place": 13,
+          "athlete": "Justin Johnston",
+          "school": "Kan.",
+          "mark": "7.53"
+        },
+        {
+          "place": 14,
+          "athlete": "David Unruh",
+          "school": "Neb.",
+          "mark": "7.55"
+        },
+        {
+          "place": 15,
+          "athlete": "Marcos Riano Aransay",
+          "school": "Midland",
+          "mark": "7.55"
+        },
+        {
+          "place": 16,
+          "athlete": "Dawson Troth",
+          "school": "Kan.",
+          "mark": "7.56"
+        },
+        {
+          "place": 17,
+          "athlete": "Caleb Wehrman",
+          "school": "Tabor",
+          "mark": "7.57"
+        },
+        {
+          "place": 18,
+          "athlete": "Matthew Boyer",
+          "school": "Unattached",
+          "mark": "7.66"
+        },
+        {
+          "place": 19,
+          "athlete": "Liam Mcglynn",
+          "school": "Midland",
+          "mark": "7.82"
+        },
+        {
+          "place": 20,
+          "athlete": "Jacob Connealy",
+          "school": "Unattached",
+          "mark": "7.84"
+        },
+        {
+          "place": 21,
+          "athlete": "Bodhi Linder",
+          "school": "Neb.",
+          "mark": "7.96"
+        },
+        {
+          "place": 22,
+          "athlete": "Jonathan Meinholz",
+          "school": "Unattached",
+          "mark": "8.42"
+        }
+      ]
+    },
+    {
+      "name": "Women Pent High Jump  Fri  3:35 PM  EST",
+      "url": "https://results.blacksquirreltiming.com/meets/59182/events/individual/2180779",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "JayOnna Perry",
+          "school": "Ottawa",
+          "mark": "1.61"
+        },
+        {
+          "place": 2,
+          "athlete": "Addie Reimer",
+          "school": "Neb.",
+          "mark": "1.52"
+        },
+        {
+          "place": 2,
+          "athlete": "Josi Noble",
+          "school": "Neb.",
+          "mark": "1.52"
+        },
+        {
+          "place": 4,
+          "athlete": "Jah-Nisha Campbell",
+          "school": "Ottawa",
+          "mark": "1.49"
+        },
+        {
+          "place": 6,
+          "athlete": "Maria Connealy",
+          "school": "Kan.",
+          "mark": "1.46"
+        },
+        {
+          "place": 9,
+          "athlete": "Autumn Hickock",
+          "school": "Tabor",
+          "mark": "1.37"
+        },
+        {
+          "place": 9,
+          "athlete": "Kennedee Canales",
+          "school": "Neb.",
+          "mark": "1.37"
+        },
+        {
+          "place": 9,
+          "athlete": "Emma Kucera",
+          "school": "Neb.",
+          "mark": "1.37"
+        },
+        {
+          "place": 13,
+          "athlete": "Kylee Sipes",
+          "school": "Kan.",
+          "mark": "1.31"
+        },
+        {
+          "place": 13,
+          "athlete": "Makayla Lockard",
+          "school": "Kan.",
+          "mark": "1.31"
+        },
+        {
+          "place": 15,
+          "athlete": "Adrianna Rodencal",
+          "school": "Neb.",
+          "mark": "1.28"
+        },
+        {
+          "place": 15,
+          "athlete": "Kailyssa Caudle",
+          "school": "Kan.",
+          "mark": "1.28"
+        }
+      ]
+    },
+    {
+      "name": "Men Hept Long Jump  Fri  3:50 PM  EST",
+      "url": "https://results.blacksquirreltiming.com/meets/59182/events/individual/2180786",
+      "results": [
+        {
+          "place": 5,
+          "athlete": "Jacob Connealy",
+          "school": "Unattached",
+          "mark": "6.23"
+        },
+        {
+          "place": 6,
+          "athlete": "Dylan Brei",
+          "school": "Neb.",
+          "mark": "6.12"
+        },
+        {
+          "place": 8,
+          "athlete": "Anthony Todd",
+          "school": "Kan.",
+          "mark": "6.09"
+        },
+        {
+          "place": 9,
+          "athlete": "Liam Mcglynn",
+          "school": "Midland",
+          "mark": "6.03"
+        },
+        {
+          "place": 11,
+          "athlete": "David Unruh",
+          "school": "Neb.",
+          "mark": "5.98"
+        },
+        {
+          "place": 12,
+          "athlete": "Marcos Riano Aransay",
+          "school": "Midland",
+          "mark": "5.97"
+        },
+        {
+          "place": 13,
+          "athlete": "Dawson Troth",
+          "school": "Kan.",
+          "mark": "5.95"
+        },
+        {
+          "place": 13,
+          "athlete": "Caleb Wehrman",
+          "school": "Tabor",
+          "mark": "5.95"
+        },
+        {
+          "place": 15,
+          "athlete": "Joel Bichelmeyer",
+          "school": "Kan.",
+          "mark": "5.92"
+        },
+        {
+          "place": 16,
+          "athlete": "Matthew Boyer",
+          "school": "Unattached",
+          "mark": "5.88"
+        },
+        {
+          "place": 18,
+          "athlete": "Justin Johnston",
+          "school": "Kan.",
+          "mark": "5.82"
+        },
+        {
+          "place": 19,
+          "athlete": "Logan Hammersmith",
+          "school": "Kan.",
+          "mark": "5.62"
+        },
+        {
+          "place": 20,
+          "athlete": "Toby Thomes",
+          "school": "Neb.",
+          "mark": "5.47"
+        },
+        {
+          "place": 21,
+          "athlete": "Jonathan Meinholz",
+          "school": "Unattached",
+          "mark": "5.01"
+        },
+        {
+          "place": 22,
+          "athlete": "Bodhi Linder",
+          "school": "Neb.",
+          "mark": "4.22"
+        }
+      ]
+    },
+    {
+      "name": "Men Hept Shot Put  Fri  4:30 PM  EST",
+      "url": "https://results.blacksquirreltiming.com/meets/59182/events/individual/2180787",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Caleb Wehrman",
+          "school": "Tabor",
+          "mark": "12.15"
+        },
+        {
+          "place": 2,
+          "athlete": "Matthew Boyer",
+          "school": "Unattached",
+          "mark": "11.63"
+        },
+        {
+          "place": 4,
+          "athlete": "Justin Johnston",
+          "school": "Kan.",
+          "mark": "11.61"
+        },
+        {
+          "place": 5,
+          "athlete": "Jacob Connealy",
+          "school": "Unattached",
+          "mark": "11.58"
+        },
+        {
+          "place": 6,
+          "athlete": "David Unruh",
+          "school": "Neb.",
+          "mark": "11.03"
+        },
+        {
+          "place": 7,
+          "athlete": "Toby Thomes",
+          "school": "Neb.",
+          "mark": "10.95"
+        },
+        {
+          "place": 8,
+          "athlete": "Dylan Brei",
+          "school": "Neb.",
+          "mark": "10.94"
+        },
+        {
+          "place": 10,
+          "athlete": "Joel Bichelmeyer",
+          "school": "Kan.",
+          "mark": "10.87"
+        },
+        {
+          "place": 11,
+          "athlete": "Dawson Troth",
+          "school": "Kan.",
+          "mark": "10.55"
+        },
+        {
+          "place": 12,
+          "athlete": "Anthony Todd",
+          "school": "Kan.",
+          "mark": "10.54"
+        },
+        {
+          "place": 18,
+          "athlete": "Marcos Riano Aransay",
+          "school": "Midland",
+          "mark": "9.48"
+        },
+        {
+          "place": 19,
+          "athlete": "Jonathan Meinholz",
+          "school": "Unattached",
+          "mark": "9.33"
+        },
+        {
+          "place": 20,
+          "athlete": "Liam Mcglynn",
+          "school": "Midland",
+          "mark": "9.12"
+        },
+        {
+          "place": 21,
+          "athlete": "Bodhi Linder",
+          "school": "Neb.",
+          "mark": "8.89"
+        },
+        {
+          "place": 22,
+          "athlete": "Logan Hammersmith",
+          "school": "Kan.",
+          "mark": "8.69"
+        }
+      ]
+    },
+    {
+      "name": "Women Pent Shot Put  Fri  4:35 PM  EST",
+      "url": "https://results.blacksquirreltiming.com/meets/59182/events/individual/2180780",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Josi Noble",
+          "school": "Neb.",
+          "mark": "11.42"
+        },
+        {
+          "place": 2,
+          "athlete": "Maria Connealy",
+          "school": "Kan.",
+          "mark": "10.82"
+        },
+        {
+          "place": 4,
+          "athlete": "Addie Reimer",
+          "school": "Neb.",
+          "mark": "9.50"
+        },
+        {
+          "place": 5,
+          "athlete": "Emma Kucera",
+          "school": "Neb.",
+          "mark": "9.45"
+        },
+        {
+          "place": 7,
+          "athlete": "Adrianna Rodencal",
+          "school": "Neb.",
+          "mark": "8.76"
+        },
+        {
+          "place": 8,
+          "athlete": "JayOnna Perry",
+          "school": "Ottawa",
+          "mark": "8.33"
+        },
+        {
+          "place": 8,
+          "athlete": "Kennedee Canales",
+          "school": "Neb.",
+          "mark": "8.33"
+        },
+        {
+          "place": 10,
+          "athlete": "Kailyssa Caudle",
+          "school": "Kan.",
+          "mark": "7.84"
+        },
+        {
+          "place": 11,
+          "athlete": "Jah-Nisha Campbell",
+          "school": "Ottawa",
+          "mark": "7.57"
+        },
+        {
+          "place": 12,
+          "athlete": "Makayla Lockard",
+          "school": "Kan.",
+          "mark": "7.48"
+        },
+        {
+          "place": 13,
+          "athlete": "Autumn Hickock",
+          "school": "Tabor",
+          "mark": "7.46"
+        },
+        {
+          "place": 16,
+          "athlete": "Kylee Sipes",
+          "school": "Kan.",
+          "mark": "6.70"
+        }
+      ]
+    },
+    {
+      "name": "Men Hept High Jump  Fri  5:10 PM  EST",
+      "url": "https://results.blacksquirreltiming.com/meets/59182/events/individual/2180788",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Justin Johnston",
+          "school": "Kan.",
+          "mark": "1.86"
+        },
+        {
+          "place": 2,
+          "athlete": "Jacob Connealy",
+          "school": "Unattached",
+          "mark": "1.83"
+        },
+        {
+          "place": 2,
+          "athlete": "Joel Bichelmeyer",
+          "school": "Kan.",
+          "mark": "1.83"
+        },
+        {
+          "place": 2,
+          "athlete": "Anthony Todd",
+          "school": "Kan.",
+          "mark": "1.83"
+        },
+        {
+          "place": 5,
+          "athlete": "Dawson Troth",
+          "school": "Kan.",
+          "mark": "1.80"
+        },
+        {
+          "place": 10,
+          "athlete": "Dylan Brei",
+          "school": "Neb.",
+          "mark": "1.68"
+        },
+        {
+          "place": 10,
+          "athlete": "Matthew Boyer",
+          "school": "Unattached",
+          "mark": "1.68"
+        },
+        {
+          "place": 14,
+          "athlete": "Logan Hammersmith",
+          "school": "Kan.",
+          "mark": "1.59"
+        },
+        {
+          "place": 15,
+          "athlete": "Caleb Wehrman",
+          "school": "Tabor",
+          "mark": "1.56"
+        },
+        {
+          "place": 15,
+          "athlete": "Marcos Riano Aransay",
+          "school": "Midland",
+          "mark": "1.56"
+        },
+        {
+          "place": 15,
+          "athlete": "Toby Thomes",
+          "school": "Neb.",
+          "mark": "1.56"
+        },
+        {
+          "place": 18,
+          "athlete": "David Unruh",
+          "school": "Neb.",
+          "mark": "1.50"
+        },
+        {
+          "place": 18,
+          "athlete": "Liam Mcglynn",
+          "school": "Midland",
+          "mark": "1.50"
+        },
+        {
+          "place": 20,
+          "athlete": "Bodhi Linder",
+          "school": "Neb.",
+          "mark": "1.47"
+        }
+      ]
+    },
+    {
+      "name": "Women Pent Long Jump  Fri  5:20 PM  EST",
+      "url": "https://results.blacksquirreltiming.com/meets/59182/events/individual/2180781",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "JayOnna Perry",
+          "school": "Ottawa",
+          "mark": "5.66"
+        },
+        {
+          "place": 2,
+          "athlete": "Adrianna Rodencal",
+          "school": "Neb.",
+          "mark": "5.35"
+        },
+        {
+          "place": 3,
+          "athlete": "Jah-Nisha Campbell",
+          "school": "Ottawa",
+          "mark": "5.01"
+        },
+        {
+          "place": 4,
+          "athlete": "Kennedee Canales",
+          "school": "Neb.",
+          "mark": "4.99"
+        },
+        {
+          "place": 7,
+          "athlete": "Josi Noble",
+          "school": "Neb.",
+          "mark": "4.78"
+        },
+        {
+          "place": 9,
+          "athlete": "Maria Connealy",
+          "school": "Kan.",
+          "mark": "4.72"
+        },
+        {
+          "place": 10,
+          "athlete": "Emma Kucera",
+          "school": "Neb.",
+          "mark": "4.66"
+        },
+        {
+          "place": 12,
+          "athlete": "Addie Reimer",
+          "school": "Neb.",
+          "mark": "4.49"
+        },
+        {
+          "place": 13,
+          "athlete": "Makayla Lockard",
+          "school": "Kan.",
+          "mark": "4.38"
+        },
+        {
+          "place": 14,
+          "athlete": "Kailyssa Caudle",
+          "school": "Kan.",
+          "mark": "4.37"
+        },
+        {
+          "place": 15,
+          "athlete": "Kylee Sipes",
+          "school": "Kan.",
+          "mark": "4.29"
+        },
+        {
+          "place": 16,
+          "athlete": "Autumn Hickock",
+          "school": "Tabor",
+          "mark": "4.21"
+        }
+      ]
+    },
+    {
+      "name": "Women Pent 800m  Fri  6:05 PM  EST  1",
+      "url": "https://results.blacksquirreltiming.com/meets/59182/events/individual/2180782",
+      "results": [
+        {
+          "place": 1,
+          "athlete": "Autumn Hickock",
+          "school": "Tabor",
+          "mark": "2:29.71"
+        },
+        {
+          "place": 3,
+          "athlete": "Adrianna Rodencal",
+          "school": "Neb.",
+          "mark": "2:32.67"
+        },
+        {
+          "place": 4,
+          "athlete": "Josi Noble",
+          "school": "Neb.",
+          "mark": "2:36.73"
+        },
+        {
+          "place": 6,
+          "athlete": "Kailyssa Caudle",
+          "school": "Kan.",
+          "mark": "2:42.44"
+        },
+        {
+          "place": 7,
+          "athlete": "JayOnna Perry",
+          "school": "Ottawa",
+          "mark": "2:44.02"
+        },
+        {
+          "place": 8,
+          "athlete": "Kennedee Canales",
+          "school": "Neb.",
+          "mark": "2:45.07"
+        },
+        {
+          "place": 9,
+          "athlete": "Jah-Nisha Campbell",
+          "school": "Ottawa",
+          "mark": "2:46.04"
+        },
+        {
+          "place": 10,
+          "athlete": "Emma Kucera",
+          "school": "Neb.",
+          "mark": "2:48.43"
+        },
+        {
+          "place": 11,
+          "athlete": "Addie Reimer",
+          "school": "Neb.",
+          "mark": "2:50.37"
+        },
+        {
+          "place": 12,
+          "athlete": "Kylee Sipes",
+          "school": "Kan.",
+          "mark": "2:51.47"
+        },
+        {
+          "place": 13,
+          "athlete": "Maria Connealy",
+          "school": "Kan.",
+          "mark": "2:54.83"
+        },
+        {
+          "place": 15,
+          "athlete": "Makayla Lockard",
+          "school": "Kan.",
+          "mark": "3:03.30"
+        }
+      ]
+    }
+  ]
+}

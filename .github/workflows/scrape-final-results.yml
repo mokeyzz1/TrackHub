@@ -1,0 +1,62 @@
+name: Scrape Final Results (TFRRS)
+
+on:
+  # Run Sunday and Monday at 8 AM UTC (2-3 AM EST)
+  # Catches final results after weekend meets
+  schedule:
+    - cron: '0 8 * * 0,1'
+
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      tfrrs_url:
+        description: 'Specific TFRRS meet URL (optional, defaults to recent)'
+        required: false
+        type: string
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd scrapers
+          npm install
+
+      - name: Install Puppeteer browser
+        run: |
+          cd scrapers
+          npx puppeteer browsers install chrome
+
+      - name: Run TFRRS scraper
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          EXPO_PUBLIC_SUPABASE_URL: https://${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          cd scrapers/final
+          if [ -n "${{ github.event.inputs.tfrrs_url }}" ]; then
+            node tfrrs.js "${{ github.event.inputs.tfrrs_url }}"
+          else
+            node tfrrs.js recent
+          fi
+
+      - name: Upload results and logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tfrrs-results-${{ github.run_number }}
+          path: |
+            scrapers/final/output/
+            scrapers/final/logs/
+          retention-days: 30

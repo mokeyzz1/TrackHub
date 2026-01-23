@@ -1,0 +1,1400 @@
+{
+  "metadata": {
+    "test_run": true,
+    "schools_tested": 3,
+    "total_athletes": 139,
+    "timestamp": "2026-01-20T01:39:59.974958"
+  },
+  "athletes": [
+    {
+      "tfrrs_athlete_id": "9250475",
+      "full_name": "Olufemi-Dada, Abraham",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250475/Abilene_Christian/Abraham_Olufemi-Dada",
+      "scraped_at": "2026-01-20T01:39:59.358664",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8702532",
+      "full_name": "Collins Jr., Durrell",
+      "school_id": 1,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8702532/Abilene_Christian/Durrell_Collins_Jr.",
+      "scraped_at": "2026-01-20T01:39:59.358723",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929214",
+      "full_name": "Castro, Benjamin",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929214/Abilene_Christian/Benjamin_Castro",
+      "scraped_at": "2026-01-20T01:39:59.358755",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9199168",
+      "full_name": "Martin, Evan",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9199168/Abilene_Christian/Evan_Martin",
+      "scraped_at": "2026-01-20T01:39:59.358806",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929220",
+      "full_name": "Luffey, Vincent",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929220/Abilene_Christian/Vincent_Luffey",
+      "scraped_at": "2026-01-20T01:39:59.358837",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929216",
+      "full_name": "Barajas, Mark",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929216/Abilene_Christian/Mark_Barajas",
+      "scraped_at": "2026-01-20T01:39:59.358863",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8685309",
+      "full_name": "Hall, Miguel",
+      "school_id": 1,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8685309/Abilene_Christian/Miguel_Hall",
+      "scraped_at": "2026-01-20T01:39:59.358888",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8351223",
+      "full_name": "Canaan Fairley",
+      "school_id": 1,
+      "class_year": null,
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8351223/Abilene_Christian/Canaan_Fairley.html",
+      "scraped_at": "2026-01-20T01:39:59.358924",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250478",
+      "full_name": "Jaylen Thomas",
+      "school_id": 1,
+      "class_year": null,
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250478/Abilene_Christian/Jaylen_Thomas.html",
+      "scraped_at": "2026-01-20T01:39:59.358953",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9017428",
+      "full_name": "Ryan McMeen",
+      "school_id": 1,
+      "class_year": null,
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9017428/Abilene_Christian/Ryan_McMeen.html",
+      "scraped_at": "2026-01-20T01:39:59.358991",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8687413",
+      "full_name": "Ethan Krause",
+      "school_id": 1,
+      "class_year": null,
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8687413/Abilene_Christian/Ethan_Krause.html",
+      "scraped_at": "2026-01-20T01:39:59.359021",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250474",
+      "full_name": "Jenkins, Arthur",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250474/Abilene_Christian/Arthur_Jenkins",
+      "scraped_at": "2026-01-20T01:39:59.359055",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250476",
+      "full_name": "Punt, Rhet",
+      "school_id": 1,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250476/Abilene_Christian/Rhet_Punt",
+      "scraped_at": "2026-01-20T01:39:59.359087",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8351221",
+      "full_name": "Brooks, Horatio",
+      "school_id": 1,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8351221/Abilene_Christian/Horatio_Brooks.html",
+      "scraped_at": "2026-01-20T01:39:59.359118",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "7918595",
+      "full_name": "Castruita, Kevin",
+      "school_id": 1,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/7918595/Abilene_Christian/Kevin_Castruita.html",
+      "scraped_at": "2026-01-20T01:39:59.359145",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929215",
+      "full_name": "Cortez, Carlos",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929215/Abilene_Christian/Carlos_Cortez.html",
+      "scraped_at": "2026-01-20T01:39:59.359221",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929217",
+      "full_name": "Engle, Matthew",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929217/Abilene_Christian/Matthew_Engle.html",
+      "scraped_at": "2026-01-20T01:39:59.359260",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8619167",
+      "full_name": "Fortner, Mikhail",
+      "school_id": 1,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8619167/Abilene_Christian/Mikhail_Fortner.html",
+      "scraped_at": "2026-01-20T01:39:59.359304",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250473",
+      "full_name": "Heighten, Gage",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250473/Abilene_Christian/Gage_Heighten.html",
+      "scraped_at": "2026-01-20T01:39:59.359398",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8683447",
+      "full_name": "Lemba, Nickens",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8683447/Abilene_Christian/Nickens_Lemba.html",
+      "scraped_at": "2026-01-20T01:39:59.359593",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8351227",
+      "full_name": "Ramirez, Donovan",
+      "school_id": 1,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8351227/Abilene_Christian/Donovan_Ramirez.html",
+      "scraped_at": "2026-01-20T01:39:59.359829",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929219",
+      "full_name": "Roberts, Austin",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929219/Abilene_Christian/Austin_Roberts.html",
+      "scraped_at": "2026-01-20T01:39:59.359888",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9017432",
+      "full_name": "Smalls, Tristan",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9017432/Abilene_Christian/Tristan_Smalls.html",
+      "scraped_at": "2026-01-20T01:39:59.359961",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8351230",
+      "full_name": "Smart, Rylan",
+      "school_id": 1,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8351230/Abilene_Christian/Rylan_Smart.html",
+      "scraped_at": "2026-01-20T01:39:59.360001",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250477",
+      "full_name": "Smithey, Justin",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250477/Abilene_Christian/Justin_Smithey.html",
+      "scraped_at": "2026-01-20T01:39:59.360051",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8620120",
+      "full_name": "Trook, JP",
+      "school_id": 1,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8620120/Abilene_Christian/JP_Trook.html",
+      "scraped_at": "2026-01-20T01:39:59.360103",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250479",
+      "full_name": "Udemba, Matthew",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250479/Abilene_Christian/Matthew_Udemba.html",
+      "scraped_at": "2026-01-20T01:39:59.360258",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929218",
+      "full_name": "Villa, Andruw",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929218/Abilene_Christian/Andruw_Villa.html",
+      "scraped_at": "2026-01-20T01:39:59.360284",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250462",
+      "full_name": "Whitlock, Kee'Lani",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250462/Abilene_Christian/Kee'Lani_Whitlock",
+      "scraped_at": "2026-01-20T01:39:59.458714",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250457",
+      "full_name": "Morris, Morgan",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250457/Abilene_Christian/Morgan__Morris",
+      "scraped_at": "2026-01-20T01:39:59.458752",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250456",
+      "full_name": "McFadden, Madelyn",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250456/Abilene_Christian/Madelyn_McFadden",
+      "scraped_at": "2026-01-20T01:39:59.458777",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9010374",
+      "full_name": "Santoro, Emma",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9010374/Abilene_Christian/Emma_Santoro",
+      "scraped_at": "2026-01-20T01:39:59.458800",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929223",
+      "full_name": "Buentello, Lola",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929223/Abilene_Christian/Lola_Buentello",
+      "scraped_at": "2026-01-20T01:39:59.458824",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8687480",
+      "full_name": "Banks, Hana",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8687480/Abilene_Christian/Hana_Banks",
+      "scraped_at": "2026-01-20T01:39:59.458846",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8351238",
+      "full_name": "Poe, Natalie",
+      "school_id": 1,
+      "class_year": "SR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8351238/Abilene_Christian/Natalie_Poe",
+      "scraped_at": "2026-01-20T01:39:59.458870",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250455",
+      "full_name": "Gunter, Halle",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250455/Abilene_Christian/Halle_Gunter",
+      "scraped_at": "2026-01-20T01:39:59.458892",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250463",
+      "full_name": "Williams, Neriah",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250463/Abilene_Christian/Neriah_Williams",
+      "scraped_at": "2026-01-20T01:39:59.458914",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9012860",
+      "full_name": "Van Dyk, Mariana",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9012860/Abilene_Christian/Mariana_Van_Dyk",
+      "scraped_at": "2026-01-20T01:39:59.458936",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250451",
+      "full_name": "Anderson, Kaia",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250451/Abilene_Christian/Kaia_Anderson.html",
+      "scraped_at": "2026-01-20T01:39:59.458958",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929226",
+      "full_name": "Anderson, Madison",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929226/Abilene_Christian/Madison_Anderson.html",
+      "scraped_at": "2026-01-20T01:39:59.458978",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8998889",
+      "full_name": "Asoburuenwu, Chianel",
+      "school_id": 1,
+      "class_year": null,
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8998889/Abilene_Christian/Chianel_Asoburuenwu.html",
+      "scraped_at": "2026-01-20T01:39:59.458999",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9010373",
+      "full_name": "Childers, Jalyn",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9010373/Abilene_Christian/Jalyn_Childers.html",
+      "scraped_at": "2026-01-20T01:39:59.459022",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929222",
+      "full_name": "Chitwood, Audrey",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929222/Abilene_Christian/Audrey_Chitwood.html",
+      "scraped_at": "2026-01-20T01:39:59.459042",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250452",
+      "full_name": "Cockrum, Ella",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250452/Abilene_Christian/Ella__Cockrum.html",
+      "scraped_at": "2026-01-20T01:39:59.459062",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250453",
+      "full_name": "Flaugher, Mackenzie",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250453/Abilene_Christian/Mackenzie_Flaugher.html",
+      "scraped_at": "2026-01-20T01:39:59.459082",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250454",
+      "full_name": "Foxworth, Lauren",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250454/Abilene_Christian/Lauren_Foxworth.html",
+      "scraped_at": "2026-01-20T01:39:59.459102",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8685774",
+      "full_name": "Fuller, Kyla",
+      "school_id": 1,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8685774/Abilene_Christian/Kyla_Fuller.html",
+      "scraped_at": "2026-01-20T01:39:59.459122",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8739140",
+      "full_name": "Glenn, Sterling",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8739140/Abilene_Christian/Sterling_Glenn.html",
+      "scraped_at": "2026-01-20T01:39:59.459142",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929224",
+      "full_name": "Hamilton, Charley",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929224/Abilene_Christian/Charley_Hamilton.html",
+      "scraped_at": "2026-01-20T01:39:59.459163",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9017425",
+      "full_name": "Huth, Nele",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9017425/Abilene_Christian/Nele_Huth.html",
+      "scraped_at": "2026-01-20T01:39:59.459183",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9017426",
+      "full_name": "Johnson, Kaycian",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9017426/Abilene_Christian/Kaycian_Johnson.html",
+      "scraped_at": "2026-01-20T01:39:59.459205",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929221",
+      "full_name": "Kasper, Hannah",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929221/Abilene_Christian/Hannah_Kasper.html",
+      "scraped_at": "2026-01-20T01:39:59.459226",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9199183",
+      "full_name": "McLellan, Chloe",
+      "school_id": 1,
+      "class_year": "SR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9199183/Abilene_Christian/Chloe_McLellan.html",
+      "scraped_at": "2026-01-20T01:39:59.459248",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8351237",
+      "full_name": "Myrick, Avery",
+      "school_id": 1,
+      "class_year": "SR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8351237/Abilene_Christian/Avery_Myrick.html",
+      "scraped_at": "2026-01-20T01:39:59.459270",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9020324",
+      "full_name": "Payne, Kennadi",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9020324/Abilene_Christian/Kennadi_Payne.html",
+      "scraped_at": "2026-01-20T01:39:59.459290",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8619168",
+      "full_name": "Phillips, Hadley",
+      "school_id": 1,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8619168/Abilene_Christian/Hadley_Phillips.html",
+      "scraped_at": "2026-01-20T01:39:59.459310",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8929225",
+      "full_name": "Quinones, Alyssa",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8929225/Abilene_Christian/Alyssa_Quinones.html",
+      "scraped_at": "2026-01-20T01:39:59.459331",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9017430",
+      "full_name": "Riedel, Skyla",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9017430/Abilene_Christian/Skyla_Riedel.html",
+      "scraped_at": "2026-01-20T01:39:59.459351",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9199180",
+      "full_name": "Stevenson, Saylor",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9199180/Abilene_Christian/Saylor_Stevenson.html",
+      "scraped_at": "2026-01-20T01:39:59.459373",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250458",
+      "full_name": "Taylor, Darinasia",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250458/Abilene_Christian/Darinasia_Taylor.html",
+      "scraped_at": "2026-01-20T01:39:59.459394",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250459",
+      "full_name": "Thomas, Jaeden",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250459/Abilene_Christian/Jaeden_Thomas.html",
+      "scraped_at": "2026-01-20T01:39:59.459414",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250460",
+      "full_name": "Tilley, Ciara",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250460/Abilene_Christian/Ciara_Tilley.html",
+      "scraped_at": "2026-01-20T01:39:59.459434",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250461",
+      "full_name": "Vyn, Anna",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250461/Abilene_Christian/Anna__Vyn.html",
+      "scraped_at": "2026-01-20T01:39:59.459455",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9010375",
+      "full_name": "Whitaker, Gracee",
+      "school_id": 1,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9010375/Abilene_Christian/Gracee_Whitaker.html",
+      "scraped_at": "2026-01-20T01:39:59.459475",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8240856",
+      "full_name": "Williams, Kate",
+      "school_id": 1,
+      "class_year": "SR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8240856/Abilene_Christian/Kate_Williams.html",
+      "scraped_at": "2026-01-20T01:39:59.459496",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9199179",
+      "full_name": "Windham, Sidney",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9199179/Abilene_Christian/Sidney_Windham.html",
+      "scraped_at": "2026-01-20T01:39:59.459518",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9250464",
+      "full_name": "Zwiebel, Hanna",
+      "school_id": 1,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9250464/Abilene_Christian/Hanna_Zwiebel.html",
+      "scraped_at": "2026-01-20T01:39:59.459538",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8261259",
+      "full_name": "Harding, James",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8261259/Oregon/James_Harding",
+      "scraped_at": "2026-01-20T01:39:59.853796",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8672366",
+      "full_name": "Birnbaum, Simeon",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8672366/Oregon/Simeon_Birnbaum",
+      "scraped_at": "2026-01-20T01:39:59.853840",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "7886105",
+      "full_name": "Laadjel, Abdel",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/7886105/Oregon/Abdel_Laadjel",
+      "scraped_at": "2026-01-20T01:39:59.853867",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8019706",
+      "full_name": "Alekna, Mykolas",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8019706/Oregon/Mykolas_Alekna.html",
+      "scraped_at": "2026-01-20T01:39:59.853890",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8238359",
+      "full_name": "Bair, Peyton",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8238359/Oregon/Peyton__Bair.html",
+      "scraped_at": "2026-01-20T01:39:59.853913",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8261257",
+      "full_name": "Balazs, Benjamin",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8261257/Oregon/Benjamin_Balazs.html",
+      "scraped_at": "2026-01-20T01:39:59.853934",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8999127",
+      "full_name": "Barbarin, Jaelon",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8999127/Oregon/Jaelon_Barbarin.html",
+      "scraped_at": "2026-01-20T01:39:59.853955",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8682917",
+      "full_name": "Betts, Tre",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8682917/Oregon/Tre_Betts.html",
+      "scraped_at": "2026-01-20T01:39:59.853975",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "7724876",
+      "full_name": "Bishop, Evan",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/7724876/Oregon/Evan_Bishop.html",
+      "scraped_at": "2026-01-20T01:39:59.853997",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246071",
+      "full_name": "Blount, Samuel",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246071/Oregon/Samuel_Blount.html",
+      "scraped_at": "2026-01-20T01:39:59.854018",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8601512",
+      "full_name": "Burns, Connor",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8601512/Oregon/Connor_Burns.html",
+      "scraped_at": "2026-01-20T01:39:59.854039",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8021792",
+      "full_name": "Burns, Tyler",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8021792/Oregon/Tyler_Burns.html",
+      "scraped_at": "2026-01-20T01:39:59.854060",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8672403",
+      "full_name": "Carter, Aiden",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8672403/Oregon/Aiden_Carter.html",
+      "scraped_at": "2026-01-20T01:39:59.854081",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "7722809",
+      "full_name": "Cook, Elliott",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/7722809/Oregon/Elliott_Cook.html",
+      "scraped_at": "2026-01-20T01:39:59.854102",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8672394",
+      "full_name": "Echohawk, Tayson",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8672394/Oregon/Tayson_Echohawk.html",
+      "scraped_at": "2026-01-20T01:39:59.854122",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "7892016",
+      "full_name": "Erickson, Matthew",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/7892016/Oregon/Matthew_Erickson.html",
+      "scraped_at": "2026-01-20T01:39:59.854143",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8925673",
+      "full_name": "Evans, Cain",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8925673/Oregon/Cain_Evans.html",
+      "scraped_at": "2026-01-20T01:39:59.854164",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8906548",
+      "full_name": "Fasthorse, Anthony",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8906548/Oregon/Anthony_Fasthorse.html",
+      "scraped_at": "2026-01-20T01:39:59.854185",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246059",
+      "full_name": "Gonzalez, Juan",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246059/Oregon/Juan_Gonzalez.html",
+      "scraped_at": "2026-01-20T01:39:59.854207",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8673509",
+      "full_name": "Graves-Blanks , Kai",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8673509/Oregon/Kai_Graves-Blanks_.html",
+      "scraped_at": "2026-01-20T01:39:59.854227",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "7891267",
+      "full_name": "Greene, Ben",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/7891267/Oregon/Ben_Greene.html",
+      "scraped_at": "2026-01-20T01:39:59.854247",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8601515",
+      "full_name": "Heslam, Will",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8601515/Oregon/Will_Heslam.html",
+      "scraped_at": "2026-01-20T01:39:59.854268",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8354210",
+      "full_name": "Ize-Iyamu, PJ",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8354210/Oregon/PJ_Ize-Iyamu.html",
+      "scraped_at": "2026-01-20T01:39:59.854288",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8672430",
+      "full_name": "Kessler, Koby",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8672430/Oregon/Koby_Kessler.html",
+      "scraped_at": "2026-01-20T01:39:59.854308",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8672432",
+      "full_name": "Lawrence, Kobe",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8672432/Oregon/Kobe_Lawrence.html",
+      "scraped_at": "2026-01-20T01:39:59.854330",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8925675",
+      "full_name": "Meier, Jack",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8925675/Oregon/Jack_Meier.html",
+      "scraped_at": "2026-01-20T01:39:59.854350",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246058",
+      "full_name": "Mireles, Michael",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246058/Oregon/Michael__Mireles.html",
+      "scraped_at": "2026-01-20T01:39:59.854370",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8710668",
+      "full_name": "Omer, Fuad",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8710668/Oregon/Fuad_Omer.html",
+      "scraped_at": "2026-01-20T01:39:59.854390",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "7985725",
+      "full_name": "Palfrey, Tomas",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/7985725/Oregon/Tomas_Palfrey.html",
+      "scraped_at": "2026-01-20T01:39:59.854410",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8261262",
+      "full_name": "Rogers, Jeffery",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8261262/Oregon/Jeffery_Rogers.html",
+      "scraped_at": "2026-01-20T01:39:59.854430",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8261263",
+      "full_name": "Smith, Aiden",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8261263/Oregon/Aiden_Smith.html",
+      "scraped_at": "2026-01-20T01:39:59.854450",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8999132",
+      "full_name": "Smith, Ben",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8999132/Oregon/Ben_Smith.html",
+      "scraped_at": "2026-01-20T01:39:59.854470",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246057",
+      "full_name": "Tewalt, Luke",
+      "school_id": 100,
+      "class_year": null,
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246057/Oregon/Luke__Tewalt.html",
+      "scraped_at": "2026-01-20T01:39:59.854490",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246060",
+      "full_name": "Valley, Grant",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "M",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246060/Oregon/Grant_Valley.html",
+      "scraped_at": "2026-01-20T01:39:59.854510",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8601547",
+      "full_name": "Markow, Allura",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8601547/Oregon/Allura_Markow",
+      "scraped_at": "2026-01-20T01:39:59.973277",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8601479",
+      "full_name": "Cherubet, Juliet",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8601479/Oregon/Juliet_Cherubet",
+      "scraped_at": "2026-01-20T01:39:59.973318",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9105473",
+      "full_name": "Cherotich, Diana",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9105473/Oregon/Diana_Cherotich",
+      "scraped_at": "2026-01-20T01:39:59.973343",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8999122",
+      "full_name": "Atkins, Cassandra",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8999122/Oregon/Cassandra_Atkins.html",
+      "scraped_at": "2026-01-20T01:39:59.973365",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8288637",
+      "full_name": "Ayyildiz, Silan",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8288637/Oregon/Silan__Ayyildiz.html",
+      "scraped_at": "2026-01-20T01:39:59.973388",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9277515",
+      "full_name": "Bovele Linaka, Marie Josee",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9277515/Oregon/Marie_Josee_Bovele_Linaka.html",
+      "scraped_at": "2026-01-20T01:39:59.973410",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8999123",
+      "full_name": "Canaday-Elliott, Maleigha",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8999123/Oregon/Maleigha_Canaday-Elliott.html",
+      "scraped_at": "2026-01-20T01:39:59.973431",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8999124",
+      "full_name": "Clayton, Niya",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8999124/Oregon/Niya_Clayton.html",
+      "scraped_at": "2026-01-20T01:39:59.973455",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8601545",
+      "full_name": "Clute, Katie",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8601545/Oregon/Katie_Clute.html",
+      "scraped_at": "2026-01-20T01:39:59.973475",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "7736277",
+      "full_name": "De Mello, Micaela",
+      "school_id": 100,
+      "class_year": null,
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/7736277/Oregon/Micaela_De_Mello.html",
+      "scraped_at": "2026-01-20T01:39:59.973496",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8672716",
+      "full_name": "Doht-Barron, Lakely",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8672716/Oregon/Lakely_Doht-Barron.html",
+      "scraped_at": "2026-01-20T01:39:59.973517",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8624867",
+      "full_name": "El Arfaoui, Bahiya",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8624867/Oregon/Bahiya_El_Arfaoui.html",
+      "scraped_at": "2026-01-20T01:39:59.973538",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "7722815",
+      "full_name": "Elmore, Maddy",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/7722815/Oregon/Maddy_Elmore.html",
+      "scraped_at": "2026-01-20T01:39:59.973558",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8354288",
+      "full_name": "Fitzsimmons, Emily",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8354288/Oregon/Emily_Fitzsimmons.html",
+      "scraped_at": "2026-01-20T01:39:59.973579",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8257181",
+      "full_name": "Frias, Dalia",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8257181/Oregon/Dalia__Frias.html",
+      "scraped_at": "2026-01-20T01:39:59.973599",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246065",
+      "full_name": "Glivinski, Greyson",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246065/Oregon/Greyson_Glivinski.html",
+      "scraped_at": "2026-01-20T01:39:59.973620",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246066",
+      "full_name": "Hayden, Williams-Downing",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246066/Oregon/Williams-Downing_Hayden.html",
+      "scraped_at": "2026-01-20T01:39:59.973641",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8925661",
+      "full_name": "Hudnut, Liliana",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8925661/Oregon/Liliana_Hudnut.html",
+      "scraped_at": "2026-01-20T01:39:59.973663",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8906618",
+      "full_name": "Humphries, Nicole",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8906618/Oregon/Nicole_Humphries.html",
+      "scraped_at": "2026-01-20T01:39:59.973684",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8906617",
+      "full_name": "Humphries, Samantha",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8906617/Oregon/Samantha_Humphries.html",
+      "scraped_at": "2026-01-20T01:39:59.973706",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8906619",
+      "full_name": "Ince, Ali",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8906619/Oregon/Ali_Ince.html",
+      "scraped_at": "2026-01-20T01:39:59.973726",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8354289",
+      "full_name": "Jones, Lily",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8354289/Oregon/Lily_Jones.html",
+      "scraped_at": "2026-01-20T01:39:59.973746",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246063",
+      "full_name": "Khunou, Alicia",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246063/Oregon/Alicia_Khunou.html",
+      "scraped_at": "2026-01-20T01:39:59.973766",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8906620",
+      "full_name": "LeBlond, Landen",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8906620/Oregon/Landen_LeBlond.html",
+      "scraped_at": "2026-01-20T01:39:59.973786",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9277513",
+      "full_name": "Lusti, Liisa-Maria",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9277513/Oregon/Liisa-Maria_Lusti.html",
+      "scraped_at": "2026-01-20T01:39:59.973805",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8261270",
+      "full_name": "Martin, Kendall",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8261270/Oregon/Kendall_Martin.html",
+      "scraped_at": "2026-01-20T01:39:59.973827",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8354291",
+      "full_name": "McCormick, Aaliyah",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8354291/Oregon/Aaliyah_McCormick.html",
+      "scraped_at": "2026-01-20T01:39:59.973847",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8497444",
+      "full_name": "McDonnell, Samantha",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8497444/Oregon/Samantha__McDonnell.html",
+      "scraped_at": "2026-01-20T01:39:59.973867",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8672717",
+      "full_name": "Neal, Brazil",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8672717/Oregon/Brazil_Neal.html",
+      "scraped_at": "2026-01-20T01:39:59.973887",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "7734301",
+      "full_name": "Nielsen, Wilma",
+      "school_id": 100,
+      "class_year": "SR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/7734301/Oregon/Wilma_Nielsen.html",
+      "scraped_at": "2026-01-20T01:39:59.973907",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8261271",
+      "full_name": "Seubert, Hannah",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8261271/Oregon/Hannah_Seubert.html",
+      "scraped_at": "2026-01-20T01:39:59.973926",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8999126",
+      "full_name": "Shaheed, Amirah",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8999126/Oregon/Amirah_Shaheed.html",
+      "scraped_at": "2026-01-20T01:39:59.973946",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8906621",
+      "full_name": "Sinke, Charlotte",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8906621/Oregon/Charlotte_Sinke.html",
+      "scraped_at": "2026-01-20T01:39:59.973966",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246062",
+      "full_name": "Stolberg, Toby",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246062/Oregon/Toby_Stolberg.html",
+      "scraped_at": "2026-01-20T01:39:59.973986",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9010282",
+      "full_name": "Taylor, Annaleise",
+      "school_id": 100,
+      "class_year": "SO",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9010282/Oregon/Annaleise_Taylor.html",
+      "scraped_at": "2026-01-20T01:39:59.974005",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "8672595",
+      "full_name": "Thorsett, Ella",
+      "school_id": 100,
+      "class_year": "JR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8672595/Oregon/Ella_Thorsett.html",
+      "scraped_at": "2026-01-20T01:39:59.974025",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246061",
+      "full_name": "Webster, Loren",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246061/Oregon/Loren_Webster.html",
+      "scraped_at": "2026-01-20T01:39:59.974045",
+      "season": "2026 Indoor"
+    },
+    {
+      "tfrrs_athlete_id": "9246064",
+      "full_name": "Wiseman, Taylor",
+      "school_id": 100,
+      "class_year": "FR",
+      "gender": "F",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9246064/Oregon/Taylor_Wiseman.html",
+      "scraped_at": "2026-01-20T01:39:59.974065",
+      "season": "2026 Indoor"
+    }
+  ]
+}
