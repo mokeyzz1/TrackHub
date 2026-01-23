@@ -28,3 +28,6 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: node scrapers/meets/check_live_status.js
+
+      - name: Log summary
+        run: echo "Live status check completed at $(date)"
