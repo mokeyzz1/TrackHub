@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { FavoritesProvider } from '../contexts/FavoritesContext';
 import { WelcomeScreen } from '../components/WelcomeScreen';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 const WELCOME_SEEN_KEY = '@track_meet_tracker_welcome_seen';
 
@@ -92,20 +93,22 @@ export default function RootLayout() {
   }
 
   return (
-    <FavoritesProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="athlete/[id]" />
-          <Stack.Screen name="school/[id]" />
-          <Stack.Screen name="event/[id]" />
-          <Stack.Screen name="meet/[id]" />
-          <Stack.Screen name="search" />
-          <Stack.Screen name="compare-athletes" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </FavoritesProvider>
+    <ErrorBoundary>
+      <FavoritesProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="athlete/[id]" />
+            <Stack.Screen name="school/[id]" />
+            <Stack.Screen name="event/[id]" />
+            <Stack.Screen name="meet/[id]" />
+            <Stack.Screen name="search" />
+            <Stack.Screen name="compare-athletes" />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </FavoritesProvider>
+    </ErrorBoundary>
   );
 }

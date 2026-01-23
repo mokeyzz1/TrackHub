@@ -67,9 +67,12 @@ export default function CompareAthletesScreen() {
     const loadPreselectedAthlete = async () => {
       if (athleteId && !preloadedRef.current) {
         preloadedRef.current = true;
+        const id = parseInt(athleteId, 10);
+        // Skip if ID is invalid
+        if (isNaN(id) || id <= 0) return;
+
         setLoading(true);
         try {
-          const id = parseInt(athleteId, 10);
           const stats = await getAthleteComparisonStats(id, seasonFilter);
           if (stats) {
             setAthlete1(stats);

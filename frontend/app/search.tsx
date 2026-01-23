@@ -29,8 +29,6 @@ export default function SearchScreen() {
     return () => clearTimeout(timer);
   }, [searchQuery, searchAthletes, searchSchools]);
 
-  const recentSearches = ['Sarah Johnson', 'Oregon State', "Women's 800m", 'Pac-12'];
-  const popularSearches = ['NCAA Championships', 'Top 100m Sprinters', 'D1 Rankings'];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -144,42 +142,25 @@ export default function SearchScreen() {
             )}
           </>
         ) : (
-          <>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Recent Searches</Text>
-              {recentSearches.map((search, i) => (
-                <FadeInCard key={i} delay={i * 80}>
-                  <AnimatedCard style={styles.searchItem}>
-                    <View style={styles.searchItemIcon}>
-                      <Ionicons name="time" size={20} color={colors.text.tertiary} />
-                    </View>
-                    <View style={styles.searchItemContent}>
-                      <Text style={styles.searchItemText}>{search}</Text>
-                    </View>
-                    <Ionicons name="arrow-forward" size={18} color={colors.text.muted} />
-                  </AnimatedCard>
-                </FadeInCard>
-              ))}
+          <View style={styles.emptyContainer}>
+            <View style={styles.searchPromptIcon}>
+              <Ionicons name="search" size={48} color={colors.primary.trackOrange} />
             </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Popular Searches</Text>
-              <View style={styles.popularGrid}>
-                {popularSearches.map((search, i) => (
-                  <FadeInCard key={i} delay={i * 100}>
-                    <TouchableOpacity
-                      style={styles.popularChip}
-                      onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-                      activeOpacity={0.85}
-                    >
-                      <Ionicons name="trending-up" size={16} color={colors.primary.trackOrange} />
-                      <Text style={styles.popularText}>{search}</Text>
-                    </TouchableOpacity>
-                  </FadeInCard>
-                ))}
+            <Text style={styles.emptyText}>Find Athletes & Schools</Text>
+            <Text style={styles.emptySubtext}>
+              Search by name to discover athletes, schools, and their performances
+            </Text>
+            <View style={styles.searchTips}>
+              <View style={styles.tipRow}>
+                <Ionicons name="person-outline" size={16} color={colors.text.tertiary} />
+                <Text style={styles.tipText}>Search athlete names</Text>
+              </View>
+              <View style={styles.tipRow}>
+                <Ionicons name="school-outline" size={16} color={colors.text.tertiary} />
+                <Text style={styles.tipText}>Search school names</Text>
               </View>
             </View>
-          </>
+          </View>
         )}
 
         <View style={styles.bottomSpacing} />
@@ -303,42 +284,55 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
   emptyContainer: {
-    padding: 60,
+    padding: 40,
     alignItems: 'center',
+    marginTop: 20,
+  },
+  searchPromptIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: colors.backgrounds.cream,
+    borderWidth: 4,
+    borderColor: colors.borders.thick,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   emptyText: {
-    marginTop: 16,
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: 22,
+    fontWeight: '900',
     color: colors.text.primary,
     textAlign: 'center',
+    marginBottom: 8,
   },
   emptySubtext: {
-    marginTop: 8,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
     color: colors.text.tertiary,
     textAlign: 'center',
-  },
-  popularGrid: {
     paddingHorizontal: 20,
-    gap: 10,
+    lineHeight: 22,
   },
-  popularChip: {
+  searchTips: {
+    marginTop: 32,
+    gap: 12,
+  },
+  tipRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
     backgroundColor: colors.backgrounds.white,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 16,
-    gap: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 12,
     borderWidth: 3,
     borderColor: colors.borders.thick,
   },
-  popularText: {
+  tipText: {
     fontSize: 15,
-    fontWeight: '900',
-    color: colors.text.primary,
+    fontWeight: '700',
+    color: colors.text.secondary,
   },
   bottomSpacing: {
     height: 100,

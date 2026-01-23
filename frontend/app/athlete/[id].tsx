@@ -14,9 +14,11 @@ import { AthleteStatsModal } from '../../components/modals/AthleteStatsModal';
 
 export default function AthleteDetailScreen() {
   const { id } = useLocalSearchParams();
-  const athleteId = parseInt(id as string);
+  const athleteId = parseInt(id as string, 10);
+  const isValidId = !isNaN(athleteId) && athleteId > 0;
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
-  const { athlete, performances, loading, error } = useAthleteDetails(athleteId);
+  // Pass -1 for invalid IDs to prevent NaN from reaching the database
+  const { athlete, performances, loading, error } = useAthleteDetails(isValidId ? athleteId : -1);
   const [statsModalVisible, setStatsModalVisible] = useState(false);
 
   // Calculate stats from performances
@@ -87,12 +89,14 @@ export default function AthleteDetailScreen() {
     );
   }
 
-  if (error || !athlete) {
+  if (!isValidId || error || !athlete) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.errorContainer}>
           <Ionicons name="person-outline" size={64} color={colors.text.tertiary} />
-          <Text style={styles.errorText}>Failed to load athlete</Text>
+          <Text style={styles.errorText}>
+            {!isValidId ? 'Invalid athlete ID' : 'Failed to load athlete'}
+          </Text>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}

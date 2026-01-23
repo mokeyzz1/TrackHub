@@ -26,8 +26,13 @@ export default function HomeScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([refetchPerformances(), refreshMeets()]);
-    setRefreshing(false);
+    try {
+      await Promise.all([refetchPerformances(), refreshMeets()]);
+    } catch (err) {
+      // Silently handle refresh errors - data will show cached state
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   // Get unique trending athletes (athletes with multiple top performances)

@@ -52,21 +52,14 @@ export function useAthleteDetails(athleteId: number) {
       setLoading(true);
       setError(null);
 
-      console.log('Loading athlete details for ID:', athleteId);
-
       const [athleteData, performanceData] = await Promise.all([
         getAthleteDetails(athleteId),
         getAthletePerformances(athleteId, 50)
       ]);
 
-      console.log('Athlete data loaded:', athleteData);
-      console.log('Performance data loaded:', performanceData?.length, 'results');
-
       setAthlete(athleteData as Athlete);
       setPerformances(performanceData as Performance[]);
     } catch (err) {
-      console.error('Error loading athlete details:', err);
-      console.error('Athlete ID was:', athleteId);
       setError(err as Error);
     } finally {
       setLoading(false);

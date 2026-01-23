@@ -2,31 +2,94 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../design-system/colors';
-import { SportsPerformanceCard } from '../../components/ui/SportsPerformanceCard';
 import { FadeInCard } from '../../components/animations/FadeInCard';
+import { getSchoolById, getSchoolAthletes } from '../../services/database';
+
+interface School {
+  school_id: number;
+  official_name: string;
+  short_name: string | null;
+  city: string | null;
+  state: string | null;
+  division: string | null;
+  conference: string | null;
+}
+
+interface Athlete {
+  athlete_id: number;
+  full_name: string;
+  gender: string | null;
+  class_year: string | null;
+  primary_events: string | null;
+}
 
 export default function SchoolDetailScreen() {
   const { id } = useLocalSearchParams();
+  const schoolId = parseInt(id as string, 10);
+  const isValidId = !isNaN(schoolId) && schoolId > 0;
 
-  const school = {
-    name: 'University of Oregon',
-    division: 'D1',
-    conference: 'Pac-12',
-    location: 'Eugene, OR',
-    rank: 1,
-    topAthletes: [
-      { name: 'Sarah Johnson', event: "Women's 800m", time: '2:02.15', badge: 'SR' as const },
-      { name: 'Marcus Thompson', event: "Men's 400m", time: '45.89', badge: 'PR' as const },
-    ],
-    recentMeets: [
-      { meet: 'NCAA Championships', finish: '1st', points: 124 },
-      { meet: 'Pac-12 Championships', finish: '1st', points: 156 },
-    ],
-  };
+  const [school, setSchool] = useState<School | null>(null);
+  const [athletes, setAthletes] = useState<Athlete[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isValidId) {
+      setError('Invalid school ID');
+      setLoading(false);
+      return;
+    }
+
+    async function fetchData() {
+      try {
+        setLoading(true);
+        setError(null);
+        const [schoolData, athletesData] = await Promise.all([
+          getSchoolById(schoolId),
+          getSchoolAthletes(schoolId, 10),
+        ]);
+        setSchool(schoolData);
+        setAthletes(athletesData);
+      } catch (err) {
+        setError('School not found');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [schoolId, isValidId]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={colors.primary.trackOrange} />
+          <Text style={styles.loadingText}>Loading school...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !school) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.centerContainer}>
+          <Ionicons name="school-outline" size={64} color={colors.text.tertiary} />
+          <Text style={styles.errorText}>{error || 'School not found'}</Text>
+          <TouchableOpacity style={styles.goBackButton} onPress={() => router.back()}>
+            <Text style={styles.goBackText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const location = [school.city, school.state].filter(Boolean).join(', ');
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -49,77 +112,84 @@ export default function SchoolDetailScreen() {
         {/* Hero Card */}
         <View style={styles.heroCard}>
           <LinearGradient
-            colors={colors.gradients.goldMedal as any}
+            colors={['#4A90D9', '#7B68EE'] as any}
             style={styles.heroGradient}
           >
-            <View style={styles.rankBadge}>
-              <Text style={styles.rankText}>#{school.rank}</Text>
+            <View style={styles.schoolIcon}>
+              <Ionicons name="school" size={40} color={colors.text.white} />
             </View>
-            <Text style={styles.schoolName}>{school.name}</Text>
+            <Text style={styles.schoolName}>{school.official_name}</Text>
             <View style={styles.metaRow}>
-              <View style={styles.metaBadge}>
-                <Text style={styles.metaText}>{school.division}</Text>
-              </View>
-              <View style={styles.metaBadge}>
-                <Text style={styles.metaText}>{school.conference}</Text>
-              </View>
+              {school.division && (
+                <View style={styles.metaBadge}>
+                  <Text style={styles.metaText}>{school.division}</Text>
+                </View>
+              )}
+              {school.conference && (
+                <View style={styles.metaBadge}>
+                  <Text style={styles.metaText}>{school.conference}</Text>
+                </View>
+              )}
             </View>
+            {location && (
+              <View style={styles.locationRow}>
+                <Ionicons name="location" size={14} color="rgba(255,255,255,0.8)" />
+                <Text style={styles.locationText}>{location}</Text>
+              </View>
+            )}
           </LinearGradient>
         </View>
 
         {/* Stats */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>45</Text>
+            <Text style={styles.statValue}>{athletes.length}</Text>
             <Text style={styles.statLabel}>Athletes</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>8</Text>
-            <Text style={styles.statLabel}>Events</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>12</Text>
-            <Text style={styles.statLabel}>Titles</Text>
           </View>
         </View>
 
-        {/* Top Athletes */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Top Athletes</Text>
-          <View style={styles.athletesList}>
-            {school.topAthletes.map((athlete, i) => (
-              <FadeInCard key={i} delay={i * 100}>
-                <SportsPerformanceCard
-                  rank={i + 1}
-                  athleteName={athlete.name}
-                  schoolName={school.name}
-                  event={athlete.event}
-                  time={athlete.time}
-                  badge={athlete.badge}
-                  onPress={() => router.push('/athlete/1')}
-                />
+        {/* Athletes */}
+        {athletes.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Athletes</Text>
+            {athletes.map((athlete, i) => (
+              <FadeInCard key={athlete.athlete_id} delay={i * 100}>
+                <TouchableOpacity
+                  style={styles.athleteCard}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    router.push(`/athlete/${athlete.athlete_id}`);
+                  }}
+                >
+                  <View style={styles.athleteIcon}>
+                    <Ionicons name="person" size={24} color={colors.primary.trackOrange} />
+                  </View>
+                  <View style={styles.athleteInfo}>
+                    <Text style={styles.athleteName}>{athlete.full_name}</Text>
+                    <Text style={styles.athleteMeta}>
+                      {[athlete.class_year, athlete.gender === 'M' ? 'Men' : athlete.gender === 'F' ? 'Women' : null]
+                        .filter(Boolean)
+                        .join(' • ')}
+                    </Text>
+                    {athlete.primary_events && (
+                      <Text style={styles.athleteEvents} numberOfLines={1}>
+                        {athlete.primary_events}
+                      </Text>
+                    )}
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color={colors.text.tertiary} />
+                </TouchableOpacity>
               </FadeInCard>
             ))}
           </View>
-        </View>
+        )}
 
-        {/* Recent Meets */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Meets</Text>
-          {school.recentMeets.map((meet, i) => (
-            <FadeInCard key={i} delay={i * 100}>
-              <View style={styles.meetCard}>
-                <View style={styles.meetHeader}>
-                  <Text style={styles.meetName}>{meet.meet}</Text>
-                  <View style={styles.finishBadge}>
-                    <Text style={styles.finishText}>{meet.finish}</Text>
-                  </View>
-                </View>
-                <Text style={styles.meetPoints}>{meet.points} Points</Text>
-              </View>
-            </FadeInCard>
-          ))}
-        </View>
+        {athletes.length === 0 && (
+          <View style={styles.emptyState}>
+            <Ionicons name="people-outline" size={48} color={colors.text.tertiary} />
+            <Text style={styles.emptyText}>No athletes found for this school</Text>
+          </View>
+        )}
 
         <View style={styles.bottomSpacing} />
       </ScrollView>
@@ -134,6 +204,36 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text.secondary,
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.text.secondary,
+  },
+  goBackButton: {
+    marginTop: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: colors.primary.trackOrange,
+    borderRadius: 12,
+  },
+  goBackText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: colors.text.white,
   },
   header: {
     flexDirection: 'row',
@@ -177,7 +277,7 @@ const styles = StyleSheet.create({
     padding: 32,
     alignItems: 'center',
   },
-  rankBadge: {
+  schoolIcon: {
     width: 80,
     height: 80,
     borderRadius: 40,
@@ -188,13 +288,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  rankText: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: colors.text.white,
-  },
   schoolName: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '900',
     color: colors.text.white,
     textAlign: 'center',
@@ -206,6 +301,7 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     gap: 10,
+    marginBottom: 8,
   },
   metaBadge: {
     backgroundColor: 'rgba(255,255,255,0.25)',
@@ -219,6 +315,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '900',
     color: colors.text.white,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+  },
+  locationText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.85)',
   },
   statsRow: {
     flexDirection: 'row',
@@ -265,52 +372,62 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 0,
   },
-  athletesList: {
-    paddingHorizontal: 20,
-  },
-  meetCard: {
+  athleteCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.backgrounds.white,
     marginHorizontal: 20,
     marginBottom: 12,
-    padding: 18,
+    padding: 16,
     borderRadius: 16,
     borderWidth: 4,
     borderColor: colors.borders.thick,
+    gap: 12,
     shadowColor: colors.borders.thick,
     shadowOffset: { width: 3, height: 3 },
     shadowOpacity: 1,
     shadowRadius: 0,
   },
-  meetHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  athleteIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.backgrounds.cream,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
   },
-  meetName: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: colors.text.primary,
+  athleteInfo: {
     flex: 1,
   },
-  finishBadge: {
-    backgroundColor: colors.primary.trackOrange,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.borders.thick,
-  },
-  finishText: {
-    fontSize: 14,
+  athleteName: {
+    fontSize: 16,
     fontWeight: '900',
-    color: colors.text.white,
+    color: colors.text.primary,
   },
-  meetPoints: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: colors.primary.trackOrange,
-    fontFamily: 'Courier',
+  athleteMeta: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+    marginTop: 2,
+  },
+  athleteEvents: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.text.muted,
+    marginTop: 2,
+  },
+  emptyState: {
+    alignItems: 'center',
+    padding: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+    marginTop: 12,
+    textAlign: 'center',
   },
   bottomSpacing: {
     height: 100,

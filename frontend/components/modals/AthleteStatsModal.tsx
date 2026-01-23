@@ -492,13 +492,6 @@ export function AthleteStatsModal({
       .filter(p => p.event_name === selectedEvent)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    console.log('Progression debug:', {
-      selectedEvent,
-      totalPerformances: performances.length,
-      eventPerformances: eventPerformances.length,
-      samplePerformance: eventPerformances[0]
-    });
-
     // Prepare data for chart - use parsed time from mark_raw if mark_seconds is not available
     const chartData = eventPerformances.map((p, idx, arr) => {
       const time = p.mark_seconds || parseMarkToNumber(p.mark_raw, selectedEvent) || 0;

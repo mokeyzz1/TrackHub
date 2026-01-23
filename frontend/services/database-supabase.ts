@@ -167,18 +167,37 @@ export async function searchSchools(searchTerm: string, limit: number = 20) {
     .order('official_name')
     .limit(limit);
 
-  if (error) {
-    console.error('Error searching schools:', error);
-    throw error;
-  }
+  if (error) throw error;
+  return data || [];
+}
 
+// Get school by ID
+export async function getSchoolById(schoolId: number) {
+  const { data, error } = await supabase
+    .from('schools')
+    .select('school_id, official_name, short_name, city, state, division, conference')
+    .eq('school_id', schoolId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Get athletes for a school
+export async function getSchoolAthletes(schoolId: number, limit: number = 10) {
+  const { data, error } = await supabase
+    .from('athletes')
+    .select('athlete_id, full_name, gender, class_year, primary_events')
+    .eq('school_id', schoolId)
+    .eq('is_active', true)
+    .limit(limit);
+
+  if (error) throw error;
   return data || [];
 }
 
 // Get athlete details
 export async function getAthleteDetails(athleteId: number) {
-  console.log('getAthleteDetails called with ID:', athleteId, 'type:', typeof athleteId);
-
   const { data, error } = await supabase
     .from('athletes')
     .select(`
@@ -198,8 +217,6 @@ export async function getAthleteDetails(athleteId: number) {
     return null;
   }
 
-  console.log('Query result:', data);
-
   // Transform to match SQLite format
   return data ? {
     ...data,
@@ -212,8 +229,6 @@ export async function getAthleteDetails(athleteId: number) {
 
 // Get athlete's recent performances
 export async function getAthletePerformances(athleteId: number, limit: number = 20) {
-  console.log('getAthletePerformances called with ID:', athleteId);
-
   const { data, error } = await supabase
     .from('results')
     .select(`
@@ -231,13 +246,6 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
   if (error) {
     console.error('Error fetching athlete performances:', error);
     throw error;
-  }
-
-  console.log('Performance results count:', data?.length || 0);
-
-  if (data && data.length > 0) {
-    console.log('Sample performance fields:', Object.keys(data[0]));
-    console.log('Sample performance data:', data[0]);
   }
 
   return data?.map(r => ({

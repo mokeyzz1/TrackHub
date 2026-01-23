@@ -4,6 +4,5 @@ export * from './database-supabase';
 
 // No longer needed - Supabase handles connection
 export async function initDatabase() {
-  console.log('Database initialized - using Supabase');
   return true;
 }

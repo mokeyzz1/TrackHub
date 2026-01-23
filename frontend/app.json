@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "track-meet-tracker",
-    "slug": "track-meet-tracker",
+    "name": "TrackHub",
+    "slug": "trackhub",
     "version": "1.0.0",
+    "description": "Track college track & field performances, meet results, and athlete stats. Compare athletes head-to-head, follow your favorite runners, and never miss a PR.",
     "orientation": "portrait",
     "icon": "./assets/images/app_icon.png",
     "splash": {
@@ -10,12 +11,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#87CEEB"
     },
-    "scheme": "trackmeettracker",
+    "scheme": "trackhub",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.trackmeettracker"
+      "bundleIdentifier": "com.mokeyzz.trackhub",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "TrackHub uses local network access for development purposes."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +27,7 @@
         "backgroundColor": "#87CEEB"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.trackmeettracker"
+      "package": "com.mokeyzz.trackhub"
     },
     "web": {
       "bundler": "metro",
