@@ -76,60 +76,7 @@ export default function CommunityScreen() {
           </LinearGradient>
         </View>
 
-        {/* Features Preview */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>What's Coming</Text>
-
-          <View style={styles.featureCard}>
-            <View style={[styles.featureIcon, { backgroundColor: '#FFE5E5' }]}>
-              <Ionicons name="chatbubbles" size={28} color="#FF6B6B" />
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Live Chat Rooms</Text>
-              <Text style={styles.featureDesc}>
-                Join conversations during meets, discuss events in real-time
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.featureCard}>
-            <View style={[styles.featureIcon, { backgroundColor: '#E5F3FF' }]}>
-              <Ionicons name="people" size={28} color="#4A90D9" />
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Local Groups</Text>
-              <Text style={styles.featureDesc}>
-                Connect with runners in your area, find training partners
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.featureCard}>
-            <View style={[styles.featureIcon, { backgroundColor: '#FFF3E5' }]}>
-              <Ionicons name="trophy" size={28} color={colors.primary.trackOrange} />
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>PR Celebrations</Text>
-              <Text style={styles.featureDesc}>
-                Share your achievements, celebrate with the community
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.featureCard}>
-            <View style={[styles.featureIcon, { backgroundColor: '#E5FFE5' }]}>
-              <MaterialCommunityIcons name="message-text" size={28} color="#10B981" />
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Discussion Forums</Text>
-              <Text style={styles.featureDesc}>
-                Training tips, gear reviews, meet previews and more
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Waitlist Signup */}
+        {/* Waitlist Signup - Moved up right after hero */}
         <View style={styles.waitlistCard}>
           {submitted ? (
             <>
@@ -182,6 +129,59 @@ export default function CommunityScreen() {
               )}
             </>
           )}
+        </View>
+
+        {/* Features Preview */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>What's Coming</Text>
+
+          <View style={styles.featureCard}>
+            <View style={[styles.featureIcon, { backgroundColor: '#FFE5E5' }]}>
+              <Ionicons name="chatbubbles" size={28} color="#FF6B6B" />
+            </View>
+            <View style={styles.featureContent}>
+              <Text style={styles.featureTitle}>Live Chat Rooms</Text>
+              <Text style={styles.featureDesc}>
+                Join conversations during meets, discuss events in real-time
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.featureCard}>
+            <View style={[styles.featureIcon, { backgroundColor: '#E5F3FF' }]}>
+              <Ionicons name="people" size={28} color="#4A90D9" />
+            </View>
+            <View style={styles.featureContent}>
+              <Text style={styles.featureTitle}>Local Groups</Text>
+              <Text style={styles.featureDesc}>
+                Connect with runners in your area, find training partners
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.featureCard}>
+            <View style={[styles.featureIcon, { backgroundColor: '#FFF3E5' }]}>
+              <Ionicons name="trophy" size={28} color={colors.primary.trackOrange} />
+            </View>
+            <View style={styles.featureContent}>
+              <Text style={styles.featureTitle}>PR Celebrations</Text>
+              <Text style={styles.featureDesc}>
+                Share your achievements, celebrate with the community
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.featureCard}>
+            <View style={[styles.featureIcon, { backgroundColor: '#E5FFE5' }]}>
+              <MaterialCommunityIcons name="message-text" size={28} color="#10B981" />
+            </View>
+            <View style={styles.featureContent}>
+              <Text style={styles.featureTitle}>Discussion Forums</Text>
+              <Text style={styles.featureDesc}>
+                Training tips, gear reviews, meet previews and more
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View style={styles.bottomSpacing} />
@@ -270,64 +270,15 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  // Features Section
-  section: {
-    marginHorizontal: 20,
-    marginTop: 28,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: colors.text.primary,
-    marginBottom: 16,
-  },
-  featureCard: {
-    backgroundColor: colors.backgrounds.white,
-    borderRadius: 20,
-    borderWidth: 3,
-    borderColor: colors.borders.thick,
-    padding: 18,
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: colors.borders.thick,
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-  },
-  featureIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  featureContent: {
-    flex: 1,
-  },
-  featureTitle: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: colors.text.primary,
-    marginBottom: 4,
-  },
-  featureDesc: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.text.tertiary,
-    lineHeight: 18,
-  },
-
   // Waitlist Card
   waitlistCard: {
     marginHorizontal: 20,
-    marginTop: 28,
+    marginTop: 20,
     backgroundColor: colors.backgrounds.white,
     borderRadius: 20,
     borderWidth: 4,
     borderColor: colors.borders.thick,
-    padding: 28,
+    padding: 24,
     alignItems: 'center',
     shadowColor: colors.borders.thick,
     shadowOffset: { width: 4, height: 4 },
@@ -335,11 +286,11 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
   },
   waitlistTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
     color: colors.text.primary,
-    marginTop: 12,
-    marginBottom: 8,
+    marginTop: 10,
+    marginBottom: 6,
   },
   waitlistText: {
     fontSize: 14,
@@ -347,7 +298,7 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
     textAlign: 'center',
     lineHeight: 20,
-    marginBottom: 20,
+    marginBottom: 18,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -403,6 +354,55 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
     textAlign: 'center',
     lineHeight: 20,
+  },
+
+  // Features Section
+  section: {
+    marginHorizontal: 20,
+    marginTop: 24,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: colors.text.primary,
+    marginBottom: 16,
+  },
+  featureCard: {
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 20,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    padding: 18,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  featureIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  featureContent: {
+    flex: 1,
+  },
+  featureTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: colors.text.primary,
+    marginBottom: 4,
+  },
+  featureDesc: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.text.tertiary,
+    lineHeight: 18,
   },
 
   bottomSpacing: {
