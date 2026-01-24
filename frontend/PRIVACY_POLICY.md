@@ -15,7 +15,7 @@ TrackHub ("the App") is a track and field statistics application that helps user
 
 ### Data We Access
 
-- **Track & Field Statistics**: The App accesses publicly available track and field data, including meet results, athlete performances, and school information, from public sources such as TFRRS.
+- **Track & Field Statistics**: The app displays publicly available track & field information, including meet results, athlete performances, and school data, sourced from public records such as TFRRS.
 
 ### Data We Do NOT Collect
 
