@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackHub - College Track & Field</title>
+  <meta name="description" content="Your ultimate companion for following college track and field. View athlete stats, meet results, and more.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 100%);
+      min-height: 100vh;
+      color: #000;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo-circle {
+      width: 120px;
+      height: 120px;
+      background: #fff;
+      border: 4px solid #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 5px 5px 0 #000;
+    }
+
+    .logo-circle svg {
+      width: 64px;
+      height: 64px;
+      fill: #FF6B35;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1E293B;
+    }
+
+    /* App Store Button */
+    .download-section {
+      text-align: center;
+      margin: 32px 0;
+    }
+
+    .app-store-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: #000;
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0 #333;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .app-store-btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 #333;
+    }
+
+    .app-store-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+    }
+
+    /* Features */
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .feature-card {
+      background: #fff;
+      border: 3px solid #000;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .feature-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .feature-icon.orange { background: #FFF3E5; }
+    .feature-icon.orange svg { fill: #FF6B35; }
+
+    .feature-icon.blue { background: #E5F3FF; }
+    .feature-icon.blue svg { fill: #4A90E2; }
+
+    .feature-icon.pink { background: #FFE5F0; }
+    .feature-icon.pink svg { fill: #FF69B4; }
+
+    .feature-icon.green { background: #E5FFE5; }
+    .feature-icon.green svg { fill: #00C853; }
+
+    .feature-content h3 {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .feature-content p {
+      font-size: 14px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    /* Footer Links */
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 3px solid rgba(0,0,0,0.1);
+    }
+
+    .footer-links a {
+      color: #000;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .footer-links a:hover {
+      background: rgba(255,255,255,0.5);
+    }
+
+    .copyright {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      h1 { font-size: 28px; }
+      .tagline { font-size: 16px; }
+      .logo-circle { width: 100px; height: 100px; }
+      .logo-circle svg { width: 48px; height: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-circle">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm4 5.28c-1.23-.37-2.22-1.17-2.8-2.18l-1-1.6c-.41-.65-1.11-1-1.84-1-.78 0-1.59.5-1.78 1.44S7 23 7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3c1 1.15 2.41 2.01 4 2.34V23H19V9.28c-.6.55-1.07.72-1.5.5z"/>
+        </svg>
+      </div>
+      <h1>TrackHub</h1>
+      <p class="tagline">Your gateway to college track & field</p>
+    </header>
+
+    <!-- Download -->
+    <div class="download-section">
+      <a href="#" class="app-store-btn">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+        </svg>
+        Download on App Store
+      </a>
+    </div>
+
+    <!-- Features -->
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon orange">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        </div>
+        <div class="feature-content">
+          <h3>Athlete Profiles</h3>
+          <p>View stats, personal records, and performance history for thousands of college athletes</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon blue">
+          <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+        </div>
+        <div class="feature-content">
+          <h3>Meet Calendar</h3>
+          <p>Never miss an event with our comprehensive schedule of upcoming and past meets</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon green">
+          <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+        </div>
+        <div class="feature-content">
+          <h3>Top Performances</h3>
+          <p>See the latest standout results from across college track & field</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon pink">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        </div>
+        <div class="feature-content">
+          <h3>Compare Athletes</h3>
+          <p>Head-to-head comparisons to see how athletes stack up against each other</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <nav class="footer-links">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="support.html">Support</a>
+      <a href="https://github.com/mokeyzz1/TrackHub" target="_blank">GitHub</a>
+    </nav>
+
+    <p class="copyright">&copy; 2026 TrackHub. All rights reserved.</p>
+  </div>
+</body>
+</html>

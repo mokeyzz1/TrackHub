@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support - TrackHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 100%);
+      min-height: 100vh;
+      color: #000;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #000;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 24px;
+      padding: 8px 16px;
+      background: #fff;
+      border: 3px solid #000;
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .back-link:hover {
+      background: #FFFEF0;
+    }
+
+    .content-card {
+      background: #fff;
+      border: 4px solid #000;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 5px 5px 0 #000;
+      text-align: center;
+    }
+
+    .support-icon {
+      width: 80px;
+      height: 80px;
+      background: #FFF3E5;
+      border: 3px solid #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .support-icon svg {
+      width: 40px;
+      height: 40px;
+      fill: #FF6B35;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 32px;
+    }
+
+    .contact-options {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .contact-card {
+      background: #FFFEF0;
+      border: 3px solid #000;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-align: left;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 3px 3px 0 #000;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .contact-card:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    .contact-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .contact-icon.email { background: #E5F3FF; }
+    .contact-icon.email svg { fill: #4A90E2; }
+
+    .contact-icon.github { background: #1E293B; }
+    .contact-icon.github svg { fill: #fff; }
+
+    .contact-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .contact-info h3 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .contact-info p {
+      font-size: 14px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .faq-section {
+      margin-top: 40px;
+      text-align: left;
+    }
+
+    .faq-section h2 {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .faq-item {
+      background: #FFFEF0;
+      border: 3px solid #000;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .faq-item h4 {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .faq-item p {
+      font-size: 14px;
+      font-weight: 400;
+      color: #1E293B;
+      line-height: 1.6;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 3px solid rgba(0,0,0,0.1);
+    }
+
+    .footer-links a {
+      color: #000;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .footer-links a:hover {
+      background: rgba(255,255,255,0.5);
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 26px; }
+      .content-card { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Back to Home
+    </a>
+
+    <div class="content-card">
+      <div class="support-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+      </div>
+      <h1>Support</h1>
+      <p class="subtitle">Need help? We're here for you.</p>
+
+      <div class="contact-options">
+        <a href="mailto:trackhub.app@gmail.com" class="contact-card">
+          <div class="contact-icon email">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          </div>
+          <div class="contact-info">
+            <h3>Email Us</h3>
+            <p>trackhub.app@gmail.com</p>
+          </div>
+        </a>
+
+        <a href="https://github.com/mokeyzz1/TrackHub/issues" target="_blank" class="contact-card">
+          <div class="contact-icon github">
+            <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          </div>
+          <div class="contact-info">
+            <h3>Report an Issue</h3>
+            <p>GitHub Issues</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+          <h4>Where does the data come from?</h4>
+          <p>TrackHub displays publicly available track and field statistics from sources like TFRRS. We are not affiliated with any athletic governing body.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>How do I delete my data?</h4>
+          <p>All data is stored locally on your device. Simply uninstall the app to remove all data, or clear favorites within the app.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Is TrackHub free?</h4>
+          <p>Yes, TrackHub is completely free to use with no ads or in-app purchases.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Can I request a feature?</h4>
+          <p>Absolutely! Open an issue on our GitHub page or email us with your suggestions.</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="https://github.com/mokeyzz1/TrackHub" target="_blank">GitHub</a>
+    </nav>
+  </div>
+</body>
+</html>

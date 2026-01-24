@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - TrackHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 100%);
+      min-height: 100vh;
+      color: #000;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #000;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 24px;
+      padding: 8px 16px;
+      background: #fff;
+      border: 3px solid #000;
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .back-link:hover {
+      background: #FFFEF0;
+    }
+
+    .content-card {
+      background: #fff;
+      border: 4px solid #000;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 5px 5px 0 #000;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .last-updated {
+      font-size: 14px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 32px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      color: #FF6B35;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.7;
+      margin-bottom: 12px;
+      color: #1E293B;
+    }
+
+    ul {
+      margin: 12px 0;
+      padding-left: 24px;
+    }
+
+    li {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.7;
+      margin-bottom: 8px;
+      color: #1E293B;
+    }
+
+    strong {
+      font-weight: 700;
+    }
+
+    a {
+      color: #4A90E2;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 3px solid rgba(0,0,0,0.1);
+    }
+
+    .footer-links a {
+      color: #000;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .footer-links a:hover {
+      background: rgba(255,255,255,0.5);
+      text-decoration: none;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 26px; }
+      .content-card { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Back to Home
+    </a>
+
+    <div class="content-card">
+      <h1>Privacy Policy</h1>
+      <p class="last-updated">Last Updated: January 2026</p>
+
+      <h2>Overview</h2>
+      <p>TrackHub ("the App") is a track and field statistics application that helps users follow college track & field performances, meet results, and athlete statistics. This Privacy Policy explains how we collect, use, and protect information related to your use of the App.</p>
+
+      <h2>Information We Collect</h2>
+
+      <h3>Data We Store Locally</h3>
+      <ul>
+        <li><strong>Favorites:</strong> Athletes, schools, and meets you mark as favorites are stored locally on your device using AsyncStorage.</li>
+        <li><strong>Preferences:</strong> App settings and welcome screen status are stored locally on your device.</li>
+      </ul>
+
+      <h3>Data We Access</h3>
+      <ul>
+        <li><strong>Track & Field Statistics:</strong> The App accesses publicly available track and field data, including meet results, athlete performances, and school information, from public sources such as TFRRS.</li>
+      </ul>
+
+      <h3>Data We Do NOT Collect</h3>
+      <ul>
+        <li>We do not collect personal identification information.</li>
+        <li>We do not collect location data.</li>
+        <li>We do not track your usage or behavior within the App.</li>
+        <li>We do not use analytics or tracking services.</li>
+        <li>We do not require account creation.</li>
+      </ul>
+
+      <h2>How We Use Information</h2>
+      <ul>
+        <li><strong>Favorites:</strong> To display your saved athletes, schools, and meets for quick access.</li>
+        <li><strong>Statistics Data:</strong> To display track and field performances, meet results, and athlete comparisons.</li>
+      </ul>
+
+      <h2>Third-Party Services</h2>
+      <p>The App uses Supabase solely for database and backend services related to publicly available track and field statistics. No user accounts are created, and no personal or device-identifiable information is stored or processed by Supabase.</p>
+      <p>For more information, see the <a href="https://supabase.com/privacy" target="_blank">Supabase Privacy Policy</a>.</p>
+
+      <h2>Data Security</h2>
+      <ul>
+        <li>All favorites and preferences are stored locally on your device.</li>
+        <li>We use HTTPS for all network communications.</li>
+        <li>We do not transmit any personal user data to external servers.</li>
+      </ul>
+
+      <h2>Children's Privacy</h2>
+      <p>TrackHub does not knowingly collect personal information from children under the age of 13. The App displays publicly available sports statistics for informational purposes only.</p>
+
+      <h2>Your Rights</h2>
+      <p>Since all user-related data is stored locally on your device:</p>
+      <ul>
+        <li><strong>Delete Data:</strong> Uninstalling the App removes all locally stored data.</li>
+        <li><strong>Clear Favorites:</strong> You can remove favorites directly within the App.</li>
+      </ul>
+
+      <h2>Changes to This Policy</h2>
+      <p>We may update this Privacy Policy from time to time. Any changes will be reflected by updating the "Last Updated" date at the top of this policy.</p>
+
+      <h2>Disclaimer</h2>
+      <p>TrackHub is not affiliated with or endorsed by TFRRS, the NCAA, or any athletic governing body. All statistics are provided for informational purposes only.</p>
+
+      <h2>Contact Us</h2>
+      <p>If you have questions about this Privacy Policy, you can contact us at:</p>
+      <ul>
+        <li><strong>Email:</strong> <a href="mailto:trackhub.app@gmail.com">trackhub.app@gmail.com</a></li>
+        <li><strong>GitHub:</strong> <a href="https://github.com/mokeyzz1/TrackHub" target="_blank">github.com/mokeyzz1/TrackHub</a></li>
+      </ul>
+
+      <h2>Consent</h2>
+      <p>By using TrackHub, you consent to this Privacy Policy.</p>
+    </div>
+
+    <nav class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="support.html">Support</a>
+      <a href="https://github.com/mokeyzz1/TrackHub" target="_blank">GitHub</a>
+    </nav>
+  </div>
+</body>
+</html>
