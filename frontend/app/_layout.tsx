@@ -100,7 +100,6 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="athlete/[id]" />
             <Stack.Screen name="school/[id]" />
-            <Stack.Screen name="event/[id]" />
             <Stack.Screen name="meet/[id]" />
             <Stack.Screen name="search" />
             <Stack.Screen name="compare-athletes" />

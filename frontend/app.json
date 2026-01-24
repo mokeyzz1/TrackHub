@@ -18,7 +18,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.mokeyzz.trackhub",
       "infoPlist": {
-        "NSLocalNetworkUsageDescription": "TrackHub uses local network access for development purposes."
+        "NSLocalNetworkUsageDescription": "TrackHub uses local network access for development purposes.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -54,13 +55,10 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "6534a3f3-d6c2-4e78-9259-7d4b981138d6"
+        "projectId": "920230f5-bddc-413c-b303-1d998acbc449"
       }
     },
     "owner": "mokeyz",
-    "runtimeVersion": "1.0.0",
-    "updates": {
-      "url": "https://u.expo.dev/6534a3f3-d6c2-4e78-9259-7d4b981138d6"
-    }
+    "runtimeVersion": "1.0.0"
   }
 }

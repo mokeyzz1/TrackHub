@@ -24,24 +24,24 @@
     "@shopify/react-native-skia": "2.2.12",
     "@supabase/supabase-js": "^2.86.0",
     "date-fns": "^4.1.0",
-    "expo": "^54.0.25",
+    "expo": "~54.0.32",
     "expo-asset": "^12.0.10",
-    "expo-blur": "~15.0.7",
+    "expo-blur": "~15.0.8",
     "expo-constants": "~18.0.10",
     "expo-file-system": "^19.0.19",
     "expo-font": "~14.0.9",
-    "expo-haptics": "~15.0.7",
-    "expo-image": "~3.0.10",
-    "expo-linear-gradient": "~15.0.7",
-    "expo-linking": "~8.0.9",
-    "expo-router": "~6.0.15",
-    "expo-splash-screen": "~31.0.11",
-    "expo-sqlite": "^16.0.9",
-    "expo-status-bar": "~3.0.8",
-    "expo-symbols": "~1.0.7",
-    "expo-system-ui": "~6.0.8",
-    "expo-updates": "~29.0.13",
-    "expo-web-browser": "~15.0.9",
+    "expo-haptics": "~15.0.8",
+    "expo-image": "~3.0.11",
+    "expo-linear-gradient": "~15.0.8",
+    "expo-linking": "~8.0.11",
+    "expo-router": "~6.0.22",
+    "expo-splash-screen": "~31.0.13",
+    "expo-sqlite": "~16.0.10",
+    "expo-status-bar": "~3.0.9",
+    "expo-symbols": "~1.0.8",
+    "expo-system-ui": "~6.0.9",
+    "expo-updates": "~29.0.16",
+    "expo-web-browser": "~15.0.10",
     "lottie-react-native": "~7.3.1",
     "moti": "^0.30.0",
     "native-base": "^3.4.28",
@@ -69,6 +69,14 @@
     "eslint-config-expo": "~10.0.0",
     "puppeteer": "^24.31.0",
     "typescript": "~5.9.2"
+  },
+  "expo": {
+    "install": {
+      "exclude": [
+        "react",
+        "react-dom"
+      ]
+    }
   },
   "private": true
 }

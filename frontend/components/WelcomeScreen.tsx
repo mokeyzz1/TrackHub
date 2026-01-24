@@ -76,10 +76,6 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
           <Ionicons name="arrow-forward" size={24} color={colors.text.white} />
         </TouchableOpacity>
 
-        {/* Beta Badge */}
-        <View style={styles.betaBadge}>
-          <Text style={styles.betaText}>BETA</Text>
-        </View>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -190,22 +186,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '900',
     color: colors.text.white,
-  },
-  betaBadge: {
-    position: 'absolute',
-    top: 60,
-    right: 24,
-    backgroundColor: colors.primary.duffPink,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.borders.thick,
-  },
-  betaText: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: colors.text.white,
-    letterSpacing: 1,
   },
 });
