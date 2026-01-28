@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../design-system/colors';
 import { FadeInCard } from '../../components/animations/FadeInCard';
-import { getSchoolById, getSchoolAthletes } from '../../services/database';
+import { getSchoolById, getSchoolAthletes } from '../../services/database-supabase';
 
 interface School {
   school_id: number;
@@ -36,6 +36,26 @@ export default function SchoolDetailScreen() {
   const [athletes, setAthletes] = useState<Athlete[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedClass, setSelectedClass] = useState<string | null>(null);
+  const [selectedGender, setSelectedGender] = useState<string | null>(null);
+  const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<'season' | 'gender' | 'class' | null>(null);
+
+  const classYears = ['FR', 'SO', 'JR', 'SR'];
+  const seasons = ['2026', '2025', '2024', '2023'];
+  const genders = [{ value: 'M', label: 'Men' }, { value: 'F', label: 'Women' }];
+
+  // Filter athletes by class year and gender
+  const filteredAthletes = useMemo(() => {
+    let result = athletes;
+    if (selectedClass) {
+      result = result.filter(a => a.class_year === selectedClass);
+    }
+    if (selectedGender) {
+      result = result.filter(a => a.gender === selectedGender);
+    }
+    return result;
+  }, [athletes, selectedClass, selectedGender]);
 
   useEffect(() => {
     if (!isValidId) {
@@ -50,7 +70,7 @@ export default function SchoolDetailScreen() {
         setError(null);
         const [schoolData, athletesData] = await Promise.all([
           getSchoolById(schoolId),
-          getSchoolAthletes(schoolId, 10),
+          getSchoolAthletes(schoolId, 500),
         ]);
         setSchool(schoolData);
         setAthletes(athletesData);
@@ -140,19 +160,140 @@ export default function SchoolDetailScreen() {
           </LinearGradient>
         </View>
 
-        {/* Stats */}
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{athletes.length}</Text>
-            <Text style={styles.statLabel}>Athletes</Text>
-          </View>
+        {/* Filter Dropdowns */}
+        <View style={styles.filterRow}>
+          <TouchableOpacity
+            style={[styles.dropdown, selectedSeason && styles.dropdownActive]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setActiveDropdown('season');
+            }}
+          >
+            <Text style={[styles.dropdownText, selectedSeason && styles.dropdownTextActive]}>
+              {selectedSeason || 'Season'}
+            </Text>
+            <Ionicons name="chevron-down" size={16} color={selectedSeason ? colors.text.white : colors.text.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.dropdown, selectedGender && styles.dropdownActive]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setActiveDropdown('gender');
+            }}
+          >
+            <Text style={[styles.dropdownText, selectedGender && styles.dropdownTextActive]}>
+              {selectedGender === 'M' ? 'Men' : selectedGender === 'F' ? 'Women' : 'Gender'}
+            </Text>
+            <Ionicons name="chevron-down" size={16} color={selectedGender ? colors.text.white : colors.text.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.dropdown, selectedClass && styles.dropdownActive]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setActiveDropdown('class');
+            }}
+          >
+            <Text style={[styles.dropdownText, selectedClass && styles.dropdownTextActive]}>
+              {selectedClass || 'Class'}
+            </Text>
+            <Ionicons name="chevron-down" size={16} color={selectedClass ? colors.text.white : colors.text.primary} />
+          </TouchableOpacity>
         </View>
 
+        {/* Dropdown Modal */}
+        <Modal
+          visible={activeDropdown !== null}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setActiveDropdown(null)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setActiveDropdown(null)}
+          >
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>
+                {activeDropdown === 'season' ? 'Select Season' : activeDropdown === 'gender' ? 'Select Gender' : 'Select Class'}
+              </Text>
+
+              {/* All option to clear */}
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  if (activeDropdown === 'season') setSelectedSeason(null);
+                  if (activeDropdown === 'gender') setSelectedGender(null);
+                  if (activeDropdown === 'class') setSelectedClass(null);
+                  setActiveDropdown(null);
+                }}
+              >
+                <Text style={styles.modalOptionText}>All</Text>
+                {((activeDropdown === 'season' && !selectedSeason) ||
+                  (activeDropdown === 'gender' && !selectedGender) ||
+                  (activeDropdown === 'class' && !selectedClass)) && (
+                  <Ionicons name="checkmark" size={20} color={colors.primary.trackOrange} />
+                )}
+              </TouchableOpacity>
+
+              {/* Options */}
+              {activeDropdown === 'season' && seasons.map((season) => (
+                <TouchableOpacity
+                  key={season}
+                  style={styles.modalOption}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSelectedSeason(season);
+                    setActiveDropdown(null);
+                  }}
+                >
+                  <Text style={styles.modalOptionText}>{season}</Text>
+                  {selectedSeason === season && <Ionicons name="checkmark" size={20} color={colors.primary.trackOrange} />}
+                </TouchableOpacity>
+              ))}
+
+              {activeDropdown === 'gender' && genders.map((g) => (
+                <TouchableOpacity
+                  key={g.value}
+                  style={styles.modalOption}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSelectedGender(g.value);
+                    setActiveDropdown(null);
+                  }}
+                >
+                  <Text style={styles.modalOptionText}>{g.label}</Text>
+                  {selectedGender === g.value && <Ionicons name="checkmark" size={20} color={colors.primary.trackOrange} />}
+                </TouchableOpacity>
+              ))}
+
+              {activeDropdown === 'class' && classYears.map((year) => (
+                <TouchableOpacity
+                  key={year}
+                  style={styles.modalOption}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSelectedClass(year);
+                    setActiveDropdown(null);
+                  }}
+                >
+                  <Text style={styles.modalOptionText}>{year}</Text>
+                  {selectedClass === year && <Ionicons name="checkmark" size={20} color={colors.primary.trackOrange} />}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Modal>
+
         {/* Athletes */}
-        {athletes.length > 0 && (
+        {filteredAthletes.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Athletes</Text>
-            {athletes.map((athlete, i) => (
+            <Text style={styles.sectionTitle}>
+              Athletes {selectedClass ? `(${filteredAthletes.length})` : ''}
+            </Text>
+            {filteredAthletes.map((athlete, i) => (
               <FadeInCard key={athlete.athlete_id} delay={i * 100}>
                 <TouchableOpacity
                   style={styles.athleteCard}
@@ -184,10 +325,14 @@ export default function SchoolDetailScreen() {
           </View>
         )}
 
-        {athletes.length === 0 && (
+        {filteredAthletes.length === 0 && (
           <View style={styles.emptyState}>
             <Ionicons name="people-outline" size={48} color={colors.text.tertiary} />
-            <Text style={styles.emptyText}>No athletes found for this school</Text>
+            <Text style={styles.emptyText}>
+              {selectedClass || selectedGender
+                ? 'No athletes match the selected filters'
+                : 'No athletes found for this school'}
+            </Text>
           </View>
         )}
 
@@ -358,6 +503,75 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
     marginTop: 4,
     textTransform: 'uppercase',
+  },
+  filterRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    gap: 10,
+    marginBottom: 20,
+  },
+  dropdown: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.backgrounds.white,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+  },
+  dropdownActive: {
+    backgroundColor: colors.primary.trackOrange,
+    borderColor: colors.primary.trackOrange,
+  },
+  dropdownText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: colors.text.primary,
+  },
+  dropdownTextActive: {
+    color: colors.text.white,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 20,
+    borderWidth: 4,
+    borderColor: colors.borders.thick,
+    width: '100%',
+    maxWidth: 300,
+    padding: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: colors.text.primary,
+    textAlign: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.borders.light,
+    marginBottom: 8,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+  },
+  modalOptionText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text.primary,
   },
   section: {
     marginBottom: 24,

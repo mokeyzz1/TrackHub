@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../design-system/colors';
 import { SportsPerformanceCard } from '../../components/ui/SportsPerformanceCard';
@@ -18,45 +18,47 @@ export default function AthleteDetailScreen() {
   const isValidId = !isNaN(athleteId) && athleteId > 0;
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
   // Pass -1 for invalid IDs to prevent NaN from reaching the database
-  const { athlete, performances, loading, error } = useAthleteDetails(isValidId ? athleteId : -1);
+  const { athlete, performances, personalRecords, loading, error } = useAthleteDetails(isValidId ? athleteId : -1);
   const [statsModalVisible, setStatsModalVisible] = useState(false);
+  const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
+  const [seasonDropdownVisible, setSeasonDropdownVisible] = useState(false);
 
-  // Calculate stats from performances
+  // Get available seasons (years) from performances
+  const availableSeasons = useMemo(() => {
+    if (!performances.length) return [];
+    const years = new Set(performances.map(p => new Date(p.date).getFullYear().toString()));
+    return Array.from(years).sort((a, b) => parseInt(b) - parseInt(a)); // Most recent first
+  }, [performances]);
+
+  // Filter performances by selected season
+  const filteredPerformances = useMemo(() => {
+    if (!selectedSeason) return performances;
+    return performances.filter(p => new Date(p.date).getFullYear().toString() === selectedSeason);
+  }, [performances, selectedSeason]);
+
+  // Calculate stats from filtered performances
   const stats = useMemo(() => {
-    if (!performances.length) return { events: 0, meets: 0, wins: 0 };
+    if (!filteredPerformances.length) return { events: 0, meets: 0, wins: 0 };
 
-    const uniqueEvents = new Set(performances.map(p => p.event_name));
-    const uniqueMeets = new Set(performances.map(p => p.meet_name));
-    const wins = performances.filter(p => p.place === 1).length;
+    const uniqueEvents = new Set(filteredPerformances.map(p => p.event_name));
+    const uniqueMeets = new Set(filteredPerformances.map(p => p.meet_name));
+    const wins = filteredPerformances.filter(p => p.place === 1).length;
 
     return {
       events: uniqueEvents.size,
       meets: uniqueMeets.size,
       wins,
     };
-  }, [performances]);
+  }, [filteredPerformances]);
 
-  // Get personal bests (best mark per event)
-  const personalBests = useMemo(() => {
-    if (!performances.length) return [];
+  // Personal records come directly from the database (is_pr = true)
 
-    const eventBests = new Map();
-    performances.forEach(perf => {
-      const existing = eventBests.get(perf.event_name);
-      if (!existing || (perf.mark_seconds && (!existing.mark_seconds || perf.mark_seconds < existing.mark_seconds))) {
-        eventBests.set(perf.event_name, perf);
-      }
-    });
-
-    return Array.from(eventBests.values()).slice(0, 5);
-  }, [performances]);
-
-  // Get recent results (last 10)
+  // Get recent results (last 10) - uses filtered performances
   const recentResults = useMemo(() => {
-    return performances
+    return [...filteredPerformances]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 10);
-  }, [performances]);
+  }, [filteredPerformances]);
 
   const isFollowing = athlete ? isFavorite(athlete.athlete_id.toString(), 'athlete') : false;
 
@@ -152,17 +154,19 @@ export default function AthleteDetailScreen() {
                 <Ionicons name="school" size={14} color={colors.text.white} />
                 <Text style={styles.metaText}>{athlete.school_name || 'Unknown School'}</Text>
               </View>
-              <View style={styles.metaBadge}>
-                <Text style={styles.metaText}>
-                  {athlete.class_year || 'N/A'} • {athlete.division || 'N/A'}
-                </Text>
-              </View>
-              {athlete.hometown && (
+              {(athlete.city || athlete.state) && (
                 <View style={styles.metaBadge}>
                   <Ionicons name="location" size={14} color={colors.text.white} />
-                  <Text style={styles.metaText}>{athlete.hometown}</Text>
+                  <Text style={styles.metaText}>
+                    {[athlete.city, athlete.state].filter(Boolean).join(', ')}
+                  </Text>
                 </View>
               )}
+              <View style={styles.metaBadge}>
+                <Text style={styles.metaText}>
+                  {[athlete.class_year, athlete.division].filter(Boolean).join(' • ') || 'N/A'}
+                </Text>
+              </View>
             </View>
           </LinearGradient>
         </View>
@@ -225,6 +229,21 @@ export default function AthleteDetailScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Season Filter */}
+        {availableSeasons.length > 0 && (
+          <View style={styles.filterContainer}>
+            <TouchableOpacity
+              style={styles.filterDropdown}
+              onPress={() => setSeasonDropdownVisible(true)}
+            >
+              <Text style={styles.filterDropdownText}>
+                {selectedSeason ? `${selectedSeason} Season` : 'All Seasons'}
+              </Text>
+              <Ionicons name="chevron-down" size={16} color={colors.text.primary} />
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Recent Results */}
         {recentResults.length > 0 && (
           <View style={styles.section}>
@@ -251,11 +270,13 @@ export default function AthleteDetailScreen() {
         )}
 
         {/* No data message */}
-        {performances.length === 0 && (
+        {filteredPerformances.length === 0 && (
           <View style={styles.section}>
             <View style={styles.errorContainer}>
               <Ionicons name="podium-outline" size={48} color={colors.text.tertiary} />
-              <Text style={styles.errorText}>No performance data available</Text>
+              <Text style={styles.errorText}>
+                {selectedSeason ? `No results for ${selectedSeason} season` : 'No performance data available'}
+              </Text>
             </View>
           </View>
         )}
@@ -268,8 +289,54 @@ export default function AthleteDetailScreen() {
         visible={statsModalVisible}
         onClose={() => setStatsModalVisible(false)}
         athleteName={athlete?.full_name || 'Athlete'}
-        performances={performances}
+        performances={filteredPerformances}
+        personalRecords={personalRecords}
       />
+
+      {/* Season Filter Modal */}
+      <Modal
+        visible={seasonDropdownVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSeasonDropdownVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setSeasonDropdownVisible(false)}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Season</Text>
+            <TouchableOpacity
+              style={[styles.modalOption, !selectedSeason && styles.modalOptionSelected]}
+              onPress={() => {
+                setSelectedSeason(null);
+                setSeasonDropdownVisible(false);
+              }}
+            >
+              <Text style={[styles.modalOptionText, !selectedSeason && styles.modalOptionTextSelected]}>
+                All Seasons
+              </Text>
+              {!selectedSeason && <Ionicons name="checkmark" size={20} color={colors.primary.trackOrange} />}
+            </TouchableOpacity>
+            {availableSeasons.map(season => (
+              <TouchableOpacity
+                key={season}
+                style={[styles.modalOption, selectedSeason === season && styles.modalOptionSelected]}
+                onPress={() => {
+                  setSelectedSeason(season);
+                  setSeasonDropdownVisible(false);
+                }}
+              >
+                <Text style={[styles.modalOptionText, selectedSeason === season && styles.modalOptionTextSelected]}>
+                  {season} Season
+                </Text>
+                {selectedSeason === season && <Ionicons name="checkmark" size={20} color={colors.primary.trackOrange} />}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -626,5 +693,107 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 100,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text.secondary,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.text.secondary,
+    textAlign: 'center',
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: colors.text.white,
+  },
+  filterContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  filterDropdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.backgrounds.white,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  filterDropdownText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: colors.text.primary,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 20,
+    borderWidth: 4,
+    borderColor: colors.borders.thick,
+    padding: 20,
+    width: '100%',
+    maxWidth: 320,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 5, height: 5 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: colors.text.primary,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  modalOptionSelected: {
+    backgroundColor: colors.backgrounds.cream,
+  },
+  modalOptionText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text.secondary,
+  },
+  modalOptionTextSelected: {
+    fontWeight: '800',
+    color: colors.text.primary,
   },
 });

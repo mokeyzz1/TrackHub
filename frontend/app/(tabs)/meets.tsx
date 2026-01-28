@@ -2,8 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../design-system/colors';
 import { FadeInCard } from '../../components/animations/FadeInCard';
@@ -15,9 +15,33 @@ import { useMeets } from '../../hooks/useMeets';
 export default function MeetsScreen() {
   const [selectedTab, setSelectedTab] = useState<'live' | 'upcoming' | 'past'>('upcoming');
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'date' | 'alpha'>('alpha');
   const meetsHint = useFirstTimeHint('meets_tab', 1500);
 
   const { meets, loading, refresh } = useMeets(selectedTab);
+
+  // Filter and sort meets
+  const filteredMeets = useMemo(() => {
+    let result = [...meets];
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(meet =>
+        meet.name.toLowerCase().includes(query) ||
+        (meet.location && meet.location.toLowerCase().includes(query))
+      );
+    }
+
+    // Sort by name if alphabetical is selected
+    if (sortBy === 'alpha') {
+      result.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    // Date sorting is already handled by the API
+
+    return result;
+  }, [meets, searchQuery, sortBy]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -26,7 +50,9 @@ export default function MeetsScreen() {
   };
 
   function formatDate(dateString: string) {
-    const date = new Date(dateString);
+    // Parse date string directly to avoid timezone issues
+    const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
+    const date = new Date(year, month - 1, day); // Create date in local timezone
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
@@ -104,16 +130,56 @@ export default function MeetsScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Search Bar and Sort Toggle */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchInputWrapper}>
+            <Ionicons name="search" size={20} color={colors.text.tertiary} style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search meets..."
+              placeholderTextColor={colors.text.tertiary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                onPress={() => setSearchQuery('')}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close-circle" size={20} color={colors.text.tertiary} />
+              </TouchableOpacity>
+            )}
+          </View>
+          <TouchableOpacity
+            style={[styles.sortButton, sortBy === 'alpha' && styles.sortButtonActive]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setSortBy(sortBy === 'date' ? 'alpha' : 'date');
+            }}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name={sortBy === 'alpha' ? 'text' : 'calendar'}
+              size={18}
+              color={sortBy === 'alpha' ? colors.text.white : colors.text.primary}
+            />
+            <Text style={[styles.sortButtonText, sortBy === 'alpha' && styles.sortButtonTextActive]}>
+              {sortBy === 'alpha' ? 'A-Z' : 'Date'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Live Meets */}
         {selectedTab === 'live' && (
           <View style={styles.section}>
-            {loading && meets.length === 0 ? (
+            {loading && filteredMeets.length === 0 ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={colors.primary.trackOrange} />
                 <Text style={styles.loadingText}>Loading live meets...</Text>
               </View>
-            ) : meets.length > 0 ? (
-              meets.map((meet, index) => (
+            ) : filteredMeets.length > 0 ? (
+              filteredMeets.map((meet, index) => (
                 <FadeInCard key={meet.meet_id} delay={index * 150}>
                   <AnimatedCard
                     style={styles.liveMeetCard}
@@ -159,9 +225,9 @@ export default function MeetsScreen() {
               ))
             ) : (
               <View style={styles.emptyState}>
-                <Ionicons name="time-outline" size={64} color={colors.text.tertiary} />
-                <Text style={styles.emptyText}>No live meets right now</Text>
-                <Text style={styles.emptySubtext}>Check back during meet season!</Text>
+                <Ionicons name={searchQuery ? "search-outline" : "time-outline"} size={64} color={colors.text.tertiary} />
+                <Text style={styles.emptyText}>{searchQuery ? 'No matches found' : 'No live meets right now'}</Text>
+                <Text style={styles.emptySubtext}>{searchQuery ? 'Try a different search term' : 'Check back during meet season!'}</Text>
               </View>
             )}
           </View>
@@ -170,13 +236,13 @@ export default function MeetsScreen() {
         {/* Upcoming Meets */}
         {selectedTab === 'upcoming' && (
           <View style={styles.section}>
-            {loading && meets.length === 0 ? (
+            {loading && filteredMeets.length === 0 ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={colors.primary.trackOrange} />
                 <Text style={styles.loadingText}>Loading meets...</Text>
               </View>
-            ) : meets.length > 0 ? (
-              meets.map((meet, index) => (
+            ) : filteredMeets.length > 0 ? (
+              filteredMeets.map((meet, index) => (
                 <FadeInCard key={meet.meet_id} delay={index * 120}>
                   <AnimatedCard
                     style={styles.upcomingMeetCard}
@@ -190,12 +256,6 @@ export default function MeetsScreen() {
                         <Text style={styles.upcomingLocation}>{meet.location || 'TBD'}</Text>
                       </View>
                     </View>
-                    {meet.meet_url && (
-                      <View style={styles.liveLinkBadge}>
-                        <Ionicons name="link" size={14} color={colors.performance.newPR} />
-                        <Text style={styles.liveLinkText}>LIVE</Text>
-                      </View>
-                    )}
                   </View>
 
                   <View style={styles.upcomingDetails}>
@@ -217,9 +277,9 @@ export default function MeetsScreen() {
               ))
             ) : (
               <View style={styles.emptyState}>
-                <Ionicons name="calendar-outline" size={64} color={colors.text.tertiary} />
-                <Text style={styles.emptyText}>No upcoming meets</Text>
-                <Text style={styles.emptySubtext}>Check back soon for new meets!</Text>
+                <Ionicons name={searchQuery ? "search-outline" : "calendar-outline"} size={64} color={colors.text.tertiary} />
+                <Text style={styles.emptyText}>{searchQuery ? 'No matches found' : 'No upcoming meets'}</Text>
+                <Text style={styles.emptySubtext}>{searchQuery ? 'Try a different search term' : 'Check back soon for new meets!'}</Text>
               </View>
             )}
           </View>
@@ -228,13 +288,13 @@ export default function MeetsScreen() {
         {/* Past Meets */}
         {selectedTab === 'past' && (
           <View style={styles.section}>
-            {loading && meets.length === 0 ? (
+            {loading && filteredMeets.length === 0 ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={colors.primary.trackOrange} />
                 <Text style={styles.loadingText}>Loading past meets...</Text>
               </View>
-            ) : meets.length > 0 ? (
-              meets.map((meet, index) => (
+            ) : filteredMeets.length > 0 ? (
+              filteredMeets.map((meet, index) => (
                 <FadeInCard key={meet.meet_id} delay={index * 120}>
                   <AnimatedCard
                     style={styles.pastMeetCard}
@@ -274,9 +334,9 @@ export default function MeetsScreen() {
               ))
             ) : (
               <View style={styles.emptyState}>
-                <Ionicons name="trophy-outline" size={64} color={colors.text.tertiary} />
-                <Text style={styles.emptyText}>No past meets</Text>
-                <Text style={styles.emptySubtext}>Completed meets will appear here</Text>
+                <Ionicons name={searchQuery ? "search-outline" : "trophy-outline"} size={64} color={colors.text.tertiary} />
+                <Text style={styles.emptyText}>{searchQuery ? 'No matches found' : 'No past meets'}</Text>
+                <Text style={styles.emptySubtext}>{searchQuery ? 'Try a different search term' : 'Completed meets will appear here'}</Text>
               </View>
             )}
           </View>
@@ -320,7 +380,56 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 20,
     gap: 10,
-    marginBottom: 24,
+    marginBottom: 16,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    gap: 10,
+    marginBottom: 20,
+  },
+  searchInputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    paddingHorizontal: 12,
+    height: 48,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.text.primary,
+  },
+  sortButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    paddingHorizontal: 14,
+    height: 48,
+  },
+  sortButtonActive: {
+    backgroundColor: colors.primary.trackOrange,
+  },
+  sortButtonText: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: colors.text.primary,
+  },
+  sortButtonTextActive: {
+    color: colors.text.white,
   },
   tab: {
     flex: 1,

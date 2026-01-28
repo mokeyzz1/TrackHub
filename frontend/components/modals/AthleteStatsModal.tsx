@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../design-system/colors';
-import { Performance } from '../../hooks/useAthleteDetails';
+import { Performance, PersonalRecord } from '../../hooks/useAthleteDetails';
 import { SeasonProgressionChart } from '../charts/SeasonProgressionChart';
 
 const { width, height } = Dimensions.get('window');
@@ -22,6 +22,7 @@ interface AthleteStatsModalProps {
   onClose: () => void;
   athleteName: string;
   performances: Performance[];
+  personalRecords?: PersonalRecord[];
 }
 
 type TabType = 'personal-bests' | 'season-bests' | 'results' | 'progression';
@@ -31,6 +32,7 @@ export function AthleteStatsModal({
   onClose,
   athleteName,
   performances,
+  personalRecords = [],
 }: AthleteStatsModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('personal-bests');
   const [selectedEvent, setSelectedEvent] = useState<string>('');
@@ -78,7 +80,7 @@ export function AthleteStatsModal({
 
   // Parse mark_raw to get a comparable numeric value
   const parseMarkToNumber = (markRaw: string, eventName: string): number | null => {
-    if (!markRaw || markRaw === 'DNF' || markRaw === 'DNS' || markRaw === 'DQ') {
+    if (!markRaw || markRaw === 'DNF' || markRaw === 'DNS' || markRaw === 'DQ' || markRaw === 'NT' || markRaw === 'FS' || markRaw === 'FOUL' || markRaw === 'NH' || markRaw === 'NM') {
       return null;
     }
 
@@ -92,81 +94,54 @@ export function AthleteStatsModal({
       // Handle feet-inches format (e.g., "45-6.5")
       if (cleaned.includes('-')) {
         const [feet, inches] = cleaned.split('-').map(parseFloat);
-        return feet + (inches / 12); // Convert to total feet
+        const result = feet + (inches / 12); // Convert to total feet
+        return isNaN(result) ? null : result;
       }
 
-      return parseFloat(cleaned);
+      const result = parseFloat(cleaned);
+      return isNaN(result) ? null : result;
     } else {
       // Running events: parse times like "10.52", "3:55.38", "32:09.2"
       const parts = markRaw.split(':');
 
       if (parts.length === 1) {
         // Simple seconds: "10.52"
-        return parseFloat(parts[0]);
+        const result = parseFloat(parts[0]);
+        return isNaN(result) ? null : result;
       } else if (parts.length === 2) {
         // Minutes:seconds: "3:55.38"
         const minutes = parseFloat(parts[0]);
         const seconds = parseFloat(parts[1]);
-        return minutes * 60 + seconds;
+        const result = minutes * 60 + seconds;
+        return isNaN(result) ? null : result;
       } else if (parts.length === 3) {
         // Hours:minutes:seconds: "1:05:32.1"
         const hours = parseFloat(parts[0]);
         const minutes = parseFloat(parts[1]);
         const seconds = parseFloat(parts[2]);
-        return hours * 3600 + minutes * 60 + seconds;
+        const result = hours * 3600 + minutes * 60 + seconds;
+        return isNaN(result) ? null : result;
       }
     }
 
     return null;
   };
 
-  // Calculate Personal Bests (all-time best per event)
-  const personalBests = useMemo(() => {
-    const eventBests = new Map<string, Performance>();
-    performances.forEach(perf => {
-      const existing = eventBests.get(perf.event_name);
+  // Use actual personal records from database, sorted by event name
+  const sortedPersonalRecords = useMemo(() => {
+    return [...personalRecords].sort((a, b) => a.event_name.localeCompare(b.event_name));
+  }, [personalRecords]);
 
-      if (!existing) {
-        eventBests.set(perf.event_name, perf);
-      } else {
-        const isField = isFieldEvent(perf.event_name);
-        const perfValue = parseMarkToNumber(perf.mark_raw, perf.event_name);
-        const existingValue = parseMarkToNumber(existing.mark_raw, existing.event_name);
-
-        if (perfValue !== null && existingValue !== null) {
-          // For field events, higher is better
-          // For running events, lower is better
-          if (isField) {
-            if (perfValue > existingValue) {
-              eventBests.set(perf.event_name, perf);
-            }
-          } else {
-            if (perfValue < existingValue) {
-              eventBests.set(perf.event_name, perf);
-            }
-          }
-        } else if (perfValue !== null && existingValue === null) {
-          // Replace invalid existing with valid new
-          eventBests.set(perf.event_name, perf);
-        }
+  // Get available seasons from performance data (using calendar years for simplicity)
+  const availableSeasons = useMemo(() => {
+    const years = new Set<string>();
+    performances.forEach(p => {
+      if (p.date) {
+        const year = new Date(p.date).getFullYear().toString();
+        years.add(year);
       }
     });
-    return Array.from(eventBests.values()).sort((a, b) => a.event_name.localeCompare(b.event_name));
-  }, [performances]);
-
-  // Get available seasons from performance data
-  const availableSeasons = useMemo(() => {
-    const seasons = new Set<string>();
-    performances.forEach(p => {
-      const date = new Date(p.date);
-      const year = date.getFullYear();
-      const month = date.getMonth();
-      // Determine which season this performance belongs to
-      const seasonStartYear = month >= 8 ? year : year - 1;
-      const seasonEndYear = seasonStartYear + 1;
-      seasons.add(`${seasonStartYear}-${seasonEndYear}`);
-    });
-    return Array.from(seasons).sort().reverse(); // Most recent first
+    return Array.from(years).sort().reverse(); // Most recent first
   }, [performances]);
 
   // Set default selected season
@@ -176,40 +151,48 @@ export function AthleteStatsModal({
     }
   }, [availableSeasons, selectedSeason]);
 
-  // Calculate Season Bests (for selected season)
+  // Calculate Season Bests for selected year
+  // Only includes events the athlete actually competed in that year
   const seasonBests = useMemo(() => {
-    if (!selectedSeason) return [];
+    if (!selectedSeason || !performances.length) return [];
 
-    const [startYear, endYear] = selectedSeason.split('-').map(Number);
-    const seasonStart = new Date(`${startYear}-09-01`);
-    const seasonEnd = new Date(`${endYear}-08-31`);
+    // Filter to only performances from the selected year
     const seasonPerfs = performances.filter(p => {
-      const date = new Date(p.date);
-      return date >= seasonStart && date <= seasonEnd;
+      if (!p.date) return false;
+      const year = new Date(p.date).getFullYear().toString();
+      return year === selectedSeason;
     });
 
+    // Find best mark per event (skip invalid marks like NT, DNF, etc.)
     const eventBests = new Map<string, Performance>();
     seasonPerfs.forEach(perf => {
+      const perfValue = parseMarkToNumber(perf.mark_raw, perf.event_name);
+
+      // Skip results with invalid/unparseable marks
+      if (perfValue === null) return;
+
       const existing = eventBests.get(perf.event_name);
 
       if (!existing) {
         eventBests.set(perf.event_name, perf);
       } else {
         const isField = isFieldEvent(perf.event_name);
-        const perfValue = parseMarkToNumber(perf.mark_raw, perf.event_name);
         const existingValue = parseMarkToNumber(existing.mark_raw, existing.event_name);
 
-        if (perfValue !== null && existingValue !== null) {
+        if (existingValue !== null) {
           if (isField) {
+            // Field events: higher is better (furthest/highest)
             if (perfValue > existingValue) {
               eventBests.set(perf.event_name, perf);
             }
           } else {
+            // Running events: lower is better (fastest)
             if (perfValue < existingValue) {
               eventBests.set(perf.event_name, perf);
             }
           }
-        } else if (perfValue !== null && existingValue === null) {
+        } else {
+          // Existing has invalid mark, replace with valid one
           eventBests.set(perf.event_name, perf);
         }
       }
@@ -321,39 +304,40 @@ export function AthleteStatsModal({
   const renderPersonalBests = () => (
     <View style={styles.contentContainer}>
       <Text style={styles.contentTitle}>Personal Records</Text>
-      <Text style={styles.contentSubtitle}>All-time best performance for each event</Text>
+      <Text style={styles.contentSubtitle}>{sortedPersonalRecords.length} events</Text>
 
-      {personalBests.map((pb, index) => (
-        <View key={index} style={styles.statCard}>
-          <View style={styles.statHeader}>
-            <Text style={styles.eventName}>{pb.event_name}</Text>
-            <View style={styles.prBadge}>
-              <Ionicons name="trophy" size={14} color={colors.text.white} />
-              <Text style={styles.prBadgeText}>PR</Text>
+      {sortedPersonalRecords.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Ionicons name="trophy-outline" size={48} color={colors.text.tertiary} />
+          <Text style={styles.emptyText}>No personal records available</Text>
+        </View>
+      ) : (
+        sortedPersonalRecords.map((pr, index) => (
+          <View key={index} style={styles.statCard}>
+            <View style={styles.statHeader}>
+              <Text style={styles.eventName}>{pr.event_name}</Text>
+              <View style={styles.prBadge}>
+                <Ionicons name="trophy" size={14} color={colors.text.white} />
+                <Text style={styles.prBadgeText}>PR</Text>
+              </View>
+            </View>
+            <View style={styles.markContainer}>
+              {(() => {
+                const formattedMark = formatFieldEventMark(pr.mark_raw, pr.event_name);
+                if (typeof formattedMark === 'object') {
+                  return (
+                    <>
+                      <Text style={styles.markValue}>{formattedMark.metric}</Text>
+                      <Text style={styles.markValueSecondary}>{formattedMark.imperial}</Text>
+                    </>
+                  );
+                }
+                return <Text style={styles.markValue}>{pr.mark_raw}</Text>;
+              })()}
             </View>
           </View>
-          <View style={styles.markContainer}>
-            {(() => {
-              const formattedMark = formatFieldEventMark(pb.mark_raw, pb.event_name);
-              if (typeof formattedMark === 'object') {
-                return (
-                  <>
-                    <Text style={styles.markValue}>{formattedMark.metric}</Text>
-                    <Text style={styles.markValueSecondary}>{formattedMark.imperial}</Text>
-                  </>
-                );
-              }
-              return <Text style={styles.markValue}>{pb.mark_raw}</Text>;
-            })()}
-          </View>
-          <Text style={styles.statDetails}>
-            {pb.meet_name}
-          </Text>
-          <Text style={styles.statDate}>
-            {new Date(pb.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-          </Text>
-        </View>
-      ))}
+        ))
+      )}
     </View>
   );
 
@@ -390,7 +374,7 @@ export function AthleteStatsModal({
           </ScrollView>
         </View>
 
-        <Text style={styles.contentSubtitle}>{seasonBests.length} events in {selectedSeason}</Text>
+        <Text style={styles.contentSubtitle}>{seasonBests.length} events in {selectedSeason} season</Text>
 
       {seasonBests.length === 0 ? (
         <View style={styles.emptyState}>
@@ -495,7 +479,7 @@ export function AthleteStatsModal({
     // Prepare data for chart - use parsed time from mark_raw if mark_seconds is not available
     const chartData = eventPerformances.map((p, idx, arr) => {
       const time = p.mark_seconds || parseMarkToNumber(p.mark_raw, selectedEvent) || 0;
-      const validTimes = arr.slice(0, idx + 1).map(x => x.mark_seconds || parseMarkToNumber(x.mark_raw, selectedEvent)).filter(t => t && t > 0);
+      const validTimes = arr.slice(0, idx + 1).map(x => x.mark_seconds || parseMarkToNumber(x.mark_raw, selectedEvent)).filter((t): t is number => t !== null && t > 0);
       const bestSoFar = validTimes.length > 0 ? Math.min(...validTimes) : time;
       
       return {
@@ -806,7 +790,7 @@ const styles = StyleSheet.create({
     color: colors.text.white,
   },
   sbBadge: {
-    backgroundColor: colors.primary.athleticGreen,
+    backgroundColor: colors.semantic.success,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,
@@ -948,7 +932,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: colors.primary.athleticGreen,
+    backgroundColor: colors.semantic.success,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,

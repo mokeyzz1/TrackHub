@@ -173,13 +173,18 @@ export async function searchSchools(searchTerm: string, limit: number = 20) {
 
 // Get school by ID
 export async function getSchoolById(schoolId: number) {
+  console.log('getSchoolById called with:', schoolId);
   const { data, error } = await supabase
     .from('schools')
-    .select('school_id, official_name, short_name, city, state, division, conference')
+    .select('*')
     .eq('school_id', schoolId)
     .single();
 
-  if (error) throw error;
+  console.log('getSchoolById result:', { data, error });
+  if (error) {
+    console.error('getSchoolById error:', error);
+    return null;
+  }
   return data;
 }
 
@@ -227,19 +232,25 @@ export async function getAthleteDetails(athleteId: number) {
   } : null;
 }
 
-// Get athlete's recent performances
+// Get athlete's recent performances (excludes PR-only records)
 export async function getAthletePerformances(athleteId: number, limit: number = 20) {
   const { data, error } = await supabase
     .from('results')
     .select(`
-      *,
-      teams (
-        schools (
-          official_name
-        )
-      )
+      result_id,
+      athlete_id,
+      event_name,
+      mark_raw,
+      mark_seconds,
+      date,
+      meet_name,
+      place,
+      round,
+      is_pr
     `)
     .eq('athlete_id', athleteId)
+    .not('date', 'is', null)
+    .gte('date', '2000-01-01')
     .order('date', { ascending: false })
     .limit(limit);
 
@@ -248,10 +259,30 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
     throw error;
   }
 
-  return data?.map(r => ({
-    ...r,
-    school_name: r.teams?.schools?.official_name,
-  })) || [];
+  return data || [];
+}
+
+// Get athlete's personal records (PRs)
+export async function getAthletePRs(athleteId: number) {
+  const { data, error } = await supabase
+    .from('results')
+    .select(`
+      result_id,
+      athlete_id,
+      event_name,
+      mark_raw,
+      mark_seconds
+    `)
+    .eq('athlete_id', athleteId)
+    .eq('is_pr', true)
+    .order('event_name');
+
+  if (error) {
+    console.error('Error fetching athlete PRs:', error);
+    throw error;
+  }
+
+  return data || [];
 }
 
 // Get all athletes with pagination
@@ -302,16 +333,19 @@ export async function getAthletes(options: {
   }
 
   return {
-    data: data?.map(a => ({
-      athlete_id: a.athlete_id,
-      full_name: a.full_name,
-      gender: a.gender,
-      class_year: a.class_year,
-      primary_events: a.primary_events,
-      school_name: a.schools?.official_name,
-      division: a.schools?.division,
-      state: a.schools?.state,
-    })) || [],
+    data: data?.map(a => {
+      const school = a.schools as any;
+      return {
+        athlete_id: a.athlete_id,
+        full_name: a.full_name,
+        gender: a.gender,
+        class_year: a.class_year,
+        primary_events: a.primary_events,
+        school_name: school?.official_name,
+        division: school?.division,
+        state: school?.state,
+      };
+    }) || [],
     pagination: { limit, offset, count: count || 0 },
   };
 }
@@ -359,17 +393,21 @@ export async function getSchools(options: {
   }
 
   return {
-    data: data?.map(s => ({
-      school_id: s.school_id,
-      official_name: s.official_name,
-      short_name: s.short_name,
-      city: s.city,
-      state: s.state,
-      division: s.division,
-      region_name: s.regions?.region_name,
-      conference_name: s.conferences?.name,
-      conference_abbrev: s.conferences?.abbreviation,
-    })) || [],
+    data: data?.map(s => {
+      const region = s.regions as any;
+      const conference = s.conferences as any;
+      return {
+        school_id: s.school_id,
+        official_name: s.official_name,
+        short_name: s.short_name,
+        city: s.city,
+        state: s.state,
+        division: s.division,
+        region_name: region?.region_name,
+        conference_name: conference?.name,
+        conference_abbrev: conference?.abbreviation,
+      };
+    }) || [],
     pagination: { limit, offset, count: count || 0 },
   };
 }
@@ -471,7 +509,8 @@ export async function getAthleteComparisonStats(athleteId: number, seasonFilter:
     .from('results')
     .select('event_name, mark_raw, meet_name, date')
     .eq('athlete_id', athleteId)
-    .eq('is_pr', true);
+    .eq('is_pr', true)
+    .gte('date', '2000-01-01');
 
   if (prError) {
     console.error('Error fetching PRs:', prError);
@@ -481,7 +520,8 @@ export async function getAthleteComparisonStats(athleteId: number, seasonFilter:
   const { data: rawResults, error: resultsError } = await supabase
     .from('results')
     .select('event_name, place, meet_name, date, mark_raw')
-    .eq('athlete_id', athleteId);
+    .eq('athlete_id', athleteId)
+    .gte('date', '2000-01-01');
 
   if (resultsError) {
     console.error('Error fetching results:', resultsError);
@@ -540,12 +580,13 @@ export async function getAthleteComparisonStats(athleteId: number, seasonFilter:
     }
   });
 
+  const school = athlete.schools as any;
   return {
     athlete_id: athlete.athlete_id,
     full_name: athlete.full_name,
     gender: athlete.gender,
-    school_name: athlete.schools?.official_name,
-    division: athlete.schools?.division,
+    school_name: school?.official_name,
+    division: school?.division,
     eventStats,
     // Include raw results for head-to-head calculation
     allResults: allResults || [],
@@ -558,12 +599,14 @@ export async function getHeadToHead(athleteId1: number, athleteId2: number, even
   const { data: rawResults1, error: error1 } = await supabase
     .from('results')
     .select('meet_name, date, place, mark_raw, event_name, round')
-    .eq('athlete_id', athleteId1);
+    .eq('athlete_id', athleteId1)
+    .gte('date', '2000-01-01');
 
   const { data: rawResults2, error: error2 } = await supabase
     .from('results')
     .select('meet_name, date, place, mark_raw, event_name, round')
-    .eq('athlete_id', athleteId2);
+    .eq('athlete_id', athleteId2)
+    .gte('date', '2000-01-01');
 
   if (error1 || error2) {
     console.error('Error fetching head-to-head:', error1 || error2);

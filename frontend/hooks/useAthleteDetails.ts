@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAthleteDetails, getAthletePerformances } from '../services/database-supabase';
+import { getAthleteDetails, getAthletePerformances, getAthletePRs } from '../services/database-supabase';
 
 export interface Athlete {
   athlete_id: number;
@@ -22,8 +22,8 @@ export interface Athlete {
 export interface Performance {
   result_id: number;
   athlete_id: number;
-  full_name: string;
-  gender: string;
+  full_name?: string;
+  gender?: string;
   event_name: string;
   mark_raw: string;
   mark_seconds?: number;
@@ -32,14 +32,23 @@ export interface Performance {
   meet_location?: string;
   place: number;
   round?: string;
-  school_name: string;
+  school_name?: string;
   division?: string;
   state?: string;
+}
+
+export interface PersonalRecord {
+  result_id: number;
+  athlete_id: number;
+  event_name: string;
+  mark_raw: string;
+  mark_seconds?: number;
 }
 
 export function useAthleteDetails(athleteId: number) {
   const [athlete, setAthlete] = useState<Athlete | null>(null);
   const [performances, setPerformances] = useState<Performance[]>([]);
+  const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -52,13 +61,15 @@ export function useAthleteDetails(athleteId: number) {
       setLoading(true);
       setError(null);
 
-      const [athleteData, performanceData] = await Promise.all([
+      const [athleteData, performanceData, prData] = await Promise.all([
         getAthleteDetails(athleteId),
-        getAthletePerformances(athleteId, 50)
+        getAthletePerformances(athleteId, 100),
+        getAthletePRs(athleteId)
       ]);
 
       setAthlete(athleteData as Athlete);
       setPerformances(performanceData as Performance[]);
+      setPersonalRecords(prData as PersonalRecord[]);
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -66,5 +77,5 @@ export function useAthleteDetails(athleteId: number) {
     }
   };
 
-  return { athlete, performances, loading, error, refetch: loadAthleteData };
+  return { athlete, performances, personalRecords, loading, error, refetch: loadAthleteData };
 }
