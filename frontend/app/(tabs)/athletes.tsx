@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, FlatList, RefreshControl } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, FlatList, RefreshControl, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -10,34 +10,31 @@ import { FadeInCard } from '../../components/animations/FadeInCard';
 import { useAthleteSearch } from '../../hooks/useAthleteSearch';
 import { useAthletes } from '../../hooks/useAthletes';
 
-// Map filter names to database values
-function getFilterParams(filter: string): { gender?: string; division?: string } {
-  switch (filter) {
-    case 'Men':
-      return { gender: 'M' };
-    case 'Women':
-      return { gender: 'F' };
-    case 'D1':
-      return { division: 'DI' };
-    case 'D2':
-      return { division: 'DII' };
-    case 'D3':
-      return { division: 'DIII' };
-    default:
-      return {};
-  }
-}
+// Gender options
+const genderOptions = [
+  { label: 'All', value: '' },
+  { label: 'Men', value: 'M' },
+  { label: 'Women', value: 'F' },
+];
+
+// Division options
+const divisionOptions = [
+  { label: 'All Divisions', value: '' },
+  { label: 'Division I', value: 'DI' },
+  { label: 'Division II', value: 'DII' },
+  { label: 'Division III', value: 'DIII' },
+];
 
 export default function AthletesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('All');
+  const [selectedGender, setSelectedGender] = useState('');
+  const [selectedDivision, setSelectedDivision] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-
-  // Get filter params based on selected filter
-  const filterParams = getFilterParams(selectedFilter);
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+  const [showDivisionDropdown, setShowDivisionDropdown] = useState(false);
 
   // Load athletes with filter
-  const { athletes: allAthletes, loading: loadingAll, error: errorAll, loadMore, hasMore, totalCount, refresh } = useAthletes(50, filterParams.gender, filterParams.division);
+  const { athletes: allAthletes, loading: loadingAll, error: errorAll, loadMore, hasMore, totalCount, refresh } = useAthletes(50, selectedGender || undefined, selectedDivision || undefined);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -66,7 +63,9 @@ export default function AthletesScreen() {
     return () => clearTimeout(timer);
   }, [searchQuery, search]);
 
-  const filters = ['All', 'Men', 'Women', 'D1', 'D2', 'D3'];
+  // Get display labels for selected filters
+  const genderLabel = genderOptions.find(o => o.value === selectedGender)?.label || 'All';
+  const divisionLabel = divisionOptions.find(o => o.value === selectedDivision)?.label || 'All Divisions';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -102,29 +101,118 @@ export default function AthletesScreen() {
           </View>
         </View>
 
-        {/* Filter Chips */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterScroll}
-          contentContainerStyle={styles.filterContainer}
+        {/* Filter Dropdowns */}
+        <View style={styles.filterRow}>
+          {/* Gender Dropdown */}
+          <TouchableOpacity
+            style={styles.filterDropdown}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowGenderDropdown(true);
+            }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.filterDropdownText}>{genderLabel}</Text>
+            <Ionicons name="chevron-down" size={18} color={colors.text.primary} />
+          </TouchableOpacity>
+
+          {/* Division Dropdown */}
+          <TouchableOpacity
+            style={styles.filterDropdown}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowDivisionDropdown(true);
+            }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.filterDropdownText}>{divisionLabel}</Text>
+            <Ionicons name="chevron-down" size={18} color={colors.text.primary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Gender Dropdown Modal */}
+        <Modal
+          visible={showGenderDropdown}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowGenderDropdown(false)}
         >
-          {filters.map((filter) => (
-            <TouchableOpacity
-              key={filter}
-              style={[styles.filterChip, selectedFilter === filter && styles.filterChipActive]}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setSelectedFilter(filter);
-              }}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.filterText, selectedFilter === filter && styles.filterTextActive]}>
-                {filter}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setShowGenderDropdown(false)}
+          >
+            <View style={styles.dropdownModal}>
+              <Text style={styles.dropdownTitle}>Select Gender</Text>
+              {genderOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.dropdownOption,
+                    selectedGender === option.value && styles.dropdownOptionActive,
+                  ]}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSelectedGender(option.value);
+                    setShowGenderDropdown(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.dropdownOptionText,
+                    selectedGender === option.value && styles.dropdownOptionTextActive,
+                  ]}>
+                    {option.label}
+                  </Text>
+                  {selectedGender === option.value && (
+                    <Ionicons name="checkmark" size={20} color={colors.text.white} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Modal>
+
+        {/* Division Dropdown Modal */}
+        <Modal
+          visible={showDivisionDropdown}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowDivisionDropdown(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setShowDivisionDropdown(false)}
+          >
+            <View style={styles.dropdownModal}>
+              <Text style={styles.dropdownTitle}>Select Division</Text>
+              {divisionOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.dropdownOption,
+                    selectedDivision === option.value && styles.dropdownOptionActive,
+                  ]}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSelectedDivision(option.value);
+                    setShowDivisionDropdown(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.dropdownOptionText,
+                    selectedDivision === option.value && styles.dropdownOptionTextActive,
+                  ]}>
+                    {option.label}
+                  </Text>
+                  {selectedDivision === option.value && (
+                    <Ionicons name="checkmark" size={20} color={colors.text.white} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Modal>
 
         {/* Section Header */}
         <View style={styles.sectionHeader}>
@@ -238,30 +326,81 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  filterScroll: {
+  filterRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    gap: 12,
     marginBottom: 24,
   },
-  filterContainer: {
-    paddingHorizontal: 20,
-    gap: 10,
-  },
-  filterChip: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
+  filterDropdown: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: colors.backgrounds.white,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
     borderWidth: 3,
     borderColor: colors.borders.thick,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
   },
-  filterChipActive: {
-    backgroundColor: colors.primary.trackOrange,
-  },
-  filterText: {
+  filterDropdownText: {
     fontSize: 15,
-    fontWeight: '900',
+    fontWeight: '800',
     color: colors.text.primary,
   },
-  filterTextActive: {
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  dropdownModal: {
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 20,
+    borderWidth: 4,
+    borderColor: colors.borders.thick,
+    padding: 8,
+    width: '100%',
+    maxWidth: 320,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  dropdownTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.text.primary,
+    textAlign: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.borders.light,
+    marginBottom: 8,
+  },
+  dropdownOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 4,
+  },
+  dropdownOptionActive: {
+    backgroundColor: colors.primary.trackOrange,
+  },
+  dropdownOptionText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text.primary,
+  },
+  dropdownOptionTextActive: {
     color: colors.text.white,
   },
   sectionHeader: {

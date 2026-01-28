@@ -53,11 +53,31 @@ export default function AthleteDetailScreen() {
 
   // Personal records come directly from the database (is_pr = true)
 
-  // Get recent results (last 10) - uses filtered performances
-  const recentResults = useMemo(() => {
-    return [...filteredPerformances]
+  // Group results by meet - uses filtered performances
+  const meetResults = useMemo(() => {
+    // Group performances by meet (meet_name + date)
+    const grouped = new Map<string, {
+      meetName: string;
+      date: string;
+      events: typeof filteredPerformances;
+    }>();
+
+    [...filteredPerformances]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 10);
+      .forEach(perf => {
+        const key = `${perf.meet_name}|${perf.date}`;
+        if (!grouped.has(key)) {
+          grouped.set(key, {
+            meetName: perf.meet_name,
+            date: perf.date,
+            events: [],
+          });
+        }
+        grouped.get(key)!.events.push(perf);
+      });
+
+    // Convert to array and limit to recent 10 meets
+    return Array.from(grouped.values()).slice(0, 10);
   }, [filteredPerformances]);
 
   const isFollowing = athlete ? isFavorite(athlete.athlete_id.toString(), 'athlete') : false;
@@ -150,10 +170,22 @@ export default function AthleteDetailScreen() {
             </View>
             <Text style={styles.athleteName}>{athlete.full_name}</Text>
             <View style={styles.athleteMeta}>
-              <View style={styles.metaBadge}>
+              <TouchableOpacity
+                style={styles.metaBadge}
+                onPress={() => {
+                  if (athlete.school_id) {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    router.push(`/school/${athlete.school_id}`);
+                  }
+                }}
+                activeOpacity={athlete.school_id ? 0.7 : 1}
+              >
                 <Ionicons name="school" size={14} color={colors.text.white} />
                 <Text style={styles.metaText}>{athlete.school_name || 'Unknown School'}</Text>
-              </View>
+                {athlete.school_id && (
+                  <Ionicons name="chevron-forward" size={14} color="rgba(255,255,255,0.7)" />
+                )}
+              </TouchableOpacity>
               {(athlete.city || athlete.state) && (
                 <View style={styles.metaBadge}>
                   <Ionicons name="location" size={14} color={colors.text.white} />
@@ -244,25 +276,71 @@ export default function AthleteDetailScreen() {
           </View>
         )}
 
-        {/* Recent Results */}
-        {recentResults.length > 0 && (
+        {/* Meet Results - Grouped by Meet */}
+        {meetResults.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Results ({recentResults.length})</Text>
-            {recentResults.map((result, i) => (
-              <FadeInCard key={i} delay={i * 100}>
-                <View style={styles.resultCard}>
-                  <View style={styles.resultHeader}>
-                    <Text style={styles.resultMeet}>{result.meet_name}</Text>
-                    <View style={styles.placeBadge}>
-                      <Text style={styles.placeText}>{result.place}</Text>
-                      <Text style={styles.placeSuffix}>
-                        {result.place === 1 ? 'st' : result.place === 2 ? 'nd' : result.place === 3 ? 'rd' : 'th'}
-                      </Text>
-                    </View>
+            <Text style={styles.sectionTitle}>Recent Meets ({meetResults.length})</Text>
+            {meetResults.map((meet, meetIndex) => (
+              <FadeInCard key={`${meet.meetName}-${meet.date}`} delay={meetIndex * 100}>
+                <View style={styles.meetCard}>
+                  {/* Meet Header */}
+                  <View style={styles.meetCardHeader}>
+                    <Text style={styles.meetCardTitle}>{meet.meetName}</Text>
+                    <Text style={styles.meetCardDate}>
+                      {new Date(meet.date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </Text>
                   </View>
-                  <Text style={styles.resultEvent}>{result.event_name}</Text>
-                  <Text style={styles.resultTime}>{result.mark_raw}</Text>
-                  <Text style={styles.pbWhen}>{new Date(result.date).toLocaleDateString()}</Text>
+
+                  {/* Events List */}
+                  <View style={styles.meetEventsList}>
+                    {meet.events.map((event, eventIndex) => (
+                      <TouchableOpacity
+                        key={`${event.event_name}-${event.round}-${eventIndex}`}
+                        style={[
+                          styles.meetEventRow,
+                          eventIndex === meet.events.length - 1 && styles.meetEventRowLast
+                        ]}
+                        onPress={() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          router.push({
+                            pathname: '/event-results',
+                            params: {
+                              meetName: meet.meetName,
+                              eventName: event.event_name,
+                              date: meet.date.split('T')[0],
+                              gender: athlete?.gender || '',
+                            },
+                          });
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <View style={styles.meetEventInfo}>
+                          <View style={styles.meetEventNameRow}>
+                            <Text style={styles.meetEventName}>{event.event_name}</Text>
+                            {event.round && (
+                              <View style={styles.roundTag}>
+                                <Text style={styles.roundTagText}>{event.round}</Text>
+                              </View>
+                            )}
+                          </View>
+                          <Text style={styles.meetEventMark}>{event.mark_raw}</Text>
+                        </View>
+                        <View style={styles.meetEventRight}>
+                          <View style={styles.placeBadgeSmall}>
+                            <Text style={styles.placeTextSmall}>{event.place}</Text>
+                            <Text style={styles.placeSuffixSmall}>
+                              {event.place === 1 ? 'st' : event.place === 2 ? 'nd' : event.place === 3 ? 'rd' : 'th'}
+                            </Text>
+                          </View>
+                          <Ionicons name="chevron-forward" size={16} color={colors.text.tertiary} />
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
                 </View>
               </FadeInCard>
             ))}
@@ -549,6 +627,101 @@ const styles = StyleSheet.create({
   performancesList: {
     paddingHorizontal: 20,
   },
+  // Meet Card - Grouped results by meet
+  meetCard: {
+    backgroundColor: colors.backgrounds.white,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderRadius: 18,
+    borderWidth: 4,
+    borderColor: colors.borders.thick,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    overflow: 'hidden',
+  },
+  meetCardHeader: {
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.borders.thick,
+  },
+  meetCardTitle: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: colors.text.primary,
+    marginBottom: 4,
+  },
+  meetCardDate: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+  },
+  meetEventsList: {
+    paddingVertical: 4,
+  },
+  meetEventRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.borders.light,
+  },
+  meetEventRowLast: {
+    borderBottomWidth: 0,
+  },
+  meetEventInfo: {
+    flex: 1,
+  },
+  meetEventNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  meetEventName: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: colors.text.primary,
+  },
+  meetEventMark: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: colors.primary.trackOrange,
+    fontFamily: 'Courier',
+  },
+  meetEventRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  placeBadgeSmall: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.borders.thick,
+  },
+  placeTextSmall: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.text.primary,
+  },
+  placeSuffixSmall: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: colors.text.secondary,
+    marginLeft: 1,
+  },
+
+  // Legacy result card styles (kept for reference)
   resultCard: {
     backgroundColor: colors.backgrounds.white,
     marginHorizontal: 20,
@@ -595,11 +768,37 @@ const styles = StyleSheet.create({
     color: colors.text.white,
     marginLeft: 2,
   },
+  resultContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  resultLeft: {
+    flex: 1,
+  },
+  resultEventRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
   resultEvent: {
     fontSize: 13,
     fontWeight: '700',
     color: colors.text.tertiary,
-    marginBottom: 6,
+  },
+  roundTag: {
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.borders.medium,
+  },
+  roundTagText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.text.secondary,
   },
   resultTime: {
     fontSize: 28,

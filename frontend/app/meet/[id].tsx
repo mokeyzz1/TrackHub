@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Modal,
+  FlatList,
 } from 'react-native';
 import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,6 +17,7 @@ import { WebView } from 'react-native-webview';
 import * as Haptics from 'expo-haptics';
 import { colors } from '../../design-system/colors';
 import { supabase } from '../../lib/supabase';
+import { getEventsByMeetWithGender } from '../../services/database-supabase';
 
 interface Meet {
   meet_id: number;
@@ -29,7 +31,11 @@ interface Meet {
 }
 
 export default function MeetDetailScreen() {
-  const { id } = useLocalSearchParams();
+  const { id, meetName: paramMeetName, meetDate: paramMeetDate } = useLocalSearchParams<{
+    id: string;
+    meetName?: string;
+    meetDate?: string;
+  }>();
   const [meet, setMeet] = useState<Meet | null>(null);
   const [relatedMeets, setRelatedMeets] = useState<Meet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,15 +43,46 @@ export default function MeetDetailScreen() {
   const [showWebView, setShowWebView] = useState(false);
   const [webViewLoading, setWebViewLoading] = useState(true);
 
+  // For meets not in database, use params directly
+  const [fallbackMeetName, setFallbackMeetName] = useState<string | null>(null);
+  const [fallbackMeetDate, setFallbackMeetDate] = useState<string | null>(null);
+
+  // Events data for past meets
+  const [mensEvents, setMensEvents] = useState<string[]>([]);
+  const [womensEvents, setWomensEvents] = useState<string[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+  const [selectedGender, setSelectedGender] = useState<'M' | 'F'>('M');
+
+  // Check if id is a valid number (not 'fallback')
+  const isValidId = id && !isNaN(Number(id));
+
   useEffect(() => {
     fetchMeet();
-    fetchRelatedMeets();
-  }, [id]);
+    if (isValidId) {
+      fetchRelatedMeets();
+    }
+  }, [id, paramMeetName, paramMeetDate]);
 
   async function fetchMeet() {
     try {
       setLoading(true);
       setError(null);
+
+      // If we have meetName param (for meets not in database), use fallback mode
+      if (paramMeetName) {
+        setFallbackMeetName(paramMeetName);
+        setFallbackMeetDate(paramMeetDate || null);
+        setMeet(null);
+        setLoading(false);
+        return;
+      }
+
+      // Skip database query if id is not a valid number
+      if (!isValidId) {
+        setError('Invalid meet ID');
+        setLoading(false);
+        return;
+      }
 
       const { data, error: fetchError } = await supabase
         .from('meets')
@@ -65,6 +102,8 @@ export default function MeetDetailScreen() {
   }
 
   async function fetchRelatedMeets() {
+    if (!isValidId) return;
+
     try {
       // Get today's date as YYYY-MM-DD string (local timezone)
       const now = new Date();
@@ -85,6 +124,189 @@ export default function MeetDetailScreen() {
     } catch (err) {
       console.error('Error fetching related meets:', err);
     }
+  }
+
+  // Fetch events when meet is loaded and is a past meet, or in fallback mode
+  useEffect(() => {
+    if (meet) {
+      const status = getMeetStatus(meet);
+      if (status === 'past') {
+        fetchMeetEvents();
+      }
+    } else if (fallbackMeetName && fallbackMeetDate) {
+      // Fallback mode - fetch events using meetName directly
+      fetchMeetEvents();
+    }
+  }, [meet, fallbackMeetName, fallbackMeetDate]);
+
+  async function fetchMeetEvents() {
+    const name = meet?.name || fallbackMeetName;
+    const dateStr = meet?.date?.split('T')[0] || fallbackMeetDate;
+
+    if (!name || !dateStr) return;
+
+    try {
+      setEventsLoading(true);
+
+      const eventsData = await getEventsByMeetWithGender(name, dateStr);
+
+      setMensEvents(sortEvents(eventsData.mens));
+      setWomensEvents(sortEvents(eventsData.womens));
+    } catch (err) {
+      console.error('Error fetching meet events:', err);
+    } finally {
+      setEventsLoading(false);
+    }
+  }
+
+  // Sort events in proper track order
+  function sortEvents(events: string[]): string[] {
+    const eventOrder: Record<string, number> = {
+      // Sprints
+      '60': 1, '60M': 1,
+      '100': 2, '100M': 2,
+      '200': 3, '200M': 3,
+      '400': 4, '400M': 4,
+      // Middle Distance
+      '600': 10, '600M': 10,
+      '800': 11, '800M': 11,
+      '1000': 12, '1000M': 12,
+      '1500': 13, '1500M': 13,
+      'MILE': 14, '1 MILE': 14,
+      // Distance
+      '3000': 20, '3000M': 20,
+      '3K STEEPLE': 21, '3000SC': 21, '3000S': 21, 'STEEPLE': 21,
+      '5000': 22, '5000M': 22, '5K': 22,
+      '10000': 23, '10000M': 23, '10K': 23,
+      // Hurdles
+      '60H': 30, '60M HURDLES': 30,
+      '100H': 31, '100M HURDLES': 31,
+      '110H': 32, '110M HURDLES': 32,
+      '400H': 33, '400M HURDLES': 33,
+      // Relays
+      '4X100': 40, '4X100M': 40, '4X100 RELAY': 40,
+      '4X200': 41, '4X200M': 41, '4X200 RELAY': 41,
+      '4X400': 42, '4X400M': 42, '4X400 RELAY': 42,
+      '4X800': 43, '4X800M': 43, '4X800 RELAY': 43,
+      'DMR': 44, 'DISTANCE MEDLEY': 44,
+      'SMR': 45, 'SPRINT MEDLEY': 45,
+      // Field Events - Jumps
+      'HJ': 50, 'HIGH JUMP': 50,
+      'PV': 51, 'POLE VAULT': 51,
+      'LJ': 52, 'LONG JUMP': 52,
+      'TJ': 53, 'TRIPLE JUMP': 53,
+      // Field Events - Throws
+      'SP': 60, 'SHOT PUT': 60,
+      'DT': 61, 'DISCUS': 61,
+      'HT': 62, 'HAMMER': 62, 'HAMMER THROW': 62,
+      'JT': 63, 'JAVELIN': 63,
+      'WT': 64, 'WEIGHT THROW': 64,
+      // Multi-Events
+      'HEPT': 70, 'HEPTATHLON': 70,
+      'DEC': 71, 'DECATHLON': 71,
+      'PENT': 72, 'PENTATHLON': 72,
+    };
+
+    return [...events].sort((a, b) => {
+      const aUpper = a.toUpperCase().trim();
+      const bUpper = b.toUpperCase().trim();
+      const aOrder = eventOrder[aUpper] ?? 100;
+      const bOrder = eventOrder[bUpper] ?? 100;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      return a.localeCompare(b);
+    });
+  }
+
+  // Format event name for display (e.g., "100" → "100 Meters", "110H" → "110 Meter Hurdles")
+  function formatEventName(event: string): string {
+    const e = event.toUpperCase().trim();
+
+    // Track events (distance only)
+    if (/^\d+$/.test(e)) {
+      return `${e} Meters`;
+    }
+    if (/^\d+M$/.test(e)) {
+      return `${e.slice(0, -1)} Meters`;
+    }
+
+    // Hurdles
+    if (/^\d+H$/.test(e)) {
+      return `${e.slice(0, -1)} Meter Hurdles`;
+    }
+    if (/^\d+M HURDLES$/.test(e)) {
+      return `${e.replace('M HURDLES', '')} Meter Hurdles`;
+    }
+
+    // Relays
+    if (/^4X\d+$/.test(e)) {
+      return `4x${e.slice(2)} Meter Relay`;
+    }
+    if (/^4X\d+M$/.test(e)) {
+      return `4x${e.slice(2, -1)} Meter Relay`;
+    }
+
+    // Steeplechase
+    if (e === '3000SC' || e === '3000S' || e === '3K STEEPLE') {
+      return '3000 Meter Steeplechase';
+    }
+    if (e === 'STEEPLE') {
+      return 'Steeplechase';
+    }
+
+    // Field events
+    const fieldEvents: Record<string, string> = {
+      'HJ': 'High Jump',
+      'HIGH JUMP': 'High Jump',
+      'PV': 'Pole Vault',
+      'POLE VAULT': 'Pole Vault',
+      'LJ': 'Long Jump',
+      'LONG JUMP': 'Long Jump',
+      'TJ': 'Triple Jump',
+      'TRIPLE JUMP': 'Triple Jump',
+      'SP': 'Shot Put',
+      'SHOT PUT': 'Shot Put',
+      'DT': 'Discus',
+      'DISCUS': 'Discus',
+      'HT': 'Hammer Throw',
+      'HAMMER': 'Hammer Throw',
+      'HAMMER THROW': 'Hammer Throw',
+      'JT': 'Javelin',
+      'JAVELIN': 'Javelin',
+      'WT': 'Weight Throw',
+      'WEIGHT THROW': 'Weight Throw',
+    };
+
+    if (fieldEvents[e]) {
+      return fieldEvents[e];
+    }
+
+    // Multi-events
+    const multiEvents: Record<string, string> = {
+      'HEPT': 'Heptathlon',
+      'HEPTATHLON': 'Heptathlon',
+      'DEC': 'Decathlon',
+      'DECATHLON': 'Decathlon',
+      'PENT': 'Pentathlon',
+      'PENTATHLON': 'Pentathlon',
+    };
+
+    if (multiEvents[e]) {
+      return multiEvents[e];
+    }
+
+    // Other
+    if (e === 'DMR' || e === 'DISTANCE MEDLEY') {
+      return 'Distance Medley Relay';
+    }
+    if (e === 'SMR' || e === 'SPRINT MEDLEY') {
+      return 'Sprint Medley Relay';
+    }
+    if (e === 'MILE' || e === '1 MILE') {
+      return 'Mile';
+    }
+
+    // Return original if no match
+    return event;
   }
 
   function formatDate(dateString: string) {
@@ -155,7 +377,10 @@ export default function MeetDetailScreen() {
     );
   }
 
-  if (error || !meet) {
+  // Fallback mode - show simplified view when meet not in database but we have name/date
+  const isFallbackMode = !meet && fallbackMeetName && fallbackMeetDate;
+
+  if (error && !isFallbackMode) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.centerContainer}>
@@ -169,8 +394,10 @@ export default function MeetDetailScreen() {
     );
   }
 
-  const meetStatus = getMeetStatus(meet);
-  const shortDate = formatShortDate(meet.date);
+  const meetStatus = meet ? getMeetStatus(meet) : 'past';
+  const shortDate = meet ? formatShortDate(meet.date) : (fallbackMeetDate ? formatShortDate(fallbackMeetDate) : { day: '', month: '', year: 0 });
+  const displayName = meet?.name || fallbackMeetName || '';
+  const displayDate = meet?.date || fallbackMeetDate || '';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -227,7 +454,7 @@ export default function MeetDetailScreen() {
             </View>
 
             {/* Meet Name */}
-            <Text style={styles.meetName}>{meet.name}</Text>
+            <Text style={styles.meetName}>{displayName}</Text>
 
             {/* Date Display */}
             <View style={styles.dateContainer}>
@@ -236,8 +463,8 @@ export default function MeetDetailScreen() {
                 <Text style={styles.dateMonth}>{shortDate.month}</Text>
               </View>
               <View style={styles.dateDetails}>
-                <Text style={styles.dateFull}>{formatDate(meet.date)}</Text>
-                {meet.location && (
+                <Text style={styles.dateFull}>{displayDate ? formatDate(displayDate) : ''}</Text>
+                {meet?.location && (
                   <View style={styles.locationRow}>
                     <Ionicons name="location" size={14} color="rgba(255,255,255,0.8)" />
                     <Text style={styles.locationText}>{meet.location}</Text>
@@ -246,25 +473,28 @@ export default function MeetDetailScreen() {
               </View>
             </View>
 
-            {/* Level & Season Badges */}
-            <View style={styles.heroBadgesRow}>
-              <View style={styles.heroBadge}>
-                <Ionicons name="school" size={14} color={colors.text.white} />
-                <Text style={styles.heroBadgeText}>{meet.level || 'College'}</Text>
+            {/* Level & Season Badges - only show if we have meet data */}
+            {meet && (
+              <View style={styles.heroBadgesRow}>
+                <View style={styles.heroBadge}>
+                  <Ionicons name="school" size={14} color={colors.text.white} />
+                  <Text style={styles.heroBadgeText}>{meet.level || 'College'}</Text>
+                </View>
+                <View style={styles.heroBadge}>
+                  <MaterialCommunityIcons
+                    name={meet.season === 'Outdoor' ? 'weather-sunny' : 'home-variant'}
+                    size={14}
+                    color={colors.text.white}
+                  />
+                  <Text style={styles.heroBadgeText}>{meet.season || 'Indoor'}</Text>
+                </View>
               </View>
-              <View style={styles.heroBadge}>
-                <MaterialCommunityIcons
-                  name={meet.season === 'Outdoor' ? 'weather-sunny' : 'home-variant'}
-                  size={14}
-                  color={colors.text.white}
-                />
-                <Text style={styles.heroBadgeText}>{meet.season || 'Indoor'}</Text>
-              </View>
-            </View>
+            )}
           </LinearGradient>
         </View>
 
-        {/* Live Results Button - Main Action */}
+        {/* Live Results Button - Main Action (only for meets in database) */}
+        {meet && (
         <View style={styles.resultsSection}>
           {meet.meet_url ? (
             <TouchableOpacity
@@ -320,6 +550,105 @@ export default function MeetDetailScreen() {
             </View>
           )}
         </View>
+        )}
+
+        {/* Events Section - For past meets with results in our database */}
+        {(meetStatus === 'past' || isFallbackMode) && (
+          <View style={styles.eventsSection}>
+            <Text style={styles.sectionTitle}>Events</Text>
+
+            {eventsLoading ? (
+              <View style={styles.eventsLoadingContainer}>
+                <ActivityIndicator size="small" color={colors.primary.trackOrange} />
+                <Text style={styles.eventsLoadingText}>Loading events...</Text>
+              </View>
+            ) : (mensEvents.length > 0 || womensEvents.length > 0) ? (
+              <>
+                {/* Gender Toggle */}
+                <View style={styles.genderToggleContainer}>
+                  <TouchableOpacity
+                    style={[
+                      styles.genderToggleButton,
+                      selectedGender === 'M' && styles.genderToggleButtonActive,
+                    ]}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setSelectedGender('M');
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[
+                      styles.genderToggleText,
+                      selectedGender === 'M' && styles.genderToggleTextActive,
+                    ]}>
+                      Men's ({mensEvents.length})
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.genderToggleButton,
+                      selectedGender === 'F' && styles.genderToggleButtonActive,
+                    ]}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setSelectedGender('F');
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[
+                      styles.genderToggleText,
+                      selectedGender === 'F' && styles.genderToggleTextActive,
+                    ]}>
+                      Women's ({womensEvents.length})
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Events List */}
+                <View style={styles.eventsList}>
+                  {(selectedGender === 'M' ? mensEvents : womensEvents).map((eventName, index) => {
+                    const eventsList = selectedGender === 'M' ? mensEvents : womensEvents;
+                    return (
+                      <TouchableOpacity
+                        key={eventName}
+                        style={[
+                          styles.eventCard,
+                          index === eventsList.length - 1 && styles.eventCardLast
+                        ]}
+                        onPress={() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          router.push({
+                            pathname: '/event-results',
+                            params: {
+                              meetName: displayName,
+                              eventName: eventName,
+                              date: displayDate.split('T')[0],
+                              gender: selectedGender,
+                            },
+                          });
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <View style={styles.eventIconContainer}>
+                          <Ionicons name="trophy-outline" size={20} color={colors.primary.trackOrange} />
+                        </View>
+                        <View style={styles.eventInfo}>
+                          <Text style={styles.eventName}>{formatEventName(eventName)}</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={20} color={colors.text.tertiary} />
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </>
+            ) : (
+              <View style={styles.noEventsCard}>
+                <Ionicons name="document-outline" size={32} color={colors.text.tertiary} />
+                <Text style={styles.noEventsText}>No results in database</Text>
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Related Meets Section */}
         {relatedMeets.length > 0 && (
@@ -406,7 +735,7 @@ export default function MeetDetailScreen() {
               <Ionicons name="close" size={22} color={colors.text.primary} />
             </TouchableOpacity>
             <View style={styles.modalTitleContainer}>
-              <Text style={styles.modalTitle} numberOfLines={1}>{meet.name}</Text>
+              <Text style={styles.modalTitle} numberOfLines={1}>{meet?.name || displayName}</Text>
               <Text style={styles.modalSubtitle}>Live Results</Text>
             </View>
             <View style={styles.headerPlaceholder} />
@@ -420,7 +749,7 @@ export default function MeetDetailScreen() {
                 <Text style={styles.loadingText}>Loading results...</Text>
               </View>
             )}
-            {meet.meet_url && (
+            {meet?.meet_url && (
               <WebView
                 source={{ uri: meet.meet_url }}
                 style={styles.webView}
@@ -717,6 +1046,104 @@ const styles = StyleSheet.create({
 
   bottomSpacing: {
     height: 40,
+  },
+
+  // Events Section
+  eventsSection: {
+    paddingHorizontal: 16,
+    marginTop: 24,
+  },
+  eventsLoadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    gap: 12,
+  },
+  eventsLoadingText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text.tertiary,
+  },
+  genderToggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    marginBottom: 16,
+    overflow: 'hidden',
+  },
+  genderToggleButton: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  genderToggleButtonActive: {
+    backgroundColor: colors.primary.trackOrange,
+  },
+  genderToggleText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: colors.text.tertiary,
+  },
+  genderToggleTextActive: {
+    color: colors.text.white,
+  },
+  eventsList: {
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 16,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    overflow: 'hidden',
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  eventCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.borders.medium,
+  },
+  eventCardLast: {
+    borderBottomWidth: 0,
+  },
+  eventIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.backgrounds.cream,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  eventInfo: {
+    flex: 1,
+  },
+  eventName: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: colors.text.primary,
+  },
+  noEventsCard: {
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 16,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    borderStyle: 'dashed',
+    padding: 32,
+    alignItems: 'center',
+    gap: 8,
+  },
+  noEventsText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.text.tertiary,
   },
 
   // Related Meets Section

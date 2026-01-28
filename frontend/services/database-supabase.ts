@@ -687,3 +687,184 @@ export async function addToWaitlist(email: string, feature: string = 'community'
 
   return { success: true, alreadyExists: false, data };
 }
+
+// ============================================
+// MEET RESULTS
+// ============================================
+
+// Get meet by ID
+export async function getMeetById(meetId: number) {
+  const { data, error } = await supabase
+    .from('meets')
+    .select('*')
+    .eq('meet_id', meetId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching meet:', error);
+    return null;
+  }
+  return data;
+}
+
+// Get meet by name and date
+export async function getMeetByName(meetName: string, date?: string) {
+  let query = supabase
+    .from('meets')
+    .select('*')
+    .eq('name', meetName);
+
+  if (date) {
+    query = query.eq('date', date);
+  }
+
+  const { data, error } = await query.limit(1).single();
+
+  if (error) {
+    console.error('Error fetching meet by name:', error);
+    return null;
+  }
+  return data;
+}
+
+// Get all events at a specific meet
+export async function getEventsByMeet(meetName: string, date: string) {
+  const { data, error } = await supabase
+    .from('results')
+    .select('event_name')
+    .eq('meet_name', meetName)
+    .eq('date', date)
+    .not('event_name', 'is', null);
+
+  if (error) {
+    console.error('Error fetching events by meet:', error);
+    throw error;
+  }
+
+  // Get unique event names and sort them
+  const uniqueEvents = [...new Set(data?.map(r => r.event_name))].sort();
+  return uniqueEvents;
+}
+
+// Get events by meet organized by gender
+export async function getEventsByMeetWithGender(meetName: string, date: string) {
+  const { data, error } = await supabase
+    .from('results')
+    .select(`
+      event_name,
+      athletes (
+        gender
+      )
+    `)
+    .eq('meet_name', meetName)
+    .eq('date', date)
+    .not('event_name', 'is', null);
+
+  if (error) {
+    console.error('Error fetching events by meet with gender:', error);
+    throw error;
+  }
+
+  // Organize events by gender
+  const mensEvents = new Set<string>();
+  const womensEvents = new Set<string>();
+
+  data?.forEach(r => {
+    const gender = (r.athletes as any)?.gender;
+    if (gender === 'M') {
+      mensEvents.add(r.event_name);
+    } else if (gender === 'F') {
+      womensEvents.add(r.event_name);
+    }
+  });
+
+  return {
+    mens: [...mensEvents].sort(),
+    womens: [...womensEvents].sort(),
+  };
+}
+
+// Get all results for a specific event at a meet
+// Returns ALL rounds (Finals, Prelims, Heats) for the full event view
+// gender parameter filters to only show M or F results (since event names don't include gender)
+export async function getEventResults(meetName: string, eventName: string, date: string, gender?: string) {
+  const { data, error } = await supabase
+    .from('results')
+    .select(`
+      result_id,
+      athlete_id,
+      mark_raw,
+      mark_seconds,
+      place,
+      round,
+      wind,
+      athletes (
+        full_name,
+        gender,
+        class_year,
+        school_id,
+        schools (
+          official_name,
+          short_name
+        )
+      )
+    `)
+    .eq('meet_name', meetName)
+    .eq('event_name', eventName)
+    .eq('date', date)
+    .order('round', { ascending: true })
+    .order('place', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching event results:', error);
+    throw error;
+  }
+
+  // Transform and filter by gender (client-side since event names don't include gender)
+  let results = data?.map(r => {
+    const athlete = r.athletes as any;
+    const school = athlete?.schools as any;
+    return {
+      result_id: r.result_id,
+      athlete_id: r.athlete_id,
+      athlete_name: athlete?.full_name || 'Unknown',
+      gender: athlete?.gender,
+      class_year: athlete?.class_year || '',
+      school_name: school?.official_name || school?.short_name || 'Unknown',
+      mark_raw: r.mark_raw,
+      mark_seconds: r.mark_seconds,
+      place: r.place,
+      round: r.round || 'Results',
+      wind: r.wind,
+    };
+  }) || [];
+
+  // Filter by gender if provided
+  if (gender) {
+    results = results.filter(r => r.gender === gender);
+  }
+
+  return results;
+}
+
+// Get count of results per event at a meet (for displaying athlete counts)
+export async function getEventCountsByMeet(meetName: string, date: string) {
+  const { data, error } = await supabase
+    .from('results')
+    .select('event_name')
+    .eq('meet_name', meetName)
+    .eq('date', date)
+    .not('event_name', 'is', null);
+
+  if (error) {
+    console.error('Error fetching event counts:', error);
+    throw error;
+  }
+
+  // Count results per event
+  const counts: Record<string, number> = {};
+  data?.forEach(r => {
+    counts[r.event_name] = (counts[r.event_name] || 0) + 1;
+  });
+  return counts;
+}
