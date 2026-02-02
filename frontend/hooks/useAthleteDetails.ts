@@ -38,11 +38,15 @@ export interface Performance {
 }
 
 export interface PersonalRecord {
-  result_id: number;
+  id: number;
   athlete_id: number;
   event_name: string;
   mark_raw: string;
   mark_seconds?: number;
+  mark_meters?: number;
+  set_at?: string;
+  meet_name?: string;
+  season: string;
 }
 
 export function useAthleteDetails(athleteId: number) {

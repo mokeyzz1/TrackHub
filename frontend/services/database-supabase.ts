@@ -265,16 +265,20 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
 // Get athlete's personal records (PRs)
 export async function getAthletePRs(athleteId: number) {
   const { data, error } = await supabase
-    .from('results')
+    .from('athlete_prs')
     .select(`
-      result_id,
+      id,
       athlete_id,
       event_name,
       mark_raw,
-      mark_seconds
+      mark_seconds,
+      mark_meters,
+      set_at,
+      meet_name,
+      season
     `)
     .eq('athlete_id', athleteId)
-    .eq('is_pr', true)
+    .eq('season', 'all')
     .order('event_name');
 
   if (error) {
