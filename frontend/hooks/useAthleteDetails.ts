@@ -35,6 +35,7 @@ export interface Performance {
   school_name?: string;
   division?: string;
   state?: string;
+  competed_for_school?: string;
 }
 
 export interface PersonalRecord {

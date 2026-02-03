@@ -239,6 +239,7 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
     .select(`
       result_id,
       athlete_id,
+      team_id,
       event_name,
       mark_raw,
       mark_seconds,
@@ -246,7 +247,14 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
       meet_name,
       place,
       round,
-      is_pr
+      is_pr,
+      teams (
+        school_id,
+        schools (
+          official_name,
+          short_name
+        )
+      )
     `)
     .eq('athlete_id', athleteId)
     .not('date', 'is', null)
@@ -259,7 +267,11 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
     throw error;
   }
 
-  return data || [];
+  // Transform to include school name from the team they competed for
+  return data?.map(r => ({
+    ...r,
+    competed_for_school: r.teams?.schools?.official_name || r.teams?.schools?.short_name || null,
+  })) || [];
 }
 
 // Get athlete's personal records (PRs)

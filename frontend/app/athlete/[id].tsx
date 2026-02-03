@@ -59,6 +59,7 @@ export default function AthleteDetailScreen() {
     const grouped = new Map<string, {
       meetName: string;
       date: string;
+      competedForSchool?: string;
       events: typeof filteredPerformances;
     }>();
 
@@ -70,6 +71,7 @@ export default function AthleteDetailScreen() {
           grouped.set(key, {
             meetName: perf.meet_name,
             date: perf.date,
+            competedForSchool: perf.competed_for_school,
             events: [],
           });
         }
@@ -286,13 +288,21 @@ export default function AthleteDetailScreen() {
                   {/* Meet Header */}
                   <View style={styles.meetCardHeader}>
                     <Text style={styles.meetCardTitle}>{meet.meetName}</Text>
-                    <Text style={styles.meetCardDate}>
-                      {new Date(meet.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </Text>
+                    <View style={styles.meetCardMeta}>
+                      <Text style={styles.meetCardDate}>
+                        {new Date(meet.date).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </Text>
+                      {meet.competedForSchool && (
+                        <View style={styles.schoolTag}>
+                          <Ionicons name="school" size={12} color={colors.text.tertiary} />
+                          <Text style={styles.schoolTagText}>{meet.competedForSchool}</Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
 
                   {/* Events List */}
@@ -654,8 +664,30 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     marginBottom: 4,
   },
+  meetCardMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
   meetCardDate: {
     fontSize: 13,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+  },
+  schoolTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.backgrounds.white,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.borders.medium,
+  },
+  schoolTagText: {
+    fontSize: 11,
     fontWeight: '700',
     color: colors.text.tertiary,
   },
