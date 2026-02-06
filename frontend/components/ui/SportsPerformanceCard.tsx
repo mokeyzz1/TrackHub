@@ -16,6 +16,7 @@ interface SportsPerformanceCardProps {
   date?: string;
   badge?: 'PR' | 'SR' | 'SB' | 'NQ'; // Personal Record, School Record, Season Best, National Qualifier
   improvement?: string;
+  waPoints?: number; // World Athletics scoring points
   onPress?: () => void;
 }
 
@@ -28,6 +29,7 @@ export const SportsPerformanceCard: React.FC<SportsPerformanceCardProps> = ({
   date,
   badge,
   improvement,
+  waPoints,
   onPress,
 }) => {
   const getBadgeConfig = () => {
@@ -75,7 +77,7 @@ export const SportsPerformanceCard: React.FC<SportsPerformanceCardProps> = ({
         {rank !== undefined && (
           <View style={styles.rankContainer}>
             {rank <= 3 ? (
-              <MedalIcon place={rank as 1 | 2 | 3} size={44} />
+              <MedalIcon place={rank as 1 | 2 | 3} size={28} />
             ) : (
               <LinearGradient
                 colors={['#FFFFFF', '#F0F0F0']}
@@ -108,7 +110,7 @@ export const SportsPerformanceCard: React.FC<SportsPerformanceCardProps> = ({
                 end={{ x: 1, y: 1 }}
                 style={styles.performanceBadge}
               >
-                <Ionicons name={badgeConfig.icon} size={10} color={colors.text.white} />
+                <Ionicons name={badgeConfig.icon} size={8} color={colors.text.white} />
                 <Text style={styles.performanceBadgeText}>{badgeConfig.text}</Text>
               </LinearGradient>
             )}
@@ -117,15 +119,15 @@ export const SportsPerformanceCard: React.FC<SportsPerformanceCardProps> = ({
           {/* Bottom: Event & Time */}
           <View style={styles.performanceRow}>
             <View style={styles.eventContainer}>
-              <Ionicons name="flag" size={11} color={colors.primary.trackOrange} />
+              <Ionicons name="flag" size={9} color={colors.primary.trackOrange} />
               <Text style={styles.eventText}>{event}</Text>
               {date && (
                 <View style={styles.dateContainer}>
-                  <Ionicons name="calendar-outline" size={10} color={colors.text.secondary} />
+                  <Ionicons name="calendar-outline" size={8} color={colors.text.secondary} />
                   <Text style={styles.dateText}>
-                    {new Date(date).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric' 
+                    {new Date(date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric'
                     })}
                   </Text>
                 </View>
@@ -133,11 +135,19 @@ export const SportsPerformanceCard: React.FC<SportsPerformanceCardProps> = ({
             </View>
 
             <View style={styles.timeContainer}>
-              <Text style={styles.timeText}>{time}</Text>
-              {improvement && (
-                <View style={styles.improvementBadge}>
-                  <Ionicons name="arrow-down" size={10} color={colors.performance.improvement} />
-                  <Text style={styles.improvementText}>{improvement}</Text>
+              <View style={styles.timeRow}>
+                <Text style={styles.timeText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{time}</Text>
+                {improvement && (
+                  <View style={styles.improvementBadge}>
+                    <Ionicons name="arrow-down" size={8} color={colors.performance.improvement} />
+                    <Text style={styles.improvementText}>{improvement}</Text>
+                  </View>
+                )}
+              </View>
+              {waPoints !== undefined && waPoints > 0 && (
+                <View style={styles.waPointsBadge}>
+                  <Ionicons name="analytics" size={8} color={colors.primary.trackOrange} />
+                  <Text style={styles.waPointsText}>{waPoints} pts</Text>
                 </View>
               )}
             </View>
@@ -156,33 +166,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.backgrounds.white,
-    borderRadius: spacing.radiusMd,
-    borderWidth: 4,
+    borderRadius: spacing.radiusSm,
+    borderWidth: 2,
     borderColor: colors.borders.thick,
-    padding: spacing.lg, // Increased padding for better alignment
-    marginHorizontal: 0, // Ensure no extra margins
-    // Shadow for depth
+    padding: spacing.sm,
+    paddingVertical: 8,
+    marginHorizontal: 0,
     shadowColor: colors.borders.thick,
-    shadowOffset: { width: 4, height: 4 },
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 1,
-    shadowRadius: 0, // Hard shadow, no blur (cartoon style)
+    shadowRadius: 0,
   },
   rankContainer: {
-    marginRight: spacing.lg,
+    marginRight: spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
   rankBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: colors.borders.thick,
   },
   rankText: {
-    fontSize: 20,
+    fontSize: 14,
     fontWeight: '900',
     color: colors.text.primary,
   },
@@ -191,98 +201,119 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    gap: spacing.sm,
-    justifyContent: 'center', // Center content vertically
+    gap: 2,
+    justifyContent: 'center',
   },
   athleteRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', // Changed to center for better alignment
-    gap: spacing.md, // Increased gap for better spacing
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   athleteInfo: {
     flex: 1,
-    gap: spacing.xs,
+    gap: 1,
   },
   athleteName: {
-    fontSize: 17,
+    fontSize: 14,
     fontWeight: '900',
     color: colors.text.primary,
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
   },
   schoolName: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '700',
     color: colors.text.tertiary,
   },
   performanceBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: spacing.radiusSm,
-    borderWidth: 2,
+    gap: 2,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
     borderColor: colors.borders.thick,
   },
   performanceBadgeText: {
-    fontSize: 9,
+    fontSize: 8,
     fontWeight: '900',
     color: colors.text.white,
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   performanceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: spacing.lg, // Increased gap to ensure time has proper space
-    minHeight: 32, // Ensure consistent row height
+    gap: spacing.sm,
   },
   eventContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: 2,
     backgroundColor: colors.backgrounds.cream,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: spacing.radiusSm,
-    borderWidth: 2,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
     borderColor: colors.borders.thick,
   },
   eventText: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '800',
     color: colors.text.primary,
   },
   timeContainer: {
     alignItems: 'flex-end',
-    gap: spacing.xs,
+    gap: 2,
+  },
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   timeText: {
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: '900',
     color: colors.text.primary,
-    fontFamily: 'Courier', // Monospaced for time readability
-    letterSpacing: 0.5,
+    fontFamily: 'Courier',
+    letterSpacing: 0.3,
+    maxWidth: 90,
   },
   improvementBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: 2,
   },
   improvementText: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '700',
     color: colors.performance.improvement,
+  },
+  waPointsBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: colors.primary.trackOrange,
+  },
+  waPointsText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: colors.primary.trackOrange,
   },
   dateContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
-    marginLeft: spacing.xs,
+    marginLeft: 4,
   },
   dateText: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '600',
     color: colors.text.secondary,
   },

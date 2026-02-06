@@ -15,14 +15,19 @@ import { colors } from '../../design-system/colors';
 import { spacing } from '../../design-system/spacing';
 import { useFirstTimeHint } from '../../hooks/useFirstTimeHint';
 import { useTopPerformances } from '../../hooks/useTopPerformances';
-import { useMeets } from '../../hooks/useMeets';
+import { useMeets, useLatestResults } from '../../hooks/useMeets';
 
 export default function HomeScreen() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [divisionFilter, setDivisionFilter] = useState<string>('all');
+  const [showDivisionPicker, setShowDivisionPicker] = useState(false);
+  const [weeksAgo, setWeeksAgo] = useState(0);
+  const [showWeekPicker, setShowWeekPicker] = useState(false);
   const searchHint = useFirstTimeHint('search_button', 2000);
-  const { performances, loading, error, refetch: refetchPerformances } = useTopPerformances(15);
+  const { performances, loading, error, refetch: refetchPerformances } = useTopPerformances(15, divisionFilter, weeksAgo);
   const { meets: upcomingMeets, loading: loadingMeets, refresh: refreshMeets } = useMeets('upcoming');
+  const { meets: latestResults, loading: loadingLatest } = useLatestResults(5);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -55,6 +60,91 @@ export default function HomeScreen() {
       {/* Onboarding Modal */}
       <Modal visible={showOnboarding} animationType="slide">
         <Onboarding onDone={() => setShowOnboarding(false)} />
+      </Modal>
+
+      {/* Division Picker Modal */}
+      <Modal visible={showDivisionPicker} transparent animationType="fade">
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowDivisionPicker(false)}
+        >
+          <View style={styles.pickerContainer}>
+            <Text style={styles.pickerTitle}>Select Division</Text>
+            {[
+              { value: 'all', label: 'All Divisions' },
+              { value: 'D1', label: 'NCAA Division I' },
+              { value: 'D2', label: 'NCAA Division II' },
+              { value: 'D3', label: 'NCAA Division III' },
+              { value: 'NAIA', label: 'NAIA' },
+              { value: 'JUCO', label: 'JUCO / NJCAA' },
+            ].map((div) => (
+              <TouchableOpacity
+                key={div.value}
+                style={[
+                  styles.pickerOption,
+                  divisionFilter === div.value && styles.pickerOptionActive
+                ]}
+                onPress={() => {
+                  setDivisionFilter(div.value);
+                  setShowDivisionPicker(false);
+                }}
+              >
+                <Text style={[
+                  styles.pickerOptionText,
+                  divisionFilter === div.value && styles.pickerOptionTextActive
+                ]}>
+                  {div.label}
+                </Text>
+                {divisionFilter === div.value && (
+                  <Ionicons name="checkmark" size={18} color={colors.primary.trackOrange} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Week Picker Modal */}
+      <Modal visible={showWeekPicker} transparent animationType="fade">
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowWeekPicker(false)}
+        >
+          <View style={styles.pickerContainer}>
+            <Text style={styles.pickerTitle}>Select Week</Text>
+            {[
+              { value: 0, label: 'This Week' },
+              { value: 1, label: 'Last Week' },
+              { value: 2, label: '2 Weeks Ago' },
+              { value: 3, label: '3 Weeks Ago' },
+              { value: 4, label: '4 Weeks Ago' },
+            ].map((week) => (
+              <TouchableOpacity
+                key={week.value}
+                style={[
+                  styles.pickerOption,
+                  weeksAgo === week.value && styles.pickerOptionActive
+                ]}
+                onPress={() => {
+                  setWeeksAgo(week.value);
+                  setShowWeekPicker(false);
+                }}
+              >
+                <Text style={[
+                  styles.pickerOptionText,
+                  weeksAgo === week.value && styles.pickerOptionTextActive
+                ]}>
+                  {week.label}
+                </Text>
+                {weeksAgo === week.value && (
+                  <Ionicons name="checkmark" size={18} color={colors.primary.trackOrange} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
       </Modal>
 
       {/* Racing Stripes Background */}
@@ -179,11 +269,37 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        {/* Top Performances This Week */}
+        {/* Top Performances */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
+          <View style={styles.sectionHeaderColumn}>
             <Text style={styles.sectionTitle}>Top Performances</Text>
-            <Text style={styles.sectionSubtitle}>This Week</Text>
+            <View style={styles.filterRow}>
+              {/* Week Dropdown */}
+              <TouchableOpacity
+                style={styles.filterDropdown}
+                onPress={() => setShowWeekPicker(true)}
+              >
+                <Text style={styles.filterDropdownText}>
+                  {weeksAgo === 0 ? 'This Week' :
+                   weeksAgo === 1 ? 'Last Week' :
+                   `${weeksAgo}W Ago`}
+                </Text>
+                <Ionicons name="chevron-down" size={14} color={colors.text.secondary} />
+              </TouchableOpacity>
+              {/* Division Dropdown */}
+              <TouchableOpacity
+                style={styles.filterDropdown}
+                onPress={() => setShowDivisionPicker(true)}
+              >
+                <Text style={styles.filterDropdownText}>
+                  {divisionFilter === 'all' ? 'All' :
+                   divisionFilter === 'D1' ? 'DI' :
+                   divisionFilter === 'D2' ? 'DII' :
+                   divisionFilter === 'D3' ? 'DIII' : divisionFilter}
+                </Text>
+                <Ionicons name="chevron-down" size={14} color={colors.text.secondary} />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.performancesList}>
@@ -207,6 +323,7 @@ export default function HomeScreen() {
                   event={`${perf.gender === 'F' ? "Women's" : "Men's"} ${perf.event_name}`}
                   time={perf.mark_raw}
                   date={perf.date}
+                  waPoints={perf.waPoints}
                   onPress={() => router.push(`/athlete/${perf.athlete_id}`)}
                 />
               ))
@@ -218,75 +335,67 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Latest Results</Text>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/meets')}>
+              <Text style={styles.seeAll}>View All</Text>
+            </TouchableOpacity>
           </View>
 
-          {loading ? (
-            <ActivityIndicator size="large" color={colors.primary.trackOrange} />
-          ) : performances.length === 0 ? (
-            <View style={[styles.emptyState, { marginHorizontal: 16 }]}>
-              <Ionicons name="time-outline" size={48} color={colors.text.tertiary} />
-              <Text style={styles.emptyStateText}>No recent results</Text>
-            </View>
-          ) : (
-            performances.slice(5, 8).map((result, i) => (
-              <FadeInCard key={i} delay={i * 100}>
-                <AnimatedCard style={styles.resultCard} onPress={() => router.push(`/athlete/${result.athlete_id}`)}>
-                  <View style={styles.resultHeader}>
-                    <Text style={styles.resultEvent}>{`${result.gender === 'F' ? "Women's" : "Men's"} ${result.event_name}`}</Text>
-                    <Text style={styles.resultMeet}>{result.meet_name}</Text>
-                  </View>
-                  <Text style={styles.resultMark}>{result.mark_raw}</Text>
-                  <View style={styles.resultDetails}>
-                    <View style={styles.resultWinner}>
-                      <SparkleTrophy size={18} color={colors.primary.finishYellow} />
-                      <Text style={styles.resultWinnerName}>{result.full_name}</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalScroll}
+          >
+            {(() => {
+              if (loadingLatest) {
+                return <ActivityIndicator size="small" color={colors.primary.trackOrange} />;
+              }
+
+              if (latestResults.length === 0) {
+                return (
+                  <View style={styles.latestResultCard}>
+                    <View>
+                      <Text style={styles.latestResultMeet}>No results yet</Text>
                     </View>
-                    <Text style={styles.resultDate}>
-                      {new Date(result.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </Text>
+                    <Text style={styles.latestResultLocationText}>Check back after weekend meets!</Text>
                   </View>
-                </AnimatedCard>
-              </FadeInCard>
-            ))
-          )}
-        </View>
+                );
+              }
 
-        {/* Trending Athletes */}
-        {trendingAthletes.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Trending Athletes</Text>
-            </View>
-
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.horizontalScroll}
-            >
-              {trendingAthletes.map((athlete, i) => (
-                <FadeInCard key={i} delay={i * 150}>
+              return latestResults.map((meet, i) => (
+                <FadeInCard key={meet.meet_id} delay={i * 100}>
                   <AnimatedCard
-                    style={styles.trendingCard}
-                    onPress={() => router.push(`/athlete/${athlete.athlete_id}`)}
+                    style={styles.latestResultCard}
+                    onPress={() => router.push(`/meet/${meet.meet_id}`)}
                   >
-                    <View style={styles.trendingAvatar}>
-                      <Ionicons name="person" size={32} color="#FF6B35" />
+                    <View>
+                      <View style={styles.latestResultBadge}>
+                        <Ionicons name="checkmark-circle" size={12} color={colors.performance.newPR} />
+                        <Text style={styles.latestResultBadgeText}>RESULTS</Text>
+                      </View>
+                      <Text style={styles.latestResultMeet} numberOfLines={2}>{meet.name}</Text>
                     </View>
-                    <Text style={styles.trendingName} numberOfLines={2}>{athlete.full_name}</Text>
-                    <Text style={styles.trendingSchool} numberOfLines={1}>{athlete.school_name || 'Unknown'}</Text>
-                    <View style={styles.trendingDivider} />
-                    <Text style={styles.trendingEvent} numberOfLines={1}>{athlete.event_name}</Text>
-                    <Text style={styles.trendingStat}>{athlete.mark_raw}</Text>
+                    <View style={styles.latestResultBottom}>
+                      <View style={styles.latestResultDate}>
+                        <Ionicons name="calendar" size={12} color={colors.primary.trackOrange} />
+                        <Text style={styles.latestResultDateText}>
+                          {new Date(meet.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </Text>
+                      </View>
+                      {meet.location && (
+                        <View style={styles.latestResultLocation}>
+                          <Ionicons name="location" size={12} color={colors.text.tertiary} />
+                          <Text style={styles.latestResultLocationText} numberOfLines={1}>{meet.location}</Text>
+                        </View>
+                      )}
+                    </View>
                   </AnimatedCard>
                 </FadeInCard>
-              ))}
-            </ScrollView>
-          </View>
-        )}
+              ));
+            })()}
+          </ScrollView>
+        </View>
+
+        {/* Trending Athletes - Hidden for now */}
 
         <View style={styles.bottomSpacing} />
       </ScrollView>
@@ -304,7 +413,7 @@ const styles = StyleSheet.create({
   },
   performancesList: {
     paddingHorizontal: spacing.screen,
-    gap: spacing.cardMargin, // Consistent spacing between cards
+    gap: spacing.sm, // Compact spacing between cards
   },
   header: {
     flexDirection: 'row',
@@ -620,6 +729,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screen,
     marginBottom: spacing.lg,
   },
+  sectionHeaderColumn: {
+    paddingHorizontal: spacing.screen,
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
+  },
   sectionTitle: {
     fontSize: 24,
     fontWeight: '900',
@@ -665,6 +779,76 @@ const styles = StyleSheet.create({
   horizontalScroll: {
     paddingHorizontal: spacing.screen,
     gap: spacing.md,
+  },
+  // Filter Dropdown
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  filterDropdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.backgrounds.white,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    borderRadius: spacing.radiusSm,
+    borderWidth: 2,
+    borderColor: colors.borders.thick,
+  },
+  filterDropdownText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: colors.text.secondary,
+  },
+  // Division Picker Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pickerContainer: {
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: spacing.radiusLg,
+    padding: spacing.lg,
+    width: '80%',
+    maxWidth: 300,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+  },
+  pickerTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.text.primary,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  pickerOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    borderRadius: spacing.radiusSm,
+  },
+  pickerOptionActive: {
+    backgroundColor: colors.backgrounds.cream,
+  },
+  pickerOptionText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.text.secondary,
+  },
+  pickerOptionTextActive: {
+    color: colors.primary.trackOrange,
+    fontWeight: '900',
   },
   // Upcoming Meets
   upcomingCard: {
@@ -905,5 +1089,68 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: spacing.bottomSpacing,
+  },
+  // Latest Results Cards
+  latestResultCard: {
+    width: 180,
+    minHeight: 130,
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    justifyContent: 'space-between',
+  },
+  latestResultBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 4,
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  latestResultBadgeText: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: colors.performance.newPR,
+    letterSpacing: 0.5,
+  },
+  latestResultMeet: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: colors.text.primary,
+    lineHeight: 18,
+    flex: 1,
+  },
+  latestResultBottom: {
+    marginTop: 10,
+  },
+  latestResultDate: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  latestResultDateText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.primary.trackOrange,
+  },
+  latestResultLocation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+  },
+  latestResultLocationText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.text.tertiary,
   },
 });
