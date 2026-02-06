@@ -7,7 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AnimatedCard } from '../../components/animations/AnimatedCard';
 import { FadeInCard } from '../../components/animations/FadeInCard';
 import { RacingStripes } from '../../components/decorations/RacingStripes';
-import { SparkleTrophy } from '../../components/decorations/SparkleTrophy';
 import { HintTooltip } from '../../components/hints/HintTooltip';
 import { Onboarding } from '../../components/onboarding/Onboarding';
 import { SportsPerformanceCard } from '../../components/ui/SportsPerformanceCard';
@@ -40,21 +39,6 @@ export default function HomeScreen() {
     }
   };
 
-  // Get unique trending athletes (athletes with multiple top performances)
-  const trendingAthletes = performances.reduce((acc: any[], perf) => {
-    const existing = acc.find(a => a.athlete_id === perf.athlete_id);
-    if (!existing && acc.length < 4) {
-      acc.push({
-        athlete_id: perf.athlete_id,
-        full_name: perf.full_name,
-        school_name: perf.school_name,
-        event_name: perf.event_name,
-        mark_raw: perf.mark_raw,
-        gender: perf.gender,
-      });
-    }
-    return acc;
-  }, []);
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Onboarding Modal */}

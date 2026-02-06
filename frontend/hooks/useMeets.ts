@@ -177,3 +177,45 @@ export function useMeets(filter?: 'upcoming' | 'live' | 'past') {
 
   return { meets, loading, error, refresh, searchPastMeets };
 }
+
+// Get meets from last weekend (Sat-Sun) with results
+export function useLatestResults(limit: number = 5) {
+  const [meets, setMeets] = useState<Meet[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      // Calculate last weekend's Saturday and Sunday
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+
+      // Days since last Saturday
+      const daysSinceSat = dayOfWeek === 6 ? 7 : dayOfWeek + 1;
+      const lastSaturday = new Date(today);
+      lastSaturday.setDate(today.getDate() - daysSinceSat);
+
+      const lastSunday = new Date(lastSaturday);
+      lastSunday.setDate(lastSaturday.getDate() + 1);
+
+      const satStr = lastSaturday.toISOString().split('T')[0];
+      const sunStr = lastSunday.toISOString().split('T')[0];
+
+      console.log('Last weekend:', satStr, 'to', sunStr);
+
+      const { data } = await supabase
+        .from('meets')
+        .select(COLUMNS)
+        .gte('date', satStr)
+        .lte('date', sunStr)
+        .not('meet_url', 'is', null)
+        .order('date', { ascending: false })
+        .limit(limit);
+
+      setMeets(data || []);
+      setLoading(false);
+    }
+    load();
+  }, [limit]);
+
+  return { meets, loading };
+}
