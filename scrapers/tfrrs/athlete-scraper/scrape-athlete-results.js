@@ -122,12 +122,45 @@ function parseAthleteResults(html, athleteId) {
   const $ = cheerio.load(html);
   const results = [];
 
-  // Find all tables with class table-hover (these contain meet results)
-  $('table.table-hover').each((_, table) => {
-    const $table = $(table);
+  // Track current school context - transfers have multiple school sections
+  let currentSchool = null;
 
-    // Get the header which contains meet name and date
-    const $header = $table.find('thead th, th[colspan]').first();
+  // Find the current school from the header
+  // The school is in h3.panel-title but NOT the one with .large-title (that's athlete name)
+  $('h3.panel-title').each((_, el) => {
+    const $el = $(el);
+    // Skip if it's the large-title (athlete name)
+    if ($el.hasClass('large-title')) return;
+    // This should be the school name
+    currentSchool = $el.text().trim();
+  });
+
+  // Process meet results tab content
+  const $meetResultsTab = $('#meet-results');
+
+  // For transfer athletes, there are "Competing for [School]" sections
+  // These appear as: <div class="transfer"><span><b>↓Competing for <a>School</a> ↓</b></span></div>
+  // We need to track which school section each result belongs to
+
+  // Get all elements in order: transfer divs and tables
+  const elements = $meetResultsTab.find('div.transfer, table').toArray();
+
+  let schoolForNextResults = currentSchool;
+
+  elements.forEach(el => {
+    const $el = $(el);
+
+    // Check if this is a transfer section marker
+    if ($el.hasClass('transfer')) {
+      const $schoolLink = $el.find('a[href*="/teams/"]');
+      if ($schoolLink.length) {
+        schoolForNextResults = $schoolLink.text().trim();
+      }
+      return; // Continue to next element
+    }
+
+    // This is a table - check if it's a results table (has a meet link in header)
+    const $header = $el.find('thead th, th[colspan]').first();
     if (!$header.length) return;
 
     // Extract meet name from link
@@ -139,14 +172,15 @@ function parseAthleteResults(html, athleteId) {
     const $dateSpan = $header.find('span');
     let date = '';
     if ($dateSpan.length) {
-      const dateMatch = $dateSpan.text().match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}(?:-\w+\s+\d{1,2})?,?\s*\d{4}/i);
+      // Match dates like "May 22-24, 2025", "Jan 10, 2025", "May  2- 4, 2025"
+      const dateMatch = $dateSpan.text().match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}(?:\s*-\s*\d{1,2})?,?\s*\d{4}/i);
       if (dateMatch) {
         date = dateMatch[0].trim();
       }
     }
 
-    // Get result rows from tbody (or direct tr children)
-    $table.find('tbody tr, tr').each((_, row) => {
+    // Get result rows (skip header row)
+    $el.find('tr').each((_, row) => {
       const $row = $(row);
       const $cells = $row.find('td');
       if ($cells.length < 2) return;
@@ -158,19 +192,18 @@ function parseAthleteResults(html, athleteId) {
       const $markLink = $cells.eq(1).find('a');
       let mark = $markLink.length ? $markLink.text().trim() : $cells.eq(1).text().trim();
 
-      // Third cell (if exists): place
+      // Third cell (if exists): place and round info
       let place = null;
+      let round = null;
       if ($cells.length > 2) {
-        const placeMatch = $cells.eq(2).text().match(/(\d+)(st|nd|rd|th)?/i);
+        const placeText = $cells.eq(2).text().trim();
+        const placeMatch = placeText.match(/(\d+)(st|nd|rd|th)?/i);
         if (placeMatch) {
           place = parseInt(placeMatch[1]);
         }
-      }
-
-      // Also check for place in parens like "(5th)"
-      const placeInMark = mark.match(/\((\d+)(st|nd|rd|th)?\)/i);
-      if (placeInMark && !place) {
-        place = parseInt(placeInMark[1]);
+        // Check for (F) = Final, (P) = Prelim
+        if (placeText.includes('(F)')) round = 'F';
+        else if (placeText.includes('(P)')) round = 'P';
       }
 
       // Skip if no valid mark
@@ -179,7 +212,7 @@ function parseAthleteResults(html, athleteId) {
       // Clean the mark
       const cleanMark = mark.replace(/\s*\(\d+(st|nd|rd|th)?\)/gi, '').trim();
 
-      // Skip header rows
+      // Skip header-like rows
       if (cleanMark.toLowerCase().includes('top') || cleanMark.toLowerCase().includes('meters')) return;
 
       results.push({
@@ -188,7 +221,9 @@ function parseAthleteResults(html, athleteId) {
         meet_name: meetName,
         date: date,
         mark_raw: cleanMark,
-        place: place
+        place: place,
+        round: round,
+        school_name: schoolForNextResults  // School they competed for
       });
     });
   });

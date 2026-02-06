@@ -14,8 +14,8 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 
-// Load environment variables
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+// Load environment variables (go up to scrapers/.env)
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -117,6 +117,51 @@ async function importResults(options = {}) {
   const results = JSON.parse(fs.readFileSync(RESULTS_FILE, 'utf-8'));
   console.log(`Loaded ${results.length.toLocaleString()} scraped results\n`);
 
+  // Build school name -> team_id lookup
+  console.log('Building school -> team_id lookup...');
+  // Fetch ALL teams (default limit is 1000)
+  let allTeams = [];
+  let offset = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data: batch } = await supabase
+      .from('teams')
+      .select('team_id, gender, school_id, schools(short_name, official_name)')
+      .range(offset, offset + pageSize - 1);
+    if (!batch || batch.length === 0) break;
+    allTeams = allTeams.concat(batch);
+    offset += pageSize;
+    if (batch.length < pageSize) break;
+  }
+  const teams = allTeams;
+  console.log(`  Fetched ${teams.length} teams`);
+
+  const schoolToTeamId = {};
+  teams?.forEach(t => {
+    const shortName = t.schools?.short_name?.toLowerCase();
+    const officialName = t.schools?.official_name?.toLowerCase();
+    // Store both men's and women's team IDs
+    if (shortName) {
+      if (!schoolToTeamId[shortName]) schoolToTeamId[shortName] = {};
+      schoolToTeamId[shortName][t.gender] = t.team_id;
+    }
+    if (officialName && officialName !== shortName) {
+      if (!schoolToTeamId[officialName]) schoolToTeamId[officialName] = {};
+      schoolToTeamId[officialName][t.gender] = t.team_id;
+    }
+  });
+  console.log(`  Loaded ${Object.keys(schoolToTeamId).length} schools\n`);
+
+  // Helper to look up team_id from school name
+  function lookupTeamId(schoolName, athleteId) {
+    if (!schoolName) return null;
+    const key = schoolName.toLowerCase().replace(/\.$/, ''); // Remove trailing period
+    const teams = schoolToTeamId[key];
+    if (!teams) return null;
+    // Default to men's team (M), could look up athlete gender if needed
+    return teams['M'] || teams['F'] || null;
+  }
+
   // Transform results for database
   const allDbResults = results.map(r => ({
     athlete_id: r.athlete_id,
@@ -127,10 +172,10 @@ async function importResults(options = {}) {
     mark_seconds: parseMarkSeconds(r.mark_raw),
     mark_meters: parseMarkMeters(r.mark_raw),
     place: r.place,
-    // These will be null for scraped data
-    team_id: null,
+    // Look up team_id from school_name (NEW!)
+    team_id: lookupTeamId(r.school_name, r.athlete_id),
     wind: null,
-    round: null,
+    round: r.round || null,  // F=Final, P=Prelim from scraper
     season_code: null,
     meet_location: null,
     total_competitors: null,

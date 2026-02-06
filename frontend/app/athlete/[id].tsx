@@ -12,13 +12,32 @@ import { FadeInCard } from '../../components/animations/FadeInCard';
 import { useAthleteDetails } from '../../hooks/useAthleteDetails';
 import { AthleteStatsModal } from '../../components/modals/AthleteStatsModal';
 
+// Helper to check if a date is from Dec 2025+ (clean data from new scraper)
+function isCleanDataSeason(dateString: string): boolean {
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = date.getMonth(); // 0-indexed, so December = 11
+  return year > 2025 || (year === 2025 && month >= 11);
+}
+
+// Shorten round names for display: "Finals" -> "F", "Preliminaries" -> "P", "Heat 3" -> "H3"
+function shortenRound(round: string | null | undefined): string {
+  if (!round) return '';
+  const r = round.toLowerCase();
+  if (r === 'f' || r === 'finals') return 'F';
+  if (r === 'p' || r === 'preliminaries') return 'P';
+  if (r.startsWith('heat ')) return 'H' + round.replace(/heat /i, '');
+  return round;
+}
+
 export default function AthleteDetailScreen() {
   const { id } = useLocalSearchParams();
   const athleteId = parseInt(id as string, 10);
   const isValidId = !isNaN(athleteId) && athleteId > 0;
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
   // Pass -1 for invalid IDs to prevent NaN from reaching the database
-  const { athlete, performances, personalRecords, loading, error } = useAthleteDetails(isValidId ? athleteId : -1);
+  const { athlete, performances, personalRecords, relayParticipations, loading, error } = useAthleteDetails(isValidId ? athleteId : -1);
   const [statsModalVisible, setStatsModalVisible] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
   const [seasonDropdownVisible, setSeasonDropdownVisible] = useState(false);
@@ -54,6 +73,7 @@ export default function AthleteDetailScreen() {
   // Personal records come directly from the database (is_pr = true)
 
   // Group results by meet - uses filtered performances
+  // Deduplicate: "Heat 3" and "Preliminaries" with same time are the same performance
   const meetResults = useMemo(() => {
     // Group performances by meet (meet_name + date)
     const grouped = new Map<string, {
@@ -63,24 +83,89 @@ export default function AthleteDetailScreen() {
       events: typeof filteredPerformances;
     }>();
 
+    // Priority for rounds: Finals > Preliminaries > Heat X
+    // Handles both old ("F", "P") and new ("Finals", "Preliminaries") naming
+    const getRoundPriority = (round: string | null | undefined): number => {
+      if (!round) return 0;
+      const r = round.toLowerCase();
+      if (r === 'f' || r.includes('final')) return 3;
+      if (r === 'p' || r.includes('prelim')) return 2;
+      if (r.includes('heat')) return 1;
+      return 0;
+    };
+
     [...filteredPerformances]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .forEach(perf => {
-        const key = `${perf.meet_name}|${perf.date}`;
-        if (!grouped.has(key)) {
-          grouped.set(key, {
+        const meetKey = `${perf.meet_name}|${perf.date}`;
+        if (!grouped.has(meetKey)) {
+          grouped.set(meetKey, {
             meetName: perf.meet_name,
             date: perf.date,
             competedForSchool: perf.competed_for_school,
             events: [],
           });
         }
-        grouped.get(key)!.events.push(perf);
+        grouped.get(meetKey)!.events.push(perf);
       });
+
+    // Deduplicate events within each meet
+    // Same event + same time = same performance, keep the one with higher round priority
+    for (const meet of grouped.values()) {
+      const deduped = new Map<string, typeof filteredPerformances[0]>();
+
+      for (const event of meet.events) {
+        // Key: event_name + mark_raw (same event, same time = same performance)
+        const key = `${event.event_name}|${event.mark_raw}`;
+        const existing = deduped.get(key);
+
+        if (!existing) {
+          deduped.set(key, event);
+        } else {
+          // Keep the one with higher round priority (Finals > Preliminaries > Heat)
+          if (getRoundPriority(event.round) > getRoundPriority(existing.round)) {
+            deduped.set(key, event);
+          }
+        }
+      }
+
+      meet.events = Array.from(deduped.values());
+    }
 
     // Convert to array and limit to recent 10 meets
     return Array.from(grouped.values()).slice(0, 10);
   }, [filteredPerformances]);
+
+  // Filter relays by selected season and group by meet
+  const relayResults = useMemo(() => {
+    let filtered = relayParticipations;
+    if (selectedSeason) {
+      filtered = relayParticipations.filter(r => new Date(r.date).getFullYear().toString() === selectedSeason);
+    }
+
+    // Group by meet
+    const grouped = new Map<string, {
+      meetName: string;
+      date: string;
+      relays: typeof filtered;
+    }>();
+
+    [...filtered]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .forEach(relay => {
+        const key = `${relay.meet_name}|${relay.date}`;
+        if (!grouped.has(key)) {
+          grouped.set(key, {
+            meetName: relay.meet_name,
+            date: relay.date,
+            relays: [],
+          });
+        }
+        grouped.get(key)!.relays.push(relay);
+      });
+
+    return Array.from(grouped.values()).slice(0, 10);
+  }, [relayParticipations, selectedSeason]);
 
   const isFollowing = athlete ? isFavorite(athlete.athlete_id.toString(), 'athlete') : false;
 
@@ -307,48 +392,151 @@ export default function AthleteDetailScreen() {
 
                   {/* Events List */}
                   <View style={styles.meetEventsList}>
-                    {meet.events.map((event, eventIndex) => (
-                      <TouchableOpacity
-                        key={`${event.event_name}-${event.round}-${eventIndex}`}
+                    {meet.events.map((event, eventIndex) => {
+                      const canViewResults = isCleanDataSeason(meet.date);
+
+                      if (canViewResults) {
+                        return (
+                          <TouchableOpacity
+                            key={`${event.event_name}-${event.round}-${eventIndex}`}
+                            style={[
+                              styles.meetEventRow,
+                              eventIndex === meet.events.length - 1 && styles.meetEventRowLast
+                            ]}
+                            onPress={() => {
+                              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                              router.push({
+                                pathname: '/event-results',
+                                params: {
+                                  meetName: meet.meetName,
+                                  eventName: event.event_name,
+                                  date: meet.date.split('T')[0],
+                                  gender: athlete?.gender || '',
+                                },
+                              });
+                            }}
+                            activeOpacity={0.7}
+                          >
+                            <View style={styles.meetEventInfo}>
+                              <View style={styles.meetEventNameRow}>
+                                <Text style={styles.meetEventName}>{event.event_name}</Text>
+                                {event.round && (
+                                  <View style={styles.roundTag}>
+                                    <Text style={styles.roundTagText}>{shortenRound(event.round)}</Text>
+                                  </View>
+                                )}
+                              </View>
+                              <Text style={styles.meetEventMark}>{event.mark_raw}</Text>
+                            </View>
+                            <View style={styles.meetEventRight}>
+                              <View style={styles.placeBadgeSmall}>
+                                <Text style={styles.placeTextSmall}>{event.place}</Text>
+                                <Text style={styles.placeSuffixSmall}>
+                                  {event.place === 1 ? 'st' : event.place === 2 ? 'nd' : event.place === 3 ? 'rd' : 'th'}
+                                </Text>
+                              </View>
+                              <Ionicons name="chevron-forward" size={16} color={colors.text.tertiary} />
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      }
+
+                      // Non-clickable row for older data
+                      return (
+                        <View
+                          key={`${event.event_name}-${event.round}-${eventIndex}`}
+                          style={[
+                            styles.meetEventRow,
+                            styles.meetEventRowDisabled,
+                            eventIndex === meet.events.length - 1 && styles.meetEventRowLast
+                          ]}
+                        >
+                          <View style={styles.meetEventInfo}>
+                            <View style={styles.meetEventNameRow}>
+                              <Text style={[styles.meetEventName, styles.meetEventNameDisabled]}>{event.event_name}</Text>
+                              {event.round && (
+                                <View style={styles.roundTag}>
+                                  <Text style={styles.roundTagText}>{shortenRound(event.round)}</Text>
+                                </View>
+                              )}
+                            </View>
+                            <Text style={[styles.meetEventMark, styles.meetEventMarkDisabled]}>{event.mark_raw}</Text>
+                          </View>
+                          <View style={styles.meetEventRight}>
+                            <View style={styles.placeBadgeSmall}>
+                              <Text style={styles.placeTextSmall}>{event.place}</Text>
+                              <Text style={styles.placeSuffixSmall}>
+                                {event.place === 1 ? 'st' : event.place === 2 ? 'nd' : event.place === 3 ? 'rd' : 'th'}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              </FadeInCard>
+            ))}
+          </View>
+        )}
+
+        {/* Relay Participations */}
+        {relayResults.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Relay Results ({relayResults.length})</Text>
+            {relayResults.map((meet, meetIndex) => (
+              <FadeInCard key={`relay-${meet.meetName}-${meet.date}`} delay={meetIndex * 100}>
+                <View style={styles.meetCard}>
+                  {/* Meet Header */}
+                  <View style={styles.meetCardHeader}>
+                    <Text style={styles.meetCardTitle}>{meet.meetName}</Text>
+                    <Text style={styles.meetCardDate}>
+                      {new Date(meet.date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </Text>
+                  </View>
+
+                  {/* Relays List */}
+                  <View style={styles.meetEventsList}>
+                    {meet.relays.map((relay, relayIndex) => (
+                      <View
+                        key={`${relay.event_name}-${relay.round}-${relayIndex}`}
                         style={[
                           styles.meetEventRow,
-                          eventIndex === meet.events.length - 1 && styles.meetEventRowLast
+                          relayIndex === meet.relays.length - 1 && styles.meetEventRowLast
                         ]}
-                        onPress={() => {
-                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                          router.push({
-                            pathname: '/event-results',
-                            params: {
-                              meetName: meet.meetName,
-                              eventName: event.event_name,
-                              date: meet.date.split('T')[0],
-                              gender: athlete?.gender || '',
-                            },
-                          });
-                        }}
-                        activeOpacity={0.7}
                       >
                         <View style={styles.meetEventInfo}>
                           <View style={styles.meetEventNameRow}>
-                            <Text style={styles.meetEventName}>{event.event_name}</Text>
-                            {event.round && (
+                            <Text style={styles.meetEventName}>{relay.event_name}</Text>
+                            <View style={styles.legTag}>
+                              <Text style={styles.legTagText}>Leg {relay.leg_order}</Text>
+                            </View>
+                            {relay.round && (
                               <View style={styles.roundTag}>
-                                <Text style={styles.roundTagText}>{event.round}</Text>
+                                <Text style={styles.roundTagText}>{shortenRound(relay.round)}</Text>
                               </View>
                             )}
                           </View>
-                          <Text style={styles.meetEventMark}>{event.mark_raw}</Text>
+                          <Text style={styles.meetEventMark}>{relay.mark_raw}</Text>
+                          {relay.teammates.length > 0 && (
+                            <Text style={styles.teammatesText}>
+                              with {relay.teammates.slice(0, 3).join(', ')}
+                            </Text>
+                          )}
                         </View>
                         <View style={styles.meetEventRight}>
                           <View style={styles.placeBadgeSmall}>
-                            <Text style={styles.placeTextSmall}>{event.place}</Text>
+                            <Text style={styles.placeTextSmall}>{relay.place}</Text>
                             <Text style={styles.placeSuffixSmall}>
-                              {event.place === 1 ? 'st' : event.place === 2 ? 'nd' : event.place === 3 ? 'rd' : 'th'}
+                              {relay.place === 1 ? 'st' : relay.place === 2 ? 'nd' : relay.place === 3 ? 'rd' : 'th'}
                             </Text>
                           </View>
-                          <Ionicons name="chevron-forward" size={16} color={colors.text.tertiary} />
                         </View>
-                      </TouchableOpacity>
+                      </View>
                     ))}
                   </View>
                 </View>
@@ -358,7 +546,7 @@ export default function AthleteDetailScreen() {
         )}
 
         {/* No data message */}
-        {filteredPerformances.length === 0 && (
+        {filteredPerformances.length === 0 && relayResults.length === 0 && (
           <View style={styles.section}>
             <View style={styles.errorContainer}>
               <Ionicons name="podium-outline" size={48} color={colors.text.tertiary} />
@@ -706,6 +894,15 @@ const styles = StyleSheet.create({
   meetEventRowLast: {
     borderBottomWidth: 0,
   },
+  meetEventRowDisabled: {
+    opacity: 0.6,
+  },
+  meetEventNameDisabled: {
+    color: colors.text.tertiary,
+  },
+  meetEventMarkDisabled: {
+    color: colors.text.tertiary,
+  },
   meetEventInfo: {
     flex: 1,
   },
@@ -831,6 +1028,26 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: colors.text.secondary,
+  },
+  legTag: {
+    backgroundColor: colors.primary.trackOrange,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.borders.thick,
+  },
+  legTagText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.text.white,
+  },
+  teammatesText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.text.tertiary,
+    marginTop: 4,
+    fontStyle: 'italic',
   },
   resultTime: {
     fontSize: 28,

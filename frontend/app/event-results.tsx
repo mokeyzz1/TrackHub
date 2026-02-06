@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { colors } from '../design-system/colors';
-import { getEventResults, getMeetByName } from '../services/database-supabase';
+import { getEventResults, getRelayResults, getMeetByName, isRelayEvent } from '../services/database-supabase';
 
 // ============================================
 // TYPES
@@ -33,23 +33,53 @@ interface EventResult {
   isMissing?: boolean;
 }
 
+interface RelayResult {
+  relay_result_id: number;
+  team_id: number;
+  gender?: string;
+  school_name: string;
+  mark_raw: string;
+  mark_seconds?: number;
+  place: number;
+  round: string;
+  athletes: {
+    athlete_id: number;
+    name: string;
+    class_year?: string;
+    leg_order: number;
+  }[];
+}
+
 interface RoundGroup {
   roundName: string;
   results: EventResult[];
   wind?: number;
 }
 
+interface RelayRoundGroup {
+  roundName: string;
+  results: RelayResult[];
+}
+
 // ============================================
 // HELPERS
 // ============================================
 
-// Determine round priority for sorting (Finals first, then prelims/heats)
+// Determine round priority for sorting (Finals first, then heats in numeric order, prelims at end)
 function getRoundPriority(round: string): number {
   const r = round.toLowerCase();
   if (r.includes('final')) return 0;
   if (r.includes('semi')) return 1;
-  if (r.includes('prelim') && !r.match(/\d/)) return 100; // Combined prelims at end
-  if (r.includes('prelim') || r.includes('heat')) return 2;
+
+  // Individual heats - extract number and sort numerically (Heat 1 = 10, Heat 2 = 11, etc.)
+  const heatMatch = r.match(/heat\s*(\d+)/i);
+  if (heatMatch) {
+    return 10 + parseInt(heatMatch[1], 10);
+  }
+
+  // Combined prelims at end
+  if (r.includes('prelim')) return 200;
+
   return 50;
 }
 
@@ -77,16 +107,104 @@ function normalizeRoundName(round: string): string {
   return r;
 }
 
-// Fill in missing places with placeholder entries
-function fillMissingPlaces(results: EventResult[]): EventResult[] {
+// Check if a round is an individual heat (Heat 1, Heat 2, etc.)
+function isIndividualHeatRound(roundName: string): boolean {
+  const r = roundName.toLowerCase();
+  return (r.includes('heat') && /\d/.test(r));
+}
+
+// Check if a round is combined preliminaries
+function isCombinedPrelims(roundName: string): boolean {
+  const r = roundName.toLowerCase();
+  return r === 'prelims' || r === 'preliminaries' || r === 'prelim';
+}
+
+// Check if a round should have sequential places filled (Finals, Semis)
+function shouldFillMissingPlaces(roundName: string): boolean {
+  const r = roundName.toLowerCase();
+  // Don't fill for individual heats or combined prelims (we recalculate those)
+  if (isIndividualHeatRound(roundName)) return false;
+  if (isCombinedPrelims(roundName)) return false;
+  // Fill for finals and semifinals
+  if (r.includes('final')) return true;
+  if (r.includes('semi')) return true;
+  if (r === 'results') return true;
+  return false;
+}
+
+// Recalculate places based on times (for heats and prelims)
+function recalculatePlaces(results: EventResult[]): EventResult[] {
+  if (results.length === 0) return results;
+
+  // Sort by mark_seconds (time) - lower is better for running events
+  // If mark_seconds is not available, try to parse mark_raw
+  const sorted = [...results].sort((a, b) => {
+    const aTime = a.mark_seconds ?? parseTimeToSeconds(a.mark_raw);
+    const bTime = b.mark_seconds ?? parseTimeToSeconds(b.mark_raw);
+    if (aTime === null && bTime === null) return 0;
+    if (aTime === null) return 1;
+    if (bTime === null) return -1;
+    return aTime - bTime;
+  });
+
+  // Assign new places
+  return sorted.map((result, index) => ({
+    ...result,
+    place: index + 1,
+  }));
+}
+
+// Parse time string to seconds (handles formats like "6.75", "1:23.45", "NT", "DNS", etc.)
+function parseTimeToSeconds(mark: string): number | null {
+  if (!mark) return null;
+  const cleaned = mark.trim().replace(/\s*\([^)]*\)/g, ''); // Remove wind readings like "(2.1)"
+
+  // Skip non-time marks
+  if (['NT', 'DNS', 'DNF', 'DQ', 'FS', 'NH', 'NM', '-', 'FOUL', 'SCR'].includes(cleaned.toUpperCase())) {
+    return null;
+  }
+
+  // Handle mm:ss.xx format
+  const minSecMatch = cleaned.match(/^(\d+):(\d+\.?\d*)$/);
+  if (minSecMatch) {
+    return parseInt(minSecMatch[1]) * 60 + parseFloat(minSecMatch[2]);
+  }
+
+  // Handle ss.xx format
+  const secMatch = cleaned.match(/^(\d+\.?\d*)$/);
+  if (secMatch) {
+    return parseFloat(secMatch[1]);
+  }
+
+  return null;
+}
+
+// Fill in missing places with placeholder entries (only for actual Finals with ~8 athletes)
+function fillMissingPlaces(results: EventResult[], roundName: string): EventResult[] {
   if (results.length === 0) return results;
 
   // Sort by place first
   const sorted = [...results].sort((a, b) => (a.place || 999) - (b.place || 999));
 
+  // Only fill gaps for finals/semis, not individual heats
+  if (!shouldFillMissingPlaces(roundName)) {
+    return sorted;
+  }
+
+  // Don't fill gaps if more than 10 results - this is likely combined results, not actual finals
+  // (gaps would be from filtering by gender, not actually missing athletes)
+  if (sorted.length > 10) {
+    return sorted;
+  }
+
   // Find the range of places (start from 1, go to max place)
   const maxPlace = Math.max(...sorted.map(r => r.place || 0));
   if (maxPlace === 0) return sorted;
+
+  // Don't fill if max place is way higher than result count (combined results scenario)
+  if (maxPlace > sorted.length * 2) {
+    return sorted;
+  }
 
   const filledResults: EventResult[] = [];
   const existingPlaces = new Set(sorted.map(r => r.place));
@@ -126,12 +244,45 @@ function groupByRound(results: EventResult[]): RoundGroup[] {
     groups.get(round)!.push(result);
   });
 
-  // Convert to array, fill missing places, and sort by round priority
+  // Convert to array and process each round appropriately
+  return Array.from(groups.entries())
+    .map(([roundName, roundResults]) => {
+      let processedResults: EventResult[];
+
+      if (isIndividualHeatRound(roundName) || isCombinedPrelims(roundName)) {
+        // Recalculate places based on times for heats and prelims
+        processedResults = recalculatePlaces(roundResults);
+      } else {
+        // Fill missing places for finals/semis
+        processedResults = fillMissingPlaces(roundResults, roundName);
+      }
+
+      return {
+        roundName,
+        results: processedResults,
+        wind: roundResults[0]?.wind,
+      };
+    })
+    .sort((a, b) => getRoundPriority(a.roundName) - getRoundPriority(b.roundName));
+}
+
+// Group relay results by round
+function groupRelayByRound(results: RelayResult[]): RelayRoundGroup[] {
+  const groups = new Map<string, RelayResult[]>();
+
+  results.forEach(result => {
+    const round = normalizeRoundName(result.round || 'Results');
+    if (!groups.has(round)) {
+      groups.set(round, []);
+    }
+    groups.get(round)!.push(result);
+  });
+
+  // Convert to array and sort by round priority
   return Array.from(groups.entries())
     .map(([roundName, results]) => ({
       roundName,
-      results: fillMissingPlaces(results),
-      wind: results[0]?.wind,
+      results: results.sort((a, b) => (a.place || 999) - (b.place || 999)),
     }))
     .sort((a, b) => getRoundPriority(a.roundName) - getRoundPriority(b.roundName));
 }
@@ -141,20 +292,23 @@ function groupByRound(results: EventResult[]): RoundGroup[] {
 // ============================================
 
 export default function EventResultsScreen() {
-  const { meetName, eventName, date, gender } = useLocalSearchParams<{
+  const { meetName, eventName, date, gender, meetId } = useLocalSearchParams<{
     meetName: string;
     eventName: string;
     date: string;
     gender?: string;
+    meetId?: string;
   }>();
 
   const [results, setResults] = useState<EventResult[]>([]);
+  const [relayResults, setRelayResults] = useState<RelayResult[]>([]);
+  const [isRelay, setIsRelay] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchResults();
-  }, [meetName, eventName, date, gender]);
+  }, [meetName, eventName, date, gender, meetId]);
 
   async function fetchResults() {
     if (!meetName || !eventName || !date) {
@@ -167,9 +321,23 @@ export default function EventResultsScreen() {
       setLoading(true);
       setError(null);
 
-      // Pass gender to filter results (since event names don't include gender)
-      const data = await getEventResults(meetName, eventName, date, gender || undefined);
-      setResults(data as EventResult[]);
+      // Check if this is a relay event
+      const relay = isRelayEvent(eventName);
+      setIsRelay(relay);
+
+      const meetIdNum = meetId ? parseInt(meetId, 10) : undefined;
+
+      if (relay) {
+        // Fetch relay results
+        const data = await getRelayResults(meetName, eventName, date, gender || undefined, meetIdNum);
+        setRelayResults(data as RelayResult[]);
+        setResults([]);
+      } else {
+        // Fetch individual results
+        const data = await getEventResults(meetName, eventName, date, gender || undefined, meetIdNum);
+        setResults(data as EventResult[]);
+        setRelayResults([]);
+      }
     } catch (err) {
       console.error('Error fetching event results:', err);
       setError('Failed to load results');
@@ -180,6 +348,7 @@ export default function EventResultsScreen() {
 
   // Group results by round
   const roundGroups = useMemo(() => groupByRound(results), [results]);
+  const relayRoundGroups = useMemo(() => groupRelayByRound(relayResults), [relayResults]);
 
   function formatDate(dateString: string) {
     const [year, month, day] = dateString.split('-').map(Number);
@@ -326,6 +495,103 @@ export default function EventResultsScreen() {
     );
   }
 
+  function renderRelayResultRow(result: RelayResult, index: number, isLast: boolean) {
+    const isTopThree = result.place >= 1 && result.place <= 3;
+
+    return (
+      <View
+        key={result.relay_result_id}
+        style={[styles.relayResultRow, isLast && styles.resultRowLast]}
+      >
+        {/* Main Row - Place, School, Time */}
+        <View style={styles.relayMainRow}>
+          <View style={[styles.placeCell, isTopThree && styles.placeCellTop]}>
+            <Text style={[styles.placeText, isTopThree && styles.placeTextTop]}>
+              {result.place || '-'}
+            </Text>
+          </View>
+
+          <View style={styles.relayTeamCell}>
+            <Text style={styles.relayTeamText} numberOfLines={1}>
+              {result.school_name}
+            </Text>
+          </View>
+
+          <View style={styles.timeCell}>
+            <Text style={styles.timeText}>{result.mark_raw || '-'}</Text>
+          </View>
+        </View>
+
+        {/* Athletes List */}
+        {result.athletes && result.athletes.length > 0 && (
+          <View style={styles.relayAthletesContainer}>
+            {result.athletes
+              .sort((a, b) => a.leg_order - b.leg_order)
+              .map((athlete, idx) => (
+                <TouchableOpacity
+                  key={`${result.relay_result_id}-${athlete.athlete_id}-${idx}`}
+                  style={styles.relayAthleteRow}
+                  onPress={() => {
+                    if (athlete.athlete_id) {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      router.push(`/athlete/${athlete.athlete_id}`);
+                    }
+                  }}
+                  activeOpacity={athlete.athlete_id ? 0.7 : 1}
+                  disabled={!athlete.athlete_id}
+                >
+                  <View style={styles.legBadge}>
+                    <Text style={styles.legBadgeText}>{athlete.leg_order}</Text>
+                  </View>
+                  <Text style={styles.relayAthleteName} numberOfLines={1}>
+                    {athlete.name || 'Unknown'}
+                  </Text>
+                  {athlete.class_year && (
+                    <Text style={styles.relayAthleteYear}>{athlete.class_year}</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+          </View>
+        )}
+      </View>
+    );
+  }
+
+  function renderRelayRoundSection(group: RelayRoundGroup, index: number) {
+    const isHeat = isIndividualHeat(group.roundName);
+
+    return (
+      <View key={group.roundName} style={styles.roundSection}>
+        {/* Round Header */}
+        <View style={[styles.roundHeader, isHeat && styles.roundHeaderHeat]}>
+          <Text style={[styles.roundTitle, isHeat && styles.roundTitleHeat]}>
+            {group.roundName}
+          </Text>
+        </View>
+
+        {/* Table Header - Simpler for relays */}
+        <View style={styles.tableHeader}>
+          <View style={styles.placeCell}>
+            <Text style={styles.headerText}>PL</Text>
+          </View>
+          <View style={styles.relayTeamCell}>
+            <Text style={styles.headerText}>TEAM</Text>
+          </View>
+          <View style={styles.timeCell}>
+            <Text style={styles.headerText}>TIME</Text>
+          </View>
+        </View>
+
+        {/* Results */}
+        <View style={styles.tableBody}>
+          {group.results.map((result, idx) =>
+            renderRelayResultRow(result, idx, idx === group.results.length - 1)
+          )}
+        </View>
+      </View>
+    );
+  }
+
   // ============================================
   // RENDER
   // ============================================
@@ -414,13 +680,26 @@ export default function EventResultsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {roundGroups.length > 0 ? (
-          roundGroups.map((group, index) => renderRoundSection(group, index))
+        {isRelay ? (
+          // Relay Results
+          relayRoundGroups.length > 0 ? (
+            relayRoundGroups.map((group, index) => renderRelayRoundSection(group, index))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="document-outline" size={48} color={colors.text.tertiary} />
+              <Text style={styles.emptyText}>No relay results found</Text>
+            </View>
+          )
         ) : (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="document-outline" size={48} color={colors.text.tertiary} />
-            <Text style={styles.emptyText}>No results found</Text>
-          </View>
+          // Individual Results
+          roundGroups.length > 0 ? (
+            roundGroups.map((group, index) => renderRoundSection(group, index))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="document-outline" size={48} color={colors.text.tertiary} />
+              <Text style={styles.emptyText}>No results found</Text>
+            </View>
+          )
         )}
 
         <View style={styles.bottomSpacing} />
@@ -692,6 +971,65 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text.primary,
     fontFamily: 'Courier',
+  },
+
+  // Relay Styles
+  relayResultRow: {
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borders.light,
+  },
+  relayMainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  relayTeamCell: {
+    flex: 1,
+    paddingRight: 8,
+  },
+  relayTeamText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: colors.text.primary,
+  },
+  relayAthletesContainer: {
+    marginTop: 8,
+    marginLeft: 36,
+    paddingLeft: 12,
+    borderLeftWidth: 2,
+    borderLeftColor: colors.borders.medium,
+  },
+  relayAthleteRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  legBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.primary.trackOrange,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  legBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.text.white,
+  },
+  relayAthleteName: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.text.secondary,
+  },
+  relayAthleteYear: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.text.tertiary,
+    marginLeft: 8,
   },
 
   // Empty State

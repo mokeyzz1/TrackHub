@@ -11,21 +11,55 @@ import { AnimatedCard } from '../../components/animations/AnimatedCard';
 import { HintTooltip } from '../../components/hints/HintTooltip';
 import { useFirstTimeHint } from '../../hooks/useFirstTimeHint';
 import { useMeets } from '../../hooks/useMeets';
+import { MeetListSkeleton } from '../../components/ui/MeetCardSkeleton';
 
 export default function MeetsScreen() {
   const [selectedTab, setSelectedTab] = useState<'live' | 'upcoming' | 'past'>('upcoming');
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'date' | 'alpha'>('alpha');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [sortByTab, setSortByTab] = useState<Record<'live' | 'upcoming' | 'past', 'date' | 'alpha'>>({
+    live: 'date',
+    upcoming: 'date',
+    past: 'date',
+  });
+  const sortBy = sortByTab[selectedTab];
+  const setSortBy = (value: 'date' | 'alpha') => setSortByTab(prev => ({ ...prev, [selectedTab]: value }));
   const meetsHint = useFirstTimeHint('meets_tab', 1500);
 
-  const { meets, loading, refresh } = useMeets(selectedTab);
+  const { meets, loading, refresh, searchPastMeets } = useMeets(selectedTab);
+
+  // Search older meets when on Past tab
+  React.useEffect(() => {
+    if (selectedTab === 'past' && searchQuery.length >= 2) {
+      setIsSearching(true);
+      const timer = setTimeout(async () => {
+        const results = await searchPastMeets(searchQuery);
+        setSearchResults(results);
+        setIsSearching(false);
+      }, 300); // Debounce
+      return () => clearTimeout(timer);
+    } else {
+      setSearchResults([]);
+      setIsSearching(false);
+    }
+  }, [searchQuery, selectedTab]);
 
   // Filter and sort meets
   const filteredMeets = useMemo(() => {
+    // For Past tab with search, use database search results (includes older months)
+    if (selectedTab === 'past' && searchQuery.length >= 2 && searchResults.length > 0) {
+      let result = [...searchResults];
+      if (sortBy === 'alpha') {
+        result.sort((a, b) => a.name.localeCompare(b.name));
+      }
+      return result;
+    }
+
     let result = [...meets];
 
-    // Filter by search query
+    // Filter by search query (for current month / non-past tabs)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       result = result.filter(meet =>
@@ -41,7 +75,7 @@ export default function MeetsScreen() {
     // Date sorting is already handled by the API
 
     return result;
-  }, [meets, searchQuery, sortBy]);
+  }, [meets, searchQuery, sortBy, selectedTab, searchResults]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -174,10 +208,7 @@ export default function MeetsScreen() {
         {selectedTab === 'live' && (
           <View style={styles.section}>
             {loading && filteredMeets.length === 0 ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={colors.primary.trackOrange} />
-                <Text style={styles.loadingText}>Loading live meets...</Text>
-              </View>
+              <MeetListSkeleton count={3} />
             ) : filteredMeets.length > 0 ? (
               filteredMeets.map((meet, index) => (
                 <FadeInCard key={meet.meet_id} delay={index * 150}>
@@ -199,10 +230,12 @@ export default function MeetsScreen() {
                     <Text style={styles.meetName}>{meet.name}</Text>
 
                     <View style={styles.meetMeta}>
-                      <View style={styles.metaItem}>
-                        <Ionicons name="location" size={14} color={colors.text.white} />
-                        <Text style={styles.metaText}>{meet.location || 'TBD'}</Text>
-                      </View>
+                      {meet.location && (
+                        <View style={styles.metaItem}>
+                          <Ionicons name="location" size={14} color={colors.text.white} />
+                          <Text style={styles.metaText}>{meet.location}</Text>
+                        </View>
+                      )}
                       <View style={styles.metaItem}>
                         <Ionicons name="calendar" size={14} color={colors.text.white} />
                         <Text style={styles.metaText}>{formatDate(meet.date)}</Text>
@@ -237,10 +270,7 @@ export default function MeetsScreen() {
         {selectedTab === 'upcoming' && (
           <View style={styles.section}>
             {loading && filteredMeets.length === 0 ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={colors.primary.trackOrange} />
-                <Text style={styles.loadingText}>Loading meets...</Text>
-              </View>
+              <MeetListSkeleton count={5} />
             ) : filteredMeets.length > 0 ? (
               filteredMeets.map((meet, index) => (
                 <FadeInCard key={meet.meet_id} delay={index * 120}>
@@ -251,10 +281,12 @@ export default function MeetsScreen() {
                   <View style={styles.upcomingHeader}>
                     <View style={styles.upcomingLeft}>
                       <Text style={styles.upcomingName}>{meet.name}</Text>
-                      <View style={styles.upcomingMeta}>
-                        <Ionicons name="location" size={14} color={colors.text.tertiary} />
-                        <Text style={styles.upcomingLocation}>{meet.location || 'TBD'}</Text>
-                      </View>
+                      {meet.location && (
+                        <View style={styles.upcomingMeta}>
+                          <Ionicons name="location" size={14} color={colors.text.tertiary} />
+                          <Text style={styles.upcomingLocation}>{meet.location}</Text>
+                        </View>
+                      )}
                     </View>
                   </View>
 
@@ -288,11 +320,15 @@ export default function MeetsScreen() {
         {/* Past Meets */}
         {selectedTab === 'past' && (
           <View style={styles.section}>
-            {loading && filteredMeets.length === 0 ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={colors.primary.trackOrange} />
-                <Text style={styles.loadingText}>Loading past meets...</Text>
+            {/* Show hint about searching older meets */}
+            {!searchQuery && (
+              <View style={styles.searchHint}>
+                <Ionicons name="information-circle-outline" size={16} color={colors.text.tertiary} />
+                <Text style={styles.searchHintText}>Showing this month. Search to find older meets.</Text>
               </View>
+            )}
+            {(loading || isSearching) && filteredMeets.length === 0 ? (
+              <MeetListSkeleton count={5} />
             ) : filteredMeets.length > 0 ? (
               filteredMeets.map((meet, index) => (
                 <FadeInCard key={meet.meet_id} delay={index * 120}>
@@ -307,10 +343,12 @@ export default function MeetsScreen() {
                     </View>
                   </View>
 
-                  <View style={styles.pastMeta}>
-                    <Ionicons name="location" size={14} color={colors.text.tertiary} />
-                    <Text style={styles.pastLocation}>{meet.location || 'TBD'}</Text>
-                  </View>
+                  {meet.location && (
+                    <View style={styles.pastMeta}>
+                      <Ionicons name="location" size={14} color={colors.text.tertiary} />
+                      <Text style={styles.pastLocation}>{meet.location}</Text>
+                    </View>
+                  )}
 
                   <View style={styles.pastDetails}>
                     <View style={styles.pastDetailItem}>
@@ -799,5 +837,20 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
     color: colors.performance.newPR,
+  },
+  searchHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+  searchHintText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.text.tertiary,
   },
 });

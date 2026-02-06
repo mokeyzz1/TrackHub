@@ -1,0 +1,7 @@
+# Output data
+output/
+logs/
+
+# Keep folder structure
+!output/.gitkeep
+!logs/.gitkeep

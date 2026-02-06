@@ -19,6 +19,13 @@ import { colors } from '../../design-system/colors';
 import { supabase } from '../../lib/supabase';
 import { getEventsByMeetWithGender } from '../../services/database-supabase';
 
+// Helper to check if a date is from Dec 2025+ (clean data from new scraper)
+function isCleanDataSeason(dateString: string): boolean {
+  if (!dateString) return false;
+  const [year, month] = dateString.split('T')[0].split('-').map(Number);
+  return year > 2025 || (year === 2025 && month >= 12);
+}
+
 interface Meet {
   meet_id: number;
   name: string;
@@ -142,13 +149,14 @@ export default function MeetDetailScreen() {
   async function fetchMeetEvents() {
     const name = meet?.name || fallbackMeetName;
     const dateStr = meet?.date?.split('T')[0] || fallbackMeetDate;
+    const meetId = meet?.meet_id;
 
     if (!name || !dateStr) return;
 
     try {
       setEventsLoading(true);
 
-      const eventsData = await getEventsByMeetWithGender(name, dateStr);
+      const eventsData = await getEventsByMeetWithGender(name, dateStr, meetId);
 
       setMensEvents(sortEvents(eventsData.mens));
       setWomensEvents(sortEvents(eventsData.womens));
@@ -161,57 +169,67 @@ export default function MeetDetailScreen() {
 
   // Sort events in proper track order
   function sortEvents(events: string[]): string[] {
-    const eventOrder: Record<string, number> = {
+    // Helper to get sort order from event name
+    function getEventOrder(eventName: string): number {
+      const e = eventName.toUpperCase().trim();
+
       // Sprints
-      '60': 1, '60M': 1,
-      '100': 2, '100M': 2,
-      '200': 3, '200M': 3,
-      '400': 4, '400M': 4,
+      if (e === '60' || e === '60M' || e === '60 METERS') return 1;
+      if (e === '100' || e === '100M' || e === '100 METERS') return 2;
+      if (e === '200' || e === '200M' || e === '200 METERS') return 3;
+      if (e === '400' || e === '400M' || e === '400 METERS') return 4;
+
       // Middle Distance
-      '600': 10, '600M': 10,
-      '800': 11, '800M': 11,
-      '1000': 12, '1000M': 12,
-      '1500': 13, '1500M': 13,
-      'MILE': 14, '1 MILE': 14,
+      if (e === '600' || e === '600M' || e === '600 METERS' || e.includes('600 YARD')) return 10;
+      if (e === '800' || e === '800M' || e === '800 METERS') return 11;
+      if (e === '1000' || e === '1000M' || e === '1000 METERS') return 12;
+      if (e === '1500' || e === '1500M' || e === '1500 METERS') return 13;
+      if (e === 'MILE' || e === '1 MILE') return 14;
+
       // Distance
-      '3000': 20, '3000M': 20,
-      '3K STEEPLE': 21, '3000SC': 21, '3000S': 21, 'STEEPLE': 21,
-      '5000': 22, '5000M': 22, '5K': 22,
-      '10000': 23, '10000M': 23, '10K': 23,
+      if (e === '3000' || e === '3000M' || e === '3000 METERS') return 20;
+      if (e.includes('STEEPLE') || e === '3000SC' || e === '3000S') return 21;
+      if (e === '5000' || e === '5000M' || e === '5000 METERS' || e === '5K') return 22;
+      if (e === '10000' || e === '10000M' || e === '10000 METERS' || e === '10K') return 23;
+
       // Hurdles
-      '60H': 30, '60M HURDLES': 30,
-      '100H': 31, '100M HURDLES': 31,
-      '110H': 32, '110M HURDLES': 32,
-      '400H': 33, '400M HURDLES': 33,
+      if (e === '60H' || e === '60 HURDLES' || e === '60M HURDLES' || e === '60 METER HURDLES') return 30;
+      if (e === '100H' || e === '100 HURDLES' || e === '100M HURDLES' || e === '100 METER HURDLES') return 31;
+      if (e === '110H' || e === '110 HURDLES' || e === '110M HURDLES' || e === '110 METER HURDLES') return 32;
+      if (e === '400H' || e === '400 HURDLES' || e === '400M HURDLES' || e === '400 METER HURDLES') return 33;
+
       // Relays
-      '4X100': 40, '4X100M': 40, '4X100 RELAY': 40,
-      '4X200': 41, '4X200M': 41, '4X200 RELAY': 41,
-      '4X400': 42, '4X400M': 42, '4X400 RELAY': 42,
-      '4X800': 43, '4X800M': 43, '4X800 RELAY': 43,
-      'DMR': 44, 'DISTANCE MEDLEY': 44,
-      'SMR': 45, 'SPRINT MEDLEY': 45,
+      if (e.includes('4X100') || e.includes('4 X 100')) return 40;
+      if (e.includes('4X200') || e.includes('4 X 200')) return 41;
+      if (e.includes('4X400') || e.includes('4 X 400')) return 42;
+      if (e.includes('4X800') || e.includes('4 X 800')) return 43;
+      if (e === 'DMR' || e.includes('DISTANCE MEDLEY')) return 44;
+      if (e === 'SMR' || e.includes('SPRINT MEDLEY')) return 45;
+
       // Field Events - Jumps
-      'HJ': 50, 'HIGH JUMP': 50,
-      'PV': 51, 'POLE VAULT': 51,
-      'LJ': 52, 'LONG JUMP': 52,
-      'TJ': 53, 'TRIPLE JUMP': 53,
+      if (e === 'HJ' || e === 'HIGH JUMP' || e.includes('HIGH JUMP')) return 50;
+      if (e === 'PV' || e === 'POLE VAULT' || e.includes('POLE VAULT')) return 51;
+      if (e === 'LJ' || e === 'LONG JUMP') return 52;
+      if (e === 'TJ' || e === 'TRIPLE JUMP') return 53;
+
       // Field Events - Throws
-      'SP': 60, 'SHOT PUT': 60,
-      'DT': 61, 'DISCUS': 61,
-      'HT': 62, 'HAMMER': 62, 'HAMMER THROW': 62,
-      'JT': 63, 'JAVELIN': 63,
-      'WT': 64, 'WEIGHT THROW': 64,
+      if (e === 'SP' || e === 'SHOT PUT') return 60;
+      if (e === 'DT' || e === 'DISCUS') return 61;
+      if (e === 'HT' || e === 'HAMMER' || e === 'HAMMER THROW') return 62;
+      if (e === 'JT' || e === 'JAVELIN') return 63;
+      if (e === 'WT' || e === 'WEIGHT THROW') return 64;
+
       // Multi-Events
-      'HEPT': 70, 'HEPTATHLON': 70,
-      'DEC': 71, 'DECATHLON': 71,
-      'PENT': 72, 'PENTATHLON': 72,
-    };
+      if (e === 'HEPT' || e === 'HEPTATHLON') return 70;
+      if (e === 'DEC' || e === 'DECATHLON') return 71;
+      if (e === 'PENT' || e === 'PENTATHLON') return 72;
+
+      return 100; // Unknown events at end
+    }
 
     return [...events].sort((a, b) => {
-      const aUpper = a.toUpperCase().trim();
-      const bUpper = b.toUpperCase().trim();
-      const aOrder = eventOrder[aUpper] ?? 100;
-      const bOrder = eventOrder[bUpper] ?? 100;
+      const aOrder = getEventOrder(a);
+      const bOrder = getEventOrder(b);
       if (aOrder !== bOrder) return aOrder - bOrder;
       return a.localeCompare(b);
     });
@@ -608,35 +626,59 @@ export default function MeetDetailScreen() {
                 <View style={styles.eventsList}>
                   {(selectedGender === 'M' ? mensEvents : womensEvents).map((eventName, index) => {
                     const eventsList = selectedGender === 'M' ? mensEvents : womensEvents;
+                    const canViewResults = isCleanDataSeason(displayDate);
+
+                    if (canViewResults) {
+                      return (
+                        <TouchableOpacity
+                          key={eventName}
+                          style={[
+                            styles.eventCard,
+                            index === eventsList.length - 1 && styles.eventCardLast
+                          ]}
+                          onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            router.push({
+                              pathname: '/event-results',
+                              params: {
+                                meetName: displayName,
+                                eventName: eventName,
+                                date: displayDate.split('T')[0],
+                                gender: selectedGender,
+                                meetId: meet?.meet_id?.toString(),
+                              },
+                            });
+                          }}
+                          activeOpacity={0.7}
+                        >
+                          <View style={styles.eventIconContainer}>
+                            <Ionicons name="trophy-outline" size={20} color={colors.primary.trackOrange} />
+                          </View>
+                          <View style={styles.eventInfo}>
+                            <Text style={styles.eventName}>{formatEventName(eventName)}</Text>
+                          </View>
+                          <Ionicons name="chevron-forward" size={20} color={colors.text.tertiary} />
+                        </TouchableOpacity>
+                      );
+                    }
+
+                    // Non-clickable for older data
                     return (
-                      <TouchableOpacity
+                      <View
                         key={eventName}
                         style={[
                           styles.eventCard,
+                          styles.eventCardDisabled,
                           index === eventsList.length - 1 && styles.eventCardLast
                         ]}
-                        onPress={() => {
-                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                          router.push({
-                            pathname: '/event-results',
-                            params: {
-                              meetName: displayName,
-                              eventName: eventName,
-                              date: displayDate.split('T')[0],
-                              gender: selectedGender,
-                            },
-                          });
-                        }}
-                        activeOpacity={0.7}
                       >
-                        <View style={styles.eventIconContainer}>
-                          <Ionicons name="trophy-outline" size={20} color={colors.primary.trackOrange} />
+                        <View style={[styles.eventIconContainer, styles.eventIconDisabled]}>
+                          <Ionicons name="trophy-outline" size={20} color={colors.text.tertiary} />
                         </View>
                         <View style={styles.eventInfo}>
-                          <Text style={styles.eventName}>{formatEventName(eventName)}</Text>
+                          <Text style={[styles.eventName, styles.eventNameDisabled]}>{formatEventName(eventName)}</Text>
                         </View>
-                        <Ionicons name="chevron-forward" size={20} color={colors.text.tertiary} />
-                      </TouchableOpacity>
+                      </View>
                     );
                   })}
                 </View>
@@ -1113,6 +1155,9 @@ const styles = StyleSheet.create({
   eventCardLast: {
     borderBottomWidth: 0,
   },
+  eventCardDisabled: {
+    opacity: 0.5,
+  },
   eventIconContainer: {
     width: 40,
     height: 40,
@@ -1122,6 +1167,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
+  eventIconDisabled: {
+    backgroundColor: colors.borders.light,
+  },
   eventInfo: {
     flex: 1,
   },
@@ -1129,6 +1177,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '800',
     color: colors.text.primary,
+  },
+  eventNameDisabled: {
+    color: colors.text.tertiary,
   },
   noEventsCard: {
     backgroundColor: colors.backgrounds.white,

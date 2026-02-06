@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAthleteDetails, getAthletePerformances, getAthletePRs } from '../services/database-supabase';
+import { getAthleteDetails, getAthletePerformances, getAthletePRs, getAthleteRelays } from '../services/database-supabase';
 
 export interface Athlete {
   athlete_id: number;
@@ -50,10 +50,24 @@ export interface PersonalRecord {
   season: string;
 }
 
+export interface RelayParticipation {
+  relay_result_id: number;
+  event_name: string;
+  mark_raw: string;
+  place: number;
+  round?: string;
+  meet_name: string;
+  date: string;
+  leg_order: number;
+  school_name?: string;
+  teammates: string[];
+}
+
 export function useAthleteDetails(athleteId: number) {
   const [athlete, setAthlete] = useState<Athlete | null>(null);
   const [performances, setPerformances] = useState<Performance[]>([]);
   const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([]);
+  const [relayParticipations, setRelayParticipations] = useState<RelayParticipation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -66,15 +80,17 @@ export function useAthleteDetails(athleteId: number) {
       setLoading(true);
       setError(null);
 
-      const [athleteData, performanceData, prData] = await Promise.all([
+      const [athleteData, performanceData, prData, relayData] = await Promise.all([
         getAthleteDetails(athleteId),
         getAthletePerformances(athleteId, 100),
-        getAthletePRs(athleteId)
+        getAthletePRs(athleteId),
+        getAthleteRelays(athleteId, 50)
       ]);
 
       setAthlete(athleteData as Athlete);
       setPerformances(performanceData as Performance[]);
       setPersonalRecords(prData as PersonalRecord[]);
+      setRelayParticipations(relayData as RelayParticipation[]);
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -82,5 +98,5 @@ export function useAthleteDetails(athleteId: number) {
     }
   };
 
-  return { athlete, performances, personalRecords, loading, error, refetch: loadAthleteData };
+  return { athlete, performances, personalRecords, relayParticipations, loading, error, refetch: loadAthleteData };
 }
