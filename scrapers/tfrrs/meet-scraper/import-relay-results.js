@@ -208,6 +208,39 @@ async function importRelayResults(commit = false) {
       }
     }
 
+    // Also insert into results table (one row per athlete)
+    const resultInserts = [];
+    insertedRelays.forEach((relay, idx) => {
+      const originalRelay = batch[idx];
+      originalRelay.relay_athletes.forEach(a => {
+        if (a.athlete_id) {
+          resultInserts.push({
+            athlete_id: a.athlete_id,
+            event_name: originalRelay.event_name,
+            mark_raw: originalRelay.mark_raw,
+            mark_seconds: originalRelay.mark_seconds,
+            place: originalRelay.place,
+            meet_name: originalRelay.meet_name,
+            meet_id: originalRelay.meet_id,
+            event_id: originalRelay.event_id,
+            date: originalRelay.date,
+            team_id: originalRelay.team_id,
+            round: originalRelay.round
+          });
+        }
+      });
+    });
+
+    if (resultInserts.length > 0) {
+      const { error: resultError } = await supabase
+        .from('results')
+        .insert(resultInserts);
+
+      if (resultError) {
+        console.log(`  Results table error: ${resultError.message}`);
+      }
+    }
+
     imported += batch.length;
 
     if ((i + 100) % 1000 === 0) {

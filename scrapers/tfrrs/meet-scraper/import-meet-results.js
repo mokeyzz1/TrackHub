@@ -326,11 +326,40 @@ async function importMeetResults(commit = false) {
   // Import results (skip those without athlete_id - relays not supported yet)
   const validResults = dbResults.filter(r => r.athlete_id != null);
   console.log(`\nImporting ${validResults.length.toLocaleString()} results (skipping ${dbResults.length - validResults.length} relays)...`);
+
+  // Check for existing results to avoid duplicates
+  console.log('Checking for existing results to avoid duplicates...');
+  const meetIds = [...new Set(validResults.map(r => r.meet_id).filter(Boolean))];
+  const existingResults = new Set();
+
+  for (const meetId of meetIds) {
+    const { data: existing } = await supabase
+      .from('results')
+      .select('athlete_id, event_name, mark_raw, date')
+      .eq('meet_id', meetId);
+
+    existing?.forEach(r => {
+      // Create unique key: athlete_id|event_name|mark_raw|date
+      const key = `${r.athlete_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
+      existingResults.add(key);
+    });
+  }
+  console.log(`Found ${existingResults.size.toLocaleString()} existing results in these meets`);
+
+  // Filter out duplicates
+  const newResults = validResults.filter(r => {
+    const key = `${r.athlete_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
+    return !existingResults.has(key);
+  });
+
+  const skippedDupes = validResults.length - newResults.length;
+  console.log(`Skipping ${skippedDupes.toLocaleString()} duplicates, importing ${newResults.length.toLocaleString()} new results`);
+
   let imported = 0;
   let errors = 0;
 
-  for (let i = 0; i < validResults.length; i += 500) {
-    const batch = validResults.slice(i, i + 500).map(r => ({
+  for (let i = 0; i < newResults.length; i += 500) {
+    const batch = newResults.slice(i, i + 500).map(r => ({
       athlete_id: r.athlete_id,
       event_name: r.event_name,
       mark_raw: r.mark_raw,
@@ -356,8 +385,8 @@ async function importMeetResults(commit = false) {
       imported += batch.length;
     }
 
-    if ((i + 500) % 5000 === 0 || i + 500 >= validResults.length) {
-      console.log(`  ${imported.toLocaleString()}/${validResults.length.toLocaleString()} imported (${errors} errors)`);
+    if ((i + 500) % 5000 === 0 || i + 500 >= newResults.length) {
+      console.log(`  ${imported.toLocaleString()}/${newResults.length.toLocaleString()} imported (${errors} errors)`);
     }
   }
 

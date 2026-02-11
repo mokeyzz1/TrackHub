@@ -33,45 +33,18 @@ jobs:
           cd scrapers
           npm install
 
-      - name: Find matching meets
-        id: sync
+      - name: Sync weekend results
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
           cd scrapers/tfrrs/meet-scraper
-          node sync-weekend-results.js --days ${{ github.event.inputs.days || '7' }} --scrape --commit 2>&1 | tee sync.log
-
-          # Check if we found any matches
-          if grep -q "Matches found: 0" sync.log; then
-            echo "matches=0" >> $GITHUB_OUTPUT
-          else
-            echo "matches=1" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Scrape results from TFRRS
-        if: steps.sync.outputs.matches == '1'
-        run: |
-          cd scrapers/tfrrs/meet-scraper
-          node scrape-meet-results.js 2>&1 | tee scrape.log
-
-      - name: Import results to database
-        if: steps.sync.outputs.matches == '1'
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-        run: |
-          cd scrapers/tfrrs/meet-scraper
-          node import-meet-results.js --commit 2>&1 | tee import.log
+          node sync-weekend-results.js --days ${{ github.event.inputs.days || '7' }} --commit 2>&1 | tee sync.log
 
       - name: Upload logs
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sync-logs-${{ github.run_number }}
-          path: |
-            scrapers/tfrrs/meet-scraper/sync.log
-            scrapers/tfrrs/meet-scraper/scrape.log
-            scrapers/tfrrs/meet-scraper/import.log
-            scrapers/tfrrs/meet-scraper/output/
+          path: scrapers/tfrrs/meet-scraper/sync.log
           retention-days: 30

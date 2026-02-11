@@ -1,4 +1,9 @@
 {
+  "name": "track-meet-tracker",
+  "scripts": {
+    "gen:types": "supabase gen types typescript --project-id hunbahsnaeeztmzqpnrl > types/database.ts && cp types/database.ts frontend/types/database.ts",
+    "db:types": "npm run gen:types"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.86.0",
     "cheerio": "^1.2.0",
@@ -7,5 +12,8 @@
     "pg": "^8.16.3",
     "puppeteer": "^24.31.0",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "supabase": "^2.76.7"
   }
 }

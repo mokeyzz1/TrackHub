@@ -7,7 +7,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../design-system/colors';
 import { FadeInCard } from '../../components/animations/FadeInCard';
-import { getSchoolById, getSchoolAthletes } from '../../services/database-supabase';
+import { getSchoolById, getSchoolAthletesBySeason, getSchoolMeets } from '../../services/database-supabase';
 
 interface School {
   school_id: number;
@@ -27,6 +27,12 @@ interface Athlete {
   primary_events: string | null;
 }
 
+interface Meet {
+  meet_id: number;
+  meet_name: string;
+  date: string;
+}
+
 export default function SchoolDetailScreen() {
   const { id } = useLocalSearchParams();
   const schoolId = parseInt(id as string, 10);
@@ -34,15 +40,17 @@ export default function SchoolDetailScreen() {
 
   const [school, setSchool] = useState<School | null>(null);
   const [athletes, setAthletes] = useState<Athlete[]>([]);
+  const [meets, setMeets] = useState<Meet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
-  const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
+  const [selectedSeason, setSelectedSeason] = useState<string>('2025-26');
   const [activeDropdown, setActiveDropdown] = useState<'season' | 'gender' | 'class' | null>(null);
+  const [activeTab, setActiveTab] = useState<'athletes' | 'meets'>('athletes');
 
   const classYears = ['FR', 'SO', 'JR', 'SR'];
-  const seasons = ['2026', '2025', '2024', '2023'];
+  const seasons = ['2025-26', '2024-25', '2023-24', '2022-23'];
   const genders = [{ value: 'M', label: 'Men' }, { value: 'F', label: 'Women' }];
 
   // Filter athletes by class year and gender
@@ -68,12 +76,14 @@ export default function SchoolDetailScreen() {
       try {
         setLoading(true);
         setError(null);
-        const [schoolData, athletesData] = await Promise.all([
+        const [schoolData, athletesData, meetsData] = await Promise.all([
           getSchoolById(schoolId),
-          getSchoolAthletes(schoolId, 500),
+          getSchoolAthletesBySeason(schoolId, selectedSeason, 500),
+          getSchoolMeets(schoolId, 50),
         ]);
         setSchool(schoolData);
         setAthletes(athletesData);
+        setMeets(meetsData);
       } catch (err) {
         setError('School not found');
       } finally {
@@ -82,7 +92,7 @@ export default function SchoolDetailScreen() {
     }
 
     fetchData();
-  }, [schoolId, isValidId]);
+  }, [schoolId, isValidId, selectedSeason]);
 
   if (loading) {
     return (
@@ -160,8 +170,45 @@ export default function SchoolDetailScreen() {
           </LinearGradient>
         </View>
 
-        {/* Filter Dropdowns */}
-        <View style={styles.filterRow}>
+        {/* Tab Control */}
+        <View style={styles.tabRow}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'athletes' && styles.tabActive]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setActiveTab('athletes');
+            }}
+          >
+            <Ionicons
+              name="people"
+              size={18}
+              color={activeTab === 'athletes' ? colors.text.white : colors.text.primary}
+            />
+            <Text style={[styles.tabText, activeTab === 'athletes' && styles.tabTextActive]}>
+              Athletes
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'meets' && styles.tabActive]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setActiveTab('meets');
+            }}
+          >
+            <Ionicons
+              name="trophy"
+              size={18}
+              color={activeTab === 'meets' ? colors.text.white : colors.text.primary}
+            />
+            <Text style={[styles.tabText, activeTab === 'meets' && styles.tabTextActive]}>
+              Meets
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Filter Dropdowns - only show for athletes tab */}
+        {activeTab === 'athletes' && (
+          <View style={styles.filterRow}>
           <TouchableOpacity
             style={[styles.dropdown, selectedSeason && styles.dropdownActive]}
             onPress={() => {
@@ -200,7 +247,8 @@ export default function SchoolDetailScreen() {
             </Text>
             <Ionicons name="chevron-down" size={16} color={selectedClass ? colors.text.white : colors.text.primary} />
           </TouchableOpacity>
-        </View>
+          </View>
+        )}
 
         {/* Dropdown Modal */}
         <Modal
@@ -219,24 +267,24 @@ export default function SchoolDetailScreen() {
                 {activeDropdown === 'season' ? 'Select Season' : activeDropdown === 'gender' ? 'Select Gender' : 'Select Class'}
               </Text>
 
-              {/* All option to clear */}
-              <TouchableOpacity
-                style={styles.modalOption}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  if (activeDropdown === 'season') setSelectedSeason(null);
-                  if (activeDropdown === 'gender') setSelectedGender(null);
-                  if (activeDropdown === 'class') setSelectedClass(null);
-                  setActiveDropdown(null);
-                }}
-              >
-                <Text style={styles.modalOptionText}>All</Text>
-                {((activeDropdown === 'season' && !selectedSeason) ||
-                  (activeDropdown === 'gender' && !selectedGender) ||
-                  (activeDropdown === 'class' && !selectedClass)) && (
-                  <Ionicons name="checkmark" size={20} color={colors.primary.trackOrange} />
-                )}
-              </TouchableOpacity>
+              {/* All option to clear - not for season since it's required */}
+              {activeDropdown !== 'season' && (
+                <TouchableOpacity
+                  style={styles.modalOption}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    if (activeDropdown === 'gender') setSelectedGender(null);
+                    if (activeDropdown === 'class') setSelectedClass(null);
+                    setActiveDropdown(null);
+                  }}
+                >
+                  <Text style={styles.modalOptionText}>All</Text>
+                  {((activeDropdown === 'gender' && !selectedGender) ||
+                    (activeDropdown === 'class' && !selectedClass)) && (
+                    <Ionicons name="checkmark" size={20} color={colors.primary.trackOrange} />
+                  )}
+                </TouchableOpacity>
+              )}
 
               {/* Options */}
               {activeDropdown === 'season' && seasons.map((season) => (
@@ -287,12 +335,43 @@ export default function SchoolDetailScreen() {
           </TouchableOpacity>
         </Modal>
 
-        {/* Athletes */}
-        {filteredAthletes.length > 0 && (
+        {/* Meets Tab */}
+        {activeTab === 'meets' && meets.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              Athletes {selectedClass ? `(${filteredAthletes.length})` : ''}
-            </Text>
+            {meets.map((meet, i) => (
+              <FadeInCard key={meet.meet_id} delay={i * 50}>
+                <TouchableOpacity
+                  style={styles.meetCard}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    router.push(`/meet/${meet.meet_id}`);
+                  }}
+                >
+                  <View style={styles.meetIcon}>
+                    <Ionicons name="trophy" size={20} color={colors.primary.trackOrange} />
+                  </View>
+                  <View style={styles.meetInfo}>
+                    <Text style={styles.meetName} numberOfLines={1}>{meet.meet_name}</Text>
+                    <Text style={styles.meetDate}>{meet.date}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={colors.text.tertiary} />
+                </TouchableOpacity>
+              </FadeInCard>
+            ))}
+          </View>
+        )}
+
+        {/* Meets empty state */}
+        {activeTab === 'meets' && meets.length === 0 && (
+          <View style={styles.emptyState}>
+            <Ionicons name="trophy-outline" size={48} color={colors.text.tertiary} />
+            <Text style={styles.emptyText}>No meets found for this school</Text>
+          </View>
+        )}
+
+        {/* Athletes Tab */}
+        {activeTab === 'athletes' && filteredAthletes.length > 0 && (
+          <View style={styles.section}>
             {filteredAthletes.map((athlete, i) => (
               <FadeInCard key={athlete.athlete_id} delay={i * 100}>
                 <TouchableOpacity
@@ -303,7 +382,9 @@ export default function SchoolDetailScreen() {
                   }}
                 >
                   <View style={styles.athleteIcon}>
-                    <Ionicons name="person" size={24} color={colors.primary.trackOrange} />
+                    <Text style={styles.athleteInitials}>
+                      {athlete.full_name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                    </Text>
                   </View>
                   <View style={styles.athleteInfo}>
                     <Text style={styles.athleteName}>{athlete.full_name}</Text>
@@ -325,13 +406,13 @@ export default function SchoolDetailScreen() {
           </View>
         )}
 
-        {filteredAthletes.length === 0 && (
+        {activeTab === 'athletes' && filteredAthletes.length === 0 && (
           <View style={styles.emptyState}>
             <Ionicons name="people-outline" size={48} color={colors.text.tertiary} />
             <Text style={styles.emptyText}>
               {selectedClass || selectedGender
                 ? 'No athletes match the selected filters'
-                : 'No athletes found for this school'}
+                : `No athletes competed in ${selectedSeason}`}
             </Text>
           </View>
         )}
@@ -471,6 +552,40 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: 'rgba(255,255,255,0.85)',
+  },
+  tabRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    gap: 12,
+    marginBottom: 16,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: colors.backgrounds.white,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  tabActive: {
+    backgroundColor: colors.primary.trackOrange,
+    borderColor: colors.borders.thick,
+  },
+  tabText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: colors.text.primary,
+  },
+  tabTextActive: {
+    color: colors.text.white,
   },
   statsRow: {
     flexDirection: 'row',
@@ -612,6 +727,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  athleteInitials: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.primary.trackOrange,
+  },
   athleteInfo: {
     flex: 1,
   },
@@ -630,6 +750,46 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: colors.text.muted,
+    marginTop: 2,
+  },
+  meetCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.backgrounds.white,
+    marginHorizontal: 20,
+    marginBottom: 10,
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    gap: 10,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  meetIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.backgrounds.cream,
+    borderWidth: 2,
+    borderColor: colors.borders.thick,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  meetInfo: {
+    flex: 1,
+  },
+  meetName: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: colors.text.primary,
+  },
+  meetDate: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text.tertiary,
     marginTop: 2,
   },
   emptyState: {

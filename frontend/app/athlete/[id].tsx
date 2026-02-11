@@ -11,6 +11,7 @@ import { useFavorites } from '../../contexts/FavoritesContext';
 import { FadeInCard } from '../../components/animations/FadeInCard';
 import { useAthleteDetails } from '../../hooks/useAthleteDetails';
 import { AthleteStatsModal } from '../../components/modals/AthleteStatsModal';
+import { normalizeEventName } from '../../utils/eventNames';
 
 // Helper to check if a date is from Dec 2025+ (clean data from new scraper)
 function isCleanDataSeason(dateString: string): boolean {
@@ -253,7 +254,9 @@ export default function AthleteDetailScreen() {
             style={styles.heroGradient}
           >
             <View style={styles.athleteAvatar}>
-              <Ionicons name="person" size={48} color={colors.text.white} />
+              <Text style={styles.avatarInitials}>
+                {athlete.full_name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+              </Text>
             </View>
             <Text style={styles.athleteName}>{athlete.full_name}</Text>
             <View style={styles.athleteMeta}>
@@ -419,7 +422,7 @@ export default function AthleteDetailScreen() {
                           >
                             <View style={styles.meetEventInfo}>
                               <View style={styles.meetEventNameRow}>
-                                <Text style={styles.meetEventName}>{event.event_name}</Text>
+                                <Text style={styles.meetEventName}>{normalizeEventName(event.event_name)}</Text>
                                 {event.round && (
                                   <View style={styles.roundTag}>
                                     <Text style={styles.roundTagText}>{shortenRound(event.round)}</Text>
@@ -453,7 +456,7 @@ export default function AthleteDetailScreen() {
                         >
                           <View style={styles.meetEventInfo}>
                             <View style={styles.meetEventNameRow}>
-                              <Text style={[styles.meetEventName, styles.meetEventNameDisabled]}>{event.event_name}</Text>
+                              <Text style={[styles.meetEventName, styles.meetEventNameDisabled]}>{normalizeEventName(event.event_name)}</Text>
                               {event.round && (
                                 <View style={styles.roundTag}>
                                   <Text style={styles.roundTagText}>{shortenRound(event.round)}</Text>
@@ -511,7 +514,7 @@ export default function AthleteDetailScreen() {
                       >
                         <View style={styles.meetEventInfo}>
                           <View style={styles.meetEventNameRow}>
-                            <Text style={styles.meetEventName}>{relay.event_name}</Text>
+                            <Text style={styles.meetEventName}>{normalizeEventName(relay.event_name)}</Text>
                             <View style={styles.legTag}>
                               <Text style={styles.legTagText}>Leg {relay.leg_order}</Text>
                             </View>
@@ -698,6 +701,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  avatarInitials: {
+    fontSize: 36,
+    fontWeight: '900',
+    color: colors.text.white,
   },
   athleteName: {
     fontSize: 32,

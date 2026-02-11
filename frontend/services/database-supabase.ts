@@ -188,7 +188,7 @@ export async function getSchoolById(schoolId: number) {
   return data;
 }
 
-// Get athletes for a school
+// Get athletes for a school (all athletes)
 export async function getSchoolAthletes(schoolId: number, limit: number = 10) {
   const { data, error } = await supabase
     .from('athletes')
@@ -199,6 +199,87 @@ export async function getSchoolAthletes(schoolId: number, limit: number = 10) {
 
   if (error) throw error;
   return data || [];
+}
+
+// Get athletes who competed for a school in a specific season
+// Season format: "2025-26" means Aug 2025 - Jul 2026
+export async function getSchoolAthletesBySeason(schoolId: number, season: string, limit: number = 500) {
+  // Parse season like "2025-26" to get date range
+  const [startYear] = season.split('-');
+  const startDate = `${startYear}-08-01`;  // Season starts in August
+  const endDate = `${parseInt(startYear) + 1}-07-31`;  // Season ends in July
+
+  // First get team IDs for this school
+  const { data: teams, error: teamsError } = await supabase
+    .from('teams')
+    .select('team_id')
+    .eq('school_id', schoolId);
+
+  if (teamsError) throw teamsError;
+  if (!teams || teams.length === 0) return [];
+
+  const teamIds = teams.map(t => t.team_id);
+
+  // Get unique athlete IDs who have results in this season for these teams
+  const { data: results, error: resultsError } = await supabase
+    .from('results')
+    .select('athlete_id')
+    .in('team_id', teamIds)
+    .gte('date', startDate)
+    .lte('date', endDate)
+    .limit(2000);
+
+  if (resultsError) throw resultsError;
+  if (!results || results.length === 0) return [];
+
+  // Get unique athlete IDs
+  const athleteIds = [...new Set(results.map(r => r.athlete_id).filter(Boolean))];
+
+  if (athleteIds.length === 0) return [];
+
+  // Fetch athlete details
+  const { data: athletes, error: athletesError } = await supabase
+    .from('athletes')
+    .select('athlete_id, full_name, gender, class_year, primary_events')
+    .in('athlete_id', athleteIds)
+    .limit(limit);
+
+  if (athletesError) throw athletesError;
+  return athletes || [];
+}
+
+// Get meets where a school's teams competed
+export async function getSchoolMeets(schoolId: number, limit: number = 50) {
+  // First get team IDs for this school
+  const { data: teams, error: teamsError } = await supabase
+    .from('teams')
+    .select('team_id')
+    .eq('school_id', schoolId);
+
+  if (teamsError) throw teamsError;
+  if (!teams || teams.length === 0) return [];
+
+  const teamIds = teams.map(t => t.team_id);
+
+  // Get unique meets from results
+  const { data: results, error: resultsError } = await supabase
+    .from('results')
+    .select('meet_id, meet_name, date')
+    .in('team_id', teamIds)
+    .order('date', { ascending: false })
+    .limit(1000);
+
+  if (resultsError) throw resultsError;
+
+  // Dedupe by meet_id
+  const meetsMap = new Map<number, { meet_id: number; meet_name: string; date: string }>();
+  results?.forEach(r => {
+    if (r.meet_id && !meetsMap.has(r.meet_id)) {
+      meetsMap.set(r.meet_id, { meet_id: r.meet_id, meet_name: r.meet_name, date: r.date });
+    }
+  });
+
+  return [...meetsMap.values()].slice(0, limit);
 }
 
 // Get athlete details
@@ -281,9 +362,17 @@ function normalizeEventName(name: string): string {
   let n = name.trim();
   // Remove trailing .0 (e.g., "400.0" -> "400")
   n = n.replace(/\.0$/, '');
+  // Normalize "X Meter Dash" and "X Meter Run" to "X Meters"
+  n = n.replace(/^(\d+)\s*Meter\s*(Dash|Run)$/i, '$1 Meters');
+  // Normalize "X Meters" variations
+  n = n.replace(/^(\d+)\s*Meters?$/i, '$1 Meters');
+  // Normalize just numbers: "60" -> "60 Meters"
+  n = n.replace(/^(\d+)$/i, '$1 Meters');
   // Expand abbreviations
   n = n.replace(/^(\d+)H$/i, '$1 Hurdles');      // 60H -> 60 Hurdles
   n = n.replace(/^(\d+)m$/i, '$1 Meters');       // 60m -> 60 Meters
+  // Normalize hurdles variations
+  n = n.replace(/^(\d+)\s*Meter\s*Hurdles$/i, '$1 Hurdles');
   n = n.replace(/^HJ$/i, 'High Jump');
   n = n.replace(/^LJ$/i, 'Long Jump');
   n = n.replace(/^TJ$/i, 'Triple Jump');
@@ -296,11 +385,62 @@ function normalizeEventName(name: string): string {
   return n;
 }
 
+// Field events where higher distance/height is better
+const FIELD_EVENTS = ['long jump', 'triple jump', 'high jump', 'pole vault', 'shot put', 'discus', 'hammer', 'javelin', 'weight throw'];
+
+// Parse time string to seconds (handles sprints and distance)
+function parseTimeToSeconds(mark: string): number | null {
+  if (!mark) return null;
+  // Remove wind readings like "(2.0)" and trim
+  const cleaned = mark.replace(/\s*\([^)]*\)/g, '').trim();
+
+  // Seconds only: "10.23", "7.47"
+  if (/^\d+\.\d+$/.test(cleaned)) {
+    return parseFloat(cleaned);
+  }
+
+  // Min:Sec: "4:32.10", "1:45.67"
+  const minSec = cleaned.match(/^(\d+):(\d+\.\d+)$/);
+  if (minSec) {
+    return parseInt(minSec[1]) * 60 + parseFloat(minSec[2]);
+  }
+
+  // Hour:Min:Sec: "1:02:34.56"
+  const hourMinSec = cleaned.match(/^(\d+):(\d+):(\d+\.\d+)$/);
+  if (hourMinSec) {
+    return parseInt(hourMinSec[1]) * 3600 + parseInt(hourMinSec[2]) * 60 + parseFloat(hourMinSec[3]);
+  }
+
+  return null;
+}
+
+// Parse distance string to meters (handles field events)
+function parseDistanceToMeters(mark: string): number | null {
+  if (!mark) return null;
+  const cleaned = mark.trim();
+
+  // Meters: "6.52m", "15.67m"
+  const meterMatch = cleaned.match(/^(\d+\.?\d*)m?$/i);
+  if (meterMatch) {
+    return parseFloat(meterMatch[1]);
+  }
+
+  // Feet-inches: "24' 10.5\"" or "6' 0.75\""
+  const ftInMatch = cleaned.match(/(\d+)'\s*(\d+\.?\d*)\"?/);
+  if (ftInMatch) {
+    const feet = parseFloat(ftInMatch[1]);
+    const inches = parseFloat(ftInMatch[2]);
+    return (feet * 12 + inches) * 0.0254; // Convert to meters
+  }
+
+  return null;
+}
+
 export async function getAthletePRs(athleteId: number) {
   // Get best mark per event from actual results
   const { data, error } = await supabase
     .from('results')
-    .select('event_name, mark_raw, mark_seconds, mark_meters, date, meet_name')
+    .select('event_name, mark_raw, date, meet_name')
     .eq('athlete_id', athleteId)
     .order('date', { ascending: false });
 
@@ -315,15 +455,23 @@ export async function getAthletePRs(athleteId: number) {
   const prMap = new Map<string, any>();
 
   for (const result of data) {
-    if (!result.event_name) continue;
+    if (!result.event_name || !result.mark_raw) continue;
 
     const eventName = normalizeEventName(result.event_name);
-    const existing = prMap.get(eventName);
+    const eventLower = eventName.toLowerCase();
+    const isFieldEvent = FIELD_EVENTS.some(fe => eventLower.includes(fe));
 
-    // For running events (has mark_seconds), lower is better
-    // For field events (has mark_meters), higher is better
-    const isRunningEvent = result.mark_seconds && result.mark_seconds > 0;
-    const isFieldEvent = result.mark_meters && result.mark_meters > 0;
+    // Parse the mark based on event type
+    let parsedValue: number | null = null;
+    if (isFieldEvent) {
+      parsedValue = parseDistanceToMeters(result.mark_raw);
+    } else {
+      parsedValue = parseTimeToSeconds(result.mark_raw);
+    }
+
+    if (parsedValue === null) continue;
+
+    const existing = prMap.get(eventName);
 
     if (!existing) {
       prMap.set(eventName, {
@@ -331,18 +479,18 @@ export async function getAthletePRs(athleteId: number) {
         athlete_id: athleteId,
         event_name: eventName,
         mark_raw: result.mark_raw,
-        mark_seconds: result.mark_seconds,
-        mark_meters: result.mark_meters,
+        parsed_value: parsedValue,
+        is_field_event: isFieldEvent,
         set_at: result.date,
         meet_name: result.meet_name,
         season: 'all'
       });
-    } else if (isRunningEvent && result.mark_seconds < (existing.mark_seconds || 999)) {
-      // Faster time
-      prMap.set(eventName, { ...existing, mark_raw: result.mark_raw, mark_seconds: result.mark_seconds, set_at: result.date, meet_name: result.meet_name });
-    } else if (isFieldEvent && result.mark_meters > (existing.mark_meters || 0)) {
-      // Longer/higher distance
-      prMap.set(eventName, { ...existing, mark_raw: result.mark_raw, mark_meters: result.mark_meters, set_at: result.date, meet_name: result.meet_name });
+    } else if (isFieldEvent && parsedValue > existing.parsed_value) {
+      // Field event: higher is better
+      prMap.set(eventName, { ...existing, mark_raw: result.mark_raw, parsed_value: parsedValue, set_at: result.date, meet_name: result.meet_name });
+    } else if (!isFieldEvent && parsedValue < existing.parsed_value) {
+      // Track event: lower is better (faster time)
+      prMap.set(eventName, { ...existing, mark_raw: result.mark_raw, parsed_value: parsedValue, set_at: result.date, meet_name: result.meet_name });
     }
   }
 
@@ -499,34 +647,6 @@ function filterResultsBySeason(results: any[], seasonFilter: SeasonFilter): any[
   });
 }
 
-// Parse mark_raw time string to seconds (e.g., "47.71" -> 47.71, "1:52.34" -> 112.34)
-function parseTimeToSeconds(markRaw: string | null): number | null {
-  if (!markRaw) return null;
-
-  // Remove any trailing notes like "(4.4)" for wind
-  const cleaned = markRaw.split('(')[0].trim();
-
-  // Handle MM:SS.xx format
-  if (cleaned.includes(':')) {
-    const parts = cleaned.split(':');
-    if (parts.length === 2) {
-      const minutes = parseInt(parts[0], 10);
-      const seconds = parseFloat(parts[1]);
-      if (!isNaN(minutes) && !isNaN(seconds)) {
-        return minutes * 60 + seconds;
-      }
-    }
-  }
-
-  // Handle SS.xx format
-  const seconds = parseFloat(cleaned);
-  if (!isNaN(seconds)) {
-    return seconds;
-  }
-
-  return null;
-}
-
 // Format seconds back to time string
 function formatSecondsToTime(seconds: number): string {
   if (seconds >= 60) {
@@ -559,19 +679,7 @@ export async function getAthleteComparisonStats(athleteId: number, seasonFilter:
     return null;
   }
 
-  // Get PRs directly (where is_pr = true)
-  const { data: allPrs, error: prError } = await supabase
-    .from('results')
-    .select('event_name, mark_raw, meet_name, date')
-    .eq('athlete_id', athleteId)
-    .eq('is_pr', true)
-    .gte('date', '2000-01-01');
-
-  if (prError) {
-    console.error('Error fetching PRs:', prError);
-  }
-
-  // Get all results for meet count, wins, and head-to-head data
+  // Get all results for this athlete
   const { data: rawResults, error: resultsError } = await supabase
     .from('results')
     .select('event_name, place, meet_name, date, mark_raw')
@@ -583,55 +691,66 @@ export async function getAthleteComparisonStats(athleteId: number, seasonFilter:
   }
 
   // Filter by season
-  const prs = filterResultsBySeason(allPrs || [], seasonFilter);
   const allResults = filterResultsBySeason(rawResults || [], seasonFilter);
 
-  // Build event stats from PRs and results (with normalized event names)
+  // Build event stats with properly calculated PRs
   const eventStats: Record<string, any> = {};
 
-  // Add PRs
-  prs.forEach((pr: any) => {
-    const eventName = normalizeEventName(pr.event_name);
-    if (!eventStats[eventName]) {
-      eventStats[eventName] = {
-        personalBestRaw: null,
-        raceCount: 0,
-        totalSeconds: 0,
-        averageRaw: null,
-      };
-    }
-    // Only set PR if we don't have one yet (prefer first/best)
-    if (!eventStats[eventName].personalBestRaw) {
-      eventStats[eventName].personalBestRaw = pr.mark_raw;
-    }
-  });
-
-  // Count races and calculate average per event
+  // Calculate PRs and stats from all results
   allResults.forEach((result: any) => {
+    if (!result.event_name || !result.mark_raw) return;
+
     const eventName = normalizeEventName(result.event_name);
-    if (!eventStats[eventName]) {
-      eventStats[eventName] = {
-        personalBestRaw: null,
-        raceCount: 0,
-        totalSeconds: 0,
-        averageRaw: null,
-      };
+    const eventLower = eventName.toLowerCase();
+    const isFieldEvent = FIELD_EVENTS.some(fe => eventLower.includes(fe));
+
+    // Parse the mark
+    let parsedValue: number | null = null;
+    if (isFieldEvent) {
+      parsedValue = parseDistanceToMeters(result.mark_raw);
+    } else {
+      parsedValue = parseTimeToSeconds(result.mark_raw);
     }
 
-    // Parse time and add to total for average calculation
-    const seconds = parseTimeToSeconds(result.mark_raw);
-    if (seconds !== null) {
-      eventStats[eventName].raceCount++;
-      eventStats[eventName].totalSeconds += seconds;
+    if (parsedValue === null) return;
+
+    if (!eventStats[eventName]) {
+      eventStats[eventName] = {
+        personalBestRaw: result.mark_raw,
+        personalBestParsed: parsedValue,
+        isFieldEvent: isFieldEvent,
+        raceCount: 1,
+        totalValue: parsedValue,
+        averageRaw: null,
+      };
+    } else {
+      const stats = eventStats[eventName];
+      stats.raceCount++;
+      stats.totalValue += parsedValue;
+
+      // Update PR if this is better
+      if (isFieldEvent && parsedValue > stats.personalBestParsed) {
+        // Field event: higher is better
+        stats.personalBestRaw = result.mark_raw;
+        stats.personalBestParsed = parsedValue;
+      } else if (!isFieldEvent && parsedValue < stats.personalBestParsed) {
+        // Track event: lower is better
+        stats.personalBestRaw = result.mark_raw;
+        stats.personalBestParsed = parsedValue;
+      }
     }
   });
 
   // Calculate average for each event
   Object.keys(eventStats).forEach(eventName => {
     const stats = eventStats[eventName];
-    if (stats.raceCount > 0 && stats.totalSeconds > 0) {
-      const avgSeconds = stats.totalSeconds / stats.raceCount;
-      stats.averageRaw = formatSecondsToTime(avgSeconds);
+    if (stats.raceCount > 0 && stats.totalValue > 0) {
+      const avgValue = stats.totalValue / stats.raceCount;
+      if (stats.isFieldEvent) {
+        stats.averageRaw = avgValue.toFixed(2) + 'm';
+      } else {
+        stats.averageRaw = formatSecondsToTime(avgValue);
+      }
     }
   });
 
@@ -651,17 +770,16 @@ export async function getAthleteComparisonStats(athleteId: number, seasonFilter:
 // Get head-to-head comparison between two athletes
 export async function getHeadToHead(athleteId1: number, athleteId2: number, eventName: string, seasonFilter: SeasonFilter = 'all') {
   // Get all results for both athletes - include round to match same race
+  // Don't filter by date here since some results have NULL dates
   const { data: rawResults1, error: error1 } = await supabase
     .from('results')
     .select('meet_name, date, place, mark_raw, event_name, round')
-    .eq('athlete_id', athleteId1)
-    .gte('date', '2000-01-01');
+    .eq('athlete_id', athleteId1);
 
   const { data: rawResults2, error: error2 } = await supabase
     .from('results')
     .select('meet_name, date, place, mark_raw, event_name, round')
-    .eq('athlete_id', athleteId2)
-    .gte('date', '2000-01-01');
+    .eq('athlete_id', athleteId2);
 
   if (error1 || error2) {
     console.error('Error fetching head-to-head:', error1 || error2);
@@ -676,35 +794,136 @@ export async function getHeadToHead(athleteId1: number, athleteId2: number, even
   const results2 = allResults2.filter(r => normalizeEventName(r.event_name) === eventName);
 
   // Find common races (where both athletes competed in SAME RACE)
-  // Match by meet_name + date + round (same heat/final)
-  const meetResults1 = new Map(results1.map(r => [`${r.meet_name}_${r.date}_${r.round || ''}`, r]));
+  // Match by meet_name + date + round, with fallbacks for inconsistent data
+
+  // Normalize meet names (trim extra spaces)
+  const normalizeMeetName = (name: string) => name?.replace(/\s+/g, ' ').trim() || '';
+
+  // Normalize round names (Heat X, Preliminaries, P -> Prelim; Finals, F -> Final)
+  const normalizeRound = (round: string | null): string => {
+    if (!round) return '';
+    const r = round.trim().toLowerCase();
+    if (r === 'f' || r === 'finals' || r === 'final') return 'Final';
+    if (r === 'p' || r === 'preliminaries' || r === 'preliminary' || r.startsWith('heat')) return 'Prelim';
+    return round;
+  };
+
+  // Filter valid results (must have meet_name) and dedupe
+  // Skip NULL-date results if the same meet+mark exists with a date (likely duplicate from different scrape)
+  const dedupeResults = (results: any[]) => {
+    const withDate = new Set(
+      results
+        .filter(r => r.date && r.meet_name)
+        .map(r => `${normalizeMeetName(r.meet_name)}_${r.mark_raw}`)
+    );
+    return results.filter(r => {
+      if (!r.meet_name) return false;
+      // If this result has no date, check if a dated version exists
+      if (!r.date) {
+        const key = `${normalizeMeetName(r.meet_name)}_${r.mark_raw}`;
+        if (withDate.has(key)) return false; // Skip, dated version exists
+      }
+      return true;
+    });
+  };
+
+  const validResults1 = dedupeResults(results1);
+  const validResults2 = dedupeResults(results2);
+
+  // Build maps for different matching strategies
+  // 1. Exact match: meet + date + round
+  const exactMatch1 = new Map(
+    validResults1
+      .filter(r => r.date)
+      .map(r => [`${normalizeMeetName(r.meet_name)}_${r.date}_${r.round || ''}`, r])
+  );
+  // 2. Fallback match: meet + date only (for when one has empty round)
+  const meetDateMatch1 = new Map<string, any[]>();
+  validResults1.filter(r => r.date).forEach(r => {
+    const key = `${normalizeMeetName(r.meet_name)}_${r.date}`;
+    if (!meetDateMatch1.has(key)) meetDateMatch1.set(key, []);
+    meetDateMatch1.get(key)!.push(r);
+  });
+  // 3. Meet-only match (for when dates are null but meet names match)
+  const meetOnlyMatch1 = new Map<string, any[]>();
+  validResults1.forEach(r => {
+    const key = normalizeMeetName(r.meet_name);
+    if (!meetOnlyMatch1.has(key)) meetOnlyMatch1.set(key, []);
+    meetOnlyMatch1.get(key)!.push(r);
+  });
+
   const commonRaces: any[] = [];
+  const matchedKeys = new Set<string>(); // Avoid duplicate matches
   let athlete1Wins = 0;
   let athlete2Wins = 0;
   let ties = 0;
 
-  results2.forEach(r2 => {
-    const key = `${r2.meet_name}_${r2.date}_${r2.round || ''}`;
-    const r1 = meetResults1.get(key);
-    if (r1) {
-      // Both competed in the SAME RACE (same meet + date + round)
-      const race = {
-        meet_name: r1.meet_name,
-        date: r1.date,
-        round: r1.round,
-        athlete1_place: r1.place,
-        athlete2_place: r2.place,
-        athlete1_mark: r1.mark_raw,
-        athlete2_mark: r2.mark_raw,
-      };
-      commonRaces.push(race);
+  validResults2.forEach(r2 => {
+    const normalizedMeet2 = normalizeMeetName(r2.meet_name);
+    const exactKey = `${normalizedMeet2}_${r2.date}_${r2.round || ''}`;
+    const meetDateKey = `${normalizedMeet2}_${r2.date}`;
+    const meetOnlyKey = normalizedMeet2;
 
-      if (r1.place < r2.place) {
-        athlete1Wins++;
-      } else if (r2.place < r1.place) {
-        athlete2Wins++;
-      } else {
-        ties++;
+    // Try exact match first (meet + date + round)
+    let r1 = r2.date ? exactMatch1.get(exactKey) : null;
+
+    // If no exact match, try meet + date with normalized round matching
+    if (!r1 && r2.date) {
+      const meetDateResults = meetDateMatch1.get(meetDateKey);
+      if (meetDateResults) {
+        const normalizedR2Round = normalizeRound(r2.round);
+        // Find result with same normalized round
+        r1 = meetDateResults.find(r => normalizeRound(r.round) === normalizedR2Round);
+        // Fall back to finals, then any result
+        if (!r1) {
+          r1 = meetDateResults.find(r => normalizeRound(r.round) === 'Final') || meetDateResults[0];
+        }
+      }
+    }
+
+    // If still no match (e.g., r2 has null date), try meet-only matching
+    if (!r1) {
+      const meetOnlyResults = meetOnlyMatch1.get(meetOnlyKey);
+      if (meetOnlyResults) {
+        const normalizedR2Round = normalizeRound(r2.round);
+        // Find result with same normalized round
+        r1 = meetOnlyResults.find(r => normalizeRound(r.round) === normalizedR2Round);
+        // Fall back to finals, then any result
+        if (!r1) {
+          r1 = meetOnlyResults.find(r => normalizeRound(r.round) === 'Final') || meetOnlyResults[0];
+        }
+      }
+    }
+
+    if (r1) {
+      // Use normalized meet name and round for dedup key
+      // This prevents counting "Heat 6" and "Preliminaries" as separate races
+      const normalizedRound = normalizeRound(r1.round) || normalizeRound(r2.round) || '';
+      const raceKey = `${normalizeMeetName(r1.meet_name)}_${r1.date || r2.date || 'nodate'}_${normalizedRound}`;
+      if (matchedKeys.has(raceKey)) return; // Skip duplicates
+      matchedKeys.add(raceKey);
+
+      const hasValidPlaces = r1.place != null && r2.place != null && r1.place > 0 && r2.place > 0;
+
+      if (hasValidPlaces) {
+        const race = {
+          meet_name: r1.meet_name,
+          date: r1.date || r2.date || '',
+          round: normalizedRound || r1.round || r2.round || '',
+          athlete1_place: r1.place,
+          athlete2_place: r2.place,
+          athlete1_mark: r1.mark_raw,
+          athlete2_mark: r2.mark_raw,
+        };
+        commonRaces.push(race);
+
+        if (r1.place < r2.place) {
+          athlete1Wins++;
+        } else if (r2.place < r1.place) {
+          athlete2Wins++;
+        } else {
+          ties++;
+        }
       }
     }
   });

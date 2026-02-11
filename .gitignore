@@ -85,3 +85,5 @@ frontend/*.json
 .env.local
 supabase/.branches
 supabase/.temp
+
+/app/generated/prisma

@@ -1,23 +1,23 @@
 #!/usr/bin/env node
 /**
- * Sync Weekend Results - Links USTFCCCA meets with TFRRS results
+ * Sync Weekend Results - Complete pipeline in one command
  *
  * This script:
  * 1. Finds meets from the past week that don't have results yet
  * 2. Searches TFRRS for matching meets by name/date
- * 3. Scrapes results and attaches them to existing database meet entries
+ * 3. Scrapes results directly from TFRRS
+ * 4. Imports results to database with duplicate checking
  *
  * Usage:
  *   node sync-weekend-results.js                    # Dry run - show matches
- *   node sync-weekend-results.js --scrape           # Find matches + scrape results
- *   node sync-weekend-results.js --scrape --commit  # Scrape + import to database
+ *   node sync-weekend-results.js --scrape           # Find matches + scrape (no import)
+ *   node sync-weekend-results.js --commit           # Full pipeline: find + scrape + import
  *   node sync-weekend-results.js --days 3           # Look back 3 days instead of 7
  */
 
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { createClient } = require('@supabase/supabase-js');
-const fs = require('fs');
 const path = require('path');
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
@@ -30,16 +30,14 @@ const supabase = createClient(
 const DELAY_MS = 2000;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const OUTPUT_DIR = path.join(__dirname, 'output');
-if (!fs.existsSync(OUTPUT_DIR)) {
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-}
+// School ID for unattached athletes
+const UNATTACHED_SCHOOL_ID = 1835;
 
 // Parse command line args
 function parseArgs() {
   const args = process.argv.slice(2);
   return {
-    scrape: args.includes('--scrape'),
+    scrape: args.includes('--scrape') || args.includes('--commit'),
     commit: args.includes('--commit'),
     days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7')
   };
@@ -49,9 +47,9 @@ function parseArgs() {
 function normalizeMeetName(name) {
   if (!name) return '';
   return name.toLowerCase()
-    .replace(/[''`]/g, '')           // Remove apostrophes
-    .replace(/[^a-z0-9\s]/g, ' ')    // Replace punctuation with space
-    .replace(/\s+/g, ' ')            // Collapse multiple spaces
+    .replace(/[''`]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
     .replace(/\b(invitational|invite|indoor|outdoor|classic|open)\b/gi, '')
     .trim();
 }
@@ -85,6 +83,111 @@ function parseTfrrsDate(dateStr) {
   return null;
 }
 
+// Parse athlete ID from URL
+function parseAthleteId(url) {
+  const match = url.match(/\/athletes\/(\d+)\//);
+  return match ? parseInt(match[1]) : null;
+}
+
+// Parse meet ID from URL
+function parseMeetId(url) {
+  const match = url.match(/\/results\/(\d+)/);
+  return match ? parseInt(match[1]) : null;
+}
+
+// Parse event ID from URL
+function parseEventId(url) {
+  const match = url.match(/\/results\/\d+\/(\d+)/);
+  return match ? parseInt(match[1]) : null;
+}
+
+// Parse team info from URL
+function parseTeamInfo(url) {
+  const match = url.match(/\/teams\/tf\/([A-Z]{2})_college_([mf])_(.+)\.html/);
+  if (match) {
+    return {
+      state: match[1],
+      gender: match[2] === 'm' ? 'M' : 'F',
+      teamSlug: match[3]
+    };
+  }
+  return null;
+}
+
+// Get gender from event name
+function getGenderFromEventName(eventName) {
+  if (!eventName) return null;
+  const lower = eventName.toLowerCase();
+  if (lower.includes("men's") || lower.includes('men ')) return 'M';
+  if (lower.includes("women's") || lower.includes('women ')) return 'F';
+  return null;
+}
+
+// Parse mark to seconds
+function parseMarkSeconds(mark) {
+  if (!mark) return null;
+  mark = mark.trim();
+
+  const secMatch = mark.match(/^(\d{1,2}\.\d{2,3})$/);
+  if (secMatch) return parseFloat(secMatch[1]);
+
+  const minSecMatch = mark.match(/^(\d{1,2}):(\d{2}\.\d{2,3})$/);
+  if (minSecMatch) return parseInt(minSecMatch[1]) * 60 + parseFloat(minSecMatch[2]);
+
+  const hourMatch = mark.match(/^(\d{1,2}):(\d{2}):(\d{2}\.\d{2,3})$/);
+  if (hourMatch) {
+    return parseInt(hourMatch[1]) * 3600 + parseInt(hourMatch[2]) * 60 + parseFloat(hourMatch[3]);
+  }
+
+  return null;
+}
+
+// Parse mark to meters
+function parseMarkMeters(mark) {
+  if (!mark) return null;
+
+  const meterMatch = mark.match(/([\d.]+)\s*m/i);
+  if (meterMatch) return parseFloat(meterMatch[1]);
+
+  const feetInchMatch = mark.match(/(\d+)'\s*([\d.]+)"/);
+  if (feetInchMatch) {
+    const feet = parseInt(feetInchMatch[1]);
+    const inches = parseFloat(feetInchMatch[2]);
+    return (feet * 12 + inches) * 0.0254;
+  }
+
+  return null;
+}
+
+// Parse date from meet page
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+
+  const months = {
+    'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04',
+    'may': '05', 'jun': '06', 'jul': '07', 'aug': '08',
+    'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'
+  };
+
+  const match = dateStr.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})(?:-\d{1,2})?,?\s*(\d{4})/i);
+  if (match) {
+    const month = months[match[1].toLowerCase()];
+    const day = match[2].padStart(2, '0');
+    return `${match[3]}-${month}-${day}`;
+  }
+
+  return null;
+}
+
+// Normalize school name for team matching
+function normalizeSchoolName(name) {
+  if (!name) return '';
+  return name.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // Fetch meets from database that need results
 async function getMeetsNeedingResults(daysBack) {
   const today = new Date();
@@ -96,7 +199,6 @@ async function getMeetsNeedingResults(daysBack) {
 
   console.log(`\nLooking for meets from ${startStr} to ${todayStr}...`);
 
-  // Get meets that happened recently
   const { data: meets, error } = await supabase
     .from('meets')
     .select('meet_id, name, date, location, meet_url, status')
@@ -116,7 +218,7 @@ async function getMeetsNeedingResults(daysBack) {
     const { count } = await supabase
       .from('results')
       .select('*', { count: 'exact', head: true })
-      .eq('meet_name', meet.name);
+      .eq('meet_id', meet.meet_id);
 
     return { ...meet, hasResults: count > 0, resultCount: count };
   }));
@@ -133,12 +235,10 @@ async function searchTfrrsForDate(targetDate) {
 
   const meets = [];
   let page = 1;
-  let found = false;
 
-  // Parse target date
   const targetDateObj = new Date(targetDate);
 
-  while (page <= 20 && !found) {
+  while (page <= 20) {
     const url = `https://www.tfrrs.org/results_search.html?page=${page}`;
 
     try {
@@ -165,7 +265,6 @@ async function searchTfrrsForDate(targetDate) {
 
         const meetDateObj = new Date(meetDate);
 
-        // Check if this meet is on our target date
         if (meetDate === targetDate) {
           const $meetLink = $(cells[1]).find('a');
           if (!$meetLink.length) return;
@@ -182,14 +281,12 @@ async function searchTfrrsForDate(targetDate) {
           meetsOnPage++;
         }
 
-        // If we've gone past the target date, we can stop
         if (meetDateObj < targetDateObj) {
           foundOlder = true;
         }
       });
 
       if (foundOlder && meetsOnPage === 0) {
-        // We've passed our date, stop searching
         break;
       }
 
@@ -209,7 +306,6 @@ async function searchTfrrsForDate(targetDate) {
 async function findTfrrsMatch(dbMeet) {
   console.log(`\nSearching for: "${dbMeet.name}" (${dbMeet.date})`);
 
-  // Search TFRRS for meets on this date
   const tffrrsMeets = await searchTfrrsForDate(dbMeet.date);
 
   if (tffrrsMeets.length === 0) {
@@ -219,7 +315,6 @@ async function findTfrrsMatch(dbMeet) {
 
   console.log(`  Found ${tffrrsMeets.length} TFRRS meets on ${dbMeet.date}`);
 
-  // Find best match by name similarity
   let bestMatch = null;
   let bestScore = 0;
 
@@ -233,7 +328,6 @@ async function findTfrrsMatch(dbMeet) {
     }
   }
 
-  // Require at least 40% similarity
   if (bestScore >= 0.4) {
     console.log(`  Best match: "${bestMatch.name}" (${(bestScore * 100).toFixed(0)}%)`);
     return { ...bestMatch, similarity: bestScore };
@@ -243,49 +337,795 @@ async function findTfrrsMatch(dbMeet) {
   return null;
 }
 
-// Scrape results from a TFRRS meet page (reusing existing scraper logic)
-async function scrapeMeetResults(meetUrl, dbMeetId, dbMeetName) {
-  // Import the scraper functions
-  const scraper = require('./scrape-meet-results.js');
-
-  // For now, just return placeholder - we'll integrate with the existing scraper
-  console.log(`  Would scrape: ${meetUrl}`);
-  console.log(`  And link to database meet_id: ${dbMeetId}`);
-
-  return { resultCount: 0 };
-}
-
-// Parse TFRRS meet ID from URL
-function parseTfrrsMeetId(url) {
-  const match = url.match(/\/results\/(\d+)/);
-  return match ? match[1] : null;
-}
-
-// Update database meet with TFRRS ID link
-async function linkTfrrsToMeet(dbMeetId, tfrrsMeetId) {
+// Fetch meet page and get event links
+async function fetchMeetEvents(meetUrl) {
   try {
-    const { error } = await supabase
-      .from('meets')
-      .update({
-        tfrrs_meet_id: tfrrsMeetId,
-        updated_at: new Date().toISOString()
-      })
-      .eq('meet_id', dbMeetId);
+    const response = await axios.get(meetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+      }
+    });
+
+    const $ = cheerio.load(response.data);
+    const events = [];
+    const seenUrls = new Set();
+
+    const meetId = parseMeetId(meetUrl);
+    const meetName = $('h3.panel-title').first().text().trim();
+    const dateText = $('.panel-heading-normal-text').first().text().trim();
+    const meetDate = parseDate(dateText);
+
+    $('a[href*="/results/"]').each((_, el) => {
+      const href = $(el).attr('href');
+      const eventName = $(el).text().trim();
+
+      if (!eventName || eventName.length < 3) return;
+      if (href.includes('_search')) return;
+
+      const pathParts = href.split('/').filter(Boolean);
+      const hasEventId = pathParts.filter(p => /^\d+$/.test(p)).length >= 2;
+      if (!hasEventId) return;
+
+      const eventUrl = href.startsWith('http') ? href : `https://www.tfrrs.org${href}`;
+
+      if (seenUrls.has(eventUrl)) return;
+      seenUrls.add(eventUrl);
+
+      events.push({
+        eventName,
+        eventUrl,
+        meetName,
+        meetDate
+      });
+    });
+
+    return { meetId, meetName, meetDate, events };
+
+  } catch (error) {
+    console.error(`Error fetching meet ${meetUrl}: ${error.message}`);
+    return null;
+  }
+}
+
+// Fetch event results page and parse all results
+async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName, dbMeetId, dbMeetName) {
+  try {
+    const eventId = parseEventId(eventUrl);
+
+    const response = await axios.get(eventUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+      }
+    });
+
+    const $ = cheerio.load(response.data);
+    const results = [];
+
+    const pageEventName = eventName;
+
+    // Parse CSS to find hidden columns
+    const hiddenClasses = new Set();
+    $('style').each((_, style) => {
+      const css = $(style).text();
+      const matches = css.matchAll(/\.((?:round|heat)_[\w_]+)\s*\{\s*display:\s*none/g);
+      for (const match of matches) {
+        hiddenClasses.add(match[1]);
+      }
+    });
+
+    $('table tbody tr').each((_, row) => {
+      // Detect round from cell class names
+      let roundName = 'Unknown';
+      const $firstTimeCell = $(row).find('td[class*="round_"], td[class*="heat_"]').first();
+      if ($firstTimeCell.length) {
+        const cellClass = $firstTimeCell.attr('class') || '';
+        if (cellClass.includes('round_4')) {
+          roundName = 'Finals';
+        } else if (cellClass.includes('round_1') || cellClass.includes('round_2') || cellClass.includes('round_3')) {
+          roundName = 'Preliminaries';
+        } else if (cellClass.includes('heat_')) {
+          const heatMatch = cellClass.match(/heat_(\d+)_(\d+)/);
+          if (heatMatch) {
+            roundName = `Heat ${heatMatch[2]}`;
+          } else {
+            roundName = 'Heat';
+          }
+        }
+      }
+
+      const $row = $(row);
+      const cells = $row.find('td');
+
+      if (cells.length < 4) return;
+
+      const place = parseInt($(cells[0]).text().trim()) || null;
+
+      const isRelay = pageEventName.toLowerCase().includes('relay') ||
+                      pageEventName.toLowerCase().includes('medley');
+
+      const $athleteLinks = $row.find('a[href*="/athletes/"]');
+      const $teamLink = $row.find('a[href*="/teams/"]').first();
+      let schoolName = null;
+      let teamInfo = null;
+
+      if ($teamLink.length) {
+        schoolName = $teamLink.text().trim();
+        teamInfo = parseTeamInfo($teamLink.attr('href'));
+      }
+
+      // For relays, collect all athlete IDs
+      if (isRelay) {
+        if (!$teamLink.length) return; // Relays need at least a team
+
+        // Collect all athlete IDs for the relay
+        const relayAthletes = [];
+        $athleteLinks.each((_, link) => {
+          const url = $(link).attr('href');
+          const id = parseAthleteId(url);
+          let name = $(link).text().trim().replace(/\s+/g, ' ');
+          if (id) relayAthletes.push({ athlete_id: id, name });
+        });
+
+        // Find mark (time) for relay
+        let markRaw = null;
+
+        // Priority 1: Look for checkmark icon
+        cells.each((i, cell) => {
+          const $cell = $(cell);
+          const hasCheckmark = $cell.find('img[src*="ico-check"], img[src*="ico-plus"]').length > 0;
+          if (hasCheckmark && !markRaw) {
+            const text = $cell.text().trim();
+            if (text && /^\d{1,2}:\d{2}\.\d{2,3}$/.test(text)) {
+              markRaw = text;
+            }
+          }
+        });
+
+        // Priority 2: Find first visible time cell
+        if (!markRaw) {
+          cells.each((i, cell) => {
+            if (markRaw) return;
+            const $cell = $(cell);
+            const cellClass = $cell.attr('class') || '';
+            const isHidden = [...hiddenClasses].some(hc => cellClass.includes(hc));
+            if (isHidden) return;
+
+            const text = $cell.text().trim();
+            if (/^\d{1,2}:\d{2}\.\d{2,3}$/.test(text)) {
+              markRaw = text;
+            }
+          });
+        }
+
+        // Priority 3: DNF, DQ, etc.
+        if (!markRaw) {
+          cells.each((i, cell) => {
+            if (markRaw) return;
+            const text = $(cell).text().trim();
+            if (/^(DNF|DQ|DNS|NT|SCR)$/i.test(text)) {
+              markRaw = text.toUpperCase();
+            }
+          });
+        }
+
+        if (markRaw) {
+          results.push({
+            is_relay: true,
+            relay_athletes: relayAthletes,
+            event_name: pageEventName,
+            event_id: eventId,
+            mark_raw: markRaw,
+            mark_seconds: parseMarkSeconds(markRaw),
+            place,
+            school_name: schoolName,
+            team_gender: getGenderFromEventName(pageEventName) || teamInfo?.gender || null,
+            meet_id: dbMeetId,
+            meet_name: dbMeetName,
+            date: meetDate,
+            round: roundName
+          });
+        }
+        return;
+      }
+
+      const $athleteLink = $athleteLinks.first();
+
+      let athleteId = null;
+      let athleteName = null;
+
+      if ($athleteLink.length) {
+        const athleteUrl = $athleteLink.attr('href');
+        athleteId = parseAthleteId(athleteUrl);
+        athleteName = $athleteLink.text().trim();
+      } else {
+        const nameCell = $(cells[1]);
+        if (nameCell.length) {
+          athleteName = nameCell.text().trim().replace(/\s+/g, ' ');
+        }
+      }
+
+      if (!athleteName) return;
+
+      let year = null;
+      cells.each((i, cell) => {
+        const text = $(cell).text().trim();
+        if (/^(FR|SO|JR|SR)(-\d)?$/i.test(text)) {
+          year = text.toUpperCase();
+        }
+      });
+
+      let markRaw = null;
+
+      // Priority 1: Look for checkmark icon
+      cells.each((i, cell) => {
+        const $cell = $(cell);
+        const hasCheckmark = $cell.find('img[src*="ico-check"], img[src*="ico-plus"]').length > 0;
+        if (hasCheckmark && !markRaw) {
+          const text = $cell.text().trim();
+          if (text && text.length < 20) {
+            markRaw = text;
+          }
+        }
+      });
+
+      // Priority 2: Find first visible time cell
+      if (!markRaw) {
+        cells.each((i, cell) => {
+          if (markRaw) return;
+          const $cell = $(cell);
+          const cellClass = $cell.attr('class') || '';
+
+          const isHidden = [...hiddenClasses].some(hc => cellClass.includes(hc));
+          if (isHidden) return;
+
+          const text = $cell.text().trim();
+
+          if (/^\d{1,2}:\d{2}\.\d{2,3}$/.test(text) ||
+              /^\d{1,2}\.\d{2,3}$/.test(text) ||
+              /^\d{1,2}:\d{2}:\d{2}\.\d{2}$/.test(text)) {
+            markRaw = text;
+          }
+          if (/^[\d.]+m$/i.test(text) ||
+              /^\d+'\s*[\d.]*"?$/.test(text) ||
+              /^\d+-[\d.]+$/.test(text)) {
+            markRaw = text;
+          }
+        });
+      }
+
+      // Priority 3: DNF, NT, DNS, etc.
+      if (!markRaw) {
+        cells.each((i, cell) => {
+          if (markRaw) return;
+          const text = $(cell).text().trim();
+          if (/^(DNF|NT|DNS|FS|FOUL|NH|NM|DQ|SCR|DNQ|NWI)$/i.test(text)) {
+            markRaw = text.toUpperCase();
+          }
+        });
+      }
+
+      if (!markRaw) return;
+
+      results.push({
+        athlete_id: athleteId,
+        athlete_name: athleteName,
+        event_name: pageEventName,
+        event_id: eventId,
+        mark_raw: markRaw,
+        mark_seconds: parseMarkSeconds(markRaw),
+        mark_meters: parseMarkMeters(markRaw),
+        place,
+        school_name: schoolName,
+        team_gender: getGenderFromEventName(pageEventName) || teamInfo?.gender || null,
+        year,
+        meet_id: dbMeetId,
+        meet_name: dbMeetName,
+        date: meetDate,
+        round: roundName
+      });
+    });
+
+    return results;
+
+  } catch (error) {
+    console.error(`Error fetching event ${eventUrl}: ${error.message}`);
+    return [];
+  }
+}
+
+// Scrape all results from a TFRRS meet
+async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate) {
+  console.log(`  Scraping: ${meetUrl}`);
+
+  const meetData = await fetchMeetEvents(meetUrl);
+  if (!meetData) {
+    console.log('  Failed to fetch meet page');
+    return [];
+  }
+
+  const meetDate = dbMeetDate || meetData.meetDate;
+  console.log(`  Found ${meetData.events.length} events`);
+
+  const allResults = [];
+
+  for (const event of meetData.events) {
+    const results = await fetchEventResults(
+      event.eventUrl,
+      meetData.meetId,
+      meetData.meetName,
+      meetDate,
+      event.eventName,
+      dbMeetId,
+      dbMeetName
+    );
+
+    if (results.length > 0) {
+      allResults.push(...results);
+    }
+
+    await sleep(DELAY_MS);
+  }
+
+  console.log(`  Scraped ${allResults.length} results`);
+  return allResults;
+}
+
+// Import results to database
+async function importResults(results, commit) {
+  // Separate relays from individual results
+  const relayResults = results.filter(r => r.is_relay === true);
+  const individualResults = results.filter(r => r.is_relay !== true);
+
+  console.log(`\nPreparing to import ${results.length} results...`);
+  console.log(`  Individual: ${individualResults.length}`);
+  console.log(`  Relays: ${relayResults.length}`);
+
+  // Load all teams for matching
+  console.log('\nLoading teams from database...');
+  let allTeams = [];
+  let offset = 0;
+  const pageSize = 1000;
+
+  while (true) {
+    const { data: batch, error } = await supabase
+      .from('teams')
+      .select('team_id, gender, school_id, schools(short_name, official_name)')
+      .range(offset, offset + pageSize - 1);
 
     if (error) {
-      // Column might not exist yet - that's OK
-      if (error.message.includes('tfrrs_meet_id')) {
-        console.log('  Note: tfrrs_meet_id column not found. Run migration first.');
-        return false;
-      }
-      console.log(`  Error updating meet: ${error.message}`);
-      return false;
+      console.error('Error loading teams:', error.message);
+      break;
     }
-    return true;
-  } catch (e) {
-    console.log(`  Error: ${e.message}`);
-    return false;
+
+    if (!batch || batch.length === 0) break;
+    allTeams = allTeams.concat(batch);
+    offset += pageSize;
+    if (batch.length < pageSize) break;
   }
+
+  console.log(`Loaded ${allTeams.length} teams`);
+
+  // Build team lookup
+  const teamByName = new Map();
+  const teamToSchool = new Map();
+  for (const team of allTeams) {
+    const shortName = team.schools?.short_name;
+    const officialName = team.schools?.official_name;
+
+    teamToSchool.set(team.team_id, team.school_id);
+
+    if (shortName) {
+      const exactKey = `${shortName.toLowerCase()}|${team.gender}`;
+      const normKey = `${normalizeSchoolName(shortName)}|${team.gender}`;
+      if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+      if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
+    }
+    if (officialName) {
+      const exactKey = `${officialName.toLowerCase()}|${team.gender}`;
+      const normKey = `${normalizeSchoolName(officialName)}|${team.gender}`;
+      if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+      if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
+    }
+  }
+
+  // Collect all TFRRS athlete IDs (from individual results AND relay athletes)
+  const allTfrrsIds = new Set();
+  individualResults.forEach(r => {
+    if (r.athlete_id) allTfrrsIds.add(r.athlete_id);
+  });
+  relayResults.forEach(r => {
+    (r.relay_athletes || []).forEach(a => {
+      if (a.athlete_id) allTfrrsIds.add(a.athlete_id);
+    });
+  });
+
+  // Load existing athletes
+  console.log('Loading existing athletes...');
+  const tfrrsToInternalId = new Map();
+  const tfrrsIds = [...allTfrrsIds];
+
+  for (let i = 0; i < tfrrsIds.length; i += 1000) {
+    const chunk = tfrrsIds.slice(i, i + 1000).map(String);
+    const { data } = await supabase
+      .from('athletes')
+      .select('athlete_id, tfrrs_athlete_id')
+      .in('tfrrs_athlete_id', chunk);
+
+    if (data) {
+      data.forEach(a => tfrrsToInternalId.set(parseInt(a.tfrrs_athlete_id), a.athlete_id));
+    }
+  }
+
+  console.log(`Found ${tfrrsToInternalId.size} existing athletes`);
+
+  // Process individual results
+  let matched = 0;
+  let noTeam = 0;
+  let noAthlete = 0;
+
+  const dbResults = [];
+  const newAthletes = [];
+  const seenAthletes = new Set();
+
+  for (const r of individualResults) {
+    // Find team_id
+    let teamId = null;
+    if (r.school_name) {
+      const gender = r.team_gender || 'M';
+
+      const exactKey = `${r.school_name.toLowerCase()}|${gender}`;
+      const normKey = `${normalizeSchoolName(r.school_name)}|${gender}`;
+      teamId = teamByName.get(exactKey) || teamByName.get(normKey);
+
+      if (!teamId) {
+        const normName = normalizeSchoolName(r.school_name);
+        for (const [k, v] of teamByName) {
+          if (k.startsWith(r.school_name.toLowerCase() + '|') || k.startsWith(normName + '|')) {
+            teamId = v;
+            break;
+          }
+        }
+      }
+    }
+
+    if (teamId) {
+      matched++;
+    } else {
+      noTeam++;
+    }
+
+    // Check if athlete exists
+    let internalAthleteId = null;
+
+    if (r.athlete_id) {
+      internalAthleteId = tfrrsToInternalId.get(r.athlete_id);
+      if (!internalAthleteId) {
+        noAthlete++;
+        if (!seenAthletes.has(r.athlete_id)) {
+          seenAthletes.add(r.athlete_id);
+          const schoolId = teamId ? teamToSchool.get(teamId) : UNATTACHED_SCHOOL_ID;
+          newAthletes.push({
+            tfrrs_athlete_id: String(r.athlete_id),
+            full_name: r.athlete_name,
+            gender: r.team_gender || null,
+            school_id: schoolId,
+            is_active: true
+          });
+        }
+      }
+    } else if (r.athlete_name) {
+      noAthlete++;
+      const nameKey = `unattached:${r.athlete_name}`;
+      if (!seenAthletes.has(nameKey)) {
+        seenAthletes.add(nameKey);
+        newAthletes.push({
+          tfrrs_athlete_id: null,
+          full_name: r.athlete_name,
+          gender: r.team_gender || null,
+          school_id: UNATTACHED_SCHOOL_ID,
+          is_active: true
+        });
+      }
+    }
+
+    dbResults.push({
+      tfrrs_athlete_id: r.athlete_id,
+      athlete_id: internalAthleteId || null,
+      athlete_name: r.athlete_name,
+      event_name: r.event_name,
+      mark_raw: r.mark_raw,
+      mark_seconds: r.mark_seconds,
+      mark_meters: r.mark_meters,
+      place: r.place,
+      meet_name: r.meet_name,
+      meet_id: r.meet_id,
+      event_id: r.event_id,
+      date: r.date,
+      team_id: teamId,
+      round: r.round
+    });
+  }
+
+  // Process relay results - collect new athletes from relays too
+  const dbRelayResults = [];
+  for (const r of relayResults) {
+    let teamId = null;
+    if (r.school_name) {
+      const gender = r.team_gender || 'M';
+      const exactKey = `${r.school_name.toLowerCase()}|${gender}`;
+      const normKey = `${normalizeSchoolName(r.school_name)}|${gender}`;
+      teamId = teamByName.get(exactKey) || teamByName.get(normKey);
+    }
+
+    // Map relay athletes
+    const relayAthletes = (r.relay_athletes || []).map((a, idx) => {
+      let internalId = tfrrsToInternalId.get(a.athlete_id);
+      if (!internalId && a.athlete_id && !seenAthletes.has(a.athlete_id)) {
+        seenAthletes.add(a.athlete_id);
+        const schoolId = teamId ? teamToSchool.get(teamId) : UNATTACHED_SCHOOL_ID;
+        newAthletes.push({
+          tfrrs_athlete_id: String(a.athlete_id),
+          full_name: a.name,
+          gender: r.team_gender || null,
+          school_id: schoolId,
+          is_active: true
+        });
+      }
+      return {
+        tfrrs_athlete_id: a.athlete_id,
+        athlete_id: internalId || null,
+        athlete_name: a.name,
+        leg_order: idx + 1
+      };
+    });
+
+    dbRelayResults.push({
+      team_id: teamId,
+      event_name: r.event_name,
+      mark_raw: r.mark_raw,
+      mark_seconds: r.mark_seconds,
+      place: r.place,
+      meet_name: r.meet_name,
+      meet_id: r.meet_id,
+      event_id: r.event_id,
+      date: r.date,
+      round: r.round,
+      relay_athletes: relayAthletes
+    });
+  }
+
+  console.log('\nProcessing summary:');
+  console.log(`  Team matched: ${matched.toLocaleString()}`);
+  console.log(`  No team match: ${noTeam.toLocaleString()}`);
+  console.log(`  Missing athletes: ${noAthlete.toLocaleString()}`);
+  console.log(`  New athletes to create: ${newAthletes.length.toLocaleString()}`);
+  console.log(`  Relay results: ${dbRelayResults.length.toLocaleString()}`);
+
+  if (!commit) {
+    console.log('\n>>> DRY RUN - No changes made <<<');
+    console.log('Run with --commit to import');
+    return { imported: 0, errors: 0, skipped: 0, relaysImported: 0 };
+  }
+
+  // Create new athletes
+  if (newAthletes.length > 0) {
+    console.log('\nCreating new athletes...');
+    let athletesCreated = 0;
+
+    for (let i = 0; i < newAthletes.length; i += 500) {
+      const batch = newAthletes.slice(i, i + 500);
+      const { data, error } = await supabase
+        .from('athletes')
+        .insert(batch)
+        .select('athlete_id, tfrrs_athlete_id');
+
+      if (error) {
+        console.log(`  Batch error: ${error.message}`);
+      } else {
+        athletesCreated += batch.length;
+        if (data) {
+          data.forEach(a => {
+            if (a.tfrrs_athlete_id) {
+              tfrrsToInternalId.set(parseInt(a.tfrrs_athlete_id), a.athlete_id);
+            }
+          });
+        }
+      }
+    }
+
+    console.log(`Created ${athletesCreated} athletes`);
+
+    // Update dbResults with new athlete IDs
+    for (const r of dbResults) {
+      if (!r.athlete_id && r.tfrrs_athlete_id) {
+        r.athlete_id = tfrrsToInternalId.get(r.tfrrs_athlete_id) || null;
+      }
+    }
+
+    // Update relay athletes with new IDs
+    for (const r of dbRelayResults) {
+      for (const a of r.relay_athletes) {
+        if (!a.athlete_id && a.tfrrs_athlete_id) {
+          a.athlete_id = tfrrsToInternalId.get(a.tfrrs_athlete_id) || null;
+        }
+      }
+    }
+  }
+
+  // Filter valid individual results
+  const validResults = dbResults.filter(r => r.athlete_id != null);
+  console.log(`\nValid individual results: ${validResults.length.toLocaleString()}`);
+
+  // Check for existing results to avoid duplicates
+  console.log('Checking for existing results...');
+  const meetIds = [...new Set([...validResults, ...dbRelayResults].map(r => r.meet_id).filter(Boolean))];
+  const existingResults = new Set();
+  const existingRelays = new Set();
+
+  for (const meetId of meetIds) {
+    const { data: existing } = await supabase
+      .from('results')
+      .select('athlete_id, event_name, mark_raw, date')
+      .eq('meet_id', meetId);
+
+    existing?.forEach(r => {
+      const key = `${r.athlete_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
+      existingResults.add(key);
+    });
+
+    const { data: existingRelayData } = await supabase
+      .from('relay_results')
+      .select('team_id, event_name, mark_raw, date')
+      .eq('meet_id', meetId);
+
+    existingRelayData?.forEach(r => {
+      const key = `${r.team_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
+      existingRelays.add(key);
+    });
+  }
+  console.log(`Found ${existingResults.size.toLocaleString()} existing individual results`);
+  console.log(`Found ${existingRelays.size.toLocaleString()} existing relay results`);
+
+  // Filter out duplicates
+  const newResults = validResults.filter(r => {
+    const key = `${r.athlete_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
+    return !existingResults.has(key);
+  });
+
+  const newRelays = dbRelayResults.filter(r => {
+    const key = `${r.team_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
+    return !existingRelays.has(key);
+  });
+
+  const skippedDupes = validResults.length - newResults.length;
+  console.log(`Skipping ${skippedDupes.toLocaleString()} duplicate individual results`);
+  console.log(`Importing ${newResults.length.toLocaleString()} new individual results`);
+  console.log(`Importing ${newRelays.length.toLocaleString()} new relay results`);
+
+  let imported = 0;
+  let errors = 0;
+
+  // Import individual results
+  for (let i = 0; i < newResults.length; i += 500) {
+    const batch = newResults.slice(i, i + 500).map(r => ({
+      athlete_id: r.athlete_id,
+      event_name: r.event_name,
+      mark_raw: r.mark_raw,
+      mark_seconds: r.mark_seconds,
+      mark_meters: r.mark_meters,
+      place: r.place,
+      meet_name: r.meet_name,
+      meet_id: r.meet_id,
+      event_id: r.event_id,
+      date: r.date,
+      team_id: r.team_id,
+      round: r.round
+    }));
+
+    const { error } = await supabase
+      .from('results')
+      .insert(batch);
+
+    if (error) {
+      console.log(`  Batch error: ${error.message}`);
+      errors += batch.length;
+    } else {
+      imported += batch.length;
+    }
+  }
+  console.log(`Individual results imported: ${imported.toLocaleString()}`);
+
+  // Import relay results
+  let relaysImported = 0;
+  let relayErrors = 0;
+
+  for (const relay of newRelays) {
+    // 1. Insert into relay_results
+    const { data: insertedRelay, error: relayError } = await supabase
+      .from('relay_results')
+      .insert({
+        team_id: relay.team_id,
+        event_name: relay.event_name,
+        mark_raw: relay.mark_raw,
+        mark_seconds: relay.mark_seconds,
+        place: relay.place,
+        meet_name: relay.meet_name,
+        meet_id: relay.meet_id,
+        event_id: relay.event_id,
+        date: relay.date,
+        round: relay.round
+      })
+      .select('relay_result_id')
+      .single();
+
+    if (relayError) {
+      console.log(`  Relay insert error: ${relayError.message}`);
+      relayErrors++;
+      continue;
+    }
+
+    // 2. Insert into relay_athletes
+    const athleteInserts = relay.relay_athletes
+      .filter(a => a.athlete_id)
+      .map(a => ({
+        relay_result_id: insertedRelay.relay_result_id,
+        athlete_id: a.athlete_id,
+        tfrrs_athlete_id: a.tfrrs_athlete_id ? String(a.tfrrs_athlete_id) : null,
+        athlete_name: a.athlete_name,
+        leg_order: a.leg_order
+      }));
+
+    if (athleteInserts.length > 0) {
+      const { error: athleteError } = await supabase
+        .from('relay_athletes')
+        .insert(athleteInserts);
+
+      if (athleteError) {
+        console.log(`  Relay athletes error: ${athleteError.message}`);
+      }
+    }
+
+    // 3. Insert into results table (one row per athlete)
+    const resultInserts = relay.relay_athletes
+      .filter(a => a.athlete_id)
+      .map(a => ({
+        athlete_id: a.athlete_id,
+        event_name: relay.event_name,
+        mark_raw: relay.mark_raw,
+        mark_seconds: relay.mark_seconds,
+        place: relay.place,
+        meet_name: relay.meet_name,
+        meet_id: relay.meet_id,
+        event_id: relay.event_id,
+        date: relay.date,
+        team_id: relay.team_id,
+        round: relay.round
+      }));
+
+    if (resultInserts.length > 0) {
+      // Check for duplicates before inserting
+      const newResultInserts = resultInserts.filter(r => {
+        const key = `${r.athlete_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
+        return !existingResults.has(key);
+      });
+
+      if (newResultInserts.length > 0) {
+        const { error: resultError } = await supabase
+          .from('results')
+          .insert(newResultInserts);
+
+        if (resultError) {
+          console.log(`  Relay results error: ${resultError.message}`);
+        }
+      }
+    }
+
+    relaysImported++;
+  }
+
+  console.log(`Relay results imported: ${relaysImported.toLocaleString()}`);
+
+  return { imported, errors, skipped: skippedDupes, relaysImported, relayErrors };
 }
 
 // Main function
@@ -295,7 +1135,7 @@ async function main() {
   console.log('='.repeat(60));
   console.log('SYNC WEEKEND RESULTS');
   console.log('='.repeat(60));
-  console.log(`Mode: ${options.scrape ? (options.commit ? 'SCRAPE + COMMIT' : 'SCRAPE (dry run)') : 'FIND MATCHES ONLY'}`);
+  console.log(`Mode: ${options.commit ? 'FULL PIPELINE (scrape + import)' : options.scrape ? 'SCRAPE ONLY' : 'FIND MATCHES ONLY'}`);
   console.log(`Looking back: ${options.days} days`);
 
   // Step 1: Find meets that need results
@@ -312,8 +1152,7 @@ async function main() {
   for (const meet of meetsNeedingResults) {
     const match = await findTfrrsMatch(meet);
     if (match) {
-      // Extract TFRRS meet ID from URL
-      const tfrrsMeetId = parseTfrrsMeetId(match.url);
+      const tfrrsMeetId = parseMeetId(match.url);
       matches.push({
         dbMeet: meet,
         tfrrsMeet: { ...match, tfrrsMeetId }
@@ -332,34 +1171,15 @@ async function main() {
   if (matches.length > 0) {
     console.log('\nMatches:');
     matches.forEach(({ dbMeet, tfrrsMeet }) => {
-      console.log(`  - DB: "${dbMeet.name}" (${dbMeet.date})`);
-      console.log(`    TFRRS: "${tfrrsMeet.name}" (ID: ${tfrrsMeet.tfrrsMeetId})`);
+      console.log(`  - "${dbMeet.name}" (${dbMeet.date})`);
+      console.log(`    TFRRS: "${tfrrsMeet.name}"`);
       console.log(`    URL: ${tfrrsMeet.url}`);
-      console.log(`    Similarity: ${(tfrrsMeet.similarity * 100).toFixed(0)}%`);
-      console.log();
     });
   }
 
-  // Save matches to file for manual review or next step
-  const matchesFile = path.join(OUTPUT_DIR, 'weekend-matches.json');
-  fs.writeFileSync(matchesFile, JSON.stringify(matches, null, 2));
-  console.log(`Matches saved to: ${matchesFile}`);
-
-  // Link TFRRS IDs to database meets
-  if (options.commit && matches.length > 0) {
-    console.log('\nLinking TFRRS meet IDs to database...');
-    for (const { dbMeet, tfrrsMeet } of matches) {
-      if (tfrrsMeet.tfrrsMeetId) {
-        const success = await linkTfrrsToMeet(dbMeet.meet_id, tfrrsMeet.tfrrsMeetId);
-        if (success) {
-          console.log(`  Linked meet ${dbMeet.meet_id} -> TFRRS ${tfrrsMeet.tfrrsMeetId}`);
-        }
-      }
-    }
-  }
-
   if (!options.scrape) {
-    console.log('\nRun with --scrape to scrape results from matched meets');
+    console.log('\nRun with --scrape to scrape results');
+    console.log('Run with --commit to scrape AND import to database');
     return;
   }
 
@@ -368,26 +1188,40 @@ async function main() {
   console.log('SCRAPING RESULTS');
   console.log('='.repeat(60));
 
-  // Generate meets-to-scrape.json with the matches
-  const meetsToScrape = matches.map(({ dbMeet, tfrrsMeet }) => ({
-    url: tfrrsMeet.url,
-    name: tfrrsMeet.name,
-    date: dbMeet.date,
-    db_meet_id: dbMeet.meet_id,
-    db_meet_name: dbMeet.name,
-    tfrrs_meet_id: tfrrsMeet.tfrrsMeetId
-  }));
+  const allScrapedResults = [];
 
-  const scrapeFile = path.join(__dirname, 'meets-to-scrape.json');
-  fs.writeFileSync(scrapeFile, JSON.stringify(meetsToScrape, null, 2));
-  console.log(`Created ${scrapeFile} with ${meetsToScrape.length} meets`);
-  console.log('\nRun the following commands to complete the sync:');
-  console.log('  1. node scrape-meet-results.js');
-  console.log('  2. node import-meet-results.js' + (options.commit ? ' --commit' : ''));
-
-  if (options.commit) {
-    console.log('\n(Or wait for the import to happen automatically with --commit)');
+  for (const { dbMeet, tfrrsMeet } of matches) {
+    console.log(`\n[${dbMeet.name}]`);
+    const results = await scrapeMeet(
+      tfrrsMeet.url,
+      dbMeet.meet_id,
+      dbMeet.name,
+      dbMeet.date
+    );
+    allScrapedResults.push(...results);
   }
+
+  console.log(`\nTotal scraped: ${allScrapedResults.length.toLocaleString()} results`);
+
+  if (allScrapedResults.length === 0) {
+    console.log('No results to import.');
+    return;
+  }
+
+  // Step 4: Import to database
+  console.log('\n' + '='.repeat(60));
+  console.log('IMPORTING RESULTS');
+  console.log('='.repeat(60));
+
+  const { imported, errors, skipped, relaysImported, relayErrors } = await importResults(allScrapedResults, options.commit);
+
+  console.log('\n' + '='.repeat(60));
+  console.log('COMPLETE');
+  console.log('='.repeat(60));
+  console.log(`Individual results imported: ${imported.toLocaleString()}`);
+  console.log(`Relay results imported: ${(relaysImported || 0).toLocaleString()}`);
+  console.log(`Skipped (duplicates): ${skipped.toLocaleString()}`);
+  console.log(`Errors: ${errors.toLocaleString()}`);
 }
 
 main().catch(console.error);
