@@ -437,7 +437,7 @@ function parseDistanceToMeters(mark: string): number | null {
 }
 
 export async function getAthletePRs(athleteId: number) {
-  // Get best mark per event from actual results
+  // Calculate PRs from results table (athlete_prs cache is incomplete)
   const { data, error } = await supabase
     .from('results')
     .select('event_name, mark_raw, date, meet_name')

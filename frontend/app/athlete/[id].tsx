@@ -1,16 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import * as Sharing from 'expo-sharing';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, Modal } from 'react-native';
+import React, { useMemo, useState, useRef } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, Modal, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { captureRef } from 'react-native-view-shot';
 import { colors } from '../../design-system/colors';
 import { SportsPerformanceCard } from '../../components/ui/SportsPerformanceCard';
 import { useFavorites } from '../../contexts/FavoritesContext';
 import { FadeInCard } from '../../components/animations/FadeInCard';
 import { useAthleteDetails } from '../../hooks/useAthleteDetails';
 import { AthleteStatsModal } from '../../components/modals/AthleteStatsModal';
+import { AthleteShareCard } from '../../components/share/AthleteShareCard';
 import { normalizeEventName } from '../../utils/eventNames';
 
 // Helper to check if a date is from Dec 2025+ (clean data from new scraper)
@@ -42,6 +45,8 @@ export default function AthleteDetailScreen() {
   const [statsModalVisible, setStatsModalVisible] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
   const [seasonDropdownVisible, setSeasonDropdownVisible] = useState(false);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const shareCardRef = useRef<View>(null);
 
   // Get available seasons (years) from performances
   const availableSeasons = useMemo(() => {
@@ -233,16 +238,27 @@ export default function AthleteDetailScreen() {
             <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Athlete Profile</Text>
-          <TouchableOpacity
-            style={[styles.followButton, isFollowing && styles.followButtonActive]}
-            onPress={handleFollowToggle}
-          >
-            <Ionicons
-              name={isFollowing ? "heart" : "heart-outline"}
-              size={24}
-              color={isFollowing ? colors.text.white : colors.primary.trackOrange}
-            />
-          </TouchableOpacity>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity
+              style={styles.shareButton}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShareModalVisible(true);
+              }}
+            >
+              <Ionicons name="share-outline" size={24} color={colors.primary.trackOrange} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.followButton, isFollowing && styles.followButtonActive]}
+              onPress={handleFollowToggle}
+            >
+              <Ionicons
+                name={isFollowing ? "heart" : "heart-outline"}
+                size={24}
+                color={isFollowing ? colors.text.white : colors.primary.trackOrange}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Hero Card */}
@@ -571,6 +587,58 @@ export default function AthleteDetailScreen() {
         performances={filteredPerformances}
         personalRecords={personalRecords}
       />
+
+      {/* Share Modal */}
+      <Modal
+        visible={shareModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShareModalVisible(false)}
+      >
+        <View style={styles.shareModalOverlay}>
+          <View style={styles.shareModalContent}>
+            <AthleteShareCard
+              ref={shareCardRef}
+              athleteName={athlete?.full_name || 'Athlete'}
+              schoolName={athlete?.school_name || 'Unknown School'}
+              division={athlete?.division}
+              prs={personalRecords.map(pr => ({
+                event_name: normalizeEventName(pr.event_name),
+                mark_raw: pr.mark_raw
+              }))}
+            />
+            <View style={styles.shareButtonsRow}>
+              <TouchableOpacity
+                style={styles.shareActionButton}
+                onPress={async () => {
+                  try {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    const uri = await captureRef(shareCardRef, {
+                      format: 'png',
+                      quality: 1,
+                    });
+                    await Sharing.shareAsync(uri, {
+                      mimeType: 'image/png',
+                      dialogTitle: `Share ${athlete?.full_name}'s Profile`,
+                    });
+                  } catch (error) {
+                    Alert.alert('Error', 'Could not share image');
+                  }
+                }}
+              >
+                <Ionicons name="share-social" size={20} color={colors.text.white} />
+                <Text style={styles.shareActionText}>Share</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShareModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Season Filter Modal */}
       <Modal
@@ -1249,6 +1317,79 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
   modalOptionTextSelected: {
+    fontWeight: '800',
+    color: colors.text.primary,
+  },
+  // Header buttons (share + follow)
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  shareButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.backgrounds.white,
+    borderWidth: 3,
+    borderColor: colors.primary.trackOrange,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  // Share modal styles
+  shareModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  shareModalContent: {
+    alignItems: 'center',
+    gap: 20,
+  },
+  shareButtonsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  shareActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: colors.primary.trackOrange,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  shareActionText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: colors.text.white,
+  },
+  cancelButton: {
+    backgroundColor: colors.backgrounds.white,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  cancelButtonText: {
+    fontSize: 16,
     fontWeight: '800',
     color: colors.text.primary,
   },

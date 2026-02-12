@@ -1,15 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl } from 'react-native';
+import { useState, useRef, useMemo } from 'react';
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { captureRef } from 'react-native-view-shot';
+import * as Sharing from 'expo-sharing';
 import { AnimatedCard } from '../../components/animations/AnimatedCard';
 import { FadeInCard } from '../../components/animations/FadeInCard';
 import { RacingStripes } from '../../components/decorations/RacingStripes';
 import { HintTooltip } from '../../components/hints/HintTooltip';
 import { Onboarding } from '../../components/onboarding/Onboarding';
 import { SportsPerformanceCard } from '../../components/ui/SportsPerformanceCard';
+import { WeeklyTopPerformancesShareCard } from '../../components/share/WeeklyTopPerformancesShareCard';
 import { colors } from '../../design-system/colors';
 import { spacing } from '../../design-system/spacing';
 import { useFirstTimeHint } from '../../hooks/useFirstTimeHint';
@@ -23,10 +27,30 @@ export default function HomeScreen() {
   const [showDivisionPicker, setShowDivisionPicker] = useState(false);
   const [weeksAgo, setWeeksAgo] = useState(0);
   const [showWeekPicker, setShowWeekPicker] = useState(false);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const shareCardRef = useRef<View>(null);
   const searchHint = useFirstTimeHint('search_button', 2000);
   const { performances, loading, error, refetch: refetchPerformances } = useTopPerformances(15, divisionFilter, weeksAgo);
   const { meets: upcomingMeets, loading: loadingMeets, refresh: refreshMeets } = useMeets('upcoming');
   const { meets: latestResults, loading: loadingLatest } = useLatestResults(5);
+
+  // Calculate date range for share card
+  const dateRangeLabel = useMemo(() => {
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay() - (weeksAgo * 7));
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}, ${endOfWeek.getFullYear()}`;
+  }, [weeksAgo]);
+
+  const weekLabel = weeksAgo === 0 ? 'This Week' : weeksAgo === 1 ? 'Last Week' : `${weeksAgo} Weeks Ago`;
+  const divisionLabel = divisionFilter === 'all' ? 'All Divisions' :
+    divisionFilter === 'D1' ? 'NCAA DI' :
+    divisionFilter === 'D2' ? 'NCAA DII' :
+    divisionFilter === 'D3' ? 'NCAA DIII' : divisionFilter;
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -383,6 +407,55 @@ export default function HomeScreen() {
 
         <View style={styles.bottomSpacing} />
       </ScrollView>
+
+      {/* Share Modal */}
+      <Modal
+        visible={shareModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShareModalVisible(false)}
+      >
+        <View style={styles.shareModalOverlay}>
+          <View style={styles.shareModalContent}>
+            <WeeklyTopPerformancesShareCard
+              ref={shareCardRef}
+              performances={performances}
+              weekLabel={weekLabel}
+              divisionLabel={divisionLabel}
+              dateRange={dateRangeLabel}
+            />
+            <View style={styles.shareButtonsRow}>
+              <TouchableOpacity
+                style={styles.shareActionButton}
+                onPress={async () => {
+                  try {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    const uri = await captureRef(shareCardRef, {
+                      format: 'png',
+                      quality: 1,
+                    });
+                    await Sharing.shareAsync(uri, {
+                      mimeType: 'image/png',
+                      dialogTitle: 'Share Top Performances',
+                    });
+                  } catch (error) {
+                    Alert.alert('Error', 'Could not share image');
+                  }
+                }}
+              >
+                <Ionicons name="share-social" size={20} color={colors.text.white} />
+                <Text style={styles.shareActionText}>Share</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShareModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1136,5 +1209,77 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     color: colors.text.tertiary,
+  },
+  // Share styles
+  sectionTitleWithShare: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  shareIconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.backgrounds.white,
+    borderWidth: 2,
+    borderColor: colors.primary.trackOrange,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  shareModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  shareModalContent: {
+    alignItems: 'center',
+    gap: 20,
+  },
+  shareButtonsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  shareActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: colors.primary.trackOrange,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  shareActionText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: colors.text.white,
+  },
+  cancelButton: {
+    backgroundColor: colors.backgrounds.white,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.borders.thick,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: colors.text.primary,
   },
 });

@@ -308,7 +308,9 @@ export default function CompareAthletesScreen() {
             {athlete1 ? (
               <>
                 <View style={styles.athleteIcon}>
-                  <Ionicons name="person" size={32} color={colors.primary.trackOrange} />
+                  <Text style={styles.athleteInitials}>
+                    {athlete1.full_name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                  </Text>
                 </View>
                 <Text style={styles.athleteSelectorName} numberOfLines={2}>
                   {athlete1.full_name}
@@ -350,7 +352,9 @@ export default function CompareAthletesScreen() {
             {athlete2 ? (
               <>
                 <View style={styles.athleteIcon}>
-                  <Ionicons name="person" size={32} color={colors.primary.trackOrange} />
+                  <Text style={styles.athleteInitials}>
+                    {athlete2.full_name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                  </Text>
                 </View>
                 <Text style={styles.athleteSelectorName} numberOfLines={2}>
                   {athlete2.full_name}
@@ -496,7 +500,9 @@ export default function CompareAthletesScreen() {
                     }}
                   >
                     <View style={styles.athleteItemIcon}>
-                      <Ionicons name="person" size={24} color={colors.primary.trackOrange} />
+                      <Text style={styles.athleteItemInitials}>
+                        {athlete.full_name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                      </Text>
                     </View>
                     <View style={styles.athleteItemInfo}>
                       <Text style={styles.athleteItemName}>{athlete.full_name}</Text>
@@ -617,12 +623,17 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.backgrounds.cream,
+    backgroundColor: colors.primary.trackOrange,
     borderWidth: 3,
     borderColor: colors.borders.thick,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+  },
+  athleteInitials: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: colors.text.white,
   },
   athleteSelectorName: {
     fontSize: 16,
@@ -799,11 +810,16 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: colors.backgrounds.cream,
+    backgroundColor: colors.primary.trackOrange,
     borderWidth: 3,
     borderColor: colors.borders.thick,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  athleteItemInitials: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.text.white,
   },
   athleteItemInfo: {
     flex: 1,
