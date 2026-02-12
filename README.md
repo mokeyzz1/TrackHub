@@ -1,50 +1,92 @@
-# Welcome to your Expo app 👋
+# TrackHub
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile app for tracking college track & field athletes, meets, and performances.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Top Performances** - Weekly leaderboards with World Athletics scoring
+- **Athlete Profiles** - Stats, PRs, event history, season progression
+- **Athlete Comparison** - Head-to-head comparisons with charts
+- **Meet Results** - Browse meets and view detailed results
+- **School Pages** - Team rosters and school stats
+- **Search** - Find athletes and schools
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- **Frontend**: React Native + Expo
+- **Database**: Supabase (PostgreSQL)
+- **Scoring**: World Athletics 2025 scoring tables
 
-   ```bash
-   npx expo start
-   ```
+## Project Structure
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+track-meet-tracker/
+├── frontend/           # React Native app
+│   ├── app/           # Screens (Expo Router)
+│   ├── components/    # UI components
+│   ├── hooks/         # Custom hooks
+│   ├── services/      # Database/API services
+│   └── design-system/ # Colors, typography
+├── scrapers/          # Data collection scripts
+│   ├── tfrrs/        # TFRRS scraper
+│   └── athletic-net/ # Athletic.net scraper
+├── supabase/         # Database migrations
+└── docs/             # Documentation
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+### Prerequisites
 
-To learn more about developing your project with Expo, look at the following resources:
+- Node.js 18+
+- Expo CLI
+- iOS Simulator or Android Emulator
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Setup
 
-## Join the community
+```bash
+# Install dependencies
+cd frontend
+npm install
 
-Join our community of developers creating universal apps.
+# Start the app
+npx expo start
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Environment Variables
+
+Create `frontend/.env`:
+
+```
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+```
+
+## Screens
+
+| Screen | Description |
+|--------|-------------|
+| Home | Top performances with week/division filters |
+| Meets | Upcoming and past meets |
+| Athletes | Browse and search athletes |
+| Community | Coming soon features |
+| Athlete Profile | Individual athlete stats and history |
+| Compare Athletes | Head-to-head comparison |
+| Meet Details | Full meet results by event |
+| School Page | Team roster and stats |
+
+## Data Sources
+
+- **TFRRS** - College track & field results
+- **Athletic.net** - Additional athlete data
+
+## Scoring
+
+Uses World Athletics 2025 scoring tables with:
+- Indoor/outdoor detection (via 60m events)
+- Separate coefficients for short track (indoor) events
+- Field event scoring
+
+## License
+
+Private - All rights reserved
