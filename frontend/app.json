@@ -2,7 +2,7 @@
   "expo": {
     "name": "TrackHub",
     "slug": "trackhub",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "Track college track & field performances, meet results, and athlete stats. Compare athletes head-to-head, follow your favorite runners, and never miss a PR.",
     "orientation": "portrait",
     "icon": "./assets/images/app_icon.png",
@@ -17,6 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mokeyzz.trackhub",
+      "buildNumber": "2",
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "TrackHub uses local network access for development purposes.",
         "ITSAppUsesNonExemptEncryption": false
@@ -59,6 +60,6 @@
       }
     },
     "owner": "mokeyz",
-    "runtimeVersion": "1.0.0"
+    "runtimeVersion": "2.0.0"
   }
 }
