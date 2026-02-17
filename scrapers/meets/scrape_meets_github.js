@@ -73,23 +73,47 @@ function supabaseRequest(method, endpoint, data = null) {
   });
 }
 
-// Parse meet date
+// Parse meet date - returns { start, end } for multi-day meets
 function parseMeetDate(dateStr) {
   const year = new Date().getFullYear();
   const nextYear = year + 1;
 
-  const match = dateStr.match(/\w+\s+(\w+)\s+(\d+)/);
-  if (match) {
-    const [_, month, day] = match;
-    const date = new Date(`${month} ${day}, ${year}`);
+  // Try to match multi-day format: "Friday-Saturday February 14-15" or "February 14-15"
+  const multiDayMatch = dateStr.match(/(\w+)\s+(\d+)-(\d+)/);
+  if (multiDayMatch) {
+    const [_, month, startDay, endDay] = multiDayMatch;
+    let startDate = new Date(`${month} ${startDay}, ${year}`);
+    let endDate = new Date(`${month} ${endDay}, ${year}`);
+
+    // If date is in the past, assume next year
+    if (startDate < new Date() - 30 * 24 * 60 * 60 * 1000) {
+      startDate = new Date(`${month} ${startDay}, ${nextYear}`);
+      endDate = new Date(`${month} ${endDay}, ${nextYear}`);
+    }
+
+    return {
+      start: startDate.toISOString().split('T')[0],
+      end: endDate.toISOString().split('T')[0]
+    };
+  }
+
+  // Single day format: "Friday February 14" or just "February 14"
+  const singleDayMatch = dateStr.match(/(\w+)\s+(\d+)/);
+  if (singleDayMatch) {
+    const [_, month, day] = singleDayMatch;
+    let date = new Date(`${month} ${day}, ${year}`);
 
     // If date is in the past, assume next year
     if (date < new Date() - 30 * 24 * 60 * 60 * 1000) {
-      return new Date(`${month} ${day}, ${nextYear}`).toISOString().split('T')[0];
+      date = new Date(`${month} ${day}, ${nextYear}`);
     }
-    return date.toISOString().split('T')[0];
+
+    const dateStr = date.toISOString().split('T')[0];
+    return { start: dateStr, end: dateStr };
   }
-  return new Date().toISOString().split('T')[0];
+
+  const today = new Date().toISOString().split('T')[0];
+  return { start: today, end: today };
 }
 
 // Scrape meets from USTFCCCA
@@ -195,7 +219,7 @@ async function upsertMeets(meets) {
   let skippedCount = 0;
 
   for (const meet of meets) {
-    const meetDate = parseMeetDate(meet.date);
+    const { start: meetDate, end: meetEndDate } = parseMeetDate(meet.date);
 
     try {
       const checkRes = await supabaseRequest('GET',
@@ -204,13 +228,19 @@ async function upsertMeets(meets) {
       const existing = checkRes.data && checkRes.data.length > 0 ? checkRes.data[0] : null;
 
       if (existing) {
-        // Update timing URL if we have a new one that's different
+        // Update timing URL or end_date if changed
+        const updates = {};
         if (meet.timingUrl && meet.timingUrl !== existing.meet_url) {
-          await supabaseRequest('PATCH', `meets?meet_id=eq.${existing.meet_id}`, {
-            meet_url: meet.timingUrl,
-            updated_at: new Date().toISOString()
-          });
-          log(`  Updated timing URL: ${meet.name}`);
+          updates.meet_url = meet.timingUrl;
+        }
+        if (meetEndDate !== meetDate && existing.end_date !== meetEndDate) {
+          updates.end_date = meetEndDate;
+        }
+
+        if (Object.keys(updates).length > 0) {
+          updates.updated_at = new Date().toISOString();
+          await supabaseRequest('PATCH', `meets?meet_id=eq.${existing.meet_id}`, updates);
+          log(`  Updated: ${meet.name}`);
           updatedCount++;
         } else {
           skippedCount++;
@@ -219,13 +249,14 @@ async function upsertMeets(meets) {
         await supabaseRequest('POST', 'meets', {
           name: meet.name,
           date: meetDate,
+          end_date: meetEndDate,
           location: meet.location,
           meet_url: meet.timingUrl,
           status: 'upcoming',
           level: 'college',
           season: 'indoor'
         });
-        log(`  Added: ${meet.name}`);
+        log(`  Added: ${meet.name} (${meetDate}${meetEndDate !== meetDate ? ' to ' + meetEndDate : ''})`);
         newCount++;
       }
     } catch (e) {
@@ -236,24 +267,33 @@ async function upsertMeets(meets) {
   return { newCount, updatedCount, skippedCount };
 }
 
-// Update meet statuses
+// Update meet statuses - uses end_date for multi-day meets
 async function updateMeetStatuses() {
   log('Updating meet statuses...');
 
   const today = new Date().toISOString().split('T')[0];
 
   try {
+    // Mark meets as completed if end_date (or date if no end_date) is in the past
     const res = await supabaseRequest('GET',
-      `meets?date=lt.${today}&status=eq.upcoming&select=meet_id,name,date`);
+      `meets?status=eq.upcoming&select=meet_id,name,date,end_date`);
 
     if (res.data && res.data.length > 0) {
+      let completedCount = 0;
       for (const meet of res.data) {
-        await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, {
-          status: 'completed',
-          updated_at: new Date().toISOString()
-        });
+        // Use end_date if available, otherwise use date
+        const meetEndDate = meet.end_date || meet.date;
+        if (meetEndDate < today) {
+          await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, {
+            status: 'completed',
+            updated_at: new Date().toISOString()
+          });
+          completedCount++;
+        }
       }
-      log(`Updated ${res.data.length} meets to completed`);
+      if (completedCount > 0) {
+        log(`Updated ${completedCount} meets to completed`);
+      }
     }
   } catch (e) {
     log(`Error updating statuses: ${e.message}`);

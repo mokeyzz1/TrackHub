@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
 
-const CACHE_KEY = 'top_performances_cache_v7';
+const CACHE_KEY = 'top_performances_cache_v8';
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 interface Performance {
@@ -20,31 +20,33 @@ interface Performance {
   waPoints: number;
 }
 
-// Get the competition week (Fri-Sun) for a given date
-// If weeksAgo = 0 and today is Mon-Thu, show last week's results
-// If weeksAgo = 0 and today is Fri-Sun, show current week (in progress)
+// Get the competition week (Fri-Tue) for a given date
+// If weeksAgo = 0 and today is Wed-Thu, show last week's results
+// If weeksAgo = 0 and today is Fri-Tue, show current week (in progress)
 function getCompetitionWeekDates(weeksAgo: number = 0): { start: string; end: string } {
   const today = new Date();
-  const dayOfWeek = today.getDay(); // 0 = Sunday, 5 = Friday, 6 = Saturday
+  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, 4 = Thursday
 
-  // Find the most recent Sunday (end of competition week)
+  // Find the most recent Monday (end of competition week)
   let endDate = new Date(today);
-  if (dayOfWeek === 0) {
-    // Today is Sunday - use today as end
-  } else if (dayOfWeek >= 5) {
-    // Friday or Saturday - competition week in progress, use this Sunday
-    endDate.setDate(today.getDate() + (7 - dayOfWeek));
+  if (dayOfWeek === 1) {
+    // Today is Monday - use today as end
+  } else if (dayOfWeek >= 4 || dayOfWeek === 0) {
+    // Thu, Fri, Sat, Sun - competition week in progress, use next Monday
+    const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek);
+    endDate.setDate(today.getDate() + daysUntilMonday);
   } else {
-    // Mon-Thu - use last Sunday
-    endDate.setDate(today.getDate() - dayOfWeek);
+    // Tue, Wed - use last Monday
+    const daysSinceMonday = dayOfWeek - 1;
+    endDate.setDate(today.getDate() - daysSinceMonday);
   }
 
   // Go back additional weeks if requested
   endDate.setDate(endDate.getDate() - (weeksAgo * 7));
 
-  // Start date is Friday (2 days before Sunday)
+  // Start date is Thursday (4 days before Monday)
   const startDate = new Date(endDate);
-  startDate.setDate(endDate.getDate() - 2);
+  startDate.setDate(endDate.getDate() - 4);
 
   return {
     start: startDate.toISOString().split('T')[0],

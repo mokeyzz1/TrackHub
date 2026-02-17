@@ -27,10 +27,12 @@ export default function HomeScreen() {
   const [showDivisionPicker, setShowDivisionPicker] = useState(false);
   const [weeksAgo, setWeeksAgo] = useState(0);
   const [showWeekPicker, setShowWeekPicker] = useState(false);
+  const [genderFilter, setGenderFilter] = useState<string>('M');
+  const [showGenderPicker, setShowGenderPicker] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const shareCardRef = useRef<View>(null);
   const searchHint = useFirstTimeHint('search_button', 2000);
-  const { performances, loading, error, refetch: refetchPerformances } = useTopPerformances(15, divisionFilter, weeksAgo);
+  const { performances, loading, error, refetch: refetchPerformances } = useTopPerformances(15, divisionFilter, weeksAgo, genderFilter);
   const { meets: upcomingMeets, loading: loadingMeets, refresh: refreshMeets } = useMeets('upcoming');
   const { meets: latestResults, loading: loadingLatest } = useLatestResults(5);
 
@@ -147,6 +149,45 @@ export default function HomeScreen() {
                   {week.label}
                 </Text>
                 {weeksAgo === week.value && (
+                  <Ionicons name="checkmark" size={18} color={colors.primary.trackOrange} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Gender Picker Modal */}
+      <Modal visible={showGenderPicker} transparent animationType="fade">
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowGenderPicker(false)}
+        >
+          <View style={styles.pickerContainer}>
+            <Text style={styles.pickerTitle}>Select Gender</Text>
+            {[
+              { value: 'M', label: 'Men' },
+              { value: 'F', label: 'Women' },
+            ].map((gender) => (
+              <TouchableOpacity
+                key={gender.value}
+                style={[
+                  styles.pickerOption,
+                  genderFilter === gender.value && styles.pickerOptionActive
+                ]}
+                onPress={() => {
+                  setGenderFilter(gender.value);
+                  setShowGenderPicker(false);
+                }}
+              >
+                <Text style={[
+                  styles.pickerOptionText,
+                  genderFilter === gender.value && styles.pickerOptionTextActive
+                ]}>
+                  {gender.label}
+                </Text>
+                {genderFilter === gender.value && (
                   <Ionicons name="checkmark" size={18} color={colors.primary.trackOrange} />
                 )}
               </TouchableOpacity>
@@ -282,15 +323,13 @@ export default function HomeScreen() {
           <View style={styles.sectionHeaderColumn}>
             <Text style={styles.sectionTitle}>Top Performances</Text>
             <View style={styles.filterRow}>
-              {/* Week Dropdown */}
+              {/* Gender Dropdown */}
               <TouchableOpacity
                 style={styles.filterDropdown}
-                onPress={() => setShowWeekPicker(true)}
+                onPress={() => setShowGenderPicker(true)}
               >
                 <Text style={styles.filterDropdownText}>
-                  {weeksAgo === 0 ? 'This Week' :
-                   weeksAgo === 1 ? 'Last Week' :
-                   `${weeksAgo}W Ago`}
+                  {genderFilter === 'M' ? 'Men' : 'Women'}
                 </Text>
                 <Ionicons name="chevron-down" size={14} color={colors.text.secondary} />
               </TouchableOpacity>
@@ -304,6 +343,18 @@ export default function HomeScreen() {
                    divisionFilter === 'D1' ? 'DI' :
                    divisionFilter === 'D2' ? 'DII' :
                    divisionFilter === 'D3' ? 'DIII' : divisionFilter}
+                </Text>
+                <Ionicons name="chevron-down" size={14} color={colors.text.secondary} />
+              </TouchableOpacity>
+              {/* Week Dropdown */}
+              <TouchableOpacity
+                style={styles.filterDropdown}
+                onPress={() => setShowWeekPicker(true)}
+              >
+                <Text style={styles.filterDropdownText}>
+                  {weeksAgo === 0 ? 'This Week' :
+                   weeksAgo === 1 ? 'Last Week' :
+                   `${weeksAgo}W Ago`}
                 </Text>
                 <Ionicons name="chevron-down" size={14} color={colors.text.secondary} />
               </TouchableOpacity>

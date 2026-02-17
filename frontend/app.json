@@ -2,7 +2,7 @@
   "expo": {
     "name": "TrackHub",
     "slug": "trackhub",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "Track college track & field performances, meet results, and athlete stats. Compare athletes head-to-head, follow your favorite runners, and never miss a PR.",
     "orientation": "portrait",
     "icon": "./assets/images/app_icon.png",
@@ -60,6 +60,9 @@
       }
     },
     "owner": "mokeyz",
-    "runtimeVersion": "2.0.0"
+    "runtimeVersion": "2.1.0",
+    "updates": {
+      "url": "https://u.expo.dev/920230f5-bddc-413c-b303-1d998acbc449"
+    }
   }
 }
