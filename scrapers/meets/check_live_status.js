@@ -92,8 +92,8 @@ async function main() {
   log(`Current hour (Central): ${currentHour}`);
 
   try {
-    // Get all meets happening today
-    const res = await supabaseRequest('GET', `meets?date=eq.${today}&select=meet_id,name,status,meet_url`);
+    // Get all meets happening today (including multi-day meets where today is between date and end_date)
+    const res = await supabaseRequest('GET', `meets?date=lte.${today}&end_date=gte.${today}&select=meet_id,name,status,meet_url,date,end_date`);
 
     if (!res.data || res.data.length === 0) {
       log('No meets today');
@@ -108,14 +108,16 @@ async function main() {
 
     for (const meet of res.data) {
       let newStatus = null;
+      const meetEndDate = meet.end_date || meet.date;
+      const isLastDay = (meetEndDate === today);
 
       if (currentHour >= MEET_START_HOUR && currentHour < MEET_END_HOUR) {
         // During meet hours - mark as live (if has timing URL)
         if (meet.meet_url && meet.status !== 'live') {
           newStatus = 'live';
         }
-      } else if (currentHour >= MEET_END_HOUR) {
-        // After meet hours - mark as completed
+      } else if (currentHour >= MEET_END_HOUR && isLastDay) {
+        // After meet hours on the LAST day - mark as completed
         if (meet.status !== 'completed') {
           newStatus = 'completed';
         }
