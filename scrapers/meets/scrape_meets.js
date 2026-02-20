@@ -133,7 +133,7 @@ function parseMeetDate(dateStr) {
 async function scrapeMeets(datescope = 'this_week') {
   log(`\nScraping USTFCCCA meets: ${datescope}`);
 
-  const url = `https://www.ustfccca.org/meets-results?datescope=${datescope}`;
+  const url = `https://web4.ustfccca.org/meets-results?datescope=${datescope}`;
 
   const browser = await puppeteer.launch({
     headless: 'new',
