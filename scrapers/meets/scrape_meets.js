@@ -154,10 +154,12 @@ async function scrapeMeets(datescope = 'this_week') {
 
     const meets = await page.evaluate(() => {
       const results = [];
-      const collegiateHeadings = Array.from(document.querySelectorAll('h4'))
-        .filter(h => h.textContent.trim() === 'Collegiate');
+      // Look for Collegiate and Conference sections
+      const targetSections = ['Collegiate', 'Conference'];
+      const headings = Array.from(document.querySelectorAll('h4'))
+        .filter(h => targetSections.some(s => h.textContent.trim().includes(s)));
 
-      collegiateHeadings.forEach(heading => {
+      headings.forEach(heading => {
         let nextElement = heading.nextElementSibling;
         let table = null;
 
