@@ -78,14 +78,31 @@ function parseMeetDate(dateStr) {
   const year = new Date().getFullYear();
   const nextYear = year + 1;
 
-  // Try to match multi-day format: "Friday-Saturday February 14-15" or "February 14-15"
-  const multiDayMatch = dateStr.match(/(\w+)\s+(\d+)-(\d+)/);
-  if (multiDayMatch) {
-    const [_, month, startDay, endDay] = multiDayMatch;
+  // Format: "Fri Feb 20-Sat Feb 21" (USTFCCCA format)
+  const ustfccaMatch = dateStr.match(/\w+\s+(\w+)\s+(\d+)-\w+\s+(\w+)\s+(\d+)/);
+  if (ustfccaMatch) {
+    const [_, startMonth, startDay, endMonth, endDay] = ustfccaMatch;
+    let startDate = new Date(`${startMonth} ${startDay}, ${year}`);
+    let endDate = new Date(`${endMonth} ${endDay}, ${year}`);
+
+    if (startDate < new Date() - 30 * 24 * 60 * 60 * 1000) {
+      startDate = new Date(`${startMonth} ${startDay}, ${nextYear}`);
+      endDate = new Date(`${endMonth} ${endDay}, ${nextYear}`);
+    }
+
+    return {
+      start: startDate.toISOString().split('T')[0],
+      end: endDate.toISOString().split('T')[0]
+    };
+  }
+
+  // Format: "February 14-15" or "Feb 14-15"
+  const simpleMultiDay = dateStr.match(/(\w+)\s+(\d+)-(\d+)/);
+  if (simpleMultiDay) {
+    const [_, month, startDay, endDay] = simpleMultiDay;
     let startDate = new Date(`${month} ${startDay}, ${year}`);
     let endDate = new Date(`${month} ${endDay}, ${year}`);
 
-    // If date is in the past, assume next year
     if (startDate < new Date() - 30 * 24 * 60 * 60 * 1000) {
       startDate = new Date(`${month} ${startDay}, ${nextYear}`);
       endDate = new Date(`${month} ${endDay}, ${nextYear}`);
@@ -97,19 +114,18 @@ function parseMeetDate(dateStr) {
     };
   }
 
-  // Single day format: "Friday February 14" or just "February 14"
+  // Single day format: "Fri Feb 20" or "February 14"
   const singleDayMatch = dateStr.match(/(\w+)\s+(\d+)/);
   if (singleDayMatch) {
     const [_, month, day] = singleDayMatch;
     let date = new Date(`${month} ${day}, ${year}`);
 
-    // If date is in the past, assume next year
     if (date < new Date() - 30 * 24 * 60 * 60 * 1000) {
       date = new Date(`${month} ${day}, ${nextYear}`);
     }
 
-    const dateStr = date.toISOString().split('T')[0];
-    return { start: dateStr, end: dateStr };
+    const d = date.toISOString().split('T')[0];
+    return { start: d, end: d };
   }
 
   const today = new Date().toISOString().split('T')[0];
