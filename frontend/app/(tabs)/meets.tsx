@@ -83,11 +83,27 @@ export default function MeetsScreen() {
     setRefreshing(false);
   };
 
-  function formatDate(dateString: string) {
+  function formatDate(dateString: string, endDateString?: string) {
     // Parse date string directly to avoid timezone issues
     const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
-    const date = new Date(year, month - 1, day); // Create date in local timezone
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const date = new Date(year, month - 1, day);
+
+    // If no end date or same as start date, show single date
+    if (!endDateString || endDateString.split('T')[0] === dateString.split('T')[0]) {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // Multi-day meet - show range
+    const [endYear, endMonth, endDay] = endDateString.split('T')[0].split('-').map(Number);
+    const endDate = new Date(endYear, endMonth - 1, endDay);
+
+    // Same month: "Feb 20-21, 2026"
+    if (month === endMonth && year === endYear) {
+      return `${date.toLocaleDateString('en-US', { month: 'short' })} ${day}-${endDay}, ${year}`;
+    }
+
+    // Different months: "Feb 28 - Mar 1, 2026"
+    return `${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${endYear}`;
   }
 
   return (
@@ -238,7 +254,7 @@ export default function MeetsScreen() {
                       )}
                       <View style={styles.metaItem}>
                         <Ionicons name="calendar" size={14} color={colors.text.white} />
-                        <Text style={styles.metaText}>{formatDate(meet.date)}</Text>
+                        <Text style={styles.metaText}>{formatDate(meet.date, meet.end_date)}</Text>
                       </View>
                     </View>
 
@@ -293,7 +309,7 @@ export default function MeetsScreen() {
                   <View style={styles.upcomingDetails}>
                     <View style={styles.detailItem}>
                       <Ionicons name="calendar" size={18} color={colors.primary.trackOrange} />
-                      <Text style={styles.detailText}>{formatDate(meet.date)}</Text>
+                      <Text style={styles.detailText}>{formatDate(meet.date, meet.end_date)}</Text>
                     </View>
                     <View style={styles.detailItem}>
                       <Ionicons name="school" size={18} color={colors.primary.trackOrange} />
@@ -339,7 +355,7 @@ export default function MeetsScreen() {
                   <View style={styles.pastHeader}>
                     <Text style={styles.pastName}>{meet.name}</Text>
                     <View style={styles.pastDate}>
-                      <Text style={styles.pastDateText}>{formatDate(meet.date)}</Text>
+                      <Text style={styles.pastDateText}>{formatDate(meet.date, meet.end_date)}</Text>
                     </View>
                   </View>
 

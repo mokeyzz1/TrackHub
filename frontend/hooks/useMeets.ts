@@ -6,6 +6,7 @@ export interface Meet {
   meet_id: number;
   name: string;
   date: string;
+  end_date: string | null;
   location: string;
   meet_url: string | null;
   status: 'upcoming' | 'live' | 'completed';
@@ -21,7 +22,7 @@ let allTabsLoaded = false;
 let loadingPromise: Promise<void> | null = null;
 
 const STORAGE_KEY = '@meets_all';
-const COLUMNS = 'meet_id,name,date,location,meet_url,status,level,season,created_at,updated_at';
+const COLUMNS = 'meet_id,name,date,end_date,location,meet_url,status,level,season,created_at,updated_at';
 
 function getToday() {
   const now = new Date();
