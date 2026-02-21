@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../design-system/colors';
 import { Performance, PersonalRecord } from '../../hooks/useAthleteDetails';
 import { SeasonProgressionChart } from '../charts/SeasonProgressionChart';
+import { normalizeEventName } from '../../utils/eventNames';
 
 const { width, height } = Dimensions.get('window');
 
@@ -164,6 +165,7 @@ export function AthleteStatsModal({
     });
 
     // Find best mark per event (skip invalid marks like NT, DNF, etc.)
+    // Use normalized event names as keys to handle variations like "200 Meters" vs "Men's 200 Meters"
     const eventBests = new Map<string, Performance>();
     seasonPerfs.forEach(perf => {
       const perfValue = parseMarkToNumber(perf.mark_raw, perf.event_name);
@@ -171,10 +173,11 @@ export function AthleteStatsModal({
       // Skip results with invalid/unparseable marks
       if (perfValue === null) return;
 
-      const existing = eventBests.get(perf.event_name);
+      const normalizedName = normalizeEventName(perf.event_name);
+      const existing = eventBests.get(normalizedName);
 
       if (!existing) {
-        eventBests.set(perf.event_name, perf);
+        eventBests.set(normalizedName, perf);
       } else {
         const isField = isFieldEvent(perf.event_name);
         const existingValue = parseMarkToNumber(existing.mark_raw, existing.event_name);
@@ -183,21 +186,23 @@ export function AthleteStatsModal({
           if (isField) {
             // Field events: higher is better (furthest/highest)
             if (perfValue > existingValue) {
-              eventBests.set(perf.event_name, perf);
+              eventBests.set(normalizedName, perf);
             }
           } else {
             // Running events: lower is better (fastest)
             if (perfValue < existingValue) {
-              eventBests.set(perf.event_name, perf);
+              eventBests.set(normalizedName, perf);
             }
           }
         } else {
           // Existing has invalid mark, replace with valid one
-          eventBests.set(perf.event_name, perf);
+          eventBests.set(normalizedName, perf);
         }
       }
     });
-    return Array.from(eventBests.values()).sort((a, b) => a.event_name.localeCompare(b.event_name));
+    return Array.from(eventBests.values()).sort((a, b) =>
+      normalizeEventName(a.event_name).localeCompare(normalizeEventName(b.event_name))
+    );
   }, [performances, selectedSeason]);
 
   // All results sorted by date
@@ -207,13 +212,15 @@ export function AthleteStatsModal({
 
   // Progression data (showing improvement over time for each event)
   const progressionData = useMemo(() => {
+    // Use normalized event names as keys to handle variations
     const eventProgressions = new Map<string, Performance[]>();
 
     performances.forEach(perf => {
-      if (!eventProgressions.has(perf.event_name)) {
-        eventProgressions.set(perf.event_name, []);
+      const normalizedName = normalizeEventName(perf.event_name);
+      if (!eventProgressions.has(normalizedName)) {
+        eventProgressions.set(normalizedName, []);
       }
-      eventProgressions.get(perf.event_name)!.push(perf);
+      eventProgressions.get(normalizedName)!.push(perf);
     });
 
     // Sort each event's performances by date and calculate improvements
@@ -315,7 +322,7 @@ export function AthleteStatsModal({
         sortedPersonalRecords.map((pr, index) => (
           <View key={index} style={styles.statCard}>
             <View style={styles.statHeader}>
-              <Text style={styles.eventName}>{pr.event_name}</Text>
+              <Text style={styles.eventName}>{normalizeEventName(pr.event_name)}</Text>
               <View style={styles.prBadge}>
                 <Ionicons name="trophy" size={14} color={colors.text.white} />
                 <Text style={styles.prBadgeText}>PR</Text>
@@ -385,7 +392,7 @@ export function AthleteStatsModal({
         seasonBests.map((sb, index) => (
           <View key={index} style={styles.statCard}>
             <View style={styles.statHeader}>
-              <Text style={styles.eventName}>{sb.event_name}</Text>
+              <Text style={styles.eventName}>{normalizeEventName(sb.event_name)}</Text>
               <View style={styles.sbBadge}>
                 <Text style={styles.sbBadgeText}>SB</Text>
               </View>
@@ -425,7 +432,7 @@ export function AthleteStatsModal({
           <View style={styles.resultHeader}>
             <View style={styles.resultLeft}>
               <Text style={styles.resultMeet}>{result.meet_name}</Text>
-              <Text style={styles.resultEvent}>{result.event_name}</Text>
+              <Text style={styles.resultEvent}>{normalizeEventName(result.event_name)}</Text>
             </View>
             <View style={styles.placeBadge}>
               <Text style={styles.placeText}>{result.place}</Text>

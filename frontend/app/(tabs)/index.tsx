@@ -16,6 +16,7 @@ import { SportsPerformanceCard } from '../../components/ui/SportsPerformanceCard
 import { WeeklyTopPerformancesShareCard } from '../../components/share/WeeklyTopPerformancesShareCard';
 import { colors } from '../../design-system/colors';
 import { spacing } from '../../design-system/spacing';
+import { normalizeEventName } from '../../utils/eventNames';
 import { useFirstTimeHint } from '../../hooks/useFirstTimeHint';
 import { useTopPerformances } from '../../hooks/useTopPerformances';
 import { useMeets, useLatestResults } from '../../hooks/useMeets';
@@ -379,7 +380,7 @@ export default function HomeScreen() {
                   rank={i + 1}
                   athleteName={perf.full_name}
                   schoolName={perf.school_name || 'Unknown'}
-                  event={`${perf.gender === 'F' ? "Women's" : "Men's"} ${perf.event_name}`}
+                  event={`${perf.gender === 'F' ? "Women's" : "Men's"} ${normalizeEventName(perf.event_name)}`}
                   time={perf.mark_raw}
                   date={perf.date}
                   waPoints={perf.waPoints}

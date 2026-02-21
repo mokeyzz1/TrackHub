@@ -65,7 +65,7 @@ export default function AthleteDetailScreen() {
   const stats = useMemo(() => {
     if (!filteredPerformances.length) return { events: 0, meets: 0, wins: 0 };
 
-    const uniqueEvents = new Set(filteredPerformances.map(p => p.event_name));
+    const uniqueEvents = new Set(filteredPerformances.map(p => normalizeEventName(p.event_name)));
     const uniqueMeets = new Set(filteredPerformances.map(p => p.meet_name));
     const wins = filteredPerformances.filter(p => p.place === 1).length;
 
@@ -121,8 +121,9 @@ export default function AthleteDetailScreen() {
       const deduped = new Map<string, typeof filteredPerformances[0]>();
 
       for (const event of meet.events) {
-        // Key: event_name + mark_raw (same event, same time = same performance)
-        const key = `${event.event_name}|${event.mark_raw}`;
+        // Key: normalized event_name + mark_raw (same event, same time = same performance)
+        // Normalize to catch variations like "Men's 200 Meters" vs "200 Meters"
+        const key = `${normalizeEventName(event.event_name)}|${event.mark_raw}`;
         const existing = deduped.get(key);
 
         if (!existing) {

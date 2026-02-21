@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../design-system/colors';
+import { normalizeEventName } from '../../utils/eventNames';
 
 interface Performance {
   full_name: string;
@@ -61,7 +62,7 @@ export const WeeklyTopPerformancesShareCard = forwardRef<View, WeeklyTopPerforma
               <View style={styles.performanceInfo}>
                 <Text style={styles.athleteName} numberOfLines={1}>{perf.full_name}</Text>
                 <Text style={styles.schoolEvent} numberOfLines={1}>
-                  {perf.school_name || 'Unknown'} • {perf.gender === 'F' ? 'W' : 'M'} {perf.event_name}
+                  {perf.school_name || 'Unknown'} • {perf.gender === 'F' ? 'W' : 'M'} {normalizeEventName(perf.event_name)}
                 </Text>
               </View>
               <View style={styles.markContainer}>

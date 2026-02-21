@@ -33,6 +33,71 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 // School ID for unattached athletes
 const UNATTACHED_SCHOOL_ID = 1835;
 
+// Normalize event names for consistent storage
+function normalizeEventName(name) {
+  if (!name) return name;
+
+  // Remove gender prefix (Men's, Women's)
+  let n = name.replace(/^(Men'?s?\s+|Women'?s?\s+)/i, '').trim();
+
+  // Sprints
+  if (/^60\s*(Meters?|m|Meter\s*Dash)?$/i.test(n)) return '60m';
+  if (/^200\s*(Meters?|m|Meter\s*Dash)?$/i.test(n)) return '200m';
+  if (/^300\s*(Meters?|m|Meter\s*Dash)?$/i.test(n)) return '300m';
+  if (/^400\s*(Meters?|m|Meter\s*Dash)?$/i.test(n)) return '400m';
+
+  // Middle distance
+  if (/^600\s*(Meters?|m|Meter\s*Run)?$/i.test(n)) return '600m';
+  if (/^800\s*(Meters?|m|Meter\s*Run)?$/i.test(n)) return '800m';
+  if (/^1000\s*(Meters?|m|Meter\s*Run)?$/i.test(n)) return '1000m';
+  if (/^1500\s*(Meters?|m|Meter\s*Run)?$/i.test(n)) return '1500m';
+
+  // Mile
+  if (/^(1\s*)?Mile(\s*Run)?$/i.test(n)) return 'Mile';
+
+  // Distance
+  if (/^3000\s*(Meters?|m|Meter\s*Run)?$/i.test(n)) return '3000m';
+  if (/^5000\s*(Meters?|m|Meter\s*Run)?$/i.test(n)) return '5000m';
+  if (/^10,?000\s*(Meters?|m|Meter\s*Run)?$/i.test(n)) return '10000m';
+
+  // Hurdles
+  if (/^60\s*(m\s*)?(Hurdles?|H|Meter\s*Hurdles?)$/i.test(n)) return '60m H';
+  if (/^100\s*(m\s*)?(Hurdles?|H|Meter\s*Hurdles?)$/i.test(n)) return '100m H';
+  if (/^110\s*(m\s*)?(Hurdles?|H|Meter\s*Hurdles?)$/i.test(n)) return '110m H';
+  if (/^400\s*(m\s*)?(Hurdles?|H|Meter\s*Hurdles?)$/i.test(n)) return '400m H';
+
+  // Steeplechase
+  if (/^(3000\s*(m\s*)?)?Steeplechase$/i.test(n)) return '3000m SC';
+
+  // Field - jumps
+  if (/^High\s*Jump$/i.test(n)) return 'High Jump';
+  if (/^Long\s*Jump$/i.test(n)) return 'Long Jump';
+  if (/^Triple\s*Jump$/i.test(n)) return 'Triple Jump';
+  if (/^Pole\s*Vault$/i.test(n)) return 'Pole Vault';
+
+  // Field - throws
+  if (/^Shot\s*Put$/i.test(n)) return 'Shot Put';
+  if (/^Discus(\s*Throw)?$/i.test(n)) return 'Discus';
+  if (/^Hammer(\s*Throw)?$/i.test(n)) return 'Hammer';
+  if (/^Javelin(\s*Throw)?$/i.test(n)) return 'Javelin';
+  if (/^(Weight\s*Throw|WT)$/i.test(n)) return 'Weight Throw';
+
+  // Relays
+  if (/^4\s*x\s*100\s*(m|Meters?)?\s*(Relay)?$/i.test(n)) return '4x100m';
+  if (/^4\s*x\s*200\s*(m|Meters?)?\s*(Relay)?$/i.test(n)) return '4x200m';
+  if (/^4\s*x\s*400\s*(m|Meters?)?\s*(Relay)?$/i.test(n)) return '4x400m';
+  if (/^4\s*x\s*800\s*(m|Meters?)?\s*(Relay)?$/i.test(n)) return '4x800m';
+  if (/^(Distance\s*Medley\s*Relay|DMR)$/i.test(n)) return 'DMR';
+  if (/^(Sprint\s*Medley\s*Relay|SMR)$/i.test(n)) return 'SMR';
+
+  // Multi-events
+  if (/^Heptathlon$/i.test(n)) return 'Heptathlon';
+  if (/^Decathlon$/i.test(n)) return 'Decathlon';
+  if (/^Pentathlon$/i.test(n)) return 'Pentathlon';
+
+  return n; // Return cleaned name if no specific match
+}
+
 // Parse command line args
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -512,7 +577,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
           results.push({
             is_relay: true,
             relay_athletes: relayAthletes,
-            event_name: pageEventName,
+            event_name: normalizeEventName(pageEventName),
             event_id: eventId,
             mark_raw: markRaw,
             mark_seconds: parseMarkSeconds(markRaw),
@@ -609,7 +674,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
       results.push({
         athlete_id: athleteId,
         athlete_name: athleteName,
-        event_name: pageEventName,
+        event_name: normalizeEventName(pageEventName),
         event_id: eventId,
         mark_raw: markRaw,
         mark_seconds: parseMarkSeconds(markRaw),
