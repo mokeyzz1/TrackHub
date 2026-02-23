@@ -128,21 +128,53 @@ export function AthleteStatsModal({
     return null;
   };
 
-  // Use actual personal records from database, sorted by event name
+  // Check if event is a relay (team event - exclude from PRs)
+  const isRelayEvent = (eventName: string): boolean => {
+    const lower = eventName.toLowerCase();
+    return /\d\s*x\s*\d/i.test(lower) || // 4x100, 4 x 100, etc.
+      lower.includes('relay') ||
+      lower === 'dmr' ||
+      lower === 'smr' ||
+      lower.includes('distance medley') ||
+      lower.includes('sprint medley');
+  };
+
+  // Use actual personal records from database, sorted by event name (excluding relays)
   const sortedPersonalRecords = useMemo(() => {
-    return [...personalRecords].sort((a, b) => a.event_name.localeCompare(b.event_name));
+    return [...personalRecords]
+      .filter(pr => !isRelayEvent(pr.event_name))
+      .sort((a, b) => a.event_name.localeCompare(b.event_name));
   }, [personalRecords]);
 
-  // Get available seasons from performance data (using calendar years for simplicity)
+  // Get academic track season from date (e.g., "2025-26")
+  // Season runs from September of year 1 through August of year 2
+  // e.g., September 2025 - August 2026 = "2025-26"
+  const getTrackSeason = (dateStr: string): string | null => {
+    if (!dateStr) return null;
+    const date = new Date(dateStr);
+    const month = date.getMonth() + 1; // 1-12
+    const year = date.getFullYear();
+
+    if (month >= 9) {
+      // Sep-Dec = start of new season (year to year+1)
+      return `${year}-${(year + 1).toString().slice(-2)}`;
+    } else {
+      // Jan-Aug = end of season (year-1 to year)
+      return `${year - 1}-${year.toString().slice(-2)}`;
+    }
+  };
+
+  // Get available track seasons from performance data
   const availableSeasons = useMemo(() => {
-    const years = new Set<string>();
+    const seasons = new Set<string>();
     performances.forEach(p => {
-      if (p.date) {
-        const year = new Date(p.date).getFullYear().toString();
-        years.add(year);
+      const season = getTrackSeason(p.date);
+      if (season) {
+        seasons.add(season);
       }
     });
-    return Array.from(years).sort().reverse(); // Most recent first
+    // Sort: most recent first
+    return Array.from(seasons).sort().reverse();
   }, [performances]);
 
   // Set default selected season
@@ -152,22 +184,23 @@ export function AthleteStatsModal({
     }
   }, [availableSeasons, selectedSeason]);
 
-  // Calculate Season Bests for selected year
-  // Only includes events the athlete actually competed in that year
+  // Calculate Season Bests for selected track season
   const seasonBests = useMemo(() => {
     if (!selectedSeason || !performances.length) return [];
 
-    // Filter to only performances from the selected year
+    // Filter to only performances from the selected track season
     const seasonPerfs = performances.filter(p => {
-      if (!p.date) return false;
-      const year = new Date(p.date).getFullYear().toString();
-      return year === selectedSeason;
+      const season = getTrackSeason(p.date);
+      return season === selectedSeason;
     });
 
     // Find best mark per event (skip invalid marks like NT, DNF, etc.)
     // Use normalized event names as keys to handle variations like "200 Meters" vs "Men's 200 Meters"
     const eventBests = new Map<string, Performance>();
     seasonPerfs.forEach(perf => {
+      // Skip relay events
+      if (isRelayEvent(perf.event_name)) return;
+
       const perfValue = parseMarkToNumber(perf.mark_raw, perf.event_name);
 
       // Skip results with invalid/unparseable marks
@@ -205,9 +238,35 @@ export function AthleteStatsModal({
     );
   }, [performances, selectedSeason]);
 
-  // All results sorted by date
-  const allResults = useMemo(() => {
-    return [...performances].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  // All results grouped by meet and sorted by date
+  const groupedResults = useMemo(() => {
+    const grouped = new Map<string, {
+      meetName: string;
+      startDate: string;
+      endDate: string;
+      events: Performance[];
+    }>();
+
+    [...performances]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .forEach(perf => {
+        const meetKey = perf.meet_name;
+        if (!grouped.has(meetKey)) {
+          grouped.set(meetKey, {
+            meetName: perf.meet_name,
+            startDate: perf.date,
+            endDate: perf.date,
+            events: [],
+          });
+        }
+        const meet = grouped.get(meetKey)!;
+        if (perf.date < meet.startDate) meet.startDate = perf.date;
+        if (perf.date > meet.endDate) meet.endDate = perf.date;
+        meet.events.push(perf);
+      });
+
+    return Array.from(grouped.values())
+      .sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
   }, [performances]);
 
   // Progression data (showing improvement over time for each event)
@@ -216,6 +275,9 @@ export function AthleteStatsModal({
     const eventProgressions = new Map<string, Performance[]>();
 
     performances.forEach(perf => {
+      // Skip relay events
+      if (isRelayEvent(perf.event_name)) return;
+
       const normalizedName = normalizeEventName(perf.event_name);
       if (!eventProgressions.has(normalizedName)) {
         eventProgressions.set(normalizedName, []);
@@ -285,9 +347,13 @@ export function AthleteStatsModal({
     return progressions.sort((a, b) => b.improvements - a.improvements);
   }, [performances]);
 
-  // Get list of available events
+  // Get list of available events (normalized, excluding relays)
   const availableEvents = useMemo(() => {
-    const events = new Set(performances.map(p => p.event_name));
+    const events = new Set(
+      performances
+        .filter(p => !isRelayEvent(p.event_name))
+        .map(p => normalizeEventName(p.event_name))
+    );
     return Array.from(events).sort();
   }, [performances]);
 
@@ -322,7 +388,14 @@ export function AthleteStatsModal({
         sortedPersonalRecords.map((pr, index) => (
           <View key={index} style={styles.statCard}>
             <View style={styles.statHeader}>
-              <Text style={styles.eventName}>{normalizeEventName(pr.event_name)}</Text>
+              <View style={styles.eventNameContainer}>
+                <Text style={styles.eventName}>{normalizeEventName(pr.event_name)}</Text>
+                {pr.season_indicator && (
+                  <View style={[styles.seasonBadge, pr.season_indicator === 'I' ? styles.seasonBadgeIndoor : styles.seasonBadgeOutdoor]}>
+                    <Text style={styles.seasonBadgeText}>{pr.season_indicator}</Text>
+                  </View>
+                )}
+              </View>
               <View style={styles.prBadge}>
                 <Ionicons name="trophy" size={14} color={colors.text.white} />
                 <Text style={styles.prBadgeText}>PR</Text>
@@ -425,62 +498,64 @@ export function AthleteStatsModal({
   const renderResults = () => (
     <View style={styles.contentContainer}>
       <Text style={styles.contentTitle}>All Results</Text>
-      <Text style={styles.contentSubtitle}>{allResults.length} total performances</Text>
+      <Text style={styles.contentSubtitle}>{groupedResults.length} meets</Text>
 
-      {allResults.map((result, index) => (
-        <View key={index} style={styles.resultCard}>
-          <View style={styles.resultHeader}>
-            <View style={styles.resultLeft}>
-              <Text style={styles.resultMeet}>{result.meet_name}</Text>
-              <Text style={styles.resultEvent}>{normalizeEventName(result.event_name)}</Text>
-            </View>
-            <View style={styles.placeBadge}>
-              <Text style={styles.placeText}>{result.place}</Text>
-              <Text style={styles.placeSuffix}>
-                {result.place === 1 ? 'st' : result.place === 2 ? 'nd' : result.place === 3 ? 'rd' : 'th'}
-              </Text>
-            </View>
+      {groupedResults.map((meet, meetIndex) => (
+        <View key={meetIndex} style={styles.meetCard}>
+          {/* Meet Header */}
+          <View style={styles.meetHeader}>
+            <Text style={styles.meetName}>{meet.meetName}</Text>
+            <Text style={styles.meetDate}>
+              {meet.startDate === meet.endDate
+                ? new Date(meet.startDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })
+                : `${new Date(meet.startDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                  })} - ${new Date(meet.endDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}`
+              }
+            </Text>
           </View>
-          {(() => {
-            const formattedMark = formatFieldEventMark(result.mark_raw, result.event_name);
-            const isLongMark = typeof formattedMark === 'object' || (result.mark_raw && result.mark_raw.length > 8);
 
-            return isLongMark ? (
-              // Stack layout for long marks (field events or long times)
-              <View style={styles.resultBottomStacked}>
-                <View style={styles.resultMarkContainer}>
-                  {typeof formattedMark === 'object' ? (
-                    <>
-                      <Text style={styles.resultMarkCompact}>{formattedMark.metric}</Text>
-                      <Text style={styles.resultMarkSecondaryCompact}>{formattedMark.imperial}</Text>
-                    </>
-                  ) : (
-                    <Text style={styles.resultMarkCompact}>{result.mark_raw}</Text>
-                  )}
+          {/* Events List */}
+          <View style={styles.eventsList}>
+            {meet.events.map((event, eventIndex) => (
+              <View
+                key={eventIndex}
+                style={[
+                  styles.eventRow,
+                  eventIndex === meet.events.length - 1 && styles.eventRowLast
+                ]}
+              >
+                <View style={styles.eventInfo}>
+                  <Text style={styles.eventNameText}>{normalizeEventName(event.event_name)}</Text>
+                  <Text style={styles.eventMark}>{event.mark_raw}</Text>
                 </View>
-                <Text style={styles.resultDateStacked}>
-                  {new Date(result.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </Text>
+                <View style={styles.placeBadgeSmall}>
+                  <Text style={styles.placeTextSmall}>{event.place}</Text>
+                  <Text style={styles.placeSuffixSmall}>
+                    {event.place === 1 ? 'st' : event.place === 2 ? 'nd' : event.place === 3 ? 'rd' : 'th'}
+                  </Text>
+                </View>
               </View>
-            ) : (
-              // Horizontal layout for short marks
-              <View style={styles.resultBottom}>
-                <Text style={styles.resultMark}>{result.mark_raw}</Text>
-                <Text style={styles.resultDate}>
-                  {new Date(result.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </Text>
-              </View>
-            );
-          })()}
+            ))}
+          </View>
         </View>
       ))}
     </View>
   );
 
   const renderProgression = () => {
-    // Get performances for selected event
+    // Get performances for selected event (compare normalized names)
     const eventPerformances = performances
-      .filter(p => p.event_name === selectedEvent)
+      .filter(p => normalizeEventName(p.event_name) === selectedEvent)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     // Prepare data for chart - use parsed time from mark_raw if mark_seconds is not available
@@ -774,11 +849,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  eventNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+  },
   eventName: {
     fontSize: 16,
     fontWeight: '800',
     color: colors.text.primary,
-    flex: 1,
+  },
+  seasonBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: colors.borders.thick,
+  },
+  seasonBadgeIndoor: {
+    backgroundColor: '#6366F1', // Indigo for indoor
+  },
+  seasonBadgeOutdoor: {
+    backgroundColor: '#10B981', // Green for outdoor
+  },
+  seasonBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: colors.text.white,
   },
   prBadge: {
     flexDirection: 'row',
@@ -1042,5 +1140,87 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: colors.text.muted,
+  },
+  // Meet card styles (grouped results)
+  meetCard: {
+    backgroundColor: colors.backgrounds.white,
+    borderRadius: 16,
+    borderWidth: 4,
+    borderColor: colors.borders.thick,
+    marginBottom: 16,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    overflow: 'hidden',
+  },
+  meetHeader: {
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.borders.thick,
+  },
+  meetName: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.text.primary,
+    marginBottom: 4,
+  },
+  meetDate: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+  },
+  eventsList: {
+    paddingVertical: 4,
+  },
+  eventRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.borders.light,
+  },
+  eventRowLast: {
+    borderBottomWidth: 0,
+  },
+  eventInfo: {
+    flex: 1,
+  },
+  eventNameText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: colors.text.primary,
+    marginBottom: 4,
+  },
+  eventMark: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: colors.primary.trackOrange,
+    fontFamily: 'Courier',
+  },
+  placeBadgeSmall: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.borders.thick,
+  },
+  placeTextSmall: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.text.primary,
+  },
+  placeSuffixSmall: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: colors.text.secondary,
+    marginLeft: 1,
   },
 });

@@ -10,6 +10,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { FavoritesProvider } from '../contexts/FavoritesContext';
 import { WelcomeScreen } from '../components/WelcomeScreen';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { registerForPushNotifications, setupNotificationListeners } from '../services/notifications';
 
 const WELCOME_SEEN_KEY = '@track_meet_tracker_welcome_seen';
 
@@ -35,6 +36,15 @@ export default function RootLayout() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Register for push notifications once app is ready
+  useEffect(() => {
+    if (!showSplash && !showWelcome && !checkingWelcome) {
+      registerForPushNotifications();
+      const cleanup = setupNotificationListeners();
+      return cleanup;
+    }
+  }, [showSplash, showWelcome, checkingWelcome]);
 
   async function checkWelcomeStatus() {
     try {

@@ -80,11 +80,13 @@ export default function AthleteDetailScreen() {
 
   // Group results by meet - uses filtered performances
   // Deduplicate: "Heat 3" and "Preliminaries" with same time are the same performance
+  // Combine multi-day meets (same meet name, consecutive dates)
   const meetResults = useMemo(() => {
-    // Group performances by meet (meet_name + date)
+    // Group performances by meet name only (not date) to combine multi-day meets
     const grouped = new Map<string, {
       meetName: string;
-      date: string;
+      startDate: string;
+      endDate: string;
       competedForSchool?: string;
       events: typeof filteredPerformances;
     }>();
@@ -103,16 +105,22 @@ export default function AthleteDetailScreen() {
     [...filteredPerformances]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .forEach(perf => {
-        const meetKey = `${perf.meet_name}|${perf.date}`;
+        // Group by meet name only
+        const meetKey = perf.meet_name;
         if (!grouped.has(meetKey)) {
           grouped.set(meetKey, {
             meetName: perf.meet_name,
-            date: perf.date,
+            startDate: perf.date,
+            endDate: perf.date,
             competedForSchool: perf.competed_for_school,
             events: [],
           });
         }
-        grouped.get(meetKey)!.events.push(perf);
+        const meet = grouped.get(meetKey)!;
+        // Update date range
+        if (perf.date < meet.startDate) meet.startDate = perf.date;
+        if (perf.date > meet.endDate) meet.endDate = perf.date;
+        meet.events.push(perf);
       });
 
     // Deduplicate events within each meet
@@ -139,8 +147,10 @@ export default function AthleteDetailScreen() {
       meet.events = Array.from(deduped.values());
     }
 
-    // Convert to array and limit to recent 10 meets
-    return Array.from(grouped.values()).slice(0, 10);
+    // Convert to array, sort by most recent, and limit to 10 meets
+    return Array.from(grouped.values())
+      .sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
+      .slice(0, 10);
   }, [filteredPerformances]);
 
   // Filter relays by selected season and group by meet
@@ -388,18 +398,28 @@ export default function AthleteDetailScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Recent Meets ({meetResults.length})</Text>
             {meetResults.map((meet, meetIndex) => (
-              <FadeInCard key={`${meet.meetName}-${meet.date}`} delay={meetIndex * 100}>
+              <FadeInCard key={`${meet.meetName}-${meet.startDate}`} delay={meetIndex * 100}>
                 <View style={styles.meetCard}>
                   {/* Meet Header */}
                   <View style={styles.meetCardHeader}>
                     <Text style={styles.meetCardTitle}>{meet.meetName}</Text>
                     <View style={styles.meetCardMeta}>
                       <Text style={styles.meetCardDate}>
-                        {new Date(meet.date).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
+                        {meet.startDate === meet.endDate
+                          ? new Date(meet.startDate).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })
+                          : `${new Date(meet.startDate).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric'
+                            })} - ${new Date(meet.endDate).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}`
+                        }
                       </Text>
                       {meet.competedForSchool && (
                         <View style={styles.schoolTag}>
@@ -413,7 +433,7 @@ export default function AthleteDetailScreen() {
                   {/* Events List */}
                   <View style={styles.meetEventsList}>
                     {meet.events.map((event, eventIndex) => {
-                      const canViewResults = isCleanDataSeason(meet.date);
+                      const canViewResults = isCleanDataSeason(meet.endDate);
 
                       if (canViewResults) {
                         return (
@@ -430,7 +450,7 @@ export default function AthleteDetailScreen() {
                                 params: {
                                   meetName: meet.meetName,
                                   eventName: event.event_name,
-                                  date: meet.date.split('T')[0],
+                                  date: event.date.split('T')[0],
                                   gender: athlete?.gender || '',
                                 },
                               });

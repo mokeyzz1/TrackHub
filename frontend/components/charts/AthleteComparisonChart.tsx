@@ -6,6 +6,7 @@ interface AthleteStats {
   name: string;
   school: string;
   personalBest: string;
+  personalBestSeason?: 'I' | 'O' | null;
   average: string;
 }
 
@@ -137,14 +138,28 @@ export const AthleteComparisonChart: React.FC<AthleteComparisonChartProps> = ({
         <Text style={styles.sectionTitle}>Personal Best</Text>
         <View style={styles.prRow}>
           <View style={[styles.prBox, hasPBs && pb1 < pb2 && styles.prBoxWinner]}>
-            <Text style={[styles.prTime, hasPBs && pb1 < pb2 && styles.prTimeWinner]}>
-              {athlete1.personalBest}
-            </Text>
+            <View style={styles.prTimeContainer}>
+              <Text style={[styles.prTime, hasPBs && pb1 < pb2 && styles.prTimeWinner]}>
+                {athlete1.personalBest}
+              </Text>
+              {athlete1.personalBestSeason && (
+                <View style={[styles.seasonBadge, athlete1.personalBestSeason === 'I' ? styles.seasonBadgeIndoor : styles.seasonBadgeOutdoor]}>
+                  <Text style={styles.seasonBadgeText}>{athlete1.personalBestSeason}</Text>
+                </View>
+              )}
+            </View>
           </View>
           <View style={[styles.prBox, hasPBs && pb2 < pb1 && styles.prBoxWinner]}>
-            <Text style={[styles.prTime, hasPBs && pb2 < pb1 && styles.prTimeWinner]}>
-              {athlete2.personalBest}
-            </Text>
+            <View style={styles.prTimeContainer}>
+              <Text style={[styles.prTime, hasPBs && pb2 < pb1 && styles.prTimeWinner]}>
+                {athlete2.personalBest}
+              </Text>
+              {athlete2.personalBestSeason && (
+                <View style={[styles.seasonBadge, athlete2.personalBestSeason === 'I' ? styles.seasonBadgeIndoor : styles.seasonBadgeOutdoor]}>
+                  <Text style={styles.seasonBadgeText}>{athlete2.personalBestSeason}</Text>
+                </View>
+              )}
+            </View>
           </View>
         </View>
         {hasPBs && (
@@ -389,6 +404,29 @@ const styles = StyleSheet.create({
     fontFamily: 'Courier',
   },
   prTimeWinner: {
+    color: colors.text.white,
+  },
+  prTimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  seasonBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: colors.borders.thick,
+  },
+  seasonBadgeIndoor: {
+    backgroundColor: '#6366F1', // Indigo for indoor
+  },
+  seasonBadgeOutdoor: {
+    backgroundColor: '#10B981', // Green for outdoor
+  },
+  seasonBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
     color: colors.text.white,
   },
   fasterBox: {

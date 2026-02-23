@@ -48,6 +48,7 @@ export interface PersonalRecord {
   set_at?: string;
   meet_name?: string;
   season: string;
+  season_indicator?: 'I' | 'O' | null;
 }
 
 export interface RelayParticipation {

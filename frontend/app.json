@@ -48,7 +48,13 @@
         }
       ],
       "expo-web-browser",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "color": "#F97316"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -62,7 +68,9 @@
     "owner": "mokeyz",
     "runtimeVersion": "2.1.0",
     "updates": {
-      "url": "https://u.expo.dev/920230f5-bddc-413c-b303-1d998acbc449"
+      "url": "https://u.expo.dev/920230f5-bddc-413c-b303-1d998acbc449",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 3000
     }
   }
 }

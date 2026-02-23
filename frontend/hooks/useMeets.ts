@@ -75,18 +75,22 @@ async function fetchAllFromServer(today: string) {
     const firstOfMonth = getFirstOfMonth();
 
     // Fetch all 3 tabs in parallel
+    // For multi-day meets, use end_date to determine if still live or past
     const [upcomingRes, pastRes, liveRes] = await Promise.all([
+      // Upcoming: hasn't started yet
       supabase.from('meets').select(COLUMNS)
         .gt('date', today)
         .order('date', { ascending: true })
         .limit(200),
+      // Past: single-day before today OR multi-day that ended before today
       supabase.from('meets').select(COLUMNS)
-        .lt('date', today)
-        .gte('date', firstOfMonth)  // Only current month
+        .or(`and(date.lt.${today},end_date.is.null),end_date.lt.${today}`)
+        .gte('date', firstOfMonth)
         .order('date', { ascending: false })
         .limit(100),
+      // Live: single-day today OR multi-day spanning today
       supabase.from('meets').select(COLUMNS)
-        .eq('date', today)
+        .or(`and(date.eq.${today},end_date.is.null),and(date.lte.${today},end_date.gte.${today})`)
         .not('meet_url', 'is', null)
     ]);
 
@@ -165,10 +169,11 @@ export function useMeets(filter?: 'upcoming' | 'live' | 'past') {
   async function searchPastMeets(query: string): Promise<Meet[]> {
     if (!query || query.length < 2) return [];
 
+    const today = getToday();
     const { data } = await supabase
       .from('meets')
       .select(COLUMNS)
-      .lt('date', getToday())
+      .or(`and(date.lt.${today},end_date.is.null),end_date.lt.${today}`)
       .ilike('name', `%${query}%`)
       .order('date', { ascending: false })
       .limit(50);
