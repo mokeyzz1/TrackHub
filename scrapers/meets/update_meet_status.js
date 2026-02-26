@@ -20,7 +20,13 @@
 
 const https = require('https');
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+
+// Load dotenv only for local development (not needed in GitHub Actions)
+try {
+  require('dotenv').config({ path: path.join(__dirname, '../.env') });
+} catch (e) {
+  // dotenv not installed - running in CI, env vars passed directly
+}
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace('https://', '');
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
