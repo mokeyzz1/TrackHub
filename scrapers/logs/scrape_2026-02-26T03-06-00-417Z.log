@@ -1,0 +1,51 @@
+[2026-02-26T03:06:00.418Z] ============================================================
+[2026-02-26T03:06:00.418Z] COLLEGE MEETS SCRAPER
+[2026-02-26T03:06:00.418Z] Started: 2026-02-26T03:06:00.418Z
+[2026-02-26T03:06:00.418Z] ============================================================
+[2026-02-26T03:06:00.418Z] 
+Scraping USTFCCCA meets: this_week
+[2026-02-26T03:06:10.141Z] Page loaded
+[2026-02-26T03:06:13.245Z] Found 77 meets for this_week
+[2026-02-26T03:06:13.246Z] 
+Upserting 77 meets to Supabase...
+[2026-02-26T03:06:14.136Z]   Updated: Ohio Valley (OVC) Indoor Championships
+[2026-02-26T03:06:14.691Z]   Updated: Sun Belt Indoor Championships
+[2026-02-26T03:06:15.033Z]   Updated: Peach Belt Indoor Championships
+[2026-02-26T03:06:15.309Z]   Updated: ACC Indoor Championships
+[2026-02-26T03:06:15.897Z]   Updated: Atlantic 10 Indoor Championships
+[2026-02-26T03:06:16.218Z]   Updated: Big 12 Indoor Championships
+[2026-02-26T03:06:16.618Z]   Updated: Big Sky Indoor Championships
+[2026-02-26T03:06:16.869Z]   Updated: Big South Indoor Championships
+[2026-02-26T03:06:17.136Z]   Updated: Big Ten Indoor Championships
+[2026-02-26T03:06:17.512Z]   Updated: Horizon Indoor Championships
+[2026-02-26T03:06:17.747Z]   Updated: Ivy League Indoor Heptagonal Championships
+[2026-02-26T03:06:17.942Z]   Updated: Mid-American (MAC) Indoor Championships
+[2026-02-26T03:06:18.260Z]   Updated: MPSF Championships
+[2026-02-26T03:06:18.433Z]   Updated: Missouri Valley Indoor Championships
+[2026-02-26T03:06:18.826Z]   Updated: Patriot League Indoor Championships
+[2026-02-26T03:06:19.006Z]   Updated: SEC Indoor Championships
+[2026-02-26T03:06:19.229Z]   Updated: SoCon Indoor Championships
+[2026-02-26T03:06:19.844Z]   Updated: GLIAC Indoor Championships
+[2026-02-26T03:06:20.125Z]   Updated: Lone Star Indoor Championships
+[2026-02-26T03:06:20.387Z]   Updated: MIAA Indoor Championships
+[2026-02-26T03:06:20.800Z]   Updated: NSIC Indoor Championships
+[2026-02-26T03:06:20.977Z]   Updated: PSAC Indoor Championships
+[2026-02-26T03:06:21.177Z]   Updated: RMAC Indoor Championships
+[2026-02-26T03:06:21.524Z]   Updated: American Rivers (ARC) Indoor Championships
+[2026-02-26T03:06:21.704Z]   Updated: CCIW Indoor Championships
+[2026-02-26T03:06:21.964Z]   Updated: CUNYAC Indoor Championships
+[2026-02-26T03:06:22.142Z]   Updated: Centennial Indoor Championships
+[2026-02-26T03:06:22.373Z]   Updated: Empire 8 Indoor Championships
+[2026-02-26T03:06:22.552Z]   Updated: HCAC Indoor Championships
+[2026-02-26T03:06:22.742Z]   Updated: Landmark Indoor Championships
+[2026-02-26T03:06:22.983Z]   Updated: Liberty League Indoor Championships
+[2026-02-26T03:06:23.155Z]   Updated: Middle Atlantic (MAC) Indoor Championships
+[2026-02-26T03:06:23.322Z]   Updated: Michigan Intercollegiate Indoor Championships
+[2026-02-26T03:06:23.511Z]   Updated: MIAC Indoor Championships
+[2026-02-26T03:06:23.693Z]   Updated: Midwest Conference Indoor Championships
+[2026-02-26T03:06:23.946Z]   Updated: NACC Indoor Championships
+[2026-02-26T03:06:24.298Z]   Updated: ODAC Indoor Championships
+[2026-02-26T03:06:24.559Z]   Updated: PAC Indoor Championships
+[2026-02-26T03:06:24.734Z]   Updated: SAA Indoor Championships
+[2026-02-26T03:06:25.072Z]   Updated: SUNYAC Indoor Championships
+[2026-02-26T03:06:25.332Z]   Updated: United East Conference Indoor Championships

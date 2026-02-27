@@ -80,16 +80,20 @@ function supabaseRequest(method, endpoint, data = null) {
   });
 }
 
-function getToday() {
+function getCentralTime() {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  // Use America/Chicago for proper DST handling
+  const centralStr = now.toLocaleString('en-US', { timeZone: 'America/Chicago' });
+  return new Date(centralStr);
+}
+
+function getToday() {
+  const central = getCentralTime();
+  return `${central.getFullYear()}-${String(central.getMonth() + 1).padStart(2, '0')}-${String(central.getDate()).padStart(2, '0')}`;
 }
 
 function getCentralHour() {
-  const now = new Date();
-  const centralOffset = -6; // CST (adjust for daylight saving if needed)
-  const centralTime = new Date(now.getTime() + (centralOffset * 60 * 60 * 1000) + (now.getTimezoneOffset() * 60 * 1000));
-  return centralTime.getHours();
+  return getCentralTime().getHours();
 }
 
 async function updateMeetStatuses() {
@@ -128,6 +132,28 @@ async function updateMeetStatuses() {
     });
     log(`  -> LIVE: ${meet.name} (${meet.date.split('T')[0]} to ${endDate})`);
     liveCount++;
+  }
+
+  // 1b. WORKAROUND for old frontend: Update date to today for multi-day meets still live
+  // Old frontend uses date=today for Live tab, so we shift the date forward
+  log('\n1b. Updating date field for multi-day meets (old frontend fix)...');
+  const { data: multiDayLive } = await supabaseRequest('GET',
+    `meets?select=meet_id,name,date,end_date&date=lt.${today}&end_date=gte.${today}&meet_url=not.is.null`
+  );
+
+  for (const meet of multiDayLive || []) {
+    const endDate = meet.end_date?.split('T')[0];
+    const isLastDay = endDate === today;
+
+    if (isLastDay && afterMeetHours) {
+      continue;
+    }
+
+    await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, {
+      date: today,
+      updated_at: new Date().toISOString()
+    });
+    log(`  -> Updated date to ${today}: ${meet.name}`);
   }
 
   // 2. Set COMPLETED: meets that have ended (end_date < today)
