@@ -6,7 +6,9 @@
  * Designed to run in GitHub Actions with Puppeteer.
  */
 
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
@@ -159,8 +161,8 @@ async function scrapeMeets(datescope = 'this_week') {
 
     const meets = await page.evaluate(() => {
       const results = [];
-      // Look for Collegiate and Conference sections
-      const targetSections = ['Collegiate', 'Conference'];
+      // Look for Collegiate, Conference, and Championship sections
+      const targetSections = ['Collegiate', 'Conference', 'NCAA', 'NAIA', 'NJCAA'];
       const headings = Array.from(document.querySelectorAll('h4'))
         .filter(h => targetSections.some(s => h.textContent.trim().includes(s)));
 

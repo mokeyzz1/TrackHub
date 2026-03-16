@@ -108,6 +108,19 @@ function parseArgs() {
   };
 }
 
+// Manual mappings for meets with known naming differences
+// Key: partial match from DB name, Value: partial match for TFRRS name
+const MEET_NAME_MAPPINGS = {
+  'ncaa division i indoor': 'ncaa division i indoor track',
+  'ncaa division ii indoor': 'ncaa division ii indoor track',
+  'ncaa division iii indoor': 'ncaa division iii indoor track',
+  'neicaaa': 'neicaaa',
+  'naia': 'naia',
+  'njcaa': 'njcaa',
+  'hbcu national': 'hbcu championship',
+  'aartfc': 'aartfc',
+};
+
 // Normalize meet name for fuzzy matching
 function normalizeMeetName(name) {
   if (!name) return '';
@@ -115,24 +128,57 @@ function normalizeMeetName(name) {
     .replace(/[''`]/g, '')
     .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
-    .replace(/\b(invitational|invite|indoor|outdoor|classic|open)\b/gi, '')
+    // Remove common filler words that differ between sources
+    .replace(/\b(invitational|invite|indoor|outdoor|classic|open|track\s*(and|&)?\s*field|championships?|presented\s+by.*$|roster.*$|\d{4})\b/gi, '')
+    .replace(/\s+/g, ' ')
     .trim();
+}
+
+// Check if meets match via manual mapping
+function checkManualMapping(dbName, tfrrsName) {
+  const dbLower = dbName.toLowerCase();
+  const tfrrsLower = tfrrsName.toLowerCase();
+
+  for (const [dbPattern, tfrrsPattern] of Object.entries(MEET_NAME_MAPPINGS)) {
+    if (dbLower.includes(dbPattern) && tfrrsLower.includes(tfrrsPattern)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // Calculate similarity between two strings (0-1)
 function similarity(s1, s2) {
+  // Check manual mappings first
+  if (checkManualMapping(s1, s2)) {
+    return 0.95; // High score for manual matches
+  }
+
   const n1 = normalizeMeetName(s1);
   const n2 = normalizeMeetName(s2);
 
   if (n1 === n2) return 1;
+
+  // Check if one contains the other
+  if (n1.includes(n2) || n2.includes(n1)) return 0.85;
 
   const words1 = n1.split(' ').filter(w => w.length > 2);
   const words2 = n2.split(' ').filter(w => w.length > 2);
 
   if (words1.length === 0 || words2.length === 0) return 0;
 
-  const common = words1.filter(w => words2.includes(w));
-  return common.length / Math.max(words1.length, words2.length);
+  // Count matching words (including partial matches)
+  let matchCount = 0;
+  for (const w1 of words1) {
+    for (const w2 of words2) {
+      if (w1 === w2 || w1.includes(w2) || w2.includes(w1)) {
+        matchCount++;
+        break;
+      }
+    }
+  }
+
+  return matchCount / Math.max(words1.length, words2.length);
 }
 
 // Parse TFRRS date format
@@ -371,19 +417,44 @@ async function searchTfrrsForDate(targetDate) {
 async function findTfrrsMatch(dbMeet) {
   console.log(`\nSearching for: "${dbMeet.name}" (${dbMeet.date})`);
 
-  const tffrrsMeets = await searchTfrrsForDate(dbMeet.date);
+  // Search the exact date and adjacent dates (for multi-day meets with date discrepancies)
+  const datesToSearch = [dbMeet.date];
 
-  if (tffrrsMeets.length === 0) {
-    console.log('  No TFRRS meets found on this date');
+  // Add day before and after
+  const meetDate = new Date(dbMeet.date);
+  const dayBefore = new Date(meetDate);
+  dayBefore.setDate(dayBefore.getDate() - 1);
+  const dayAfter = new Date(meetDate);
+  dayAfter.setDate(dayAfter.getDate() + 1);
+
+  datesToSearch.push(dayBefore.toISOString().split('T')[0]);
+  datesToSearch.push(dayAfter.toISOString().split('T')[0]);
+
+  let allTfrrsMeets = [];
+  for (const searchDate of datesToSearch) {
+    const meets = await searchTfrrsForDate(searchDate);
+    allTfrrsMeets = allTfrrsMeets.concat(meets);
+  }
+
+  // Remove duplicates by URL
+  const seenUrls = new Set();
+  allTfrrsMeets = allTfrrsMeets.filter(m => {
+    if (seenUrls.has(m.url)) return false;
+    seenUrls.add(m.url);
+    return true;
+  });
+
+  if (allTfrrsMeets.length === 0) {
+    console.log('  No TFRRS meets found on this date or adjacent dates');
     return null;
   }
 
-  console.log(`  Found ${tffrrsMeets.length} TFRRS meets on ${dbMeet.date}`);
+  console.log(`  Found ${allTfrrsMeets.length} TFRRS meets (searching ${datesToSearch.join(', ')})`);
 
   let bestMatch = null;
   let bestScore = 0;
 
-  for (const tfrrsMeet of tffrrsMeets) {
+  for (const tfrrsMeet of allTfrrsMeets) {
     const score = similarity(dbMeet.name, tfrrsMeet.name);
     console.log(`    - "${tfrrsMeet.name}" (similarity: ${(score * 100).toFixed(0)}%)`);
 
@@ -393,12 +464,12 @@ async function findTfrrsMatch(dbMeet) {
     }
   }
 
-  if (bestScore >= 0.4) {
+  if (bestScore >= 0.35) {
     console.log(`  Best match: "${bestMatch.name}" (${(bestScore * 100).toFixed(0)}%)`);
     return { ...bestMatch, similarity: bestScore };
   }
 
-  console.log('  No good match found (threshold: 40%)');
+  console.log('  No good match found (threshold: 35%)');
   return null;
 }
 
