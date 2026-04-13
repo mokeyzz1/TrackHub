@@ -3,13 +3,14 @@
  * Outputs to: ../output/athletes-needing-data.json
  */
 
+require('dotenv').config({ path: '../../../.env' });
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 
 const supabase = createClient(
-  'https://hunbahsnaeeztmzqpnrl.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1bmJhaHNuYWVlenRtenFwbnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ2MTI5MjEsImV4cCI6MjA4MDE4ODkyMX0.dLjVdd5cnjwFMJkFP2a2xho4GWm1mgqvJK2JVDzqfnw'
+  process.env.EXPO_PUBLIC_SUPABASE_URL,
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
 );
 
 const OUTPUT_DIR = path.join(__dirname, './output');

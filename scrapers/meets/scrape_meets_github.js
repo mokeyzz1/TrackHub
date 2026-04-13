@@ -14,11 +14,11 @@ const fs = require('fs');
 const path = require('path');
 
 // Supabase config from environment variables
-const SUPABASE_URL = process.env.SUPABASE_URL || 'hunbahsnaeeztmzqpnrl.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
-if (!SUPABASE_KEY) {
-  console.error('ERROR: SUPABASE_SERVICE_KEY environment variable is required');
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('ERROR: SUPABASE_URL and SUPABASE_SERVICE_KEY environment variables are required');
   process.exit(1);
 }
 

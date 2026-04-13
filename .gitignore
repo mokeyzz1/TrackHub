@@ -65,16 +65,32 @@ venv/
 ENV/
 *.egg-info/
 
-# Backend
-backend/scripts/*.db
-backend/scripts/*.log
-backend/scripts/__pycache__/
-backend/scripts/data/*.json
-backend/scripts/school_logos/
-backend/scripts/.venv/
-backend/scripts/.venv-1/
-backend/server/*.db
-backend/*.json
+# Backend (old dev scripts - not needed)
+backend/
+
+# Marketing & Portfolio (not needed in repo)
+marketing/
+portfolio/
+
+# Editor & IDE
+.vscode/
+.idea/
+.claude/
+
+# Logs
+*.log
+scrapers/logs/*.log
+
+# Dev tools & test files
+scrapers/tools/
+frontend/test-*.js
+frontend/test_*.js
+
+# Root level duplicates
+/lib/
+/types/
+
+# Misc JSON
 frontend/*.json
 !frontend/package.json
 !frontend/tsconfig.json

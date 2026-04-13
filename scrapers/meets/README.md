@@ -14,7 +14,7 @@ The scraper runs automatically via GitHub Actions:
 
 Go to your repo → Settings → Secrets and variables → Actions → New repository secret:
 
-1. **SUPABASE_URL**: `hunbahsnaeeztmzqpnrl.supabase.co`
+1. **SUPABASE_URL**: Your Supabase project URL
 2. **SUPABASE_SERVICE_KEY**: Your Supabase service role key
 
 That's it! The scraper will run automatically and update your meets.
