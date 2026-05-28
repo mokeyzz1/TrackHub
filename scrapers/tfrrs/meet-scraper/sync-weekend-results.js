@@ -13,6 +13,7 @@
  *   node sync-weekend-results.js --scrape           # Find matches + scrape (no import)
  *   node sync-weekend-results.js --commit           # Full pipeline: find + scrape + import
  *   node sync-weekend-results.js --days 3           # Look back 3 days instead of 7
+ *   node sync-weekend-results.js --fuzzy            # Allow fallback TFRRS name search
  */
 
 const axios = require('axios');
@@ -104,6 +105,7 @@ function parseArgs() {
   return {
     scrape: args.includes('--scrape') || args.includes('--commit'),
     commit: args.includes('--commit'),
+    fuzzy: args.includes('--fuzzy'),
     days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7')
   };
 }
@@ -310,16 +312,41 @@ async function getMeetsNeedingResults(daysBack) {
 
   console.log(`\nLooking for meets from ${startStr} to ${todayStr}...`);
 
-  const { data: meets, error } = await supabase
+  let { data: meets, error } = await supabase
     .from('meets')
-    .select('meet_id, name, date, location, meet_url, status')
+    .select('meet_id, name, date, location, meet_url, status, tfrrs_url, athletic_net_results_url, results_status')
     .gte('date', startStr)
     .lt('date', todayStr)
     .order('date', { ascending: false });
 
   if (error) {
-    console.error('Error fetching meets:', error.message);
-    return [];
+    const missingNewColumns = ['tfrrs_url', 'athletic_net_results_url', 'results_status']
+      .some(column => error.message?.includes(column));
+
+    if (!missingNewColumns) {
+      console.error('Error fetching meets:', error.message);
+      return [];
+    }
+
+    console.log('Result-link columns are not in Supabase yet; continuing with legacy meet fields');
+    const fallback = await supabase
+      .from('meets')
+      .select('meet_id, name, date, location, meet_url, status')
+      .gte('date', startStr)
+      .lt('date', todayStr)
+      .order('date', { ascending: false });
+
+    if (fallback.error) {
+      console.error('Error fetching meets:', fallback.error.message);
+      return [];
+    }
+
+    meets = (fallback.data || []).map(meet => ({
+      ...meet,
+      tfrrs_url: null,
+      athletic_net_results_url: null,
+      results_status: null
+    }));
   }
 
   console.log(`Found ${meets.length} meets in date range`);
@@ -338,6 +365,30 @@ async function getMeetsNeedingResults(daysBack) {
   console.log(`${needsResults.length} meets need results\n`);
 
   return needsResults;
+}
+
+async function updateMeetResultStatus(meetId, status, errorMessage = null) {
+  const updates = {
+    results_status: status,
+    results_last_checked_at: new Date().toISOString()
+  };
+
+  if (errorMessage) {
+    updates.results_error = errorMessage;
+  }
+
+  const { error } = await supabase
+    .from('meets')
+    .update(updates)
+    .eq('meet_id', meetId);
+
+  if (error) {
+    const missingNewColumns = ['results_status', 'results_last_checked_at', 'results_error']
+      .some(column => error.message?.includes(column));
+    if (!missingNewColumns) {
+      console.log(`  Could not update result status for meet ${meetId}: ${error.message}`);
+    }
+  }
 }
 
 // Search TFRRS for meets on a specific date
@@ -1273,6 +1324,7 @@ async function main() {
   console.log('='.repeat(60));
   console.log(`Mode: ${options.commit ? 'FULL PIPELINE (scrape + import)' : options.scrape ? 'SCRAPE ONLY' : 'FIND MATCHES ONLY'}`);
   console.log(`Looking back: ${options.days} days`);
+  console.log(`Fuzzy fallback: ${options.fuzzy ? 'enabled' : 'disabled'}`);
 
   // Step 1: Find meets that need results
   const meetsNeedingResults = await getMeetsNeedingResults(options.days);
@@ -1282,19 +1334,47 @@ async function main() {
     return;
   }
 
-  // Step 2: Find TFRRS matches for each meet
+  // Step 2: Use stored TFRRS URLs first. These come from USTFCCCA result links
+  // after a meet has completed, and avoid fragile name matching.
   const matches = [];
+  const needsTfrrsUrl = [];
 
   for (const meet of meetsNeedingResults) {
-    const match = await findTfrrsMatch(meet);
-    if (match) {
-      const tfrrsMeetId = parseMeetId(match.url);
+    if (meet.tfrrs_url) {
+      const tfrrsMeetId = parseMeetId(meet.tfrrs_url);
       matches.push({
         dbMeet: meet,
-        tfrrsMeet: { ...match, tfrrsMeetId }
+        tfrrsMeet: {
+          name: meet.name,
+          url: meet.tfrrs_url,
+          date: meet.date,
+          similarity: 1,
+          source: 'stored_tfrrs_url',
+          tfrrsMeetId
+        }
       });
+      continue;
     }
-    await sleep(1000);
+
+    needsTfrrsUrl.push(meet);
+  }
+
+  if (options.fuzzy) {
+    for (const meet of needsTfrrsUrl) {
+      const match = await findTfrrsMatch(meet);
+      if (match) {
+        const tfrrsMeetId = parseMeetId(match.url);
+        matches.push({
+          dbMeet: meet,
+          tfrrsMeet: { ...match, source: 'fuzzy_search', tfrrsMeetId }
+        });
+      }
+      await sleep(1000);
+    }
+  } else if (options.commit) {
+    for (const meet of needsTfrrsUrl) {
+      await updateMeetResultStatus(meet.meet_id, 'missing_tfrrs_url');
+    }
   }
 
   // Summary
@@ -1302,14 +1382,24 @@ async function main() {
   console.log('MATCH SUMMARY');
   console.log('='.repeat(60));
   console.log(`Meets needing results: ${meetsNeedingResults.length}`);
+  console.log(`Stored TFRRS URLs: ${meetsNeedingResults.filter(m => m.tfrrs_url).length}`);
+  console.log(`Missing TFRRS URLs: ${needsTfrrsUrl.length}`);
   console.log(`Matches found: ${matches.length}`);
 
   if (matches.length > 0) {
     console.log('\nMatches:');
     matches.forEach(({ dbMeet, tfrrsMeet }) => {
       console.log(`  - "${dbMeet.name}" (${dbMeet.date})`);
+      console.log(`    Source: ${tfrrsMeet.source}`);
       console.log(`    TFRRS: "${tfrrsMeet.name}"`);
       console.log(`    URL: ${tfrrsMeet.url}`);
+    });
+  }
+
+  if (needsTfrrsUrl.length > 0 && !options.fuzzy) {
+    console.log('\nMeets without stored TFRRS URL:');
+    needsTfrrsUrl.forEach(meet => {
+      console.log(`  - "${meet.name}" (${meet.date})`);
     });
   }
 
@@ -1350,6 +1440,21 @@ async function main() {
   console.log('='.repeat(60));
 
   const { imported, errors, skipped, relaysImported, relayErrors } = await importResults(allScrapedResults, options.commit);
+
+  if (options.commit) {
+    const importedMeetIds = new Set(allScrapedResults.map(r => r.meet_id).filter(Boolean));
+    for (const meetId of importedMeetIds) {
+      await supabase
+        .from('meets')
+        .update({
+          results_status: 'imported',
+          results_imported_at: new Date().toISOString(),
+          results_last_checked_at: new Date().toISOString(),
+          results_error: null
+        })
+        .eq('meet_id', meetId);
+    }
+  }
 
   console.log('\n' + '='.repeat(60));
   console.log('COMPLETE');

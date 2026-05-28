@@ -88,6 +88,45 @@ function supabaseRequest(method, endpoint, data = null) {
   });
 }
 
+function isMissingResultLinkColumn(error) {
+  const message = String(error?.message || error?.body || error || '');
+  return [
+    'tfrrs_url',
+    'athletic_net_results_url',
+    'wa_results_url',
+    'results_status',
+    'results_last_checked_at',
+    'results_imported_at',
+    'results_error'
+  ].some(column => message.includes(column));
+}
+
+function withoutResultLinkColumns(data) {
+  const {
+    tfrrs_url,
+    athletic_net_results_url,
+    wa_results_url,
+    results_status,
+    results_last_checked_at,
+    results_imported_at,
+    results_error,
+    ...rest
+  } = data;
+  return rest;
+}
+
+async function meetRequest(method, endpoint, data = null) {
+  try {
+    return await supabaseRequest(method, endpoint, data);
+  } catch (error) {
+    if (data && isMissingResultLinkColumn(error)) {
+      log('  Result-link columns are not in Supabase yet; retrying without them');
+      return await supabaseRequest(method, endpoint, withoutResultLinkColumns(data));
+    }
+    throw error;
+  }
+}
+
 // Parse meet date - returns { start, end } for multi-day meets
 function parseMeetDate(dateStr) {
   const year = new Date().getFullYear();
@@ -145,6 +184,36 @@ function parseMeetDate(dateStr) {
 
   const today = new Date().toISOString().split('T')[0];
   return { start: today, end: today };
+}
+
+function detectTimingPlatform(url) {
+  if (!url) return null;
+
+  const lower = url.toLowerCase();
+
+  if (lower.includes('athletic.net') || lower.includes('jdlfasttrack') || lower.includes('blacksquirreltiming')) {
+    return 'athletic_net';
+  }
+  if (lower.includes('milesplit')) return 'milesplit';
+  if (lower.includes('pttiming')) return 'pt_timing';
+  if (lower.includes('finishtiming') || lower.includes('finishlynx')) return 'finish_timing';
+  if (lower.includes('tfrrs')) return 'tfrrs';
+  if (lower.includes('flashresults')) return 'flashresults';
+  if (lower.includes('rosterathletics')) return 'rosterathletics';
+  if (lower.includes('xpresstiming')) return 'xpresstiming';
+  if (lower.includes('halfmiletiming')) return 'halfmiletiming';
+  if (lower.includes('windsortiming')) return 'windsortiming';
+  if (lower.includes('leonetiming')) return 'leonetiming';
+  if (lower.includes('wayzatatiming')) return 'wayzatatiming';
+  if (lower.includes('deltatiming')) return 'deltatiming';
+  if (lower.includes('lexicontiming')) return 'lexicontiming';
+  if (lower.includes('herostiming')) return 'herostiming';
+  if (lower.includes('omegatiming')) return 'omegatiming';
+  if (lower.includes('domtel-sport')) return 'domtel';
+  if (lower.includes('liveres.')) return 'live_results';
+  if (lower.includes('timing')) return 'other_timing';
+
+  return 'other';
 }
 
 // Scrape meets from USTFCCCA
@@ -206,14 +275,51 @@ async function scrapeMeets(datescope = 'this_week') {
             const dateSpan = hostCol.querySelector('span[style*="font-size:0.85em"]');
 
             const links = Array.from(infoCol.querySelectorAll('a'));
-            const timingLink = links.find(a =>
-              a.href.includes('tfrrs.org') ||
-              a.href.includes('athletic.net') ||
-              a.href.includes('milesplit') ||
-              a.href.includes('live.') ||
-              a.textContent.includes('Timing') ||
-              a.textContent.includes('Results')
-            );
+            const findLinkByText = (patterns) => links.find(anchor => {
+              const text = (anchor.textContent || '').trim().toLowerCase();
+              return patterns.some(pattern => text.includes(pattern));
+            });
+            const scoreLink = (anchor) => {
+              const href = (anchor.href || '').toLowerCase();
+              const text = (anchor.textContent || '').trim().toLowerCase();
+
+              let score = 0;
+
+              if (text.includes('tfrrs results') || text.includes('athleticnet final results') || text.includes('wa meet results')) {
+                return 0;
+              }
+
+              // Prefer direct live/results platforms over generic info pages.
+              if (href.includes('athletic.net')) score += 110;
+              if (href.includes('milesplit')) score += 100;
+              if (href.includes('directathletics')) score += 95;
+              if (href.includes('finishedresults') || href.includes('flashresults')) score += 90;
+              if (href.includes('results.') || href.includes('/results')) score += 85;
+              if (href.includes('live.')) score += 80;
+              if (href.includes('timing')) score += 70;
+
+              if (text.includes('live results')) score += 60;
+              if (text.includes('results')) score += 40;
+              if (text.includes('entries')) score += 20;
+              if (text.includes('timing')) score += 15;
+
+              // De-prioritize generic meet info pages that often sit next to the real results link.
+              if (text.includes('info')) score -= 20;
+              if (text.includes('schedule')) score -= 20;
+              if (text.includes('home')) score -= 25;
+              if (text.includes('home page')) score -= 30;
+              if (text.includes('website')) score -= 30;
+
+              return score;
+            };
+
+            const timingLink = findLinkByText(['timing site']) || links
+              .map(anchor => ({ anchor, score: scoreLink(anchor) }))
+              .filter(link => link.score > 0)
+              .sort((a, b) => b.score - a.score)[0]?.anchor || null;
+            const tfrrsLink = findLinkByText(['tfrrs results']);
+            const athleticNetResultsLink = findLinkByText(['athleticnet final results', 'athletic.net final results']);
+            const waResultsLink = findLinkByText(['wa meet results']);
 
             if (meetNameSpan && hostSpan) {
               results.push({
@@ -221,7 +327,10 @@ async function scrapeMeets(datescope = 'this_week') {
                 location: locationSpan ? locationSpan.textContent.trim() : '',
                 host: hostSpan.textContent.trim(),
                 date: dateSpan ? dateSpan.textContent.trim() : '',
-                timingUrl: timingLink ? timingLink.href : null
+                timingUrl: timingLink ? timingLink.href : null,
+                tfrrsUrl: tfrrsLink ? tfrrsLink.href : null,
+                athleticNetResultsUrl: athleticNetResultsLink ? athleticNetResultsLink.href : null,
+                waResultsUrl: waResultsLink ? waResultsLink.href : null
               });
             }
           }
@@ -251,6 +360,7 @@ async function upsertMeets(meets) {
 
   for (const meet of meets) {
     const { start: meetDate, end: meetEndDate } = parseMeetDate(meet.date);
+    const timingPlatform = detectTimingPlatform(meet.timingUrl);
 
     // Check if meet exists
     const checkRes = await supabaseRequest('GET',
@@ -264,13 +374,26 @@ async function upsertMeets(meets) {
       if (meet.timingUrl && meet.timingUrl !== existing.meet_url) {
         updates.meet_url = meet.timingUrl;
       }
+      if (timingPlatform && timingPlatform !== existing.timing_platform) {
+        updates.timing_platform = timingPlatform;
+      }
+      if (meet.tfrrsUrl && meet.tfrrsUrl !== existing.tfrrs_url) {
+        updates.tfrrs_url = meet.tfrrsUrl;
+        updates.results_status = 'tfrrs_available';
+      }
+      if (meet.athleticNetResultsUrl && meet.athleticNetResultsUrl !== existing.athletic_net_results_url) {
+        updates.athletic_net_results_url = meet.athleticNetResultsUrl;
+      }
+      if (meet.waResultsUrl && meet.waResultsUrl !== existing.wa_results_url) {
+        updates.wa_results_url = meet.waResultsUrl;
+      }
       if (meetEndDate !== meetDate && existing.end_date !== meetEndDate) {
         updates.end_date = meetEndDate;
       }
 
       if (Object.keys(updates).length > 0) {
         updates.updated_at = new Date().toISOString();
-        await supabaseRequest('PATCH', `meets?meet_id=eq.${existing.meet_id}`, updates);
+        await meetRequest('PATCH', `meets?meet_id=eq.${existing.meet_id}`, updates);
         log(`  Updated: ${meet.name}`);
         updatedCount++;
       } else {
@@ -278,12 +401,17 @@ async function upsertMeets(meets) {
       }
     } else {
       // Insert new meet
-      const res = await supabaseRequest('POST', 'meets', {
+      const res = await meetRequest('POST', 'meets', {
         name: meet.name,
         date: meetDate,
         end_date: meetEndDate,
         location: meet.location,
         meet_url: meet.timingUrl,
+        timing_platform: timingPlatform,
+        tfrrs_url: meet.tfrrsUrl,
+        athletic_net_results_url: meet.athleticNetResultsUrl,
+        wa_results_url: meet.waResultsUrl,
+        results_status: meet.tfrrsUrl ? 'tfrrs_available' : 'pending',
         status: 'upcoming',
         level: 'college',
         season: 'indoor'
@@ -344,7 +472,7 @@ async function main() {
 
   let scopes;
   if (arg === 'all') {
-    scopes = ['this_week', 'next_week', 'next_month'];
+    scopes = ['last_week', 'this_week', 'next_week', 'next_month'];
   } else if (arg === 'default') {
     scopes = ['this_week', 'next_week'];
   } else {

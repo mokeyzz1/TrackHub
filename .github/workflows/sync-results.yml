@@ -33,6 +33,14 @@ jobs:
           cd scrapers
           npm install
 
+      - name: Refresh completed meet result links
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          cd scrapers/meets
+          node scrape_meets_github.js last_week
+
       - name: Sync weekend results
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
