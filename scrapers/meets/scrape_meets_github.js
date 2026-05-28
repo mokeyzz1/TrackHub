@@ -203,6 +203,114 @@ function detectTimingPlatform(url) {
   return 'other';
 }
 
+const MEET_SELECT = [
+  'meet_id',
+  'name',
+  'date',
+  'end_date',
+  'location',
+  'meet_url',
+  'timing_platform',
+  'tfrrs_url',
+  'athletic_net_results_url',
+  'wa_results_url',
+  'results_status'
+].join(',');
+
+function normalizeMeetName(name) {
+  return (name || '')
+    .toLowerCase()
+    .replace(/\s*\[[^\]]+\]/g, '')
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function normalizeLocation(location) {
+  return (location || '')
+    .split('*')[0]
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function addDays(dateStr, days) {
+  const date = new Date(`${dateStr}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().split('T')[0];
+}
+
+function datesOverlap(startA, endA, startB, endB) {
+  const aEnd = endA || startA;
+  const bEnd = endB || startB;
+  return startA <= bEnd && startB <= aEnd;
+}
+
+function pickBestMeetCandidate(candidates, meet, meetDate, meetEndDate) {
+  const targetName = normalizeMeetName(meet.name);
+  const targetLocation = normalizeLocation(meet.location);
+
+  const scored = candidates
+    .map(candidate => {
+      const candidateName = normalizeMeetName(candidate.name);
+      const candidateLocation = normalizeLocation(candidate.location);
+      const candidateEndDate = candidate.end_date || candidate.date;
+      let score = 0;
+
+      if (candidateName === targetName) score += 80;
+      else if (candidateName.includes(targetName) || targetName.includes(candidateName)) score += 45;
+
+      if (candidateLocation && targetLocation) {
+        if (candidateLocation === targetLocation) score += 30;
+        else if (candidateLocation.includes(targetLocation) || targetLocation.includes(candidateLocation)) score += 15;
+      }
+
+      if (datesOverlap(meetDate, meetEndDate, candidate.date, candidateEndDate)) score += 25;
+      if (candidate.date === meetDate) score += 10;
+      if (candidateEndDate === meetEndDate) score += 10;
+
+      return { candidate, score };
+    })
+    .filter(({ score }) => score >= 100)
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.candidate.meet_id - b.candidate.meet_id;
+    });
+
+  return scored[0]?.candidate || null;
+}
+
+async function findExistingMeet(meet, meetDate, meetEndDate) {
+  const encodedUrls = [
+    ['meet_url', meet.timingUrl],
+    ['tfrrs_url', meet.tfrrsUrl],
+    ['athletic_net_results_url', meet.athleticNetResultsUrl],
+    ['wa_results_url', meet.waResultsUrl]
+  ].filter(([, url]) => url);
+
+  for (const [column, url] of encodedUrls) {
+    try {
+      const response = await supabaseRequest('GET',
+        `meets?${column}=eq.${encodeURIComponent(url)}&select=${MEET_SELECT}&limit=1`);
+      if (response.data && response.data.length > 0) {
+        return response.data[0];
+      }
+    } catch (error) {
+      if (!isMissingResultLinkColumn(error)) throw error;
+    }
+  }
+
+  const startWindow = addDays(meetDate, -3);
+  const endWindow = addDays(meetEndDate, 3);
+  const response = await supabaseRequest('GET',
+    `meets?date=gte.${startWindow}&date=lte.${endWindow}&select=${MEET_SELECT}`);
+  const candidates = response.data || [];
+
+  return pickBestMeetCandidate(candidates, meet, meetDate, meetEndDate);
+}
+
 // Scrape meets from USTFCCCA
 async function scrapeMeets(datescope = 'this_week') {
   log(`Scraping USTFCCCA meets: ${datescope}`);
@@ -352,10 +460,7 @@ async function upsertMeets(meets) {
     const timingPlatform = detectTimingPlatform(meet.timingUrl);
 
     try {
-      const checkRes = await supabaseRequest('GET',
-        `meets?name=eq.${encodeURIComponent(meet.name)}&date=eq.${meetDate}`);
-
-      const existing = checkRes.data && checkRes.data.length > 0 ? checkRes.data[0] : null;
+      const existing = await findExistingMeet(meet, meetDate, meetEndDate);
 
       if (existing) {
         // Update timing URL or end_date if changed
@@ -368,7 +473,9 @@ async function upsertMeets(meets) {
         }
         if (meet.tfrrsUrl && meet.tfrrsUrl !== existing.tfrrs_url) {
           updates.tfrrs_url = meet.tfrrsUrl;
-          updates.results_status = 'tfrrs_available';
+          if (existing.results_status !== 'imported') {
+            updates.results_status = 'tfrrs_available';
+          }
         }
         if (meet.athleticNetResultsUrl && meet.athleticNetResultsUrl !== existing.athletic_net_results_url) {
           updates.athletic_net_results_url = meet.athleticNetResultsUrl;
