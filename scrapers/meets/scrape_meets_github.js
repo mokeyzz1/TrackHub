@@ -376,44 +376,11 @@ async function scrapeMeets(datescope = 'this_week') {
               const text = (anchor.textContent || '').trim().toLowerCase();
               return patterns.some(pattern => text.includes(pattern));
             });
-            const scoreLink = (anchor) => {
-              const href = (anchor.href || '').toLowerCase();
-              const text = (anchor.textContent || '').trim().toLowerCase();
-
-              let score = 0;
-
-              if (text.includes('tfrrs results') || text.includes('athleticnet final results') || text.includes('wa meet results')) {
-                return 0;
-              }
-
-              // Prefer direct live/results platforms over generic info pages.
-              if (href.includes('athletic.net')) score += 110;
-              if (href.includes('milesplit')) score += 100;
-              if (href.includes('directathletics')) score += 95;
-              if (href.includes('finishedresults') || href.includes('flashresults')) score += 90;
-              if (href.includes('results.') || href.includes('/results')) score += 85;
-              if (href.includes('live.')) score += 80;
-              if (href.includes('timing')) score += 70;
-
-              if (text.includes('live results')) score += 60;
-              if (text.includes('results')) score += 40;
-              if (text.includes('entries')) score += 20;
-              if (text.includes('timing')) score += 15;
-
-              // De-prioritize generic meet info pages that often sit next to the real results link.
-              if (text.includes('info')) score -= 20;
-              if (text.includes('schedule')) score -= 20;
-              if (text.includes('home')) score -= 25;
-              if (text.includes('home page')) score -= 30;
-              if (text.includes('website')) score -= 30;
-
-              return score;
-            };
-
-            const timingLink = findLinkByText(['timing site']) || links
-              .map(anchor => ({ anchor, score: scoreLink(anchor) }))
-              .filter(link => link.score > 0)
-              .sort((a, b) => b.score - a.score)[0]?.anchor || null;
+            // USTFCCCA labels the live/timing link as "Timing Site". Trust that
+            // label only. Guessing from the other links (Meet Info, AthNET Meet
+            // Hub, registration pages, etc.) reliably picked the wrong URL, so
+            // we store no timing URL when the page has no "Timing Site" link.
+            const timingLink = findLinkByText(['timing site']);
             const tfrrsLink = findLinkByText(['tfrrs results']);
             const athleticNetResultsLink = findLinkByText(['athleticnet final results', 'athletic.net final results']);
             const waResultsLink = findLinkByText(['wa meet results']);
