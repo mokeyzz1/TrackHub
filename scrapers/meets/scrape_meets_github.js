@@ -173,6 +173,17 @@ function parseMeetDate(dateStr) {
   return { start: today, end: today };
 }
 
+function deriveSeason(dateStr) {
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  const m = d.getUTCMonth() + 1;
+  const y = d.getUTCFullYear();
+  if (m === 12) return `Indoor ${y + 1}`;   // Dec belongs to next year's indoor season
+  if (m <= 3) return `Indoor ${y}`;
+  if (m <= 7) return `Outdoor ${y}`;
+  if (m === 8) return `Summer ${y}`;
+  return `XC ${y}`;
+}
+
 function detectTimingPlatform(url) {
   if (!url) return null;
 
@@ -476,7 +487,7 @@ async function upsertMeets(meets) {
           results_status: meet.tfrrsUrl ? 'tfrrs_available' : 'pending',
           status: 'upcoming',
           level: 'college',
-          season: 'indoor'
+          season: deriveSeason(meetDate)
         });
         log(`  Added: ${meet.name} (${meetDate}${meetEndDate !== meetDate ? ' to ' + meetEndDate : ''})`);
         newCount++;
