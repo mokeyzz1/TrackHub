@@ -20,6 +20,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
+const { parseName } = require('../../shared/name_parser');
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -994,6 +995,7 @@ async function importResults(results, commit) {
           newAthletes.push({
             tfrrs_athlete_id: String(r.athlete_id),
             full_name: r.athlete_name,
+            ...(parseName(r.athlete_name) || {}),  // first_name/last_name on insert
             gender: r.team_gender || null,
             school_id: schoolId,
             is_active: true
@@ -1008,6 +1010,7 @@ async function importResults(results, commit) {
         newAthletes.push({
           tfrrs_athlete_id: null,
           full_name: r.athlete_name,
+          ...(parseName(r.athlete_name) || {}),  // first_name/last_name on insert
           gender: r.team_gender || null,
           school_id: UNATTACHED_SCHOOL_ID,
           is_active: true
@@ -1053,6 +1056,7 @@ async function importResults(results, commit) {
         newAthletes.push({
           tfrrs_athlete_id: String(a.athlete_id),
           full_name: a.name,
+          ...(parseName(a.name) || {}),  // first_name/last_name on insert
           gender: r.team_gender || null,
           school_id: schoolId,
           is_active: true
