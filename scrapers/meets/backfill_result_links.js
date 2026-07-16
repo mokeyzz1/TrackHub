@@ -57,6 +57,38 @@ function normalizeMeetName(name) {
     .replace(/\s+/g, ' ');
 }
 
+// Generic words that bloat meet names differently across sources (DB vs TFRRS) but carry no
+// identity. Stripping them lets "MIAC Outdoor Championships" match "2026 MIAC Outdoor Track &
+// Field Championships". Distinctive words (school/conference/meet-name tokens) are kept.
+const NAME_STOPWORDS = new Set([
+  'track', 'field', 'and', 'the', 'of', 'at', 'championship', 'championships',
+  'outdoor', 'indoor', 'meet', 'presented', 'by'
+]);
+
+// Distinctive token set for a meet name (noise + years removed).
+function nameTokens(name) {
+  return new Set(
+    normalizeMeetName(name)
+      .split(' ')
+      .filter(t => t && !NAME_STOPWORDS.has(t) && !/^(19|20)\d{2}$/.test(t))
+  );
+}
+
+function tokenOverlap(a, b) {
+  if (a.size === 0 || b.size === 0) return { equal: false, subset: false, jaccard: 0, smallLen: 0 };
+  let shared = 0;
+  for (const t of a) if (b.has(t)) shared++;
+  const union = new Set([...a, ...b]).size;
+  const small = a.size <= b.size ? a : b;
+  const smallLen = [...small].join('').length;
+  return {
+    equal: a.size === b.size && shared === a.size,
+    subset: shared === Math.min(a.size, b.size),  // all of the smaller set is in the larger
+    jaccard: shared / union,
+    smallLen,
+  };
+}
+
 function normalizeLocation(location) {
   return (location || '')
     .split('*')[0]
@@ -118,20 +150,27 @@ function parseTfrrsDate(dateStr) {
 }
 
 function matchScore(dbMeet, sourceMeet) {
-  const dbName = normalizeMeetName(dbMeet.name);
-  const sourceName = normalizeMeetName(sourceMeet.name);
   const dbLocation = normalizeLocation(dbMeet.location);
   const sourceLocation = normalizeLocation(sourceMeet.location);
   let score = 0;
 
-  if (dbName === sourceName) score += 80;
-  else if (dbName.includes(sourceName) || sourceName.includes(dbName)) score += 45;
+  // Name: distinctive-token overlap (handles "MIAC Outdoor Championships" vs
+  // "2026 MIAC Outdoor Track & Field Championships"). Require >=4 chars in the smaller token
+  // set so a stray shared word can't carry a match — the exact date below is the real anchor.
+  const ov = tokenOverlap(nameTokens(dbMeet.name), nameTokens(sourceMeet.name));
+  if (ov.smallLen >= 4) {
+    if (ov.equal) score += 80;
+    else if (ov.subset) score += 70;
+    else if (ov.jaccard >= 0.6) score += 55;
+    else if (ov.jaccard >= 0.4) score += 35;
+  }
 
   if (dbLocation && sourceLocation) {
     if (dbLocation === sourceLocation) score += 25;
     else if (dbLocation.includes(sourceLocation) || sourceLocation.includes(dbLocation)) score += 10;
   }
 
+  // Date anchor — required for any confident match (no location on TFRRS rows).
   if (sourceMeet.date && rangesOverlap(dbMeet.date, rangeEnd(dbMeet), sourceMeet.date, sourceMeet.end_date || sourceMeet.date)) {
     score += 25;
   }
