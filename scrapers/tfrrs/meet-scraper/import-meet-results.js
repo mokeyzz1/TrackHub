@@ -128,6 +128,27 @@ async function importMeetResults(commit = false) {
 
   console.log(`Found ${tfrrsToInternalId.size} existing athletes\n`);
 
+  // Pre-load existing Unattached athletes (no TFRRS id) by name, so weekly re-syncs REUSE
+  // them instead of creating a fresh duplicate every weekend. Not doing this is what leaked
+  // ~34k orphan name-only rows over a season: each run only remembered its OWN creations, so
+  // the same post-collegiate athlete got a new row every weekend and results landed on one copy.
+  console.log('Loading existing unattached athletes by name...');
+  const existingUnattachedByName = new Map(); // full_name -> athlete_id
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase
+      .from('athletes')
+      .select('athlete_id, full_name')
+      .eq('school_id', UNATTACHED_SCHOOL_ID)
+      .is('tfrrs_athlete_id', null)
+      .range(from, from + 999);
+    if (error || !data || data.length === 0) break;
+    data.forEach(a => {
+      if (!existingUnattachedByName.has(a.full_name)) existingUnattachedByName.set(a.full_name, a.athlete_id);
+    });
+    if (data.length < 1000) break;
+  }
+  console.log(`Found ${existingUnattachedByName.size} existing unattached athletes\n`);
+
   // Process results
   let matched = 0;
   let noTeam = 0;
@@ -192,18 +213,24 @@ async function importMeetResults(commit = false) {
         }
       }
     } else if (r.athlete_name) {
-      // No TFRRS ID (unattached) - create athlete by name
-      noAthlete++;
-      const nameKey = `unattached:${r.athlete_name}`;
-      if (!seenAthletes.has(nameKey)) {
-        seenAthletes.add(nameKey);
-        newAthletes.push({
-          tfrrs_athlete_id: null,
-          full_name: r.athlete_name,
-          gender: r.team_gender || null,
-          school_id: UNATTACHED_SCHOOL_ID,
-          is_active: true
-        });
+      // No TFRRS ID (unattached / post-collegiate). Reuse an existing record by name first —
+      // only create if this athlete has never been seen (in the DB or earlier this run).
+      const existingId = existingUnattachedByName.get(r.athlete_name);
+      if (existingId) {
+        internalAthleteId = existingId;
+      } else {
+        noAthlete++;
+        const nameKey = `unattached:${r.athlete_name}`;
+        if (!seenAthletes.has(nameKey)) {
+          seenAthletes.add(nameKey);
+          newAthletes.push({
+            tfrrs_athlete_id: null,
+            full_name: r.athlete_name,
+            gender: r.team_gender || null,
+            school_id: UNATTACHED_SCHOOL_ID,
+            is_active: true
+          });
+        }
       }
     }
 
@@ -388,8 +415,13 @@ async function importMeetResults(commit = false) {
       .insert(batch);
 
     if (error) {
-      console.log(`  Batch ${i/500 + 1} error: ${error.message}`);
-      errors += batch.length; // Skip the batch, don't try one-by-one (too slow)
+      // Don't drop the whole batch — one bad row would strand 499 athletes' results (and leave
+      // those athletes as zero-result shells). Retry row-by-row so only the truly-bad rows fail.
+      console.log(`  Batch ${i/500 + 1} error: ${error.message}. Retrying row-by-row...`);
+      for (const row of batch) {
+        const { error: rowErr } = await supabase.from('results').insert(row);
+        if (rowErr) { errors++; } else { imported++; }
+      }
     } else {
       imported += batch.length;
     }
