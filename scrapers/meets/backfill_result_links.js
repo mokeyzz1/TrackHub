@@ -112,6 +112,18 @@ function rangesOverlap(startA, endA, startB, endB) {
   return startA <= endB && startB <= endA;
 }
 
+// Date overlap with a tolerance (days). Multi-day meets list different single days across
+// sources (TFRRS start vs DB last day), so allow a small slack while staying a real anchor.
+function datesClose(dbMeet, sourceMeet, tolDays = 2) {
+  if (!sourceMeet.date) return false;
+  const ms = 86400000;
+  const dbS = new Date(`${dbMeet.date}T00:00:00Z`).getTime();
+  const dbE = new Date(`${rangeEnd(dbMeet)}T00:00:00Z`).getTime();
+  const sS = new Date(`${sourceMeet.date}T00:00:00Z`).getTime();
+  const sE = new Date(`${sourceMeet.end_date || sourceMeet.date}T00:00:00Z`).getTime();
+  return dbS - tolDays * ms <= sE && sS <= dbE + tolDays * ms;
+}
+
 function parseUstfcccaDate(dateStr) {
   const year = new Date().getFullYear();
   const multi = dateStr.match(/\w+\s+(\w+)\s+(\d+)-\w+\s+(\w+)\s+(\d+)/);
@@ -170,8 +182,8 @@ function matchScore(dbMeet, sourceMeet) {
     else if (dbLocation.includes(sourceLocation) || sourceLocation.includes(dbLocation)) score += 10;
   }
 
-  // Date anchor — required for any confident match (no location on TFRRS rows).
-  if (sourceMeet.date && rangesOverlap(dbMeet.date, rangeEnd(dbMeet), sourceMeet.date, sourceMeet.end_date || sourceMeet.date)) {
+  // Date anchor — required for any confident match (no location on TFRRS rows). ±2 day slack.
+  if (datesClose(dbMeet, sourceMeet, 2)) {
     score += 25;
   }
 
@@ -416,9 +428,24 @@ async function main() {
 
   for (const meet of dbMeets) {
     if (!sourceMeets.some(source => findDbMatch([meet], source))) {
-      unmatched.push(meet);
+      // record the best-scoring source for diagnosis (why did it miss?)
+      let best = { score: 0, src: null };
+      for (const s of sourceMeets) {
+        const sc = matchScore(meet, s);
+        if (sc > best.score) best = { score: sc, src: s };
+      }
+      unmatched.push({ meet, best });
     }
   }
+
+  // Diagnostic: what do the unmatched near-misses look like? (top by best score)
+  const nearMisses = unmatched.filter(u => u.best.score >= 55).sort((a, b) => b.best.score - a.best.score);
+  console.log(`\nUNMATCHED near-misses (best score 55-89): ${nearMisses.length}`);
+  nearMisses.slice(0, 20).forEach(u => {
+    console.log(`  best=${u.best.score} "${u.meet.name}" (${u.meet.date}) ~ "${u.best.src?.name}" (${u.best.src?.date})`);
+  });
+  const noSignal = unmatched.filter(u => u.best.score < 55).length;
+  console.log(`Unmatched with NO real signal (best <55, likely not in TFRRS window): ${noSignal}`);
 
   console.log('\nSUMMARY');
   console.log(`  Candidates: ${dbMeets.length}`);
