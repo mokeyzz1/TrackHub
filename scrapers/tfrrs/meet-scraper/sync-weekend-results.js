@@ -21,6 +21,10 @@ const cheerio = require('cheerio');
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 const { parseName } = require('../../shared/name_parser');
+const { EventResolver } = require('../../shared/event_resolver');
+
+// Resolves raw event names -> canonical event_type_id via event_aliases (loaded in importResults).
+const events = new EventResolver();
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -860,6 +864,10 @@ async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate) {
 
 // Import results to database
 async function importResults(results, commit) {
+  // Load the canonical event catalog so new results/relays get a resolved event_type_id.
+  const aliasCount = await events.load(supabase);
+  console.log(`Loaded ${aliasCount.toLocaleString()} event aliases for resolution.`);
+
   // Separate relays from individual results
   const relayResults = results.filter(r => r.is_relay === true);
   const individualResults = results.filter(r => r.is_relay !== true);
@@ -946,6 +954,22 @@ async function importResults(results, commit) {
 
   console.log(`Found ${tfrrsToInternalId.size} existing athletes`);
 
+  // Pre-load existing Unattached athletes (no TFRRS id) by name so weekly re-syncs REUSE them
+  // instead of creating a fresh duplicate every weekend — the cause of ~34k orphan name-only rows.
+  const existingUnattachedByName = new Map(); // full_name -> athlete_id
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase
+      .from('athletes')
+      .select('athlete_id, full_name')
+      .eq('school_id', UNATTACHED_SCHOOL_ID)
+      .is('tfrrs_athlete_id', null)
+      .range(from, from + 999);
+    if (error || !data || data.length === 0) break;
+    data.forEach(a => { if (!existingUnattachedByName.has(a.full_name)) existingUnattachedByName.set(a.full_name, a.athlete_id); });
+    if (data.length < 1000) break;
+  }
+  console.log(`Found ${existingUnattachedByName.size} existing unattached athletes`);
+
   // Process individual results
   let matched = 0;
   let noTeam = 0;
@@ -1003,18 +1027,25 @@ async function importResults(results, commit) {
         }
       }
     } else if (r.athlete_name) {
-      noAthlete++;
-      const nameKey = `unattached:${r.athlete_name}`;
-      if (!seenAthletes.has(nameKey)) {
-        seenAthletes.add(nameKey);
-        newAthletes.push({
-          tfrrs_athlete_id: null,
-          full_name: r.athlete_name,
-          ...(parseName(r.athlete_name) || {}),  // first_name/last_name on insert
-          gender: r.team_gender || null,
-          school_id: UNATTACHED_SCHOOL_ID,
-          is_active: true
-        });
+      // No TFRRS ID (unattached / post-collegiate). Reuse an existing record by name first —
+      // only create if never seen (in the DB or earlier this run).
+      const existingId = existingUnattachedByName.get(r.athlete_name);
+      if (existingId) {
+        internalAthleteId = existingId;
+      } else {
+        noAthlete++;
+        const nameKey = `unattached:${r.athlete_name}`;
+        if (!seenAthletes.has(nameKey)) {
+          seenAthletes.add(nameKey);
+          newAthletes.push({
+            tfrrs_athlete_id: null,
+            full_name: r.athlete_name,
+            ...(parseName(r.athlete_name) || {}),  // first_name/last_name on insert
+            gender: r.team_gender || null,
+            school_id: UNATTACHED_SCHOOL_ID,
+            is_active: true
+          });
+        }
       }
     }
 
@@ -1201,6 +1232,7 @@ async function importResults(results, commit) {
     const batch = newResults.slice(i, i + 500).map(r => ({
       athlete_id: r.athlete_id,
       event_name: r.event_name,
+      event_type_id: events.resolve(r.event_name),  // canonical event; null -> logged to unmapped_events
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,
       mark_meters: r.mark_meters,
@@ -1218,8 +1250,13 @@ async function importResults(results, commit) {
       .insert(batch);
 
     if (error) {
-      console.log(`  Batch error: ${error.message}`);
-      errors += batch.length;
+      // Don't drop the whole batch — one bad row would strand 499 athletes as zero-result
+      // shells. Retry row-by-row so only truly-bad rows fail.
+      console.log(`  Batch error: ${error.message}. Retrying row-by-row...`);
+      for (const row of batch) {
+        const { error: rowErr } = await supabase.from('results').insert(row);
+        if (rowErr) { errors++; } else { imported++; }
+      }
     } else {
       imported += batch.length;
     }
@@ -1237,6 +1274,7 @@ async function importResults(results, commit) {
       .insert({
         team_id: relay.team_id,
         event_name: relay.event_name,
+        event_type_id: events.resolve(relay.event_name),  // canonical event
         mark_raw: relay.mark_raw,
         mark_seconds: relay.mark_seconds,
         place: relay.place,
@@ -1282,6 +1320,7 @@ async function importResults(results, commit) {
       .map(a => ({
         athlete_id: a.athlete_id,
         event_name: relay.event_name,
+        event_type_id: events.resolve(relay.event_name),  // canonical event
         mark_raw: relay.mark_raw,
         mark_seconds: relay.mark_seconds,
         place: relay.place,
@@ -1315,6 +1354,17 @@ async function importResults(results, commit) {
   }
 
   console.log(`Relay results imported: ${relaysImported.toLocaleString()}`);
+
+  // Report/persist any event names that weren't in the alias map (drift detection).
+  if (events.unmappedCount > 0) {
+    console.log(`\n⚠ ${events.unmappedCount} event name(s) had no alias mapping (event_type_id left null).`);
+    if (commit) {
+      const flushed = await events.flushUnmapped(supabase);
+      console.log(`  Logged ${flushed} to unmapped_events for review — add them to event_aliases.`);
+    } else {
+      console.log('  (dry run — not logged to unmapped_events)');
+    }
+  }
 
   return { imported, errors, skipped: skippedDupes, relaysImported, relayErrors };
 }
