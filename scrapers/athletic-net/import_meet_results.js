@@ -56,17 +56,30 @@ function environmentFor(season) {
   return null;
 }
 
-async function loadAthleteAnetMap() {
-  const map = new Map(); // athletic.net id -> athlete_id
-  for (let from = 0; ; from += 1000) {
-    const { data, error } = await supabase
-      .from('athletes').select('athlete_id, athletic_net_url')
-      .not('athletic_net_url', 'is', null).range(from, from + 999);
-    if (error || !data || data.length === 0) break;
-    for (const a of data) { const id = anetIdFromUrl(a.athletic_net_url); if (id) map.set(id, a.athlete_id); }
-    if (data.length < 1000) break;
+const chunk = (arr, n) => { const out = []; for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; };
+
+/**
+ * Build athlete lookups scoped to THIS meet's athletes (fast + avoids re-creating dupes):
+ *   byAnet:  athletic.net id -> athlete_id           (exact identity match)
+ *   byName:  lower(full_name)|GENDER -> [athlete_id] (fallback for existing athletes that
+ *            don't yet have an athletic_net_url stored — 45% of them don't)
+ */
+async function loadExisting(anetIds, names) {
+  const byAnet = new Map();
+  const byName = new Map();
+  const add = (m, k, id) => { if (!m.has(k)) m.set(k, []); m.get(k).push(id); };
+  // 1. exact athletic.net-id matches (by full url)
+  const urls = anetIds.map(id => `https://www.athletic.net/athlete/${id}/track-and-field`);
+  for (const c of chunk(urls, 200)) {
+    const { data } = await supabase.from('athletes').select('athlete_id, athletic_net_url').in('athletic_net_url', c);
+    data?.forEach(a => { const id = anetIdFromUrl(a.athletic_net_url); if (id) byAnet.set(id, a.athlete_id); });
   }
-  return map;
+  // 2. name matches (for the fallback)
+  for (const c of chunk([...new Set(names)], 200)) {
+    const { data } = await supabase.from('athletes').select('athlete_id, full_name, gender').in('full_name', c);
+    data?.forEach(a => add(byName, `${(a.full_name || '').toLowerCase()}|${a.gender || ''}`, a.athlete_id));
+  }
+  return { byAnet, byName };
 }
 
 async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}) {
@@ -88,41 +101,58 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
     try { scraped = await s.scrapeMeet(target, { limit }); } finally { await s.close(); }
   }
 
-  // 3. preload translators
+  // 3. preload translators + athlete lookups scoped to this meet
   const events = new EventResolver(); await events.load(supabase);
-  const anetMap = await loadAthleteAnetMap();
-  console.log(`Loaded ${anetMap.size.toLocaleString()} athletes with an athletic.net id\n`);
+  const scrapedIds = [], scrapedNames = [];
+  for (const ev of scraped.events) for (const r of (ev.results || [])) {
+    if (r.athletic_net_athlete_id) scrapedIds.push(r.athletic_net_athlete_id);
+    if (r.athlete_name && r.athlete_name.trim()) scrapedNames.push(r.athlete_name);
+  }
+  const { byAnet, byName } = await loadExisting(scrapedIds, scrapedNames);
+  console.log(`Existing matches available: ${byAnet.size} by athletic.net id, ${byName.size} name/gender keys\n`);
 
   // 4. translate
   const env = environmentFor(meet.season);
   const rows = [];
   const stats = { events: scraped.events.length, results: 0, evResolved: 0, evMissed: {},
-    athMatched: 0, athNew: 0, markParsed: 0 };
-  const newAthletes = new Map(); // anetId(or name key) -> athlete payload (created on commit)
+    matchAnet: 0, matchName: 0, athNew: 0, markParsed: 0, skippedBlank: 0 };
+  const newAthletes = new Map();  // key -> athlete payload (created on commit)
+  const backfillAnet = new Map(); // athlete_id -> athletic_net_url (link existing on name-match)
 
   for (const ev of scraped.events) {
     const etid = events.resolve(ev.eventCode);
     if (etid) stats.evResolved++; else stats.evMissed[ev.eventCode] = (stats.evMissed[ev.eventCode] || 0) + 1;
     const gender = ev.gender === 'f' ? 'F' : ev.gender === 'm' ? 'M' : null;
     for (const r of (ev.results || [])) {
-      if (!r.athlete_name || !r.athlete_name.trim()) { stats.skippedBlank = (stats.skippedBlank || 0) + 1; continue; } // empty/relay rows
+      if (!r.athlete_name || !r.athlete_name.trim()) { stats.skippedBlank++; continue; } // empty/relay rows
       stats.results++;
       const anetId = r.athletic_net_athlete_id;
-      let athleteId = anetId ? anetMap.get(anetId) : null;
-      if (athleteId) stats.athMatched++;
-      else { stats.athNew++;
-        const key = anetId ? 'a:' + anetId : 'n:' + r.athlete_name;
-        if (!newAthletes.has(key)) newAthletes.set(key, {
-          full_name: r.athlete_name, ...(parseName(r.athlete_name) || {}),
-          gender, school_id: UNATTACHED, is_active: true,
-          athletic_net_url: anetId ? `https://www.athletic.net/athlete/${anetId}/track-and-field` : null,
-        });
+      const anetUrl = anetId ? `https://www.athletic.net/athlete/${anetId}/track-and-field` : null;
+      let athleteId = null, newKey = null;
+
+      // (a) exact athletic.net-id match
+      if (anetId && byAnet.has(anetId)) { athleteId = byAnet.get(anetId); stats.matchAnet++; }
+      else {
+        // (b) fallback: existing athlete by name+gender, ONLY if unambiguous (exactly one)
+        const nameHits = byName.get(`${r.athlete_name.toLowerCase()}|${gender || ''}`) || [];
+        if (nameHits.length === 1) {
+          athleteId = nameHits[0]; stats.matchName++;
+          if (anetUrl && !backfillAnet.has(athleteId)) backfillAnet.set(athleteId, anetUrl); // link them going forward
+        } else {
+          // (c) genuinely new (unmatched) OR ambiguous name -> create keyed by anet id/name
+          stats.athNew++;
+          newKey = anetId ? 'a:' + anetId : 'n:' + r.athlete_name + '|' + (gender || '');
+          if (!newAthletes.has(newKey)) newAthletes.set(newKey, {
+            full_name: r.athlete_name, ...(parseName(r.athlete_name) || {}),
+            gender, school_id: UNATTACHED, is_active: true, athletic_net_url: anetUrl,
+          });
+        }
       }
+
       const mk = parseMark(r.mark_raw);
       if (mk.mark_seconds != null || mk.mark_meters != null) stats.markParsed++;
       rows.push({
-        _anetId: anetId, _newKey: athleteId ? null : (anetId ? 'a:' + anetId : 'n:' + r.athlete_name),
-        athlete_id: athleteId || null, event_type_id: etid, meet_id: meet.meet_id,
+        _newKey: newKey, athlete_id: athleteId, event_type_id: etid, meet_id: meet.meet_id,
         event_name: ev.eventCode, mark_raw: r.mark_raw, ...mk,
         wind: r.wind, place: parseInt(r.place, 10) || null, date: meet.date,
         meet_name: meet.name, is_pr: !!r.is_pr, environment: env,
@@ -133,15 +163,24 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
   // 5. report
   console.log('=== DRY RUN — translation report ===');
   console.log(`  events: ${stats.events} (event_type_id resolved: ${stats.evResolved}${Object.keys(stats.evMissed).length ? ', MISSED: ' + JSON.stringify(stats.evMissed) : ''})`);
-  console.log(`  results: ${stats.results} | marks parsed: ${stats.markParsed}`);
-  console.log(`  athletes: matched by athletic.net id = ${stats.athMatched} | new (would create) = ${stats.athNew} (${newAthletes.size} distinct)`);
+  console.log(`  results: ${stats.results} | marks parsed: ${stats.markParsed} | blank rows skipped: ${stats.skippedBlank}`);
+  console.log(`  athletes: matched by athletic.net id = ${stats.matchAnet} | matched by name+gender = ${stats.matchName} | NEW = ${stats.athNew} (${newAthletes.size} distinct)`);
+  console.log(`  (${backfillAnet.size} existing athletes will get their athletic.net url linked)`);
   console.log('\n  sample rows:');
   rows.slice(0, 4).forEach(r => console.log(`   ${r.place}. et=${r.event_type_id} ath=${r.athlete_id || 'NEW'} ${r.event_name} ${r.mark_raw}->${r.mark_seconds ?? r.mark_meters} wind=${r.wind}`));
 
   if (!commit) { console.log('\n(dry run — pass --commit to write)'); return; }
 
-  // 6. commit: create new athletes, backfill their ids, insert results, mark the meet
-  console.log('\nCreating new athletes...');
+  // 6a. link athletic.net url onto existing athletes matched by name (prevents future dupes)
+  if (backfillAnet.size) {
+    console.log(`\nLinking athletic.net url to ${backfillAnet.size} existing athletes...`);
+    for (const [aid, url] of backfillAnet) {
+      await supabase.from('athletes').update({ athletic_net_url: url }).eq('athlete_id', aid).is('athletic_net_url', null);
+    }
+  }
+
+  // 6b. create genuinely-new athletes, backfill their ids, insert results, mark the meet
+  console.log('Creating new athletes...');
   const created = new Map();
   const payloads = [...newAthletes.entries()];
   for (let i = 0; i < payloads.length; i += 500) {
