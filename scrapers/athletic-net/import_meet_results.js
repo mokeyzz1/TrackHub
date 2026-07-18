@@ -103,6 +103,11 @@ function schoolCorroborates(scrapedTeam, schoolText) {
 
 const addDays = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
 
+// Normalize a mark for cross-source fingerprint matching: athletic.net writes "10.35a"
+// (a = auto/altitude) and "5.08m", TFRRS writes "10.35"/"5.08". Strip trailing letters + units
+// so the same performance matches regardless of source formatting.
+const normMark = m => String(m || '').trim().toLowerCase().replace(/\s+/g, '').replace(/[a-z]+$/, '');
+
 /**
  * Existing-result fingerprints for these athletes around the meet dates — the duplicate-result
  * guard. Some "empty" meets already have their results in the DB as TFRRS athlete-history rows
@@ -115,7 +120,7 @@ async function loadFingerprints(athleteIds, from, to) {
       .select('result_id, athlete_id, event_type_id, mark_raw, date, meet_id')
       .in('athlete_id', c).gte('date', from).lte('date', to);
     data?.forEach(r => {
-      const k = `${r.athlete_id}|${r.event_type_id}|${r.mark_raw}`;
+      const k = `${r.athlete_id}|${r.event_type_id}|${normMark(r.mark_raw)}`;
       if (!map.has(k)) map.set(k, []);
       map.get(k).push(r);
     });
@@ -212,7 +217,7 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
   let claims = [], dupSkips = 0;
   for (const r of rows) {
     if (!r.athlete_id) continue; // brand-new athletes can't have pre-existing results
-    const hits = fp.get(`${r.athlete_id}|${r.event_type_id}|${r.mark_raw}`) || [];
+    const hits = fp.get(`${r.athlete_id}|${r.event_type_id}|${normMark(r.mark_raw)}`) || [];
     if (!hits.length) continue;
     const claimable = hits.find(h => h.meet_id == null);
     if (claimable) { r._claim = claimable.result_id; claims.push(claimable.result_id); }

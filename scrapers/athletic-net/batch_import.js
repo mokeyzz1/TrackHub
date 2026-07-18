@@ -24,16 +24,30 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
   const lIdx = args.indexOf('--limit');
   const limit = lIdx >= 0 ? parseInt(args[lIdx + 1], 10) : 0;
 
-  let q = supabase.from('meets')
+  const chunk = (arr, n) => { const o = []; for (let i = 0; i < arr.length; i += n) o.push(arr.slice(i, i + n)); return o; };
+
+  // candidates: have an athletic.net results link, not already imported by us
+  const { data: candidates, error } = await supabase.from('meets')
     .select('meet_id, name, date, results_status')
     .not('athletic_net_results_url', 'is', null)
     .neq('results_status', 'imported')
     .order('date', { ascending: false });
-  if (limit) q = q.limit(limit);
-  const { data: meets, error } = await q;
   if (error) throw error;
 
-  console.log(`BATCH ${commit ? 'COMMIT' : 'DRY'}: ${meets.length} meets to process\n`);
+  // CRITICAL: only import into GENUINELY EMPTY meets. A meet can be un-'imported' yet already
+  // hold TFRRS results — importing athletic.net on top duplicates. athletic.net fills the gaps;
+  // TFRRS-covered meets stay TFRRS (one meet, one source).
+  // Use an exact per-meet count (NOT .in() — that caps at 1000 rows and misclassifies big meets).
+  const empty = [];
+  for (const m of candidates) {
+    const { count } = await supabase.from('results').select('*', { count: 'exact', head: true }).eq('meet_id', m.meet_id);
+    if (!count) empty.push(m);
+  }
+  let meets = empty;
+  console.log(`Candidates: ${candidates.length} | already have results (skipped): ${candidates.length - meets.length} | genuinely empty: ${meets.length}`);
+  if (limit) meets = meets.slice(0, limit);
+
+  console.log(`BATCH ${commit ? 'COMMIT' : 'DRY'}: ${meets.length} empty meets to process\n`);
   let ok = 0, failed = 0;
   for (const [i, m] of meets.entries()) {
     console.log(`\n[${i + 1}/${meets.length}] ======== meet ${m.meet_id} "${m.name}" (${m.date}) ========`);
