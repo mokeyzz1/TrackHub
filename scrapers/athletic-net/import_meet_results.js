@@ -74,18 +74,59 @@ async function loadExisting(anetIds, names) {
     const { data } = await supabase.from('athletes').select('athlete_id, athletic_net_url').in('athletic_net_url', c);
     data?.forEach(a => { const id = anetIdFromUrl(a.athletic_net_url); if (id) byAnet.set(id, a.athlete_id); });
   }
-  // 2. name matches (for the fallback)
+  // 2. name matches (for the fallback) — carry the school name for team corroboration
   for (const c of chunk([...new Set(names)], 200)) {
-    const { data } = await supabase.from('athletes').select('athlete_id, full_name, gender').in('full_name', c);
-    data?.forEach(a => add(byName, `${(a.full_name || '').toLowerCase()}|${a.gender || ''}`, a.athlete_id));
+    const { data } = await supabase.from('athletes')
+      .select('athlete_id, full_name, gender, schools(official_name, short_name)')
+      .in('full_name', c);
+    data?.forEach(a => add(byName, `${(a.full_name || '').toLowerCase()}|${a.gender || ''}`, {
+      id: a.athlete_id,
+      school: a.schools ? `${a.schools.official_name || ''} ${a.schools.short_name || ''}` : '',
+    }));
   }
   return { byAnet, byName };
+}
+
+// Does the scraped team ("Bethel (Minn.)") plausibly name the athlete's school
+// ("Bethel University")? Corroboration = they share a distinctive token. Generic words don't
+// count, so "Saint Mary" can never corroborate "Saint John" on "saint" alone.
+const SCHOOL_GENERIC = new Set(['university', 'college', 'univ', 'state', 'the', 'of', 'and', 'saint', 'community']);
+function schoolTokens(s) {
+  return new Set(String(s || '').toLowerCase().replace(/['’.]/g, '').replace(/[^a-z0-9]+/g, ' ')
+    .split(' ').filter(t => t.length >= 4 && !SCHOOL_GENERIC.has(t)));
+}
+function schoolCorroborates(scrapedTeam, schoolText) {
+  const a = schoolTokens(scrapedTeam), b = schoolTokens(schoolText);
+  for (const t of a) if (b.has(t)) return true;
+  return false;
+}
+
+const addDays = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+
+/**
+ * Existing-result fingerprints for these athletes around the meet dates — the duplicate-result
+ * guard. Some "empty" meets already have their results in the DB as TFRRS athlete-history rows
+ * (often with meet_id NULL, which is why the meet looks empty). Key: athlete|event_type|mark.
+ */
+async function loadFingerprints(athleteIds, from, to) {
+  const map = new Map();
+  for (const c of chunk([...new Set(athleteIds)], 150)) {
+    const { data } = await supabase.from('results')
+      .select('result_id, athlete_id, event_type_id, mark_raw, date, meet_id')
+      .in('athlete_id', c).gte('date', from).lte('date', to);
+    data?.forEach(r => {
+      const k = `${r.athlete_id}|${r.event_type_id}|${r.mark_raw}`;
+      if (!map.has(k)) map.set(k, []);
+      map.get(k).push(r);
+    });
+  }
+  return map;
 }
 
 async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}) {
   // 1. the DB meet we're importing into
   const { data: meet, error: me } = await supabase
-    .from('meets').select('meet_id, name, date, season, athletic_net_results_url, meet_url')
+    .from('meets').select('meet_id, name, date, end_date, season, athletic_net_results_url, meet_url')
     .eq('meet_id', meetDbId).single();
   if (me || !meet) throw new Error(`meet ${meetDbId} not found: ${me?.message}`);
   const target = meet.athletic_net_results_url || meet.meet_url;
@@ -133,12 +174,15 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
       // (a) exact athletic.net-id match
       if (anetId && byAnet.has(anetId)) { athleteId = byAnet.get(anetId); stats.matchAnet++; }
       else {
-        // (b) fallback: existing athlete by name+gender, ONLY if unambiguous (exactly one)
+        // (b) fallback: existing athlete by name+gender — ONLY if unambiguous (exactly one)
+        // AND the scraped team corroborates their school. Same name at a different school is
+        // treated as a different person (create; multi-signal dedup can merge later).
         const nameHits = byName.get(`${r.athlete_name.toLowerCase()}|${gender || ''}`) || [];
-        if (nameHits.length === 1) {
-          athleteId = nameHits[0]; stats.matchName++;
+        if (nameHits.length === 1 && schoolCorroborates(r.team_name, nameHits[0].school)) {
+          athleteId = nameHits[0].id; stats.matchName++;
           if (anetUrl && !backfillAnet.has(athleteId)) backfillAnet.set(athleteId, anetUrl); // link them going forward
         } else {
+          if (nameHits.length === 1) stats.nameRejectedNoSchool = (stats.nameRejectedNoSchool || 0) + 1;
           // (c) genuinely new (unmatched) OR ambiguous name -> create keyed by anet id/name
           stats.athNew++;
           newKey = anetId ? 'a:' + anetId : 'n:' + r.athlete_name + '|' + (gender || '');
@@ -160,11 +204,27 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
     }
   }
 
+  // 4b. duplicate-result guard: check matched athletes' existing rows near the meet dates.
+  // Existing row with NULL meet_id = the same performance from a TFRRS athlete-history scrape
+  // -> CLAIM it (just set meet_id, no new row). Already linked (incl. re-runs) -> SKIP.
+  const fpFrom = addDays(meet.date, -7), fpTo = addDays(meet.end_date || meet.date, 7);
+  const fp = await loadFingerprints(rows.filter(r => r.athlete_id).map(r => r.athlete_id), fpFrom, fpTo);
+  let claims = [], dupSkips = 0;
+  for (const r of rows) {
+    if (!r.athlete_id) continue; // brand-new athletes can't have pre-existing results
+    const hits = fp.get(`${r.athlete_id}|${r.event_type_id}|${r.mark_raw}`) || [];
+    if (!hits.length) continue;
+    const claimable = hits.find(h => h.meet_id == null);
+    if (claimable) { r._claim = claimable.result_id; claims.push(claimable.result_id); }
+    else { r._skip = true; dupSkips++; }
+  }
+
   // 5. report
   console.log('=== DRY RUN — translation report ===');
   console.log(`  events: ${stats.events} (event_type_id resolved: ${stats.evResolved}${Object.keys(stats.evMissed).length ? ', MISSED: ' + JSON.stringify(stats.evMissed) : ''})`);
   console.log(`  results: ${stats.results} | marks parsed: ${stats.markParsed} | blank rows skipped: ${stats.skippedBlank}`);
-  console.log(`  athletes: matched by athletic.net id = ${stats.matchAnet} | matched by name+gender = ${stats.matchName} | NEW = ${stats.athNew} (${newAthletes.size} distinct)`);
+  console.log(`  athletes: matched by athletic.net id = ${stats.matchAnet} | matched by name+school = ${stats.matchName} | name-only REJECTED (no school corroboration) = ${stats.nameRejectedNoSchool || 0} | NEW = ${stats.athNew} (${newAthletes.size} distinct)`);
+  console.log(`  duplicate-result guard: ${claims.length} existing history rows will be CLAIMED (meet_id set, no new row) | ${dupSkips} exact dups skipped`);
   console.log(`  (${backfillAnet.size} existing athletes will get their athletic.net url linked)`);
   console.log('\n  sample rows:');
   rows.slice(0, 4).forEach(r => console.log(`   ${r.place}. et=${r.event_type_id} ath=${r.athlete_id || 'NEW'} ${r.event_name} ${r.mark_raw}->${r.mark_seconds ?? r.mark_meters} wind=${r.wind}`));
@@ -192,7 +252,16 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
   }
   for (const r of rows) if (!r.athlete_id && r._newKey) r.athlete_id = created.get(r._newKey) || null;
 
-  const insertable = rows.filter(r => r.athlete_id).map(({ _anetId, _newKey, ...keep }) => keep);
+  // claim existing athlete-history rows (link, don't duplicate)
+  if (claims.length) {
+    console.log(`Claiming ${claims.length} existing history rows (setting meet_id)...`);
+    for (const c of chunk(claims, 200)) {
+      await supabase.from('results').update({ meet_id: meet.meet_id }).in('result_id', c).is('meet_id', null);
+    }
+  }
+
+  const insertable = rows.filter(r => r.athlete_id && !r._skip && !r._claim)
+    .map(({ _newKey, _claim, _skip, ...keep }) => keep);
   console.log(`Inserting ${insertable.length} results...`);
   let imported = 0;
   for (let i = 0; i < insertable.length; i += 500) {
