@@ -272,6 +272,8 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
   console.log(`\nDONE: imported ${imported} results, created ${created.size} athletes, meet marked imported.`);
 }
 
+module.exports = { run };
+
 if (require.main === module) {
   const args = process.argv.slice(2);
   const meetDbId = args[0];
