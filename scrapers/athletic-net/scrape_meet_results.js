@@ -132,7 +132,9 @@ class AthleticNetMeetScraper {
 
     if (/^\d+$/.test(String(target))) meetId = String(target);
     else if (/athletic\.net\/TrackAndField\/meet\/(\d+)/i.test(target)) meetId = target.match(/\/meet\/(\d+)/)[1];
-    else if (/live\.athletic\.net|live\./i.test(target)) {
+    // Any AthleticLIVE live page (live.athletic.net, *.anet.live, live.herostiming.com, etc.) uses
+    // the /meets/{id} path — resolve it to the permanent www meet id via "View on AthleticNET".
+    else if (/\/meets\/\d+/i.test(target) || /anet\.live|live\.athletic\.net/i.test(target)) {
       console.log(`Resolving live URL -> www meet id: ${target}`);
       meetId = await this.resolveWwwMeetId(target);
       if (!meetId) throw new Error(`Could not resolve a www.athletic.net meet id from ${target}`);
