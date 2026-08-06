@@ -3,8 +3,17 @@
 -- "Derived, not trusted" — a PR is the best legal mark an athlete has actually recorded,
 -- computed from results, replacing the scraped `athlete_prs` table + `is_pr` flags.
 --
--- DRAFT — not applied yet. Ships as a regular VIEW for correctness review; see the
--- materialized-view note at the bottom for the production (fast-read) form.
+-- APPLIED to prod 2026-07-19 as a plain VIEW.
+-- MEASURED: per-athlete query = 0.6 ms (index scan; the athlete filter pushes into the window
+-- function) -> the app can read this VIEW directly for athlete profiles; NO materialized view or
+-- refresh job needed. A leaderboard-style scan (all PRs in one event) = ~8 s (seq-scans results),
+-- so only materialize (or index results(event_type_id, environment)) IF PR-based leaderboards
+-- get built. Current leaderboards use the separate WA-scoring top_performances functions.
+--
+-- DO NOT DROP athlete_prs. Measured on a 150-athlete sample (normalized via event_aliases):
+-- computed-only = 299 athlete/event pairs, but SCRAPED-ONLY = 189 — the scraped table holds real
+-- career bests from TFRRS profile pages for meets whose results were never imported. The two are
+-- COMPLEMENTARY; those 189 also flag missing meet results worth backfilling.
 --
 -- PR bucket = (athlete_id × event_type_id × environment). Indoor 200m, outdoor 200m,
 -- and an XC 8k are always separate PRs — exactly the target-schema design.

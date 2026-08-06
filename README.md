@@ -31,9 +31,9 @@ The app pulls data from multiple sources using automated scrapers that run on a 
 
 | Metric | Count |
 |--------|-------|
-| Results | 2.8 million+ |
-| Athletes | 123,000+ |
-| Meets | 12,000+ |
+| Results | 3.6 million+ |
+| Athletes | 149,000+ |
+| Meets | 12,600+ |
 | Schools | 1,800+ |
 
 ## Platform
