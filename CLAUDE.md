@@ -156,9 +156,14 @@ athletic.net pipeline built + 108 meets / ~58k results imported · computed PRs 
 **Known open issues:**
 1. **Relays missing from athletic.net imports** — relay rows list the *team*, not a person, so the
    bridge skipped them as blank; nothing written to `relay_results` (which the app reads).
-2. **`team_id` is NULL on all ~58k athletic.net results** — the scraper captured the team but the
-   bridge never mapped it, so those results don't know which school the athlete repped. Fix =
-   map scraped team → `teams` and backfill (needs a re-scrape or stored athletic.net team ids).
+2. **`team_id` partly filled (89.3% of results).** The athletic.net bridge never mapped the
+   scraped team, so those results had none. A roster-history backfill
+   (`scrapers/backfill-result-team-id.js`, re-runnable) filled 104,487 — including 29,751 of the
+   athletic.net rows — by mapping each result's date to a track season and using
+   `athlete_team_seasons`. **Still 394,659 without a team**, mostly older seasons (roster history
+   only covers 2024-25 and 2025-26) and undated athlete-history rows. Remaining fixes: have the
+   athletic.net bridge store team on import (it already scrapes `team_name` +
+   `athletic_net_team_id`), and extend roster coverage backwards.
    *(Related but separate — FIXED 2026-07-19: 5,446 athletes displayed their OLD school after
    transferring. `athletes.school_id` now derives from the most recent dated result's team; see
    `migrations/20260719_refresh_athlete_current_school.sql`. **Re-run it after each season** —
