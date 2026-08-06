@@ -142,8 +142,14 @@ athletic.net pipeline built + 108 meets / ~58k results imported · computed PRs 
 1. **Relays missing from athletic.net imports** — relay rows list the *team*, not a person, so the
    bridge skipped them as blank; nothing written to `relay_results` (which the app reads).
 2. **`team_id` is NULL on all ~58k athletic.net results** — the scraper captured the team but the
-   bridge never mapped it. This is why transferred athletes display their *old* school (the app
-   falls back to `athletes.school_id` instead of the per-result team).
+   bridge never mapped it, so those results don't know which school the athlete repped. Fix =
+   map scraped team → `teams` and backfill (needs a re-scrape or stored athletic.net team ids).
+   *(Related but separate — FIXED 2026-07-19: 5,446 athletes displayed their OLD school after
+   transferring. `athletes.school_id` now derives from the most recent dated result's team; see
+   `migrations/20260719_refresh_athlete_current_school.sql`. **Re-run it after each season** —
+   transfers are continuous.)*
+2b. **Duplicate athlete records are user-visible** — e.g. "Obiora Okeke" and "Mena Scatchard" each
+   have extra Unattached copies. Part of the dedup tail / Unattached incorporation work.
 3. **~203 meets still empty** — they have no athletic.net link; need link discovery (USTFCCCA)
    before scraping.
 4. Dedup tail (cross-school + ambiguous pairs), uniqueness guard on `tfrrs_athlete_id`.
