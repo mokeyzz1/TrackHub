@@ -5,15 +5,27 @@ sources (athletic.net and TFRRS) are used together. Written 2026-07-16.
 
 ## The two sources, and their roles
 
+**CORRECTION (2026-07-19):** an earlier version of this doc labelled TFRRS "secondary". That was
+wrong and it misled later work. TFRRS is the **foundation** — it built ~99% of the database
+(~12,570 meets / 11,853 with results) versus athletic.net's 108. Both sources are required and
+**work together**; neither replaces the other. Never propose "switching" from one to the other.
+
 | Source | What it is | Role |
 |---|---|---|
-| **athletic.net** (incl. AthleticLIVE) | The *timing platform* — where results are born, live, as the meet runs. Has everything (college + HS), the richest data (wind, splits, year, PB/SB, points). Cloudflare-protected → needs puppeteer. | **PRIMARY** — freshest, most complete, and we already capture its links at meet-discovery. |
-| **TFRRS** | The *aggregator* — imports from timing systems after the fact, adds canonical college rankings + stable athlete identity (TFRRS IDs). Lighter to scrape, but delayed and not exhaustive. | **SECONDARY** — fallback coverage + athlete identity + canonical rankings. |
+| **TFRRS** | The *college aggregator* — every college meet lands here regardless of which timing company ran it. Owns canonical athlete identity (`tfrrs_athlete_id`) + official rankings. Reached via stored `tfrrs_url`; links come from USTFCCCA's weekly directory. | **FOUNDATION** — built ~99% of the data; the identity + rankings backbone. Weakness: lags real time, `results_search` not exhaustive. |
+| **athletic.net** (incl. AthleticLIVE) | The *timing platform* — where results are born, live. Richest data (wind, splits, year, PB/SB, points). College **and** HS, but we only open our own college meets' stored URLs, so HS is never pulled in. Cloudflare-protected → puppeteer. | **SOURCE / GAP-FILLER** — fills meets TFRRS didn't cover, and the go-forward live feed. Its links are already captured at meet-discovery (2026 meets: ~563 have one). |
 
-**Why athletic.net is primary:** it's the source (real-time, complete, rich), and your
-meet-discovery scraper *already* banks its link on every meet (2026 meets: ~563 have one).
-TFRRS needs name-matching to find its links; athletic.net's are already in hand. HS data is
-never touched because we only open the specific college-meet URLs we already store.
+**How they coexist — the rules**
+1. **One meet, one source.** Never import a second source into a meet that already has results
+   (that creates duplicates). Import only into *genuinely empty* meets — verify with an exact
+   per-meet count, not `results_status`.
+2. **`meets.results_source`** is the provenance record (`athletic_net` | `tfrrs` | `ustfccca` |
+   `timing_site` | `manual` | `other`; NULL = historical TFRRS/USTFCCCA era). Query it to know
+   which source filled what.
+3. **Identity is shared:** one internal `athlete_id` = one person; `tfrrs_athlete_id` and
+   `athletic_net_url` are pointers to that person, and every confident match backfills the
+   missing pointer so the two ID systems converge.
+4. Marks differ by source (`10.35a` vs `10.35`) — **normalize before comparing** for dup checks.
 
 ## The link columns (each source has its own home)
 
