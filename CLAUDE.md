@@ -1,84 +1,152 @@
 # TrackHub — agent orientation
 
-Mobile app (React Native/Expo, iOS App Store) for college track & field: results, rankings,
-PRs, head-to-head. Supabase/PostgreSQL backend + Node scrapers. Solo-built.
+Mobile app (React Native/Expo, live on iOS App Store) for college track & field: results,
+rankings, PRs, head-to-head. Supabase/PostgreSQL + Node scrapers. Solo-built by the owner.
 
-**Read this before proposing changes to data ingestion.** The #1 recurring mistake is treating
-this as a single-source pipeline. It is not.
+**Read this fully before touching data ingestion or proposing schema changes.** Everything here
+was learned the expensive way. Don't re-litigate settled decisions; don't re-discover known traps.
 
 ---
 
-## THE TWO DATA SOURCES — BOTH ARE REQUIRED, THEY WORK TOGETHER
+## 1. THE TWO DATA SOURCES — BOTH REQUIRED, THEY WORK TOGETHER
 
-Neither replaces the other. Never propose "switching" from one to the other.
+Never propose "switching" from one to the other. They coexist by design.
 
-### TFRRS — the foundation (came first, still essential)
-- **Built ~99% of the database**: ~12,570 meets / 11,853 with results.
-- The aggregator for **college** T&F: every college meet ends up here regardless of which
-  timing company ran it.
+**TFRRS — the foundation (came first, still essential)**
+- Built ~99% of the database: **11,853 meets with results**.
+- The aggregator for **college** T&F — every college meet lands here regardless of which timing
+  company ran it. (Owner has corrected this point more than once: TFRRS has all college meets.)
 - Owns **canonical athlete identity** (`athletes.tfrrs_athlete_id`) and official rankings.
-- Reached via stored `meets.tfrrs_url`; links come from **USTFCCCA's weekly results directory**
-  (the authoritative "phone book" that publishes each meet's TFRRS *and* athletic.net links).
+- Reached via stored `meets.tfrrs_url`; links come from **USTFCCCA's weekly results directory** —
+  the authoritative "phone book" listing each meet's TFRRS *and* athletic.net links. For current
+  meets this means **no fuzzy matching is ever needed**; fuzzy is only a historical-backfill tool.
 - Weakness: lags real time; its `results_search` isn't exhaustive.
 
-### athletic.net (+ AthleticLIVE) — the source & gap-filler (added 2026-07)
-- The **timing platform**: where results are born live. Richer data (wind, splits, PB/SB, year,
-  points). Covers college **and** high school — we only ever open our own college meets' URLs,
-  so HS data is never pulled in.
+**athletic.net (+ AthleticLIVE) — the live source & gap-filler (added 2026-07)**
+- The **timing platform** where results are born live. Richer data: wind, splits, PB/SB, year,
+  points. Covers college **and** high school — we only ever open our own college meets' stored
+  URLs, so HS data never enters the DB.
 - `live.athletic.net/meets/{id}` redirects to the timing company's AthleticLIVE instance
-  (herostiming, blacksquirrel, `*.anet.live`, jdlfasttrack…) — all the same platform, one scraper.
-- Its meet page links to the permanent `www.athletic.net/TrackAndField/meet/{wwwId}` (that's the
-  live→www bridge; no searching needed).
-- Used to **fill meets TFRRS didn't cover** (108 meets so far) and as the go-forward live feed.
-- Cloudflare-protected → needs puppeteer-extra + StealthPlugin.
+  (herostiming, blacksquirrel, `*.anet.live`, jdlfasttrack, michianatiming…) — all one platform,
+  one scraper. athletic.net is the *interface* those timing systems publish into.
+- Each live page links to the permanent `www.athletic.net/TrackAndField/meet/{wwwId}` — that's the
+  live→www bridge, so no searching is needed when we already hold the live URL.
+- Currently 108 meets / ~58k results.
+- Cloudflare-protected → requires puppeteer-extra + StealthPlugin (plain HTTP gets a 403).
 
-### How they coexist — the rules
+**Coexistence rules**
 1. **One meet, one source.** Never import a second source into a meet that already has results —
-   that is how duplicates get created. Import only into *genuinely empty* meets (verify with an
-   exact per-meet count, not `results_status`).
-2. **`meets.results_source`** records which source filled each meet (`athletic_net` | `tfrrs` |
-   `ustfccca` | `timing_site` | `manual` | `other`). NULL = historical TFRRS/USTFCCCA era.
-   **Query this to know which source did what** — it is the source of truth for provenance.
-3. **Identity is shared.** One internal `athlete_id` = one person; `tfrrs_athlete_id` and
-   `athletic_net_url` are just pointers to that person. Every confident match backfills the
-   missing pointer so the two ID systems converge over time.
-4. **Link columns are intentional** (don't dump everything in one field):
+   that is how duplicates are created. Import only into *genuinely empty* meets, verified with an
+   exact per-meet count (`count(*) WHERE meet_id=…`), **not** `results_status`.
+2. **`meets.results_source`** is the provenance record: `tfrrs` (11,853) · `athletic_net` (108) ·
+   NULL (717 = still-empty meets). Query it to answer "which source did what".
+3. **Identity is shared.** One internal `athlete_id` = one person. `tfrrs_athlete_id` and
+   `athletic_net_url` are *pointers* to that person; every confident match backfills the missing
+   pointer, so the two ID systems converge and future matches are exact.
+4. **Link columns are intentional** — don't dump everything into one field:
    `meet_url` = live/timing link · `tfrrs_url` = TFRRS results · `athletic_net_results_url` =
    athletic.net results · `wa_results_url` = World Athletics.
+5. Marks differ by source: athletic.net `10.35a`, TFRRS `10.35` — **normalize before comparing**.
 
-Full detail: **`docs/DATA_SOURCE_STRATEGY.md`**.
+Detail: `docs/DATA_SOURCE_STRATEGY.md`.
 
 ---
 
-## HARD RULES (learned the expensive way)
+## 2. SETTLED DECISIONS — don't re-open these
 
-- **Never make the database messy again.** Before any bulk import: dedup-check athletes
-  (ID → name+gender *with school corroboration* → else create) and fingerprint-check results
-  (athlete+event+normalized mark near the meet date). Marks differ by source: athletic.net
-  writes `10.35a`, TFRRS writes `10.35` — normalize before comparing.
-- **Verify after writing, don't assume.** Every bulk op gets a post-write duplicate check.
-  This has caught real problems more than once.
-- **This Supabase instance is weak/write-slow.** Small batches, hard `statement_timeout`,
-  PK-driven updates, throttle. Never a giant unbounded UPDATE. See
-  `memory/backend-rebuild-status.md` "SAFE-BACKFILL METHOD".
-- **Scrapers need Node 20+** (`/Users/mk/.nvm/versions/node/v20.20.0/bin/node`); the shell
-  defaults to 18 and supabase-js/puppeteer crash on it.
+- **Unattached athletes (school_id 1835) are NOT junk.** They're **post-collegiate athletes** who
+  compete unattached at open/college meets. The owner *will* incorporate them into the app. Never
+  treat them as deletion candidates; the "Unattached cleanup" means linking them to their
+  collegiate records, not purging.
+- **TFRRS ID is not a reliable same/different-person signal.** The same person often has two
+  different `tfrrs_athlete_id`s (transfers, re-scrapes). Don't penalize an ID conflict when
+  deduping. Real signals: shared exact result (definitive same) · same date at different meets
+  (definitive different) · different gender (different).
+- **Don't drop `athlete_prs`.** Measured at scale: the computed view finds 299 pairs the scraped
+  table lacks, but the scraped table holds **189 the computed view can't see** — career bests from
+  TFRRS profile pages for meets whose results were never imported. They're complementary. (Those
+  189 also *flag* missing meet results worth backfilling.)
+- **Computed PRs = `v_athlete_prs`** (applied). Per-athlete read is **0.6 ms** (index scan) → the
+  app can query the view directly; **no materialized view or refresh job needed**. Only
+  materialize if PR-based leaderboards get built (a full-event scan is ~8 s).
+- **Empty athlete columns are future social-app scaffolding, not dead weight.** `athletes.bio`,
+  `profile_image_url`, `hometown`, `high_school`, `grad_year`, `primary_events` are reserved for
+  accounts / claimed profiles / feed (the owner's next product direction). Keep them.
+- **Never drop a column the frontend still reads.** Superseded columns wait for the frontend
+  migration. The full list + reference counts: `docs/COLUMN_RETIREMENT_PLAN.md`.
+- **Logos**: parked. Better sourced via the existing `schools.logo_source`
+  (wikipedia/athletic-site) path than by reverse-engineering athletic.net.
+
+## 3. DOMAIN RULES (track & field)
+
+- **Seasons span two calendar years** (Indoor/Outdoor/XC) — never split by calendar year.
+- **Environment is a separate axis from event.** Indoor 200m ≠ outdoor 200m ≠ XC. PRs/rankings
+  bucket by **(event_type × environment × gender)**. `results.environment` carries it.
+- **Events are canonical**: 63 `event_types`, ~1,180 `event_aliases` mapping messy raw names
+  (`200`/`200m`/`200 Meters`, athletic.net short codes like `60mh`/`weight`/`1mile`). Unknown names
+  go to `unmapped_events` — never silently mangled. Coverage is currently **100%**.
+- **Division is the top-level partition**: DI, DII, DIII, NAIA, NJCAA. **Conferences and regions
+  each belong to one division** and are *independent of each other* — schools in the same region
+  can be in different conferences (verified: the ACC spans 7 regions). NAIA has no regions
+  (national qualifying); NJCAA has 24 (not yet loaded). DI regions are **sport-specific**: XC uses
+  9 geographic regions, outdoor track qualifies via East/West prelims (derived, never stored).
+- Wind ≤ +2.0 is legal outdoors; altitude aids sprints/jumps. `wind` is currently free text and
+  mostly null, so PR calculations ignore legality for now (documented v2 refinement).
+
+## 4. HARD OPERATIONAL RULES
+
+- **Never make the database messy again.** Before any bulk import:
+  - *Athletes* — cascade: exact source-ID match → unique name+gender **with school corroboration**
+    → else create. Never guess; a wrong merge is far harder to undo than a duplicate.
+  - *Results* — fingerprint check (athlete + event_type + **normalized** mark, near the meet date).
+    An existing row with NULL `meet_id` should be **claimed** (set `meet_id`), not duplicated.
+- **Verify after writing — don't assume.** Every bulk op gets a post-write duplicate check. This
+  has caught real problems repeatedly (a batch once imported onto non-empty meets; rolled back).
+- **This Supabase instance is weak/write-slow.** Small batches (15–25k), hard `statement_timeout`,
+  PK-driven CTE updates, throttle, reconnect-on-drop. **Never** a giant unbounded UPDATE — one
+  overloaded prod for hours. Filtering `results` by an unindexed column = full scan = timeout.
+  Full method: `memory/backend-rebuild-status.md` → "SAFE-BACKFILL METHOD".
+- **Supabase `.in()` caps at 1000 rows** — it silently truncates. Use exact per-row counts for
+  correctness-critical checks.
+- **Scrapers need Node 20+**: `/Users/mk/.nvm/versions/node/v20.20.0/bin/node`. The shell defaults
+  to 18 and supabase-js/puppeteer crash there (`ReferenceError: File is not defined`).
 - **Commits: no `Co-Authored-By` lines.**
-- All ingestion resolves through `scrapers/shared/`: `event_resolver` (→ `event_type_id`),
-  `name_parser` (first/last on insert), `AthleteResolver` (find-or-create, no orphan leak).
+- **All ingestion resolves through `scrapers/shared/`**: `event_resolver` (→ `event_type_id`),
+  `name_parser` (first/last on insert), `athlete_resolver` (find-or-create, no orphan leak).
+  Fixing logic there fixes it for every importer — the copy-paste between importers is what let
+  bugs live in one path and not the other.
 
-## Where things are
+## 5. WHERE THINGS ARE
+
 | Topic | File |
 |---|---|
 | Data sources & orchestration | `docs/DATA_SOURCE_STRATEGY.md` |
 | Target schema / north star | `docs/TARGET_SCHEMA_BLUEPRINT.md` |
-| T&F domain rules (events, environments, PRs) | `docs/DOMAIN_LOGIC.md` |
-| Columns pending retirement (don't drop early) | `docs/COLUMN_RETIREMENT_PLAN.md` |
+| T&F domain rules | `docs/DOMAIN_LOGIC.md` |
+| Columns pending retirement | `docs/COLUMN_RETIREMENT_PLAN.md` |
 | Backend architecture | `docs/BACKEND_ARCHITECTURE.md` |
+| athletic.net scraper | `scrapers/athletic-net/scrape_meet_results.js` |
+| athletic.net import bridge | `scrapers/athletic-net/import_meet_results.js` |
+| Batch importer | `scrapers/athletic-net/batch_import.js` |
+| TFRRS weekly engine | `scrapers/tfrrs/meet-scraper/sync-weekend-results.js` |
+| Meet result-link backfill (USTFCCCA/TFRRS) | `scrapers/meets/backfill_result_links.js` |
 
-## Current state (2026-07)
-Off-season rebuild on branch `backend-rebuild`. Done: athlete dedup (6.3k merged), canonical
-events (100%), `meet_id` FKs, divisions dimension, gender/name backfills, hardened scrapers,
-athletic.net fill (108 meets / ~58k results), computed PRs (`v_athlete_prs`).
-Open: relays missing from athletic.net imports; `team_id` NULL on those results; ~203 meets
-still empty (need link discovery); dedup tail; frontend migration to read by IDs.
+## 6. CURRENT STATE (2026-07, branch `backend-rebuild`)
+
+Off-season rebuild. **Done:** athlete dedup (6,277 merged) · canonical events (100%) ·
+`meet_id` FKs + orphan cleanup · divisions dimension · gender (99.96%) and first/last name
+(99.9%) backfills · hardened scrapers (orphan-leak fix, event resolution, name split on insert) ·
+athletic.net pipeline built + 108 meets / ~58k results imported · computed PRs (`v_athlete_prs`).
+
+**Known open issues:**
+1. **Relays missing from athletic.net imports** — relay rows list the *team*, not a person, so the
+   bridge skipped them as blank; nothing written to `relay_results` (which the app reads).
+2. **`team_id` is NULL on all ~58k athletic.net results** — the scraper captured the team but the
+   bridge never mapped it. This is why transferred athletes display their *old* school (the app
+   falls back to `athletes.school_id` instead of the per-result team).
+3. **~203 meets still empty** — they have no athletic.net link; need link discovery (USTFCCCA)
+   before scraping.
+4. Dedup tail (cross-school + ambiguous pairs), uniqueness guard on `tfrrs_athlete_id`.
+5. **Frontend migration** — the app still matches by *text* (`meet_name`, event strings) instead of
+   `meet_id` / `event_type_id` / `division_id`. Until this lands, most of the backend cleanup is
+   dormant. Riskiest step (user-visible), so do it screen by screen.
