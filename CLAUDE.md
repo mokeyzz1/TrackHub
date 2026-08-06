@@ -54,10 +54,25 @@ Detail: `docs/DATA_SOURCE_STRATEGY.md`.
 
 ## 2. SETTLED DECISIONS — don't re-open these
 
-- **Unattached athletes (school_id 1835) are NOT junk.** They're **post-collegiate athletes** who
-  compete unattached at open/college meets. The owner *will* incorporate them into the app. Never
-  treat them as deletion candidates; the "Unattached cleanup" means linking them to their
-  collegiate records, not purging.
+- **"Unattached" — read this carefully, it is a recurring misunderstanding.**
+  Unattached means **competing without representing a school at that competition**. It is a
+  property of the *competition*, not of the person. Who competes unattached:
+  1. **Post-collegiate athletes** (the majority) — done with college, still competing.
+  2. **Currently-enrolled athletes who can't represent the team**: redshirt year, transfer
+     sit-out, exhausted eligibility, or running unattached to preserve eligibility.
+  3. Competing outside the NCAA season.
+  So the *same person* can be unattached one weekend and score for their school the next.
+  **They are NOT junk and NOT deletion candidates** — the owner will incorporate them into the
+  app (they're real athletes, and a natural social-app audience).
+  **Current data-model limitation:** unattached is stored as an athlete property
+  (`athletes.school_id = 1835`; 47,186 athletes, 50,543 results, and **0 of those results carry a
+  `team_id`**). Two unused Unattached teams exist. The correct model is per-result:
+  `results.team_id` → the Unattached team for that meet, while the athlete keeps their school
+  affiliation. Until that lands, a person's unattached record and their college record look like
+  two different athletes.
+  **Dedup implication:** an Unattached record and a school record with the same name are *often
+  the same person* — this is the single biggest duplicate source (~10,358 name-matches found).
+  Merge them with corroboration, never blindly.
 - **TFRRS ID is not a reliable same/different-person signal.** The same person often has two
   different `tfrrs_athlete_id`s (transfers, re-scrapes). Don't penalize an ID conflict when
   deduping. Real signals: shared exact result (definitive same) · same date at different meets
