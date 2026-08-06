@@ -68,19 +68,23 @@ async function loadExisting(anetIds, names) {
   const byAnet = new Map();
   const byName = new Map();
   const add = (m, k, id) => { if (!m.has(k)) m.set(k, []); m.get(k).push(id); };
-  // 1. exact athletic.net-id matches (by full url)
+  // 1. exact athletic.net-id matches (by full url). school_id comes along so relay team
+  //    resolution can derive the squad's school from its legs.
   const urls = anetIds.map(id => `https://www.athletic.net/athlete/${id}/track-and-field`);
   for (const c of chunk(urls, 200)) {
-    const { data } = await supabase.from('athletes').select('athlete_id, athletic_net_url').in('athletic_net_url', c);
-    data?.forEach(a => { const id = anetIdFromUrl(a.athletic_net_url); if (id) byAnet.set(id, a.athlete_id); });
+    const { data } = await supabase.from('athletes')
+      .select('athlete_id, athletic_net_url, school_id').in('athletic_net_url', c);
+    data?.forEach(a => { const id = anetIdFromUrl(a.athletic_net_url);
+      if (id) byAnet.set(id, { id: a.athlete_id, school_id: a.school_id }); });
   }
   // 2. name matches (for the fallback) — carry the school name for team corroboration
   for (const c of chunk([...new Set(names)], 200)) {
     const { data } = await supabase.from('athletes')
-      .select('athlete_id, full_name, gender, schools(official_name, short_name)')
+      .select('athlete_id, full_name, gender, school_id, schools(official_name, short_name)')
       .in('full_name', c);
     data?.forEach(a => add(byName, `${(a.full_name || '').toLowerCase()}|${a.gender || ''}`, {
       id: a.athlete_id,
+      school_id: a.school_id,
       school: a.schools ? `${a.schools.official_name || ''} ${a.schools.short_name || ''}` : '',
     }));
   }
@@ -128,6 +132,94 @@ async function loadFingerprints(athleteIds, from, to) {
   return map;
 }
 
+/**
+ * Import relay rows into relay_results + relay_athletes.
+ *
+ * Relay rows have the TEAM as the competitor (no individual athlete), which is why the original
+ * bridge dropped them as "blank" and no relays ever landed. Each row carries the team plus its
+ * ordered legs (athlete name + athletic.net id).
+ *
+ * TEAM RESOLUTION: `teams.athletic_net_url` is empty and school names are inconsistent
+ * ("Saint John's (Minn.)" vs "St. John's"), so name matching alone is unreliable. Instead we
+ * derive the team from the relay's OWN LEGS — resolve the leg athletes (which we match well by
+ * athletic.net id), then take the school they agree on and find that school's team for the
+ * event's gender. Falls back to a normalized school-name match.
+ */
+async function importRelays(meet, relayEvents, events, resolveAthlete, { commit }) {
+  if (!relayEvents.length) return { relays: 0, inserted: 0, legs: 0, dupSkipped: 0, noTeam: 0 };
+
+  // school lookup for the name fallback
+  const { data: schoolRows } = await supabase.from('schools').select('school_id, official_name, short_name');
+  const norm = s => String(s || '').toLowerCase().replace(/\s*-\s*[a-d]$/i, '')  // strip relay squad " - A"
+    .replace(/['’.]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const schoolByName = new Map();
+  (schoolRows || []).forEach(s => {
+    [s.official_name, s.short_name].filter(Boolean).forEach(n => {
+      const k = norm(n); if (k && !schoolByName.has(k)) schoolByName.set(k, s.school_id);
+    });
+  });
+
+  // team lookup: school + gender -> team_id
+  const { data: teamRows } = await supabase.from('teams').select('team_id, school_id, gender');
+  const teamBySchoolGender = new Map();
+  (teamRows || []).forEach(t => teamBySchoolGender.set(`${t.school_id}|${t.gender}`, t.team_id));
+
+  // existing relays for this meet (dedup + idempotent re-runs)
+  const { data: existingRelays } = await supabase.from('relay_results')
+    .select('relay_result_id, event_type_id, team_id, mark_raw').eq('meet_id', meet.meet_id);
+  const seenRelay = new Set((existingRelays || []).map(r => `${r.event_type_id}|${r.team_id}|${r.mark_raw}`));
+
+  const stats = { relays: 0, inserted: 0, legs: 0, dupSkipped: 0, noTeam: 0 };
+
+  for (const ev of relayEvents) {
+    const etid = events.resolve(ev.eventCode);
+    const gender = ev.gender === 'f' ? 'F' : 'M';
+    for (const r of (ev.results || [])) {
+      stats.relays++;
+      // resolve legs first — they also tell us the team
+      const legs = [];
+      const schoolVotes = new Map();
+      for (const leg of (r.legs || [])) {
+        const a = resolveAthlete({ anetId: leg.athletic_net_athlete_id, name: leg.athlete_name, gender });
+        legs.push({ ...leg, athlete_id: a.athleteId });
+        if (a.schoolId && a.schoolId !== UNATTACHED) schoolVotes.set(a.schoolId, (schoolVotes.get(a.schoolId) || 0) + 1);
+      }
+      let schoolId = [...schoolVotes.entries()].sort((x, y) => y[1] - x[1])[0]?.[0] || null;
+      if (!schoolId) schoolId = schoolByName.get(norm(r.team_name)) || null;   // name fallback
+      const teamId = schoolId ? (teamBySchoolGender.get(`${schoolId}|${gender}`) || null) : null;
+      if (!teamId) stats.noTeam++;
+
+      const key = `${etid}|${teamId}|${r.mark_raw}`;
+      if (seenRelay.has(key)) { stats.dupSkipped++; continue; }
+      seenRelay.add(key);
+
+      if (!commit) { stats.inserted++; stats.legs += legs.length; continue; }
+
+      const { data: ins, error } = await supabase.from('relay_results').insert({
+        team_id: teamId, event_name: ev.eventCode, event_type_id: etid,
+        mark_raw: r.mark_raw, mark_seconds: parseMark(r.mark_raw).mark_seconds,
+        place: parseInt(r.place, 10) || null,
+        meet_name: meet.name, meet_id: meet.meet_id, date: meet.date,
+      }).select('relay_result_id').single();
+      if (error) { console.log(`    relay insert error: ${error.message}`); continue; }
+      stats.inserted++;
+
+      const legRows = legs.filter(l => l.athlete_name).map(l => ({
+        relay_result_id: ins.relay_result_id,
+        athlete_id: l.athlete_id || null,
+        athlete_name: l.athlete_name,
+        leg_order: l.leg_order,
+      }));
+      if (legRows.length) {
+        const { error: le } = await supabase.from('relay_athletes').insert(legRows);
+        if (le) console.log(`    relay_athletes error: ${le.message}`);
+        else stats.legs += legRows.length;
+      }
+    }
+  }
+  return stats;
+}
+
 async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}) {
   // 1. the DB meet we're importing into
   const { data: meet, error: me } = await supabase
@@ -153,6 +245,10 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
   for (const ev of scraped.events) for (const r of (ev.results || [])) {
     if (r.athletic_net_athlete_id) scrapedIds.push(r.athletic_net_athlete_id);
     if (r.athlete_name && r.athlete_name.trim()) scrapedNames.push(r.athlete_name);
+    for (const leg of (r.legs || [])) {           // relay legs are athletes too
+      if (leg.athletic_net_athlete_id) scrapedIds.push(leg.athletic_net_athlete_id);
+      if (leg.athlete_name) scrapedNames.push(leg.athlete_name);
+    }
   }
   const { byAnet, byName } = await loadExisting(scrapedIds, scrapedNames);
   console.log(`Existing matches available: ${byAnet.size} by athletic.net id, ${byName.size} name/gender keys\n`);
@@ -170,14 +266,15 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
     if (etid) stats.evResolved++; else stats.evMissed[ev.eventCode] = (stats.evMissed[ev.eventCode] || 0) + 1;
     const gender = ev.gender === 'f' ? 'F' : ev.gender === 'm' ? 'M' : null;
     for (const r of (ev.results || [])) {
-      if (!r.athlete_name || !r.athlete_name.trim()) { stats.skippedBlank++; continue; } // empty/relay rows
+      if (r.is_relay) continue;                    // handled by importRelays() below
+      if (!r.athlete_name || !r.athlete_name.trim()) { stats.skippedBlank++; continue; } // empty rows
       stats.results++;
       const anetId = r.athletic_net_athlete_id;
       const anetUrl = anetId ? `https://www.athletic.net/athlete/${anetId}/track-and-field` : null;
       let athleteId = null, newKey = null;
 
       // (a) exact athletic.net-id match
-      if (anetId && byAnet.has(anetId)) { athleteId = byAnet.get(anetId); stats.matchAnet++; }
+      if (anetId && byAnet.has(anetId)) { athleteId = byAnet.get(anetId).id; stats.matchAnet++; }
       else {
         // (b) fallback: existing athlete by name+gender — ONLY if unambiguous (exactly one)
         // AND the scraped team corroborates their school. Same name at a different school is
@@ -224,6 +321,19 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
     else { r._skip = true; dupSkips++; }
   }
 
+  // 4c. relays — same athlete-matching cascade, but the competitor is a team with ordered legs
+  const resolveAthlete = ({ anetId, name, gender }) => {
+    if (anetId && byAnet.has(anetId)) {
+      const hit = byAnet.get(anetId);
+      return { athleteId: hit.id, schoolId: hit.school_id };
+    }
+    const hits = byName.get(`${(name || '').toLowerCase()}|${gender || ''}`) || [];
+    if (hits.length === 1) return { athleteId: hits[0].id, schoolId: hits[0].school_id };
+    return { athleteId: null, schoolId: null };     // ambiguous/new — leg keeps its name only
+  };
+  const relayEvents = scraped.events.filter(ev => (ev.results || []).some(r => r.is_relay));
+  const relayStats = await importRelays(meet, relayEvents, events, resolveAthlete, { commit });
+
   // 5. report
   console.log('=== DRY RUN — translation report ===');
   console.log(`  events: ${stats.events} (event_type_id resolved: ${stats.evResolved}${Object.keys(stats.evMissed).length ? ', MISSED: ' + JSON.stringify(stats.evMissed) : ''})`);
@@ -231,6 +341,7 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
   console.log(`  athletes: matched by athletic.net id = ${stats.matchAnet} | matched by name+school = ${stats.matchName} | name-only REJECTED (no school corroboration) = ${stats.nameRejectedNoSchool || 0} | NEW = ${stats.athNew} (${newAthletes.size} distinct)`);
   console.log(`  duplicate-result guard: ${claims.length} existing history rows will be CLAIMED (meet_id set, no new row) | ${dupSkips} exact dups skipped`);
   console.log(`  (${backfillAnet.size} existing athletes will get their athletic.net url linked)`);
+  console.log(`  RELAYS: ${relayStats.relays} rows across ${relayEvents.length} relay events -> ${relayStats.inserted} relay_results, ${relayStats.legs} legs | ${relayStats.dupSkipped} dup-skipped | ${relayStats.noTeam} without a resolved team`);
   console.log('\n  sample rows:');
   rows.slice(0, 4).forEach(r => console.log(`   ${r.place}. et=${r.event_type_id} ath=${r.athlete_id || 'NEW'} ${r.event_name} ${r.mark_raw}->${r.mark_seconds ?? r.mark_meters} wind=${r.wind}`));
 

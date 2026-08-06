@@ -97,6 +97,33 @@ class AthleticNetMeetScraper {
         results: rows.map(row => {
           const nameEl = row.querySelector('.title.text-overflow-ellipsis');
           const teamEl = row.querySelector('.subtitle.team');
+
+          // RELAY ROWS have a different shape: the competitor is the TEAM, not a person, so
+          // there is no `.title.text-overflow-ellipsis` (that's why relays were silently dropped
+          // as "blank" rows). Instead: `.team.title` holds "Bethel (Minn.) - A" and the legs are
+          // athlete links inside `.tertiary-content` ("+10ptsLanden Liu, Grant Nelson, ...").
+          const relayTeamEl = row.querySelector('.team.title');
+          if (!nameEl && relayTeamEl) {
+            const tert = row.querySelector('.tertiary-content');
+            const legs = [...(tert ? tert.querySelectorAll('a[href*="/athlete/"]') : [])].map((a, i) => ({
+              leg_order: i + 1,
+              athlete_name: a.textContent.trim(),
+              athletic_net_athlete_id: (a.getAttribute('href').match(/\/athlete\/(\d+)/) || [])[1] || null,
+            }));
+            const relayTeamHref = row.querySelector('a[href*="/team/"]')?.getAttribute('href') || '';
+            const tertTxt = txt(tert) || '';
+            return {
+              is_relay: true,
+              place: txt(row.querySelector('.place-column')),
+              team_name: txt(relayTeamEl),
+              athletic_net_team_id: (relayTeamHref.match(/\/team\/(\d+)/) || [])[1] || null,
+              mark_raw: txt(row.querySelector('.secondary .title')),
+              points: (tertTxt.match(/([+-]?\d+)\s*pts/) || [])[1] || null,
+              legs,
+              tertiary_raw: tertTxt || null,
+            };
+          }
+
           // NOTE: query the ROW for these — the name element's first <a> is the avatar
           // (/profile/{handle}), not the athlete link, so scoping to nameEl grabs the wrong one.
           const aHref = row.querySelector('a[href*="/athlete/"]')?.getAttribute('href') || '';
