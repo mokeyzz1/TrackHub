@@ -154,8 +154,13 @@ Off-season rebuild. **Done:** athlete dedup (6,277 merged) · canonical events (
 athletic.net pipeline built + 108 meets / ~58k results imported · computed PRs (`v_athlete_prs`).
 
 **Known open issues:**
-1. **Relays missing from athletic.net imports** — relay rows list the *team*, not a person, so the
-   bridge skipped them as blank; nothing written to `relay_results` (which the app reads).
+1. ~~Relays missing from athletic.net imports~~ **FIXED 2026-08.** Relay rows list the *team*, not
+   a person, so the bridge skipped them as blank (the "N blank rows skipped" in old logs were the
+   relays). Scraper now parses relay rows (`.team.title` + legs in `.tertiary-content`); bridge
+   writes `relay_results` + `relay_athletes`, deriving each squad's team from its own legs.
+   Backfilled all 106 meets: **3,686 relays / 11,230 legs across 72 meets**. Remaining gap: 1,418
+   relays (38%, mostly juco) have no `team_id` because their leg athletes aren't in the DB — the
+   lineups are still recorded. Re-run with `scrapers/athletic-net/backfill_relays.js`.
 2. **`team_id` partly filled (89.3% of results).** The athletic.net bridge never mapped the
    scraped team, so those results had none. A roster-history backfill
    (`scrapers/backfill-result-team-id.js`, re-runnable) filled 104,487 — including 29,751 of the
