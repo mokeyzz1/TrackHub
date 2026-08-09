@@ -63,6 +63,14 @@ has the meet; prefer athletic.net when you want the rich fields, TFRRS when you 
 - ⬜ **~40,618 DUPLICATE relay rows** (40,060 groups sharing meet+event+team+place+identical mark;
   ~18% of 228k). Pre-existing, not from the athletic.net import (ours were dup-guarded). Shows up
   as the same relay listed twice on an athlete's profile. Needs a dedup pass like the athlete one.
+- ⬜ **Broken relay events (owner-reported): 408 relay-event groups across 406 meets have NO
+  times at all** (1,439 rows, all DNF/blank) — a TFRRS parse failure, not real DNFs. Verified case:
+  NCAA DII Outdoor Champs (meet 13142) 4x100 = 7 rows all DNF, while the SAME meet's 4x400 imported
+  perfectly (80 rows with times). This is exactly the owner's "I see the 4x4s but not the 4x1s".
+  **athletic.net has the correct data for that meet** (m 4x100: 24 rows, Carson-Newman 39.30a;
+  f 4x100: 24 rows, Tusculum 44.05a) — so the fix is per-EVENT source fallback, which the current
+  "one meet, one source" rule doesn't cover. Proposed: detect all-DNF relay events, delete those
+  rows, re-import that event from athletic.net where a link exists.
 - ⬜ **relay_results hygiene:** 183,916 rows (81%) have NULL `meet_id` and 14,424 (6.3%) NULL
   `date` — `getAthleteRelays` sorts by date, so ordering on profiles is unreliable.
 - ⬜ **Dedup tail**: 294 cross-school + ~646 ambiguous pairs + 3 conflict clusters.
