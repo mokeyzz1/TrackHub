@@ -179,7 +179,11 @@ still has its athletes' marks in the DB — they're just not linked to the meet.
 | Target schema / north star | `docs/TARGET_SCHEMA_BLUEPRINT.md` |
 | T&F domain rules | `docs/DOMAIN_LOGIC.md` |
 | Columns pending retirement | `docs/COLUMN_RETIREMENT_PLAN.md` |
+| **Priorities / working checklist** | **`docs/BACKEND_PRIORITIES.md`** |
 | Backend architecture | `docs/BACKEND_ARCHITECTURE.md` |
+| Live results: NO public API (already investigated) | `backend/LIVE_RESULTS_INVESTIGATION.md` |
+| Status-router scraper design | `backend/SCRAPING_PIPELINE.md` |
+| Problem/solution history across sessions | `memory/backend-rebuild-status.md` |
 | athletic.net scraper | `scrapers/athletic-net/scrape_meet_results.js` |
 | athletic.net import bridge | `scrapers/athletic-net/import_meet_results.js` |
 | Batch importer | `scrapers/athletic-net/batch_import.js` |
