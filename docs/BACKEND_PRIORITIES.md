@@ -85,6 +85,16 @@ link out to the timing site (`meet_url` in a WebView) — that stays. Leftovers 
 - ⬜ **Frontend migration** — app reads by `meet_id`/`event_type_id`/`division_id` instead of
   matching text. Until this lands most backend cleanup is dormant. Riskiest step; do it screen by
   screen. Then execute `COLUMN_RETIREMENT_PLAN.md`.
+- ⬜ **Best first target: the `get_top_performances` DB function** (powers the home-screen
+  leaderboard; `hooks/useTopPerformances.ts` calls it via `supabase.rpc`). It reads `results`
+  (good) but does two things by hand that the DB now knows as data:
+  1. **normalizes events with a hand-written regex list** (`'^200\s*(Meters?|Meter\s*Dash|m|M)'`
+     → '200 Meters') instead of `event_type_id` — so it **misses aliases it doesn't list**,
+     notably athletic.net short codes (`60mh`, `1mile`, `weight`, `shot`, `tj`);
+  2. **guesses indoor by "does the meet have a 60m event"** instead of using `results.environment`.
+  Rewriting it on `event_type_id` + `environment` shrinks a 26KB function, picks up every one of
+  the ~1,180 aliases, and makes indoor/outdoor exact. Self-contained (one function, one screen),
+  so it's the lowest-risk way to start the migration and prove the payoff.
 - ⬜ Computed PRs: `v_athlete_prs` is live and fast (0.6 ms/athlete). Only materialize if
   PR-based leaderboards get built. **Do not drop `athlete_prs`** — it's complementary.
 
