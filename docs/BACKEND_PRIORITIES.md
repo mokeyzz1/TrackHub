@@ -60,6 +60,11 @@ has the meet; prefer athletic.net when you want the rich fields, TFRRS when you 
 - ⬜ **394,659 results have no `team_id`** (mostly pre-2024 seasons; roster history only covers
   2024-25 and 2025-26). Re-runnable: `scrapers/backfill-result-team-id.js`.
 - ⬜ **1,418 relays have no team** (mostly juco — their leg athletes aren't in the DB).
+- ⬜ **~40,618 DUPLICATE relay rows** (40,060 groups sharing meet+event+team+place+identical mark;
+  ~18% of 228k). Pre-existing, not from the athletic.net import (ours were dup-guarded). Shows up
+  as the same relay listed twice on an athlete's profile. Needs a dedup pass like the athlete one.
+- ⬜ **relay_results hygiene:** 183,916 rows (81%) have NULL `meet_id` and 14,424 (6.3%) NULL
+  `date` — `getAthleteRelays` sorts by date, so ordering on profiles is unreliable.
 - ⬜ **Dedup tail**: 294 cross-school + ~646 ambiguous pairs + 3 conflict clusters.
   Duplicate athletes are **user-visible** (e.g. "Obiora Okeke", "Mena Scatchard").
 - ⬜ **Unattached modelled per-person, not per-competition** — the root cause of those duplicates
