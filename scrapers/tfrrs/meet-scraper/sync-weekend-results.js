@@ -689,7 +689,15 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
           if (id) relayAthletes.push({ athlete_id: id, name });
         });
 
-        // Find mark (time) for relay
+        // Find mark (time) for relay.
+        //
+        // BUG FIXED 2026-08: this used to require MM:SS.ss (a colon), so it only ever matched
+        // relays slower than a minute. A 4x400 ("3:17.58") matched; a 4x100 ("39.30") did NOT,
+        // fell through to the DNF/DQ fallback below, and the ONLY 4x100 rows that survived were
+        // the teams that literally DNF'd. Effect: 4x100 was 14% usable vs 4x400 at 47%, and
+        // meets appeared to have no 4x1 at all. Sub-minute relays now match too.
+        // (Two digits before the decimal keeps this from grabbing points/wind-style values.)
+        const RELAY_TIME = /^(\d{1,2}:\d{2}\.\d{2,3}|\d{2}\.\d{2,3})$/;
         let markRaw = null;
 
         // Priority 1: Look for checkmark icon
@@ -698,7 +706,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
           const hasCheckmark = $cell.find('img[src*="ico-check"], img[src*="ico-plus"]').length > 0;
           if (hasCheckmark && !markRaw) {
             const text = $cell.text().trim();
-            if (text && /^\d{1,2}:\d{2}\.\d{2,3}$/.test(text)) {
+            if (text && RELAY_TIME.test(text)) {
               markRaw = text;
             }
           }
@@ -714,7 +722,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
             if (isHidden) return;
 
             const text = $cell.text().trim();
-            if (/^\d{1,2}:\d{2}\.\d{2,3}$/.test(text)) {
+            if (RELAY_TIME.test(text)) {
               markRaw = text;
             }
           });
