@@ -64,6 +64,34 @@ Detail: `docs/DATA_SOURCE_STRATEGY.md`.
 
 ---
 
+## 1b. HOW RESULTS LINKS ARE OBTAINED (and why old meets have none)
+
+The pipeline **stores a results link on the meet row and scrapes from that link** — it does not
+search for meets by name. Name/fuzzy matching was deliberately eliminated: it mismatched meets
+and is the main way wrong results get imported. Fuzzy is a last-resort historical tool only.
+
+Links come from **USTFCCCA's weekly results directory** (`web4.ustfccca.org/meets-results`) —
+the authoritative "phone book" that lists each meet with its TFRRS *and* athletic.net links.
+Meet discovery grabs them at scrape time (`meets/scrape_meets.js`), and
+`meets/backfill_result_links.js` can fill gaps.
+
+**THE CRITICAL CONSTRAINT — USTFCCCA's directory is a moving window.** It only lists recent
+meets; after a few weeks a meet's links are no longer retrievable there. Consequences:
+- A meet inside the window self-heals on the next scrape run. **A completed meet outside the
+  window never will** — its links are simply gone.
+- Link capture only started recently, so: 2026 meets mostly have links; **2025 and older have
+  essentially zero** (`OVERNIGHT_BACKFILL_PLAN.md`: 2025 = 2,178 missing / 0 with a link;
+  2024-and-older ≈ 8,700 / 0).
+- **So "just go get the links" is not generally possible for old meets.** Treat link-less
+  historical meets as likely-unfillable rather than a backlog to grind. Mark genuinely
+  unavailable ones `results_status='unavailable'` and stop rechecking.
+- Corollary: **capture links promptly for current meets** — that window is the only cheap
+  chance to get them.
+
+Note the `results` table is dual-purpose: rows with `meet_id` power meet pages; rows with
+`meet_id` NULL but `athlete_id` set are athlete-history marks. So a meet with "no results" often
+still has its athletes' marks in the DB — they're just not linked to the meet.
+
 ## 2. SETTLED DECISIONS — don't re-open these
 
 - **"Unattached" — read this carefully, it is a recurring misunderstanding.**
