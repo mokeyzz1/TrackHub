@@ -376,18 +376,29 @@ async function getMeetsNeedingResults(daysBack, meetId = null) {
 
   console.log(`Found ${meets.length} meets in date range`);
 
-  // Check which ones have results
-  const meetsWithResultsCheck = await Promise.all(meets.map(async (meet) => {
-    const { count } = await supabase
+  // Which ones actually need results?
+  //
+  // This used to Promise.all a count query for EVERY meet in the window (thousands at once).
+  // On this weak instance most of those requests fail, and a failed count read as `undefined`
+  // made `count > 0` false — i.e. a meet full of results looked EMPTY, so the engine would
+  // import a second source on top of it and create duplicates. Two fixes:
+  //   1. only check meets we could actually import (a stored results link) — cuts thousands to dozens
+  //   2. check sequentially, and FAIL SAFE: if the count can't be read, assume it HAS results
+  const importable = meets.filter(m => m.tfrrs_url);
+  console.log(`${importable.length} of ${meets.length} meets have a stored TFRRS url; checking which are empty...`);
+
+  const needsResults = [];
+  let skippedNonEmpty = 0, skippedUnknown = 0;
+  for (const meet of importable) {
+    const { count, error } = await supabase
       .from('results')
       .select('*', { count: 'exact', head: true })
       .eq('meet_id', meet.meet_id);
-
-    return { ...meet, hasResults: count > 0, resultCount: count };
-  }));
-
-  const needsResults = meetsWithResultsCheck.filter(m => !m.hasResults);
-  console.log(`${needsResults.length} meets need results\n`);
+    if (error || count == null) { skippedUnknown++; continue; }   // fail safe — never import blind
+    if (count > 0) { skippedNonEmpty++; continue; }               // one meet, one source
+    needsResults.push({ ...meet, hasResults: false, resultCount: 0 });
+  }
+  console.log(`${needsResults.length} meets need results (skipped ${skippedNonEmpty} already populated, ${skippedUnknown} unverifiable)\n`);
 
   return needsResults;
 }
