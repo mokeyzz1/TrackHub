@@ -129,6 +129,17 @@ still has its athletes' marks in the DB — they're just not linked to the meet.
   accounts / claimed profiles / feed (the owner's next product direction). Keep them.
 - **Never drop a column the frontend still reads.** Superseded columns wait for the frontend
   migration. The full list + reference counts: `docs/COLUMN_RETIREMENT_PLAN.md`.
+- **LIVE RESULTS IN-APP: ABANDONED — do not rebuild.** The original plan was for the app to show
+  its own live results during a meet. That requires scraping essentially 24/7 and effectively
+  running a timing-system UI — too much work for the value. **The shipped solution is simpler:
+  store the meet's timing link and let users go watch it there** (`meets.meet_url`, rendered as a
+  WebView in `app/meet/[id].tsx`). `meet_url` is therefore ACTIVE and important — don't retire it.
+  Dead leftovers from the abandoned attempt (safe to retire, nothing in the app uses them):
+  `live_results` (48 junk rows) + `unprocessed_live_results` view · `frontend/hooks/useLiveResults.ts`
+  (zero imports) · `getTopPerformances()` in `services/database-supabase.ts` (never called — the
+  home screen uses the `get_top_performances` RPC) · the live scrapers in `backend/scripts/*live*`
+  and `scrapers/live/`. Keep `backend/LIVE_RESULTS_INVESTIGATION.md` — it records *why* this was
+  abandoned (CDP analysis proving AthleticLIVE has no public API; results are server-rendered).
 - **Logos**: parked. Better sourced via the existing `schools.logo_source`
   (wikipedia/athletic-site) path than by reverse-engineering athletic.net.
 

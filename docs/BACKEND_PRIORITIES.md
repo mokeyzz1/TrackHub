@@ -68,6 +68,17 @@ has the meet; prefer athletic.net when you want the rich fields, TFRRS when you 
 - 🔁 **Re-run each season:** `migrations/20260719_refresh_athlete_current_school.sql` (transfers),
   `backfill-result-team-id.js`, `backfill-athlete-{names,gender}.js`.
 
+## P3b — Retire the abandoned live-results feature
+Owner abandoned in-app live results (would need ~24/7 scraping + a timing UI). Shipped solution:
+link out to the timing site (`meet_url` in a WebView) — that stays. Leftovers to retire:
+- ⬜ `frontend/hooks/useLiveResults.ts` — zero imports (zero-risk delete)
+- ⬜ `getTopPerformances()` in `services/database-supabase.ts` — never called (home screen uses the
+  `get_top_performances` RPC). Keep the rest of that file; other functions are in use.
+- ⬜ `live_results` table (48 junk rows) + `unprocessed_live_results` view — drop with the
+  frontend migration (generated types reference them)
+- ⬜ live scrapers: `backend/scripts/*live*` (8 files), `scrapers/live/live_scraper.js`
+- ✅ Keep `backend/LIVE_RESULTS_INVESTIGATION.md` — records *why* it was abandoned
+
 ## P4 — Ship / structural
 
 - ⬜ Merge `backend-rebuild` → `main` (nothing here touches app code; low risk).
