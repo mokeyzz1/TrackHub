@@ -213,7 +213,12 @@ athletic.net pipeline built + 108 meets / ~58k results imported · computed PRs 
    a person, so the bridge skipped them as blank (the "N blank rows skipped" in old logs were the
    relays). Scraper now parses relay rows (`.team.title` + legs in `.tertiary-content`); bridge
    writes `relay_results` + `relay_athletes`, deriving each squad's team from its own legs.
-   Backfilled all 106 meets: **3,686 relays / 11,230 legs across 72 meets**. Remaining gap: 1,418
+   Backfilled all 106 meets: **3,686 relays / 11,230 legs across 72 meets**. Two further relay
+   bugs found 2026-08 and fixed: (a) imported relays weren't *clickable* — the app builds a meet's
+   event list from `results`, so each leg also needs a `results` row (TFRRS's importer always did
+   this; the athletic.net bridge now does too); (b) **most relays had no `meet_id`** so meet pages
+   couldn't find them — 4x100 was 6% linked vs 4x400 22%, which is exactly why 4x4s appeared and
+   4x1s didn't. `scrapers/backfill-relay-meet-id.js` linked 157,780 rows (4x100 now 85%). Remaining gap: 1,418
    relays (38%, mostly juco) have no `team_id` because their leg athletes aren't in the DB — the
    lineups are still recorded. Re-run with `scrapers/athletic-net/backfill_relays.js`.
 2. **`team_id` partly filled (89.3% of results).** The athletic.net bridge never mapped the

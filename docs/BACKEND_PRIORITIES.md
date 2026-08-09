@@ -71,6 +71,13 @@ has the meet; prefer athletic.net when you want the rich fields, TFRRS when you 
   f 4x100: 24 rows, Tusculum 44.05a) — so the fix is per-EVENT source fallback, which the current
   "one meet, one source" rule doesn't cover. Proposed: detect all-DNF relay events, delete those
   rows, re-import that event from athletic.net where a link exists.
+- ✅ **FIXED 2026-08: orphaned relays linked to their meets.** Root cause of the owner's "4x4s
+  show but 4x1s don't": relays existed but had no `meet_id`, so meet pages couldn't find them —
+  4x100 was only **6%** linked vs 4x400 at 22%. Backfilled by exact meet_name+date
+  (`scrapers/backfill-relay-meet-id.js`, re-runnable): **157,780 rows linked**. Now 4x100 = 85.3%,
+  4x400 = 90.4%. Outdoor meets showing a 4x100 went 343 -> 883.
+  *Remaining:* 11,712 orphans have no matching meet; 240 outdoor meets still have a 4x400 but no
+  4x100 (some genuinely didn't run one; others are the all-DNF parse failures below).
 - ⬜ **relay_results hygiene:** 183,916 rows (81%) have NULL `meet_id` and 14,424 (6.3%) NULL
   `date` — `getAthleteRelays` sorts by date, so ordering on profiles is unreliable.
 - ⬜ **Dedup tail**: 294 cross-school + ~646 ambiguous pairs + 3 conflict clusters.
