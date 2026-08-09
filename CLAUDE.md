@@ -12,6 +12,18 @@ was learned the expensive way. Don't re-litigate settled decisions; don't re-dis
 
 Never propose "switching" from one to the other. They coexist by design.
 
+**History matters for reading the numbers.** The project started on **TFRRS** and scraped only
+TFRRS for years; **athletic.net was added 2026-07**. So TFRRS holding ~99% of the data is a fact
+of *chronology, not superiority* — it's simply what was scraped first. Both sources do the same
+job.
+
+**Do not confuse engine maturity with source quality.** Head-to-head in 2026-07 the TFRRS engine
+looked "better" (100% `team_id`, relays handled, no duplicate athletes) while the athletic.net
+import looked worse (no `team_id`, relays dropped) — but every one of those gaps was a *bug in
+the newly-written athletic.net bridge*, since fixed, not a limitation of athletic.net. On raw
+data athletic.net is actually **richer** (wind, splits, PB/SB, year, points) and fresher (live).
+Judge the two on coverage for a given meet, not on which engine happened to be older.
+
 **TFRRS — the foundation (came first, still essential)**
 - Built ~99% of the database: **11,853 meets with results**.
 - The aggregator for **college** T&F — every college meet lands here regardless of which timing
