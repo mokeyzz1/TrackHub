@@ -173,6 +173,13 @@ function parseDate(dateStr) {
 }
 
 // Fetch the calendar page and get list of meets
+// A relay time is EITHER MM:SS.ss (4x400 "3:17.58") OR plain seconds (4x100 "39.30").
+// The relay matcher used to accept only the colon form, so every sub-minute relay fell through
+// to the DNF/DQ fallback and only teams that actually DNF'd were kept — which is why 4x100
+// results were missing while 4x400 looked fine. The individual-result matcher below always had
+// the seconds-only pattern; the relay path just never got it.
+const RELAY_TIME = /^(\d{1,2}:\d{2}\.\d{2,3}|\d{2}\.\d{2,3})$/;
+
 async function fetchMeetList(startDate, endDate) {
   console.log(`Fetching meets from ${startDate} to ${endDate}...`);
 
@@ -366,7 +373,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
           const hasCheckmark = $cell.find('img[src*="ico-check"], img[src*="ico-plus"]').length > 0;
           if (hasCheckmark && !markRaw) {
             const text = $cell.text().trim();
-            if (text && /^\d{1,2}:\d{2}\.\d{2,3}$/.test(text)) {
+            if (text && RELAY_TIME.test(text)) {
               markRaw = text;
             }
           }
@@ -382,7 +389,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
             if (isHidden) return;
 
             const text = $cell.text().trim();
-            if (/^\d{1,2}:\d{2}\.\d{2,3}$/.test(text)) {
+            if (RELAY_TIME.test(text)) {
               markRaw = text;
             }
           });
