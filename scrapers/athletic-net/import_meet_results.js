@@ -167,7 +167,15 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit 
   // existing relays for this meet (dedup + idempotent re-runs)
   const { data: existingRelays } = await supabase.from('relay_results')
     .select('relay_result_id, event_type_id, team_id, mark_raw').eq('meet_id', meet.meet_id);
-  const seenRelay = new Set((existingRelays || []).map(r => `${r.event_type_id}|${r.team_id}|${r.mark_raw}`));
+  const relayIdByKey = new Map((existingRelays || []).map(r => [`${r.event_type_id}|${r.team_id}|${r.mark_raw}`, r.relay_result_id]));
+
+  // Existing per-leg rows in `results`. THIS MATTERS: the app builds a meet's event list from
+  // `results` (getEventsByMeetWithGender), so a relay only shows up in the app if each leg also
+  // has a row there — that's what the TFRRS importer does. Without it the relay exists in
+  // relay_results but there is nothing for the user to click.
+  const { data: existingLegRows } = await supabase.from('results')
+    .select('athlete_id, event_type_id, mark_raw').eq('meet_id', meet.meet_id);
+  const seenLegRow = new Set((existingLegRows || []).map(r => `${r.athlete_id}|${r.event_type_id}|${r.mark_raw}`));
 
   const stats = { relays: 0, inserted: 0, legs: 0, dupSkipped: 0, noTeam: 0 };
 
@@ -190,30 +198,60 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit 
       if (!teamId) stats.noTeam++;
 
       const key = `${etid}|${teamId}|${r.mark_raw}`;
-      if (seenRelay.has(key)) { stats.dupSkipped++; continue; }
-      seenRelay.add(key);
+      const alreadyHave = relayIdByKey.has(key);
+      if (alreadyHave) stats.dupSkipped++;
 
-      if (!commit) { stats.inserted++; stats.legs += legs.length; continue; }
+      // per-leg rows for `results` — what makes the relay visible in the app's event list
+      const legResultRows = legs
+        .filter(l => l.athlete_id && !seenLegRow.has(`${l.athlete_id}|${etid}|${r.mark_raw}`))
+        .map(l => {
+          seenLegRow.add(`${l.athlete_id}|${etid}|${r.mark_raw}`);
+          return {
+            athlete_id: l.athlete_id, team_id: teamId,
+            event_name: ev.eventCode, event_type_id: etid,
+            mark_raw: r.mark_raw, mark_seconds: parseMark(r.mark_raw).mark_seconds,
+            place: parseInt(r.place, 10) || null,
+            meet_name: meet.name, meet_id: meet.meet_id, date: meet.date,
+            environment: environmentFor(meet.season),
+          };
+        });
 
-      const { data: ins, error } = await supabase.from('relay_results').insert({
-        team_id: teamId, event_name: ev.eventCode, event_type_id: etid,
-        mark_raw: r.mark_raw, mark_seconds: parseMark(r.mark_raw).mark_seconds,
-        place: parseInt(r.place, 10) || null,
-        meet_name: meet.name, meet_id: meet.meet_id, date: meet.date,
-      }).select('relay_result_id').single();
-      if (error) { console.log(`    relay insert error: ${error.message}`); continue; }
-      stats.inserted++;
+      if (!commit) {
+        if (!alreadyHave) { stats.inserted++; stats.legs += legs.length; }
+        stats.legResultRows = (stats.legResultRows || 0) + legResultRows.length;
+        continue;
+      }
 
-      const legRows = legs.filter(l => l.athlete_name).map(l => ({
-        relay_result_id: ins.relay_result_id,
-        athlete_id: l.athlete_id || null,
-        athlete_name: l.athlete_name,
-        leg_order: l.leg_order,
-      }));
-      if (legRows.length) {
-        const { error: le } = await supabase.from('relay_athletes').insert(legRows);
-        if (le) console.log(`    relay_athletes error: ${le.message}`);
-        else stats.legs += legRows.length;
+      let relayResultId = relayIdByKey.get(key) || null;
+      if (!alreadyHave) {
+        const { data: ins, error } = await supabase.from('relay_results').insert({
+          team_id: teamId, event_name: ev.eventCode, event_type_id: etid,
+          mark_raw: r.mark_raw, mark_seconds: parseMark(r.mark_raw).mark_seconds,
+          place: parseInt(r.place, 10) || null,
+          meet_name: meet.name, meet_id: meet.meet_id, date: meet.date,
+        }).select('relay_result_id').single();
+        if (error) { console.log(`    relay insert error: ${error.message}`); continue; }
+        relayResultId = ins.relay_result_id;
+        relayIdByKey.set(key, relayResultId);
+        stats.inserted++;
+
+        const legRows = legs.filter(l => l.athlete_name).map(l => ({
+          relay_result_id: relayResultId,
+          athlete_id: l.athlete_id || null,
+          athlete_name: l.athlete_name,
+          leg_order: l.leg_order,
+        }));
+        if (legRows.length) {
+          const { error: le } = await supabase.from('relay_athletes').insert(legRows);
+          if (le) console.log(`    relay_athletes error: ${le.message}`);
+          else stats.legs += legRows.length;
+        }
+      }
+
+      if (legResultRows.length) {
+        const { error: re } = await supabase.from('results').insert(legResultRows);
+        if (re) console.log(`    relay leg results error: ${re.message}`);
+        else stats.legResultRows = (stats.legResultRows || 0) + legResultRows.length;
       }
     }
   }
@@ -341,7 +379,7 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
   console.log(`  athletes: matched by athletic.net id = ${stats.matchAnet} | matched by name+school = ${stats.matchName} | name-only REJECTED (no school corroboration) = ${stats.nameRejectedNoSchool || 0} | NEW = ${stats.athNew} (${newAthletes.size} distinct)`);
   console.log(`  duplicate-result guard: ${claims.length} existing history rows will be CLAIMED (meet_id set, no new row) | ${dupSkips} exact dups skipped`);
   console.log(`  (${backfillAnet.size} existing athletes will get their athletic.net url linked)`);
-  console.log(`  RELAYS: ${relayStats.relays} rows across ${relayEvents.length} relay events -> ${relayStats.inserted} relay_results, ${relayStats.legs} legs | ${relayStats.dupSkipped} dup-skipped | ${relayStats.noTeam} without a resolved team`);
+  console.log(`  RELAYS: ${relayStats.relays} rows across ${relayEvents.length} relay events -> ${relayStats.inserted} relay_results, ${relayStats.legs} legs, ${relayStats.legResultRows || 0} leg rows in results (makes relays visible in the app) | ${relayStats.dupSkipped} already present | ${relayStats.noTeam} without a resolved team`);
   console.log('\n  sample rows:');
   rows.slice(0, 4).forEach(r => console.log(`   ${r.place}. et=${r.event_type_id} ath=${r.athlete_id || 'NEW'} ${r.event_name} ${r.mark_raw}->${r.mark_seconds ?? r.mark_meters} wind=${r.wind}`));
 
