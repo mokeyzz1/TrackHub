@@ -111,7 +111,10 @@ function parseArgs() {
     scrape: args.includes('--scrape') || args.includes('--commit'),
     commit: args.includes('--commit'),
     fuzzy: args.includes('--fuzzy'),
-    days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7')
+    days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7'),
+    // --meet <id>: run against ONE meet regardless of the date window. Use this to verify the
+    // engine end-to-end before pointing it at a batch (it writes results).
+    meetId: args.find((a, i) => args[i-1] === '--meet') || null
   };
 }
 
@@ -307,7 +310,24 @@ function normalizeSchoolName(name) {
 }
 
 // Fetch meets from database that need results
-async function getMeetsNeedingResults(daysBack) {
+async function getMeetsNeedingResults(daysBack, meetId = null) {
+  // Single-meet mode: skip the date window entirely (used to verify before batching).
+  if (meetId) {
+    const { data, error } = await supabase
+      .from('meets')
+      .select('meet_id, name, date, location, meet_url, status, tfrrs_url, athletic_net_results_url, results_status')
+      .eq('meet_id', meetId);
+    if (error) { console.error('Error fetching meet:', error.message); return []; }
+    const { count } = await supabase.from('results')
+      .select('*', { count: 'exact', head: true }).eq('meet_id', meetId);
+    if (count) {
+      console.log(`Meet ${meetId} already has ${count} results — refusing to import a second source into a non-empty meet.`);
+      return [];
+    }
+    console.log(`Single-meet mode: ${data?.length || 0} meet selected (${count || 0} existing results)`);
+    return data || [];
+  }
+
   const today = new Date();
   const startDate = new Date(today);
   startDate.setDate(startDate.getDate() - daysBack);
@@ -1381,7 +1401,7 @@ async function main() {
   console.log(`Fuzzy fallback: ${options.fuzzy ? 'enabled' : 'disabled'}`);
 
   // Step 1: Find meets that need results
-  const meetsNeedingResults = await getMeetsNeedingResults(options.days);
+  const meetsNeedingResults = await getMeetsNeedingResults(options.days, options.meetId);
 
   if (meetsNeedingResults.length === 0) {
     console.log('\nNo meets need results. All caught up!');
