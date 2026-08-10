@@ -80,3 +80,44 @@ of source. Node 20+ required (puppeteer + supabase-js).
 - ⏳ Build the athletic.net results scraper→import bridge (reuse `platforms/athletic_net.js`).
 - ⏳ Build the orchestrator (compare + pick + record).
 - See [athletic-net-scraper-plan] memory for the full athletic.net API map.
+
+
+---
+
+## Direction of travel (owner, 2026-08-10): lean on athletic.net for NEW meets
+
+This is the owner's call, not a proposal to "switch sources" — the two still coexist, and the
+rule against switching in CLAUDE.md §1 is aimed at unprompted agent suggestions, not this.
+
+**Owner's reasoning:** athletic.net carries richer detail — qualifying status (**big Q** = auto
+qualifier by place, **small q** = time qualifier), splits, wind, PB/SB, year, points. That detail
+is what lets the app get better, not just bigger.
+
+**A second argument, from the link data (measured 2026-08-10, 2025-26 season, 2,575 meets):**
+
+| | meets |
+|---|---|
+| have an athletic.net link | **588 (23%)** |
+| have a TFRRS link | **89 (3.5%)** |
+| results actually sourced from TFRRS | 2,281 (89%) |
+
+Athletic.net links are **6.6× more available**. And note the gap: 2,281 meets hold TFRRS results
+while only 89 have a stored `tfrrs_url` — so the TFRRS path is mostly **not link-driven**, it is
+matching by name and date. That is precisely the mechanism that produced DUP-1 (one TFRRS page
+imported into both "Utah Spring Classic" and "Arkansas Spring Invitational", same date). Moving
+new-meet ingestion onto stored athletic.net links removes that whole failure mode.
+
+**What must NOT move:**
+- **Athlete identity stays TFRRS-anchored.** `athletes.tfrrs_athlete_id` is the canonical id.
+- **The historical archive stays TFRRS.** 9,572 pre-2025 meets, and no athletic.net links exist
+  for any of them (measured: 0 of 10,105). That data is not re-sourceable.
+
+**What has to happen first:**
+1. **Link capture is the bottleneck, not the scraper.** 23% coverage is not enough to lead with.
+   USTFCCCA's directory is a moving window (CLAUDE.md §1b), so links must be captured *during*
+   the season — that window is the only cheap chance.
+2. **Per-event source preference** (open issue U3). Coverage varies by meet and even by event, so
+   the right model is "best source for this event", not "one source for everything".
+3. **Schema has nowhere to put the richer data yet.** `results` has no qualifying-status column —
+   the Q/q distinction the owner wants would need one, plus somewhere for splits. Worth designing
+   before the 2026-27 season so the scrape captures it from day one rather than needing a backfill.
