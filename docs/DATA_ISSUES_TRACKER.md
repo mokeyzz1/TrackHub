@@ -6,6 +6,10 @@ before the 2026-27 season (starts Dec 2026 / Jan 2027).
 Companion docs: `BACKEND_PRIORITIES.md` (execution order) · `CLAUDE.md` (rules & context) ·
 `memory/backend-rebuild-status.md` (problem/solution history).
 
+**SCALE NOTE (owner, 2026-08):** every issue found by inspecting ONE athlete's profile turned out
+to affect tens of thousands. Always measure an in-app symptom across the whole DB before deciding
+it's minor.
+
 **Working rules for every fix here:** dry-run with counts + samples first · verify after writing ·
 never delete without a self-proving test · small throttled batches (weak instance).
 
@@ -16,7 +20,7 @@ never delete without a self-proving test · small throttled batches (weak instan
 | # | Issue | Size | Notes |
 |---|---|---|---|
 | D1 | **Cross-meet duplication** — the same performance attributed to 2-4 different meets | **26,846 extra attributions** (Outdoor 2026 alone) | Proven case: "Utah Spring Classic" (12436) holds **100% Arkansas Spring Invitational** (12337) data — 0 unique rows, athletes all from AR/IA/KS/KY/MO/OK. Owner spotted it: an athlete showing a meet she never attended. **Fix:** find meets with zero unique results, corroborate by geography, delete the copied rows (meet returns to empty = accurate). |
-| D2 | **Within-meet round duplicates** — same performance under two round labels | TBD | e.g. `11.79 13th "Heat 1"` AND `11.79 13th "Preliminaries"`. Same mark **and same place** is the signal (a real prelim/final rarely shares both). Keep Finals > Preliminaries > Heat N. |
+| D2 | **Within-meet round duplicates** — same performance under two round labels | **416,044 extra rows · 69,409 athletes** (2026 seasons alone) | **LARGEST issue in the database.** e.g. `11.79 13th "Heat 1"` AND `11.79 13th "Preliminaries"`. 395,160 of 405,301 groups differ ONLY by round label. Same mark **and same place** is the signal (a real prelim/final rarely shares both — place normally differs). Keep Finals > Preliminaries > Heat N. Verify a sample before mass deletion. |
 | D3 | **Duplicate relay rows** | ~40,618 extra rows (40,060 groups) | Same meet+event+team+place+identical mark. Pre-existing (not from the athletic.net import, which was dup-guarded). |
 | D4 | **Duplicate athlete records** | 294 cross-school + ~646 ambiguous + 3 conflict clusters | Root cause is U2 below. Visible in-app (e.g. "Obiora Okeke", "Mena Scatchard"). |
 
@@ -39,7 +43,7 @@ never delete without a self-proving test · small throttled batches (weak instan
 | U2 | **Unattached modelled per-person, not per-competition** | `athletes.school_id=1835` instead of `results.team_id` → one person's unattached and college records look like two athletes. Root cause of D4. |
 | U3 | **No per-event source fallback** | TFRRS broke on DII 4x100 while athletic.net had it perfectly. Current rule is per-meet; needs to be per-event. |
 | U4 | **`get_top_performances` uses regex, not `event_type_id`** | Home-screen leaderboard normalizes events by hand-written regex and infers indoor by "has a 60m event" — misses athletic.net short codes. Best first target for the frontend migration. |
-| U4b | **Athlete progression & season bests split one event into several** | Owner-reported: an athlete shows `100`, `100 Meters`, `100m` as separate events — and separate season bests (her 60m showed two). Verified on athlete 17768: 100m has 3 spellings, 60m 3, 200m 2. Cause: `getAthletePerformances` and `getAthletePRs` **don't even select `event_type_id`** — they group by raw `event_name`. The DB is already 100% canonical, so the fix is small: select `event_type_id` and group/display by it. **Best first frontend win** — visible, contained, low risk. |
+| U4b | **Athlete progression & season bests split one event into several** — **36,838 athletes / 58,844 athlete-event pairs affected (18.5%), worst case 6 spellings** | Owner-reported: an athlete shows `100`, `100 Meters`, `100m` as separate events — and separate season bests (her 60m showed two). Verified on athlete 17768: 100m has 3 spellings, 60m 3, 200m 2. Cause: `getAthletePerformances` and `getAthletePRs` **don't even select `event_type_id`** — they group by raw `event_name`. The DB is already 100% canonical, so the fix is small: select `event_type_id` and group/display by it. **Best first frontend win** — visible, contained, low risk. |
 | U5 | **Frontend still matches by text** | App reads `meet_name`/`event_name` strings instead of IDs. Until this lands most cleanup is dormant. |
 | U6 | **Abandoned live-results code** | In-app live results was dropped (link-out via `meet_url` is the shipped answer). Dead: `live_results` table, `useLiveResults.ts`, `getTopPerformances()`, 8 live scripts. |
 | U7 | **Merge `backend-rebuild` → `main`** | Nothing touches app code; low risk. |
