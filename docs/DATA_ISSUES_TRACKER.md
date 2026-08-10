@@ -30,7 +30,7 @@ never delete without a self-proving test · small throttled batches (weak instan
 | ~~DUP-2~~ | ~~Within-meet round duplicates~~ | **DONE 2026-08-10 — 452,748 rows removed** | Whole-DB re-measure found 441,314 groups / 453,113 extra rows / 71,117 athletes. Removed in three runs (pilot 4,427 · full 447,853 · NULL-bug cleanup 468). **185 groups deliberately kept** — both `Preliminaries` and `Finals` at the same mark and place, genuinely ambiguous. `results`: 3,772,655 → **3,319,907**. Backup `results_d2_backup` + per-run audit JSONs. Rollback: `INSERT INTO results SELECT * FROM results_d2_backup;` See the DUP-2 detail section below. |
 | DUP-3 | **Duplicate relay rows** | **43,037 extra rows (42,305 groups)** measured 2026-08-09 | Same meet+event+team+place+identical mark. Pre-existing (not from the athletic.net import, which was dup-guarded). The count rose from ~40,618 partly because linking previously-invisible relays (F5, M3) *surfaces* duplicates that were always there but unlinked. **Run DUP-3 dedup after the relay linking work, not before.** |
 | DUP-4 | **Duplicate athlete records** | 294 cross-school + ~646 ambiguous + 3 conflict clusters | Root cause is U2 below. Visible in-app (e.g. "Obiora Okeke", "Mena Scatchard"). |
-| DUP-5 | **Duplicate athlete-history rows** (`meet_id IS NULL`) | **1,524 groups / 1,683 extra rows** | Found 2026-08-10 while building the dedup guard — a non-partial unique index could not be created because of them. **Not covered by `results_no_exact_duplicate`**, which is partial on `meet_id IS NOT NULL`. These are the dual-purpose rows that power athlete history rather than meet pages, so DUP-2's meet-scoped key never saw them. Same rule should apply, keyed on (athlete, event_type, mark, place, round) without `meet_id`. |
+| ~~DUP-5~~ | ~~Duplicate athlete-history rows~~ (`meet_id IS NULL`) | **976 removed 2026-08-10; 707 left deliberately** | Found 2026-08-10 while building the dedup guard — a non-partial unique index could not be created because of them. **Not covered by `results_no_exact_duplicate`**, which is partial on `meet_id IS NOT NULL`. These are the dual-purpose rows that power athlete history rather than meet pages, so DUP-2's meet-scoped key never saw them. Same rule should apply, keyed on (athlete, event_type, mark, place, round) without `meet_id`. |
 
 ## 🟠 OPEN — missing / incomplete data
 
@@ -331,3 +331,24 @@ still appearing twice: 9 athletes — every one a REAL prelim/final pair with di
 ```
 
 Duplicates gone, both real races kept. This is the recurrence risk closed before the Dec/Jan season.
+
+
+### DUP-5 — 976 removed 2026-08-10, 707 deliberately kept
+
+Athlete-history rows (`meet_id IS NULL`) are outside the `results_no_exact_duplicate` index,
+which is partial on `meet_id IS NOT NULL`, and outside DUP-2's meet-scoped key. So nobody had
+ever deduped them.
+
+**Cause:** profile scrapes re-run. Sucar Tanelus held **4 copies of every mark**, created at
+`04:09:58`, `04:10:24`, `04:10:33`, `04:10:48` — four passes inside 50 seconds on 2025-11-26,
+all with NULL date, meet, place and round.
+
+**Removed:** 976 rows across 148 athletes, keyed on
+(athlete, event_type, mark, place, round, **date**). Zero groups remain on that key.
+`results`: 3,313,168 → **3,312,192**.
+
+**Deliberately kept: 707 rows in 560 groups**, of which **510 differ only by `date`.** Same
+athlete, same event, same mark, on different days. For history rows `place` and `round` are both
+NULL, so they cannot discriminate — and an athlete genuinely can repeat a mark on two days
+(common in field events and round-number marks). Collapsing them would destroy real performances
+on a guess. **Do not "finish" DUP-5 by dropping the date from the key.**
