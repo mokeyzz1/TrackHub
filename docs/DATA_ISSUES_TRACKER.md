@@ -132,3 +132,38 @@ bug. Left alone deliberately.
 **Earlier in the rebuild:** athlete dedup (6,277 merged) · canonical events (63 types, 100%) ·
 `meet_id` FKs + orphan cleanup · divisions dimension · gender 99.96% · names 99.9% ·
 computed PRs (`v_athlete_prs`) · scraper hardening (orphan leak, event resolution, dup guards).
+
+### D2 progress — pilot run 2026-08-10
+
+Re-measured whole-DB (the documented 416,044 covered only the 2026 seasons):
+**441,314 groups · 453,113 extra rows · 71,117 athletes.**
+
+**Two mechanisms found, both genuine duplicates:**
+1. *Same scrape, published twice* (82.9% of groups share `created_at` to the microsecond) —
+   TFRRS lists a race in the combined result AND broken out by heat, so it is captured twice
+   under different round labels. e.g. Durrell Collins, 200m, WAC Indoor: `21.19 3rd Finals` and
+   `21.19 3rd Heat 1` — one run, two rows.
+2. *Whole meet re-imported* — two contiguous `result_id` blocks from two scrape runs, differing
+   only in `date`. e.g. Anaya Ervin's entire heptathlon at Carl Kight, once dated 04-02 and once
+   04-03. Keep-rule now prefers the row whose date matches `meets.date`.
+
+**Why the key is safe:** `mark_seconds` differs in **0** of 441,314 groups; a real prelim→final
+pair has different times, so requiring identical mark AND place cannot merge two real races. The
+185 groups that are genuinely ambiguous (both `Preliminaries` and `Finals`, same mark and place)
+are **excluded, not guessed at**.
+
+**Root cause is unfixed:** the only unique index on `results` is the primary key — nothing at the
+DB level prevents re-inserting the same performance. A unique constraint can't be the answer
+either, since it would reject those 185 legitimate pairs. The guard must live in the importer,
+and it demonstrably failed for the Ervin meet. **Re-check the importer guard before the next
+season's scrapes, or these come back.**
+
+**Pilot (meets of Durrell Collins + Jaurdin Mallory):** 4,427 rows backed up and deleted.
+
+| athlete | rows before | rows after | distinct performances |
+|---|---|---|---|
+| Durrell Collins | 51 | 44 | 44 → 44 unchanged |
+| Jaurdin Mallory | 58 | 49 | 49 → 49 unchanged |
+
+Row count now equals distinct performances — no real performance lost. Remaining DB-wide:
+436,889 groups. Rollback: `INSERT INTO results SELECT * FROM results_d2_backup;`
