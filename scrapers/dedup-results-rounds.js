@@ -119,8 +119,10 @@ SELECT result_id FROM ranked WHERE rn > 1`;
 
   // 1. backup table holding the WHOLE row (an id list cannot undo a DELETE)
   await c.query(`CREATE TABLE IF NOT EXISTS results_d2_backup (LIKE results INCLUDING DEFAULTS)`);
+  // Appending is fine and expected (pilot run, then the full run). Each run writes its own audit
+  // JSON, so any single run is still individually identifiable and reversible.
   const { rows: [pre] } = await c.query('SELECT count(*)::int AS n FROM results_d2_backup');
-  if (pre.n > 0) { console.log(`results_d2_backup already holds ${pre.n} rows — aborting, inspect first`); await c.end(); return; }
+  if (pre.n > 0) console.log(`results_d2_backup already holds ${pre.n.toLocaleString()} rows (earlier run) — appending`);
 
   console.log('resolving doomed ids...');
   const { rows: doomed } = await c.query(DOOMED_SQL);
