@@ -258,3 +258,24 @@ rows, so afterwards it was impossible to answer "did this create duplicates?" or
 those rows. Verification you can't target is not verification. Pattern:
 `scrapers/backfill-relay-meet-id-nodate.js` — resolve the id list, dump it to JSON, apply, then
 re-read those exact ids to check for collisions.
+
+## 8. THE DUPLICATE GUARD ON `results` (added 2026-08-10)
+
+`results_no_exact_duplicate` — a **partial, NULLS NOT DISTINCT unique index** on
+`(athlete_id, meet_id, event_type_id, mark_raw, place, round) WHERE meet_id IS NOT NULL`.
+Added after D2 deleted 452,748 duplicate rows. Full rationale:
+`migrations/20260810_results_dedup_guard.sql`. Things to know before you touch it:
+
+- **It will reject re-imports.** That is the point. An importer that re-runs over a populated
+  meet now gets a unique violation instead of silently doubling it. Handle it, don't disable it.
+- **`round` is in the key deliberately** — 185 real prelim/final pairs share mark and place and
+  are distinguished only by round. Dropping `round` from the index deletes real data.
+- **It is partial on `meet_id IS NOT NULL`** because athlete-history rows (meet_id NULL) contain
+  1,524 duplicate groups of their own. A non-partial index cannot be built. That backlog is
+  still open.
+- **It does not catch the Finals+Heat N case** (those differ in `round`). That must be collapsed
+  at import time: same (athlete, event_type, mark, place), differing only by round label → keep
+  the best round. Same rule as the D2 cleanup.
+- **Setting a NULL `event_type_id` can now fail.** Resolving a NULL event type can make a row
+  collide with a twin it was previously hidden from. Delete the duplicate rather than update it —
+  see `scrapers/backfill-null-event-types.js`.
