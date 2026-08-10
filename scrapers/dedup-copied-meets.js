@@ -75,26 +75,9 @@ per_meet AS (
    AND s.event_type_id IS NOT DISTINCT FROM k.event_type_id
    AND s.mark_raw = k.mark_raw AND s.place IS NOT DISTINCT FROM k.place
   GROUP BY 1)
-SELECT pm.meet_id AS copy_id, mm.name AS copy_name, mm.date, pm.total_rows AS copy_rows,
-       o.meet_id AS orig_id, o.name AS orig_name, o.rows AS orig_rows
+SELECT pm.meet_id AS copy_id, mm.name AS copy_name, mm.date, pm.total_rows AS copy_rows
 FROM per_meet pm
 JOIN meets mm ON mm.meet_id = pm.meet_id
-JOIN LATERAL (
-  -- The ORIGINAL is the meet holding a STORED results link, not the biggest one and not
-  -- necessarily one on the same date. Proven 2026-08-10: "Big 12", "BIG EAST" and "Big Sky"
-  -- Outdoor Championships each held 1,471 identical rows of BIG TEN school results, while the
-  -- genuine "Big Ten Outdoor Championships" (13056) sat on the NEXT day with a tfrrs_url and a
-  -- 2,446-row superset containing all 1,471. Picking "largest same-date meet" named Southland --
-  -- a completely real, unrelated championship -- as the original. Size and date are not evidence.
-  SELECT m2.meet_id, m2.name, count(*)::int AS rows
-  FROM results r2 JOIN meets m2 ON m2.meet_id = r2.meet_id
-  WHERE m2.meet_id <> pm.meet_id
-    AND m2.tfrrs_url IS NOT NULL
-    AND m2.date BETWEEN mm.date - 3 AND mm.date + 3
-  GROUP BY 1,2
-  HAVING count(*) >= pm.total_rows
-  ORDER BY count(*) DESC
-  LIMIT 1) o ON true
 WHERE pm.shared_rows = pm.total_rows          -- zero unique rows
   AND mm.tfrrs_url IS NULL
   AND pm.total_rows > 0`;
@@ -108,13 +91,82 @@ const SINCE = (process.argv.find(a => a.startsWith('--since=')) || '--since=2025
   const { rows: all } = await c.query(COPIES_SQL, [SINCE]);
   const copies = all;
 
-  // a meet could match several originals; keep one entry per copy
+  // a meet could appear more than once; keep one entry per copy
   const seen = new Map();
   for (const r of copies) if (!seen.has(r.copy_id)) seen.set(r.copy_id, r);
-  const list = [...seen.values()].sort((a, b) => b.copy_rows - a.copy_rows);
+  const candidates = [...seen.values()].sort((a, b) => b.copy_rows - a.copy_rows);
+
+  // STAGE 2 -- find the meet that ACTUALLY holds each copy's rows.
+  // Do not guess. Every heuristic tried failed on real data: "largest same-date meet" named
+  // Southland as the owner of Big Ten results, and "largest link-backed meet within 3 days"
+  // named Chicagoland as the owner of the Utah Spring Classic rows -- which contains 0 of its
+  // 851. Ask the data which meet contains them instead.
+  console.log('resolving the true container for each copy...');
+  const list = [];
+  for (const r of candidates) {
+    const { rows: top } = await c.query(`
+      SELECT o.meet_id, m.name, count(*)::int AS shared
+      FROM results cp
+      JOIN results o
+        ON o.athlete_id IS NOT DISTINCT FROM cp.athlete_id
+       AND o.event_type_id IS NOT DISTINCT FROM cp.event_type_id
+       AND o.mark_raw = cp.mark_raw
+       AND o.place IS NOT DISTINCT FROM cp.place
+       AND o.meet_id <> cp.meet_id
+      JOIN meets m ON m.meet_id = o.meet_id
+      WHERE cp.meet_id = $1
+      GROUP BY 1,2 ORDER BY count(*) DESC LIMIT 1`, [r.copy_id]);
+    if (!top.length) { console.log(`  no container found for #${r.copy_id} "${r.copy_name}" — skipped`); continue; }
+    const best = top[0];
+    if (best.shared < r.copy_rows) {
+      console.log(`  PARTIAL only for "${r.copy_name}" (#${r.copy_id}): best container holds ${best.shared}/${r.copy_rows} — skipped`);
+      continue;
+    }
+    list.push({ ...r, orig_id: best.meet_id, orig_name: best.name, orig_rows: best.shared });
+  }
+  console.log(`copies with a fully-verified container: ${list.length} of ${candidates.length}`);
+
+  // MUTUAL COPIES -- the danger this whole exercise keeps circling back to.
+  // Two meets can each be a full copy of the other ("Patriot League" <-> "Summit League",
+  // "Jim Duncan" <-> "Jim Linthicum", "Cougar Classic" <-> "Bill Bippes Cougar Classic").
+  // Both get flagged, and deleting both would erase the results entirely. So: union the
+  // copy<->container pairs into clusters and keep exactly ONE meet per cluster.
+  const parent = new Map();
+  const find = x => { while (parent.get(x) !== x) { parent.set(x, parent.get(parent.get(x))); x = parent.get(x); } return x; };
+  const union = (a, b) => { [a, b].forEach(v => { if (!parent.has(v)) parent.set(v, v); });
+                            const ra = find(a), rb = find(b); if (ra !== rb) parent.set(ra, rb); };
+  list.forEach(r => union(r.copy_id, r.orig_id));
+
+  const meetIds = [...new Set(list.flatMap(r => [r.copy_id, r.orig_id]))];
+  const { rows: meta } = await c.query(
+    `SELECT m.meet_id, m.name, m.tfrrs_url IS NOT NULL AS has_link,
+            (SELECT count(*) FROM results r WHERE r.meet_id = m.meet_id)::int AS rows
+     FROM meets m WHERE m.meet_id = ANY($1::int[])`, [meetIds]);
+  const info = new Map(meta.map(m => [m.meet_id, m]));
+
+  const clusters = new Map();
+  meetIds.forEach(id => { const root = find(id); if (!clusters.has(root)) clusters.set(root, []); clusters.get(root).push(id); });
+
+  // survivor per cluster: a stored results link wins, then the most rows, then lowest id
+  const doomedMeets = new Set();
+  console.log('\nclusters (one survivor each):');
+  for (const [, ids] of clusters) {
+    const ranked = ids.map(id => info.get(id)).filter(Boolean)
+      .sort((a, b) => (b.has_link - a.has_link) || (b.rows - a.rows) || (a.meet_id - b.meet_id));
+    const keep = ranked[0];
+    ranked.slice(1).forEach(m => doomedMeets.add(m.meet_id));
+    if (ranked.length > 1) console.log(
+      `  KEEP "${keep.name}" (#${keep.meet_id}, ${keep.rows} rows${keep.has_link ? ', has link' : ''})` +
+      `  |  drop ${ranked.slice(1).map(m => `"${m.name}" (#${m.meet_id})`).join(', ')}`);
+  }
+  // only delete meets that are both a confirmed copy AND not their cluster's survivor
+  const before = list.length;
+  const filtered = list.filter(r => doomedMeets.has(r.copy_id));
+  list.length = 0; list.push(...filtered);
+  console.log(`\nafter keeping one survivor per cluster: ${list.length} meets to clear (was ${before})`);
 
   const totalRows = list.reduce((s, r) => s + r.copy_rows, 0);
-  console.log(`\ncopied meets found: ${list.length}  (rows to delete: ${totalRows.toLocaleString()})\n`);
+  console.log(`\ncopied meets confirmed: ${list.length}  (rows to delete: ${totalRows.toLocaleString()})\n`);
   list.slice(0, 25).forEach(r => console.log(
     `  ${new Date(r.date).toISOString().slice(0,10)}  "${r.copy_name}" (#${r.copy_id}, ${r.copy_rows} rows, 0 unique)` +
     `  ->  copy of "${r.orig_name}" (#${r.orig_id}, ${r.orig_rows} rows)`));
@@ -122,6 +174,31 @@ const SINCE = (process.argv.find(a => a.startsWith('--since=')) || '--since=2025
 
   if (!APPLY) { console.log('\n(dry run — pass --apply to back up and delete)'); await c.end(); return; }
   if (!list.length) { await c.end(); return; }
+
+  // HARD PRECONDITION: prove each copy's rows really are in the meet named as its original.
+  // The detection only proves every row exists at SOME other meet, and the "original" is picked
+  // by size -- which is exactly how the first version named Southland as the owner of Big Ten
+  // results. Verify containment pair by pair, and drop any candidate that fails.
+  console.log('\nverifying containment against the named original...');
+  const verified = [];
+  for (const r of list) {
+    const { rows: [v] } = await c.query(`
+      SELECT count(*)::int AS not_in_original
+      FROM results c
+      WHERE c.meet_id = $1
+        AND NOT EXISTS (
+          SELECT 1 FROM results o
+          WHERE o.meet_id = $2
+            AND o.athlete_id IS NOT DISTINCT FROM c.athlete_id
+            AND o.event_type_id IS NOT DISTINCT FROM c.event_type_id
+            AND o.mark_raw = c.mark_raw
+            AND o.place IS NOT DISTINCT FROM c.place)`, [r.copy_id, r.orig_id]);
+    if (v.not_in_original === 0) verified.push(r);
+    else console.log(`  SKIP "${r.copy_name}" (#${r.copy_id}) — ${v.not_in_original} rows are NOT in "${r.orig_name}"`);
+  }
+  console.log(`verified safe to delete: ${verified.length} of ${list.length} meets`);
+  if (!verified.length) { await c.end(); return; }
+  list.length = 0; list.push(...verified);
 
   await c.query(`CREATE TABLE IF NOT EXISTS results_d1_backup (LIKE results INCLUDING DEFAULTS)`);
   const copyIds = list.map(r => r.copy_id);

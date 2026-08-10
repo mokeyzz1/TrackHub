@@ -235,3 +235,34 @@ a completely real, unrelated championship. The true owner was **"Big Ten Outdoor
 
 **Status: detection rule corrected, NOT re-run, nothing deleted.** Before applying, verify a
 sample of proposed deletions by the school-identity test, not just by containment.
+
+
+### DUP-1 — why it is NOT safe to automate (four failed rules, 2026-08-10)
+
+Detection of *copies* is solid: a meet with **zero unique rows** is definitionally holding someone
+else's data. **95 such meets in 2026, 60,452 rows.** What cannot be automated with the signals
+available is deciding **whose** data it is and **which meet survives**.
+
+| rule tried | what it produced |
+|---|---|
+| largest same-date meet is the original | named **Southland** (real, unrelated) as owner of **Big Ten** results |
+| largest link-backed meet within ±3 days | named **Chicagoland** as owner of Utah's rows — contains **0 of 851** |
+| container derived from the data | correct attribution (Utah → Arkansas, 851/851) but exposed **mutual copy pairs** — both sides flagged, deleting both erases the results |
+| keep one survivor per cluster | survivor chosen by row count then meet_id — **arbitrary**, because mutual copies have identical row counts and none hold a link |
+
+**What the survivor rule actually picked:** `Big 12` over BIG EAST/Big Sky/Big West (the cluster
+holds *Big Ten* results, so all four are wrong); `"South Coast (SCC) Champions;hips prelims"` — the
+**typo** — over the correctly spelled meet; `River States Outdoor Championships` (Midwest) over
+`Fresno State Invitational` (California).
+
+**Two structural problems:**
+1. **A cluster should not always keep a survivor.** Where a meet *outside* the cluster holds the
+   data — "Big Ten Outdoor Championships" (13056) holds all 1,471 rows of each impostor, and was
+   never flagged because it has unique rows of its own — **all** cluster members should go.
+2. **Survivor choice needs the school↔meet identity test**, the thing that exposed the Big Ten
+   error: a conference championship must contain that conference's schools. Row count and meet_id
+   are not evidence.
+
+**STATUS: nothing deleted. Do not run `--apply` as it stands.** Next step is a resolver that uses
+`schools.current_conference_id` vs the meet name for championships, and school geography vs meet
+location for invitationals — falling back to manual review, which is tractable at ~95 meets.
