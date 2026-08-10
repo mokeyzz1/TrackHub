@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * D2 — remove within-meet round duplicates from `results`.
+ * DUP-2 — remove within-meet round duplicates from `results`.
  *
  * MECHANISM (verified against TFRRS): TFRRS publishes a race twice — once in the combined
  * result list and once broken out by heat — so one run is scraped twice under different round

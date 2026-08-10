@@ -123,7 +123,7 @@ WHERE EXISTS (
     SELECT count(*) FILTER (WHERE meet_id IS NULL AND date IS NULL AND meet_name IS NOT NULL)::int AS still_dateless,
            count(*) FILTER (WHERE meet_id IS NULL)::int AS still_unlinked
     FROM relay_results`);
-  // did any linked row land on top of an identical relay already on that meet? (D3 collision)
+  // did any linked row land on top of an identical relay already on that meet? (DUP-3 collision)
   const ids = pairs.map(p => p.relay_result_id);
   const { rows: [d] } = await c.query(`
     WITH mine AS (SELECT * FROM relay_results WHERE relay_result_id = ANY($1::int[]))
@@ -139,6 +139,6 @@ WHERE EXISTS (
 
   console.log(`\nDONE — updated ${updated.toLocaleString()}`);
   console.log(`remaining dateless+unlinked: ${v.still_dateless.toLocaleString()} | total unlinked: ${v.still_unlinked.toLocaleString()}`);
-  console.log(`linked rows that duplicate an existing relay on the same meet: ${d.colliding.toLocaleString()} (feeds D3 dedup)`);
+  console.log(`linked rows that duplicate an existing relay on the same meet: ${d.colliding.toLocaleString()} (feeds DUP-3 dedup)`);
   await c.end();
 })().catch(e => { console.error('ERR', e.message); process.exit(1); });

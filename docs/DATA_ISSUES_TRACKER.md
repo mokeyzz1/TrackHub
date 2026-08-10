@@ -17,12 +17,19 @@ never delete without a self-proving test · small throttled batches (weak instan
 
 ## 🔴 OPEN — duplicates (user-visible, highest priority)
 
+> **Issue IDs are `DUP-n`, `M-n`, `U-n`, `F-n` — they are NOT NCAA divisions.** These were
+> originally `D1`/`D2`/`D3`, which in a track & field project reads as Division I/II/III and
+> caused exactly that confusion (owner, 2026-08-10). Renamed. **Every fix in this document
+> applies to the whole database — all divisions, all seasons.** Nothing here has ever been
+> scoped to one division.
+
+
 | # | Issue | Size | Notes |
 |---|---|---|---|
-| D1 | **Cross-meet duplication** — the same performance attributed to 2-4 different meets | **26,846 extra attributions** (Outdoor 2026 alone) | Proven case: "Utah Spring Classic" (12436) holds **100% Arkansas Spring Invitational** (12337) data — 0 unique rows, athletes all from AR/IA/KS/KY/MO/OK. Owner spotted it: an athlete showing a meet she never attended. **Fix:** find meets with zero unique results, corroborate by geography, delete the copied rows (meet returns to empty = accurate). |
-| ~~D2~~ | ~~Within-meet round duplicates~~ | **DONE 2026-08-10 — 452,748 rows removed** | Whole-DB re-measure found 441,314 groups / 453,113 extra rows / 71,117 athletes. Removed in three runs (pilot 4,427 · full 447,853 · NULL-bug cleanup 468). **185 groups deliberately kept** — both `Preliminaries` and `Finals` at the same mark and place, genuinely ambiguous. `results`: 3,772,655 → **3,319,907**. Backup `results_d2_backup` + per-run audit JSONs. Rollback: `INSERT INTO results SELECT * FROM results_d2_backup;` See the D2 detail section below. |
-| D3 | **Duplicate relay rows** | **43,037 extra rows (42,305 groups)** measured 2026-08-09 | Same meet+event+team+place+identical mark. Pre-existing (not from the athletic.net import, which was dup-guarded). The count rose from ~40,618 partly because linking previously-invisible relays (F5, M3) *surfaces* duplicates that were always there but unlinked. **Run D3 dedup after the relay linking work, not before.** |
-| D4 | **Duplicate athlete records** | 294 cross-school + ~646 ambiguous + 3 conflict clusters | Root cause is U2 below. Visible in-app (e.g. "Obiora Okeke", "Mena Scatchard"). |
+| DUP-1 | **Cross-meet duplication** — the same performance attributed to 2-4 different meets | **26,846 extra attributions** (Outdoor 2026 alone) | Proven case: "Utah Spring Classic" (12436) holds **100% Arkansas Spring Invitational** (12337) data — 0 unique rows, athletes all from AR/IA/KS/KY/MO/OK. Owner spotted it: an athlete showing a meet she never attended. **Fix:** find meets with zero unique results, corroborate by geography, delete the copied rows (meet returns to empty = accurate). |
+| ~~DUP-2~~ | ~~Within-meet round duplicates~~ | **DONE 2026-08-10 — 452,748 rows removed** | Whole-DB re-measure found 441,314 groups / 453,113 extra rows / 71,117 athletes. Removed in three runs (pilot 4,427 · full 447,853 · NULL-bug cleanup 468). **185 groups deliberately kept** — both `Preliminaries` and `Finals` at the same mark and place, genuinely ambiguous. `results`: 3,772,655 → **3,319,907**. Backup `results_d2_backup` + per-run audit JSONs. Rollback: `INSERT INTO results SELECT * FROM results_d2_backup;` See the DUP-2 detail section below. |
+| DUP-3 | **Duplicate relay rows** | **43,037 extra rows (42,305 groups)** measured 2026-08-09 | Same meet+event+team+place+identical mark. Pre-existing (not from the athletic.net import, which was dup-guarded). The count rose from ~40,618 partly because linking previously-invisible relays (F5, M3) *surfaces* duplicates that were always there but unlinked. **Run DUP-3 dedup after the relay linking work, not before.** |
+| DUP-4 | **Duplicate athlete records** | 294 cross-school + ~646 ambiguous + 3 conflict clusters | Root cause is U2 below. Visible in-app (e.g. "Obiora Okeke", "Mena Scatchard"). |
 
 ## 🟠 OPEN — missing / incomplete data
 
@@ -53,8 +60,8 @@ never delete without a self-proving test · small throttled batches (weak instan
 > there was **no way to measure whether any of them duplicated a relay already on that meet**, and
 > no way to roll back just those rows. The script now writes an audit JSON of every id *before*
 > applying, and reports collisions after. **Never run a bulk change without that.** Bound on the
-> unverified run: ≤3,271 rows, all corroborated links; any collisions are D3-shaped and will be
-> absorbed by the D3 dedup pass, which keys on exactly (meet, event, team, place, mark).
+> unverified run: ≤3,271 rows, all corroborated links; any collisions are DUP-3-shaped and will be
+> absorbed by the DUP-3 dedup pass, which keys on exactly (meet, event, team, place, mark).
 | M4 | **Relays with no team** | 1,418 | Mostly juco — leg athletes aren't in the DB, so the team can't be derived. Lineups are still recorded. |
 | M5 | **Results with no `team_id`** | 394,659 | Mostly pre-2024 (roster history only covers 2024-25, 2025-26). Re-runnable: `backfill-result-team-id.js`. |
 | M6 | **Meets with no results link** | 137 (2025-26) · 671 all-time | **Structurally limited** — USTFCCCA's directory is a moving window, so old links are gone (CLAUDE.md §1b). Don't grind; mark `results_status='unavailable'`. |
@@ -64,7 +71,7 @@ never delete without a self-proving test · small throttled batches (weak instan
 | # | Issue | Notes |
 |---|---|---|
 | U1 | **Two scraper engines with copy-pasted logic** | The relay colon bug (F7) existed **separately in two files**. One shared engine = fix once. |
-| U2 | **Unattached modelled per-person, not per-competition** | `athletes.school_id=1835` instead of `results.team_id` → one person's unattached and college records look like two athletes. Root cause of D4. |
+| U2 | **Unattached modelled per-person, not per-competition** | `athletes.school_id=1835` instead of `results.team_id` → one person's unattached and college records look like two athletes. Root cause of DUP-4. |
 | U3 | **No per-event source fallback** | TFRRS broke on DII 4x100 while athletic.net had it perfectly. Current rule is per-meet; needs to be per-event. |
 | U4 | **`get_top_performances` uses regex, not `event_type_id`** | Home-screen leaderboard normalizes events by hand-written regex and infers indoor by "has a 60m event" — misses athletic.net short codes. Best first target for the frontend migration. |
 | ~~U4b~~ | ~~Athlete progression & season bests split one event into several~~ | **FIXED 2026-08-09 — see F13.** |
@@ -127,7 +134,7 @@ bug. Left alone deliberately.
 `meet_id` FKs + orphan cleanup · divisions dimension · gender 99.96% · names 99.9% ·
 computed PRs (`v_athlete_prs`) · scraper hardening (orphan leak, event resolution, dup guards).
 
-### D2 progress — pilot run 2026-08-10
+### DUP-2 progress — pilot run 2026-08-10
 
 Re-measured whole-DB (the documented 416,044 covered only the 2026 seasons):
 **441,314 groups · 453,113 extra rows · 71,117 athletes.**
@@ -162,7 +169,7 @@ season's scrapes, or these come back.**
 Row count now equals distinct performances — no real performance lost. Remaining DB-wide:
 436,889 groups. Rollback: `INSERT INTO results SELECT * FROM results_d2_backup;`
 
-### D2 — completed 2026-08-10
+### DUP-2 — completed 2026-08-10
 
 **Two duplication mechanisms, both genuine:**
 1. *Same scrape published twice* — TFRRS lists a race in the combined result AND broken out by

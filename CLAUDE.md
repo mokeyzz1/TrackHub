@@ -263,7 +263,7 @@ re-read those exact ids to check for collisions.
 
 `results_no_exact_duplicate` — a **partial, NULLS NOT DISTINCT unique index** on
 `(athlete_id, meet_id, event_type_id, mark_raw, place, round) WHERE meet_id IS NOT NULL`.
-Added after D2 deleted 452,748 duplicate rows. Full rationale:
+Added after DUP-2 deleted 452,748 duplicate rows. Full rationale:
 `migrations/20260810_results_dedup_guard.sql`. Things to know before you touch it:
 
 - **It will reject re-imports.** That is the point. An importer that re-runs over a populated
@@ -275,7 +275,7 @@ Added after D2 deleted 452,748 duplicate rows. Full rationale:
   still open.
 - **It does not catch the Finals+Heat N case** (those differ in `round`). That must be collapsed
   at import time: same (athlete, event_type, mark, place), differing only by round label → keep
-  the best round. Same rule as the D2 cleanup.
+  the best round. Same rule as the DUP-2 cleanup.
 - **Setting a NULL `event_type_id` can now fail.** Resolving a NULL event type can make a row
   collide with a twin it was previously hidden from. Delete the duplicate rather than update it —
   see `scrapers/backfill-null-event-types.js`.

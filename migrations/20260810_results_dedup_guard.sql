@@ -7,7 +7,7 @@
 -- run the statement below on its own connection, outside a transaction.
 --
 -- WHY IT EXISTS
--- D2 removed 452,748 duplicate result rows. Nothing had prevented them: the only unique index on
+-- DUP-2 removed 452,748 duplicate result rows. Nothing had prevented them: the only unique index on
 -- `results` was the primary key, a serial, which never compares content. Two mechanisms:
 --   1. one TFRRS page captured twice under different round labels (Finals + Heat N)
 --   2. a whole meet imported twice -- byte-identical rows differing only in `date`
@@ -32,7 +32,7 @@
 -- WHAT THIS DOES NOT COVER
 -- Mechanism (1). Those rows differ in `round`, so they are legal here by design. That has to be
 -- caught at import time by collapsing rows sharing (athlete, event_type, mark, place) that
--- differ only by round label -- the same rule the D2 cleanup used, applied at write time.
+-- differ only by round label -- the same rule the DUP-2 cleanup used, applied at write time.
 
 CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS results_no_exact_duplicate
   ON results (athlete_id, meet_id, event_type_id, mark_raw, place, round)

@@ -57,7 +57,7 @@ Indexes are not free and not always good here. Proven on this instance:
 
 ### 4. Shrink the data
 ~28% of 2026 results are duplicates (416k rows). Cleaning them makes every scan and index smaller
-and faster — a correctness fix *and* a performance fix. See `DATA_ISSUES_TRACKER.md` D1–D3.
+and faster — a correctness fix *and* a performance fix. See `DATA_ISSUES_TRACKER.md` DUP-1–DUP-3.
 
 ### 5. Design the social schema for reads
 When accounts land:

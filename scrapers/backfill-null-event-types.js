@@ -9,7 +9,7 @@
  * WHY THIS ISN'T A PLAIN UPDATE. Setting event_type_id on these rows makes some of them collide
  * with an existing row under the `results_no_exact_duplicate` index — same athlete, meet, mark,
  * place and round, and now the same event type too. Those rows were ALWAYS duplicates; the NULL
- * event_type_id is the only thing that hid them (it also hid them from the D2 dedup, whose group
+ * event_type_id is the only thing that hid them (it also hid them from the DUP-2 dedup, whose group
  * key treats a NULL event type as its own group). A straight UPDATE fails with a unique
  * violation, which is the guard doing exactly what it was added for.
  *
@@ -17,7 +17,7 @@
  *   - a twin already exists with the resolved event_type_id  -> DELETE this row (back it up)
  *   - otherwise                                              -> UPDATE it
  *
- * Deleted rows go to results_d2_backup, same as the rest of the D2 work.
+ * Deleted rows go to results_d2_backup, same as the rest of the DUP-2 work.
  *   Rollback: INSERT INTO results SELECT * FROM results_d2_backup;
  *
  *   node backfill-null-event-types.js            # dry run

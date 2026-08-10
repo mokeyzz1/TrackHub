@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * D1 — remove results that were imported onto the WRONG meet.
+ * DUP-1 — remove results that were imported onto the WRONG meet.
  *
  * SYMPTOM (owner-reported twice): an athlete's profile shows a meet they never attended.
  * Jaurdin Mallory appeared at the "Utah Spring Classic" in Salt Lake City; she runs for
