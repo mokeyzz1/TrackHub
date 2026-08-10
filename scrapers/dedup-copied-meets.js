@@ -83,6 +83,14 @@ WHERE pm.shared_rows = pm.total_rows          -- zero unique rows
   AND pm.total_rows > 0`;
 
 const SINCE = (process.argv.find(a => a.startsWith('--since=')) || '--since=2025-01-01').split('=')[1];
+// --only=<id,id,...> : restrict to specific copy meet_ids. Used to apply ONLY the cases whose
+// surviving meet has been verified by the school-identity test -- its schools must match its own
+// name. "Unflagged" proves the data survives, NOT that the survivor is correctly named: two
+// candidates kept a mislabeled meet ("NJCAA Region 1" holding Kansas juco = Region 6 data,
+// "Conference Carolinas" holding Oregon/Washington = Northwest Conference data) and would have
+// deleted the correctly-named copy.
+const ONLY = (process.argv.find(a => a.startsWith('--only=')) || '').split('=')[1];
+const ONLY_IDS = ONLY ? new Set(ONLY.split(',').map(Number)) : null;
 
 (async () => {
   let c = mk(); await c.connect();
@@ -115,16 +123,41 @@ const SINCE = (process.argv.find(a => a.startsWith('--since=')) || '--since=2025
        AND o.meet_id <> cp.meet_id
       JOIN meets m ON m.meet_id = o.meet_id
       WHERE cp.meet_id = $1
-      GROUP BY 1,2 ORDER BY count(*) DESC LIMIT 1`, [r.copy_id]);
+      GROUP BY 1,2 ORDER BY count(*) DESC LIMIT 8`, [r.copy_id]);
     if (!top.length) { console.log(`  no container found for #${r.copy_id} "${r.copy_name}" — skipped`); continue; }
-    const best = top[0];
-    if (best.shared < r.copy_rows) {
-      console.log(`  PARTIAL only for "${r.copy_name}" (#${r.copy_id}): best container holds ${best.shared}/${r.copy_rows} — skipped`);
+    const full = top.filter(t => t.shared >= r.copy_rows);
+    if (!full.length) {
+      console.log(`  PARTIAL only for "${r.copy_name}" (#${r.copy_id}): best holds ${top[0].shared}/${r.copy_rows} — skipped`);
       continue;
     }
-    list.push({ ...r, orig_id: best.meet_id, orig_name: best.name, orig_rows: best.shared });
+    list.push({ ...r, containers: full, orig_id: full[0].meet_id, orig_name: full[0].name, orig_rows: full[0].shared });
   }
   console.log(`copies with a fully-verified container: ${list.length} of ${candidates.length}`);
+
+  // SPLIT THE PROBLEM.
+  // If a copy's rows also live at a meet that was never flagged as a copy, that meet is real
+  // (it has unique rows of its own), the data provably survives, and deleting the copy needs NO
+  // decision about who owns what. Arkansas holds all 851 of the Utah Spring Classic's rows and
+  // has 18 of its own -- clear-cut. Only clusters where copies contain ONLY each other require
+  // evidence, and those are the ones every heuristic got wrong.
+  const flaggedCopyIds = new Set(list.map(r => r.copy_id));
+  const safe = list.filter(r => r.containers.some(t => !flaggedCopyIds.has(t.meet_id)));
+  const needsJudgement = list.filter(r => !r.containers.some(t => !flaggedCopyIds.has(t.meet_id)));
+  console.log(`\nSAFE  (an unflagged real meet holds the rows): ${safe.length} meets, ${safe.reduce((a,r)=>a+r.copy_rows,0).toLocaleString()} rows`);
+  safe.slice(0, 30).forEach(r => {
+    const ext = r.containers.find(t => !flaggedCopyIds.has(t.meet_id));
+    console.log(`   "${r.copy_name}" (#${r.copy_id}, ${r.copy_rows}) -> lives at "${ext.name}" (#${ext.meet_id})`);
+  });
+  console.log(`\nNEEDS EVIDENCE (copies only contain each other): ${needsJudgement.length} meets, ${needsJudgement.reduce((a,r)=>a+r.copy_rows,0).toLocaleString()} rows`);
+  needsJudgement.slice(0, 20).forEach(r => console.log(`   "${r.copy_name}" (#${r.copy_id}, ${r.copy_rows})`));
+
+  // only the safe half is ever eligible here
+  let eligible = safe;
+  if (ONLY_IDS) {
+    eligible = safe.filter(r => ONLY_IDS.has(r.copy_id));
+    console.log(`\n--only supplied: restricted to ${eligible.length} verified meets`);
+  }
+  list.length = 0; list.push(...eligible);
 
   // MUTUAL COPIES -- the danger this whole exercise keeps circling back to.
   // Two meets can each be a full copy of the other ("Patriot League" <-> "Summit League",

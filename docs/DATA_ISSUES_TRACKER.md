@@ -266,3 +266,29 @@ holds *Big Ten* results, so all four are wrong); `"South Coast (SCC) Champions;h
 **STATUS: nothing deleted. Do not run `--apply` as it stands.** Next step is a resolver that uses
 `schools.current_conference_id` vs the meet name for championships, and school geography vs meet
 location for invitationals — falling back to manual review, which is tractable at ~95 meets.
+
+
+### DUP-1 — first 5 meets cleared 2026-08-10 (6,735 rows)
+
+Only cases passing **both** tests were touched: (a) rows fully contained in an unflagged meet, and
+(b) that meet's schools match its own name.
+
+| cleared | rows | data now lives at |
+|---|---|---|
+| Utah Spring Classic (12436) | 851 | Arkansas Spring Invitational (12337) — AR/KS/MO/OK schools ✅ |
+| Big 12 (13053), BIG EAST (13054), Big Sky (13055), Big West (13057) | 5,884 | Big Ten Outdoor Championships (13056) — Big Ten schools ✅ |
+
+Owner-reported symptom resolved: Jaurdin Mallory no longer shows the Utah Spring Classic, and her
+NCAA DII 11.79 appears once. Her MIAA 100m still correctly shows **11.84 prelim + 11.79 final** —
+two real races, different times, both preserved.
+
+**Gotcha for the next run:** Big 12 survived the scripted pass because it became the *container*
+for the other three on a tie-break (Big Ten and Big 12 both fully contained them). It had to be
+cleared by hand afterwards. **When several meets hold identical blocks, "the container" is not
+stable — verify what actually remains after a run rather than trusting the deletion list.**
+
+**Still open:** 2 rename cases where the *correctly-named* meet is the copy — `NJCAA Region 1`
+holds Kansas juco data that belongs to `Region 6/Jayhawk`, and `Conference Carolinas` holds
+Oregon/Washington schools that belong to `Northwest (NWC) Conference`. Those need the data moved,
+not deleted. Plus 50 mutual-pair meets (29,879 rows) awaiting the school-identity resolver, and
+all pre-2026 seasons unscanned.
