@@ -191,6 +191,7 @@ still has its athletes' marks in the DB — they're just not linked to the meet.
 | T&F domain rules | `docs/DOMAIN_LOGIC.md` |
 | Columns pending retirement | `docs/COLUMN_RETIREMENT_PLAN.md` |
 | **Every known data issue + status** | **`docs/DATA_ISSUES_TRACKER.md`** |
+| **Scaling to 10k–20k users (social launch)** | **`docs/SCALING_PLAN.md`** |
 | **Priorities / working checklist** | **`docs/BACKEND_PRIORITIES.md`** |
 | Backend architecture | `docs/BACKEND_ARCHITECTURE.md` |
 | Live results: NO public API (already investigated) | `backend/LIVE_RESULTS_INVESTIGATION.md` |
