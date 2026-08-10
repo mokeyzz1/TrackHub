@@ -9,6 +9,7 @@
 
 const axios = require('axios');
 const cheerio = require('cheerio');
+const { collapseDuplicateRounds } = require('../../shared/collapse_duplicate_rounds');
 const fs = require('fs');
 const path = require('path');
 
@@ -563,7 +564,13 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
       });
     });
 
-    return results;
+    // A TFRRS event page renders the same event as several tables (combined view + one per
+    // heat), and `$('table tbody tr')` above walks ALL of them -- on the 2026 DI 200m every one
+    // of the 23 athletes appears in 2-3 tables. Without this, one scrape emits each athlete two
+    // or three times with different round labels. That produced ~370k duplicate rows (DUP-2).
+    const { rows: deduped, collapsed } = collapseDuplicateRounds(results);
+    if (collapsed) console.log(`      collapsed ${collapsed} duplicate round rows (${results.length} -> ${deduped.length})`);
+    return deduped;
 
   } catch (error) {
     logError(`Error fetching event ${eventUrl}: ${error.message}`);

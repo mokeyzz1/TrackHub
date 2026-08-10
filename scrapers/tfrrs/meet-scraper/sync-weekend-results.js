@@ -18,6 +18,7 @@
 
 const axios = require('axios');
 const cheerio = require('cheerio');
+const { collapseDuplicateRounds } = require('../../shared/collapse_duplicate_rounds');
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 const { parseName } = require('../../shared/name_parser');
@@ -856,7 +857,13 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
       });
     });
 
-    return results;
+    // Same defect as scrape-meet-results.js (U1: two engines, copy-pasted logic -- exactly how
+    // the relay colon bug survived in one file after being fixed in the other). A TFRRS event
+    // page renders the event as several tables (combined view + one per heat) and the loop above
+    // walks ALL of them, emitting each athlete 2-3 times with different round labels.
+    const { rows: deduped, collapsed } = collapseDuplicateRounds(results);
+    if (collapsed) console.log(`      collapsed ${collapsed} duplicate round rows (${results.length} -> ${deduped.length})`);
+    return deduped;
 
   } catch (error) {
     console.error(`Error fetching event ${eventUrl}: ${error.message}`);

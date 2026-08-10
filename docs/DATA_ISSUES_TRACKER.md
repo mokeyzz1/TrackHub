@@ -77,7 +77,8 @@ never delete without a self-proving test · small throttled batches (weak instan
 | U3 | **No per-event source fallback** | TFRRS broke on DII 4x100 while athletic.net had it perfectly. Current rule is per-meet; needs to be per-event. |
 | U4 | **`get_top_performances` uses regex, not `event_type_id`** | Home-screen leaderboard normalizes events by hand-written regex and infers indoor by "has a 60m event" — misses athletic.net short codes. Best first target for the frontend migration. |
 | ~~U4b~~ | ~~Athlete progression & season bests split one event into several~~ | **FIXED 2026-08-09 — see F13.** |
-| U8 | **Source of the `Finals`+`Heat N` duplicates is still UNIDENTIFIED** | **The biggest recurrence risk before Dec/Jan.** DUP-2 removed ~370k of these, and the DB guard does NOT prevent them (the rows legitimately differ in `round`). A single scraper pass over one event page emits **one row per athlete**, so it cannot produce the pair — the duplication happens somewhere else. **Leading hypothesis: the same meet ingested by BOTH `scrape-meet-results.js` and `sync-weekend-results.js`**, each labelling the round from a different view (see U1 — two engines, copy-pasted logic). **Test it** against a meet known to have produced the pairs, before the season starts. A round-label fix was applied 2026-08-10 (label now taken from the cell the mark came from) but verified to change 0 of 48 rows on a live page — latent hardening, *not* the cause. |
+| ~~U8~~ | ~~Source of the `Finals`+`Heat N` duplicates~~ | **SOLVED + FIXED 2026-08-10 — see below.** |
+| U8-old | *(superseded)* | **The biggest recurrence risk before Dec/Jan.** DUP-2 removed ~370k of these, and the DB guard does NOT prevent them (the rows legitimately differ in `round`). A single scraper pass over one event page emits **one row per athlete**, so it cannot produce the pair — the duplication happens somewhere else. **Leading hypothesis: the same meet ingested by BOTH `scrape-meet-results.js` and `sync-weekend-results.js`**, each labelling the round from a different view (see U1 — two engines, copy-pasted logic). **Test it** against a meet known to have produced the pairs, before the season starts. A round-label fix was applied 2026-08-10 (label now taken from the cell the mark came from) but verified to change 0 of 48 rows on a live page — latent hardening, *not* the cause. |
 | U5 | **Frontend still matches by text** | App reads `meet_name`/`event_name` strings instead of IDs. Until this lands most cleanup is dormant. |
 | U6 | **Abandoned live-results code** | In-app live results was dropped (link-out via `meet_url` is the shipped answer). Dead: `live_results` table, `useLiveResults.ts`, `getTopPerformances()`, 8 live scripts. |
 | U7 | **Merge `backend-rebuild` → `main`** | Nothing touches app code; low risk. |
@@ -292,3 +293,41 @@ holds Kansas juco data that belongs to `Region 6/Jayhawk`, and `Conference Carol
 Oregon/Washington schools that belong to `Northwest (NWC) Conference`. Those need the data moved,
 not deleted. Plus 50 mutual-pair meets (29,879 rows) awaiting the school-identity resolver, and
 all pre-2026 seasons unscanned.
+
+
+### U8 — SOLVED 2026-08-10: the scraper walks every table on the page
+
+**My earlier hypothesis (two scrapers ingesting the same meet) was WRONG.** The tell was already
+in the data: **82.9% of duplicate groups shared a `created_at` to the microsecond**, which two
+separate runs cannot produce. One insert batch was emitting the athlete more than once.
+
+**Proven against live markup** (2026 DI Outdoor Men's 200m):
+
+```
+tables on page: 5        (a combined view, plus one table per heat)
+athletes appearing in MORE THAN ONE table: 23 of 23
+   Jaiden Reid -> tables 0, 1, 4
+   Israel Okon -> tables 0, 1, 3
+```
+
+Both engines iterate `$('table tbody tr')`, which walks **all** tables. So a single scrape emits
+each athlete 2-3 times — same mark, same place, different round label. That is the origin of the
+~370k `Finals`+`Heat N` rows removed in DUP-2, and the DB guard cannot stop them because the rows
+legitimately differ in `round`.
+
+**Fix:** `scrapers/shared/collapse_duplicate_rounds.js`, applied in **both** engines
+(`scrape-meet-results.js` and `sync-weekend-results.js` — U1 is why it had to go in both).
+Collapses rows sharing (athlete, event, normalized mark, place), keeping Finals > Preliminaries >
+Heat N.
+
+**Verified on the live page:**
+
+```
+raw rows scraped (all tables): 48
+after collapse:                32   (collapsed 16)
+still appearing twice: 9 athletes — every one a REAL prelim/final pair with different times
+   Jaiden Reid   19.63/1st/Finals | 20.05/1st/Preliminaries
+   Trelee Banks  20.02/3rd/Finals | 20.38/6th/Preliminaries
+```
+
+Duplicates gone, both real races kept. This is the recurrence risk closed before the Dec/Jan season.
