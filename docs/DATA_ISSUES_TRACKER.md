@@ -201,3 +201,37 @@ come straight back.**
 **Minor finding:** 463 of 3,319,907 results (0.01%) still have no `event_type_id` — event names
 with unmapped suffixes (`5000 M Open`, `100 Meter Dash D1 Elite`, `Hammer Throw Unseeded`).
 Worth an `event_aliases` top-up.
+
+
+### DUP-1 — what it actually is (scanned 2026-08-10, NOT yet fixed)
+
+Far bigger and differently shaped than the single Utah Spring Classic case. **95 meets in 2026
+alone hold 60,452 results with zero unique rows** — every row also exists at another meet.
+
+**A NEAR-MISS WORTH READING BEFORE TOUCHING THIS.** The first detection rule was "a meet whose
+rows are all contained in a LARGER meet ON THE SAME DATE is a copy of it". That rule is wrong,
+and running it would have corrupted real data:
+
+| meet | schools actually in it |
+|---|---|
+| "Big 12 Outdoor Championships" (13053) | Illinois, Indiana, Iowa, Maryland, Michigan… |
+| "BIG EAST Outdoor Championships" (13054) | *identical Big Ten schools* |
+| "Big Sky Outdoor Championships" (13055) | *identical Big Ten schools* |
+| "Southland Outdoor Championships" (13068) | East Texas A&M, Lamar, McNeese State — **genuine** |
+
+Three meets each held 1,471 identical rows of **Big Ten** results under the wrong conference name.
+The rule named **Southland** as their "original" purely because it was the biggest meet that day —
+a completely real, unrelated championship. The true owner was **"Big Ten Outdoor Championships"
+(13056), on the NEXT day, with a stored `tfrrs_url` and a 2,446-row superset containing all
+1,471 of them.**
+
+**Lessons, now encoded in the script:**
+- **Size is not evidence.** The largest same-date meet is not the original.
+- **Date is not evidence.** The real meet can be a day off from its copies.
+- **A stored `tfrrs_url` IS evidence.** The genuine meet was scraped from a real link; the copies
+  were conjured by name/date matching, which is why they have no link of their own.
+- **School↔meet identity is the strongest check** — a conference championship should contain that
+  conference's schools. That is what exposed this, and it should gate any deletion.
+
+**Status: detection rule corrected, NOT re-run, nothing deleted.** Before applying, verify a
+sample of proposed deletions by the school-identity test, not just by containment.

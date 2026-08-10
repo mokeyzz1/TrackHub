@@ -48,33 +48,65 @@ const mk = () => new Client({ host, port: 5432, user: 'postgres', password: root
   database: 'postgres', ssl: { rejectUnauthorized: false },
   connectionTimeoutMillis: 25000, statement_timeout: 600000 });
 
-// Only same-date pairs are considered — that is the mechanism, and it keeps the comparison cheap.
+// DETECTION, single pass. The pairwise self-join (every same-date meet pair, with a correlated
+// containment count) times out on this instance -- weekends stack dozens of meets on one date.
+// Instead: key every result by (date, athlete, event, mark, place) and find keys that occur at
+// more than one meet. Those are cross-meet duplicates. A meet where EVERY row is shared, and
+// which is strictly smaller than the meet it shares with, is a copy.
 const COPIES_SQL = `
-WITH counts AS (
-  SELECT r.meet_id, m.date, m.name, count(*)::int AS n
-  FROM results r JOIN meets m ON m.meet_id = r.meet_id
-  WHERE m.date IS NOT NULL
-  GROUP BY 1,2,3),
-pairs AS (
-  SELECT c.meet_id AS copy_id, c.name AS copy_name, c.n AS copy_rows,
-         o.meet_id AS orig_id, o.name AS orig_name, o.n AS orig_rows, c.date
-  FROM counts c
-  JOIN counts o ON o.date = c.date AND o.meet_id <> c.meet_id AND o.n > c.n
-  JOIN meets cm ON cm.meet_id = c.meet_id
-  WHERE cm.tfrrs_url IS NULL)
-SELECT p.*,
-  (SELECT count(*) FROM results rc WHERE rc.meet_id = p.copy_id
-     AND NOT EXISTS (SELECT 1 FROM results ro WHERE ro.meet_id = p.orig_id
-        AND ro.athlete_id = rc.athlete_id AND ro.event_type_id IS NOT DISTINCT FROM rc.event_type_id
-        AND ro.mark_raw = rc.mark_raw AND ro.place IS NOT DISTINCT FROM rc.place))::int AS unique_rows
-FROM pairs p`;
+WITH keyed AS (
+  SELECT r.meet_id, m.date, r.athlete_id, r.event_type_id, r.mark_raw, r.place
+  FROM results r
+  JOIN meets m ON m.meet_id = r.meet_id
+  WHERE m.date IS NOT NULL AND m.date >= $1
+    AND r.athlete_id IS NOT NULL AND r.mark_raw IS NOT NULL),
+shared AS (
+  SELECT date, athlete_id, event_type_id, mark_raw, place
+  FROM keyed
+  GROUP BY 1,2,3,4,5
+  HAVING count(DISTINCT meet_id) > 1),
+per_meet AS (
+  SELECT k.meet_id,
+         count(*)::int AS total_rows,
+         count(s.date)::int AS shared_rows
+  FROM keyed k
+  LEFT JOIN shared s
+    ON s.date = k.date AND s.athlete_id = k.athlete_id
+   AND s.event_type_id IS NOT DISTINCT FROM k.event_type_id
+   AND s.mark_raw = k.mark_raw AND s.place IS NOT DISTINCT FROM k.place
+  GROUP BY 1)
+SELECT pm.meet_id AS copy_id, mm.name AS copy_name, mm.date, pm.total_rows AS copy_rows,
+       o.meet_id AS orig_id, o.name AS orig_name, o.rows AS orig_rows
+FROM per_meet pm
+JOIN meets mm ON mm.meet_id = pm.meet_id
+JOIN LATERAL (
+  -- The ORIGINAL is the meet holding a STORED results link, not the biggest one and not
+  -- necessarily one on the same date. Proven 2026-08-10: "Big 12", "BIG EAST" and "Big Sky"
+  -- Outdoor Championships each held 1,471 identical rows of BIG TEN school results, while the
+  -- genuine "Big Ten Outdoor Championships" (13056) sat on the NEXT day with a tfrrs_url and a
+  -- 2,446-row superset containing all 1,471. Picking "largest same-date meet" named Southland --
+  -- a completely real, unrelated championship -- as the original. Size and date are not evidence.
+  SELECT m2.meet_id, m2.name, count(*)::int AS rows
+  FROM results r2 JOIN meets m2 ON m2.meet_id = r2.meet_id
+  WHERE m2.meet_id <> pm.meet_id
+    AND m2.tfrrs_url IS NOT NULL
+    AND m2.date BETWEEN mm.date - 3 AND mm.date + 3
+  GROUP BY 1,2
+  HAVING count(*) >= pm.total_rows
+  ORDER BY count(*) DESC
+  LIMIT 1) o ON true
+WHERE pm.shared_rows = pm.total_rows          -- zero unique rows
+  AND mm.tfrrs_url IS NULL
+  AND pm.total_rows > 0`;
+
+const SINCE = (process.argv.find(a => a.startsWith('--since=')) || '--since=2025-01-01').split('=')[1];
 
 (async () => {
   let c = mk(); await c.connect();
 
-  console.log('scanning same-date meet pairs for full containment...');
-  const { rows: all } = await c.query(COPIES_SQL);
-  const copies = all.filter(r => r.unique_rows === 0);
+  console.log(`scanning meets since ${SINCE} for fully-copied results...`);
+  const { rows: all } = await c.query(COPIES_SQL, [SINCE]);
+  const copies = all;
 
   // a meet could match several originals; keep one entry per copy
   const seen = new Map();
@@ -84,7 +116,7 @@ FROM pairs p`;
   const totalRows = list.reduce((s, r) => s + r.copy_rows, 0);
   console.log(`\ncopied meets found: ${list.length}  (rows to delete: ${totalRows.toLocaleString()})\n`);
   list.slice(0, 25).forEach(r => console.log(
-    `  ${r.date.toISOString().slice(0,10)}  "${r.copy_name}" (#${r.copy_id}, ${r.copy_rows} rows, 0 unique)` +
+    `  ${new Date(r.date).toISOString().slice(0,10)}  "${r.copy_name}" (#${r.copy_id}, ${r.copy_rows} rows, 0 unique)` +
     `  ->  copy of "${r.orig_name}" (#${r.orig_id}, ${r.orig_rows} rows)`));
   if (list.length > 25) console.log(`  ... and ${list.length - 25} more`);
 
