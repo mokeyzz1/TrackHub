@@ -352,3 +352,52 @@ athlete, same event, same mark, on different days. For history rows `place` and 
 NULL, so they cannot discriminate — and an athlete genuinely can repeat a mark on two days
 (common in field events and round-number marks). Collapsing them would destroy real performances
 on a guess. **Do not "finish" DUP-5 by dropping the date from the key.**
+
+
+### DUP-1 — the resolver that finally works: host location vs school states
+
+Every *structural* rule failed (size, date, stored link, cluster size). The signal that works is
+**evidence about the meet itself**: `meets.location` holds the host city/state, and the REAL
+meet's host state appears among its own schools' states. The copy's does not.
+
+```
+Jim Duncan Invitational     Des Moines, Iowa   schools IA/NE/SD   REAL
+Jim Linthicum Invitational  Cupertino, Calif.  schools IA/NE/SD   COPY
+Ed Jacoby Twilight          Boise, Idaho       schools ID/OR      REAL
+St. Lawrence Twilight       Canton, N.Y.       schools ID/OR      COPY
+```
+
+Tool: `scrapers/resolve-copied-meets-by-location.js` (reports only, never deletes). TFRRS writes
+AP-style abbreviations — `Ind.`, `Calif.`, `N.Y.` — not postal codes, so there is an explicit map;
+anything unparseable is reported, never guessed.
+
+**It corrected two calls the structural rules had made:** `North Atlantic Conference
+Championships` (host ME, schools OR/WA) and `River States Outdoor Championships` (host OH, schools
+CA/IA/NV) are both COPIES — earlier logic would have kept them and deleted the genuine
+`Northwest (NWC) Conference` and `Fresno State Invitational`.
+
+**Applied 2026-08-10 — 14 meets, 7,660 rows**, each gated on its rows surviving at a meet that is
+not itself condemned (the mutual-pair trap):
+
+| copy removed | data survives at |
+|---|---|
+| Lincoln University (Pa.) Open | Manchester Invitational (IN) |
+| St. Lawrence Twilight | Ed Jacoby Twilight (ID) |
+| North Atlantic Conference | Northwest (NWC) Conference (WA) |
+| River States Outdoor Champs | Fresno State Invitational (CA) |
+| Summit League Outdoor Champs | Patriot League Outdoor Champs |
+| The Sun Conference Champs | Great Northeast Outdoor Champs |
+| Bill Bippes Cougar Classic | Cougar Classic (IL) |
+| Very Last Chance Meet | GVSU Last Chance Meet (MI) |
+| Black Bear Last Chance | West Coast Last Chance (CA) |
+| SPIRE Last Chance | St. Norbert Last Chance (WI) |
+| Pittsbug State "Last Chance" | Trinity Last Chance (TX) |
+| Cougar Invitational | Cougar Invitational (Concordia Chicago) |
+| Red Raider Open | Raider Invitational |
+| Big Red Classic | RedHawk Invitational |
+
+**Still open:** ~35 further verdicts from the same run were lost to a truncated console read —
+re-run the resolver to recover them. 5 unresolved: three meets have no `team_id` so there are no
+school states to test, and `NJCAA Region 6/KJCCC` vs `Region 6/Jayhawk` are the same Kansas event
+under two names (both host KS with KS schools), which location cannot separate. All pre-2026
+seasons are unscanned.
