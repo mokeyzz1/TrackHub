@@ -302,27 +302,31 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
       }
     });
 
+    // Map a TFRRS time-cell class to a round name.
+    // The class encodes round and heat: round_4_* = final, round_1|2|3_* = a qualifying round,
+    // heat_<round>_<heat>_* = heat N OF that round. Note heat_1_2 means "round 1, heat 2" --
+    // i.e. prelim heat 2. A heat is a SUBDIVISION of its round, not a round of its own
+    // (owner, 2026-08-10; see CLAUDE.md domain rules). Verified against the live markup for the
+    // 2026 DI Outdoor 200m, whose cells are round_1_*, round_4_*, heat_1_1_*, heat_1_2_*, heat_1_3_*.
+    const roundFromClass = (cellClass) => {
+      if (!cellClass) return null;
+      if (cellClass.includes('round_4')) return 'Finals';
+      if (/round_[123]/.test(cellClass)) return 'Preliminaries';
+      const heatMatch = cellClass.match(/heat_(\d+)_(\d+)/);
+      if (heatMatch) return `Heat ${heatMatch[2]}`;
+      return null;
+    };
+
     // Process each table row
     $('table tbody tr').each((_, row) => {
       // Detect round from cell class names
       // round_4_* = Finals, round_1_* = Preliminaries, heat_* = Heats
+      // Provisional only -- taken from the row's first time cell. It is overridden below by the
+      // round of the cell the mark actually came from, which is the one that matters.
       let roundName = 'Unknown';
       const $firstTimeCell = $(row).find('td[class*="round_"], td[class*="heat_"]').first();
       if ($firstTimeCell.length) {
-        const cellClass = $firstTimeCell.attr('class') || '';
-        if (cellClass.includes('round_4')) {
-          roundName = 'Finals';
-        } else if (cellClass.includes('round_1') || cellClass.includes('round_2') || cellClass.includes('round_3')) {
-          roundName = 'Preliminaries';
-        } else if (cellClass.includes('heat_')) {
-          // Extract heat number: heat_1_2_* means round 1 heat 2
-          const heatMatch = cellClass.match(/heat_(\d+)_(\d+)/);
-          if (heatMatch) {
-            roundName = `Heat ${heatMatch[2]}`;
-          } else {
-            roundName = 'Heat';
-          }
-        }
+        roundName = roundFromClass($firstTimeCell.attr('class')) || 'Unknown';
       }
 
       const $row = $(row);
@@ -366,6 +370,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
 
         // Find mark (time) for relay - same priority logic as individual events
         let markRaw = null;
+      let markCellClass = null;   // the cell the mark came from -- the round label must match IT
 
         // Priority 1: Look for checkmark icon
         cells.each((i, cell) => {
@@ -478,6 +483,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
           const text = $cell.text().trim();
           if (text && text.length < 20) {
             markRaw = text;
+            markCellClass = $cell.attr('class') || '';
           }
         }
       });
@@ -500,12 +506,14 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
               /^\d{1,2}\.\d{2,3}$/.test(text) ||            // 10.45
               /^\d{1,2}:\d{2}:\d{2}\.\d{2}$/.test(text)) {  // 1:02:34.56
             markRaw = text;
+            markCellClass = cellClass;
           }
           // Distance formats
           if (/^[\d.]+m$/i.test(text) ||                    // 4.73m
               /^\d+'\s*[\d.]*"?$/.test(text) ||             // 15' 6.75"
               /^\d+-[\d.]+$/.test(text)) {                  // 15-6.75
             markRaw = text;
+            markCellClass = cellClass;
           }
         });
       }
@@ -517,12 +525,21 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
           const text = $(cell).text().trim();
           if (/^(DNF|NT|DNS|FS|FOUL|NH|NM|DQ|SCR|DNQ|NWI)$/i.test(text)) {
             markRaw = text.toUpperCase();
+            markCellClass = $(cell).attr('class') || '';
           }
         });
       }
 
       // Skip only if truly no mark at all
       if (!markRaw) return;
+
+      // BUG FIX 2026-08-10: the round label used to be read from the row's FIRST time cell
+      // while the mark was read from the first VISIBLE cell (or a checkmark cell) -- different
+      // cells. A TFRRS row carries one time cell per round/heat view (the 2026 DI 200m has rows
+      // with 7 of them), so the label frequently described a different round than the time next
+      // to it. Take the round from the cell the mark actually came from.
+      const markRound = roundFromClass(markCellClass);
+      if (markRound) roundName = markRound;
 
       results.push({
         athlete_id: athleteId,
