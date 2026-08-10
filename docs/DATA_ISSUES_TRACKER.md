@@ -20,7 +20,13 @@ never delete without a self-proving test · small throttled batches (weak instan
 | # | Issue | Size | Notes |
 |---|---|---|---|
 | D1 | **Cross-meet duplication** — the same performance attributed to 2-4 different meets | **26,846 extra attributions** (Outdoor 2026 alone) | Proven case: "Utah Spring Classic" (12436) holds **100% Arkansas Spring Invitational** (12337) data — 0 unique rows, athletes all from AR/IA/KS/KY/MO/OK. Owner spotted it: an athlete showing a meet she never attended. **Fix:** find meets with zero unique results, corroborate by geography, delete the copied rows (meet returns to empty = accurate). |
-| D2 | **Within-meet round duplicates** — same performance under two round labels | **416,044 extra rows · 69,409 athletes** (2026 seasons alone) | **LARGEST issue in the database.** e.g. `11.79 13th "Heat 1"` AND `11.79 13th "Preliminaries"`. 395,160 of 405,301 groups differ ONLY by round label. Same mark **and same place** is the signal (a real prelim/final rarely shares both — place normally differs). Keep Finals > Preliminaries > Heat N. Verify a sample before mass deletion. |
+| D2 | **Within-meet round duplicates** — same performance under two round labels | **416,044 extra rows · 69,409 athletes** (2026 seasons alone) | **LARGEST issue in the database. MECHANISM VERIFIED against TFRRS 2026-08:** TFRRS shows a race
+BOTH as a combined result AND broken out by heat, so one run is scraped twice with different round
+labels. Round pairs in the data: **Finals+Heat N ≈ 328,000 groups** (timed-final events — the run
+appears in the combined list and in its heat), Preliminaries+Heat N ≈ 50,000, Finals+Finals 8,762.
+**SAFE RULE:** same athlete+meet+event+**mark**+**place** = one performance, whatever the round
+label. A genuine prelim→final pair has DIFFERENT times (verified: Carson-Newman 39.50 prelim →
+39.30 final), so requiring identical mark AND place cannot merge them. e.g. `11.79 13th "Heat 1"` AND `11.79 13th "Preliminaries"`. 395,160 of 405,301 groups differ ONLY by round label. Same mark **and same place** is the signal (a real prelim/final rarely shares both — place normally differs). Keep Finals > Preliminaries > Heat N. Verify a sample before mass deletion. |
 | D3 | **Duplicate relay rows** | ~40,618 extra rows (40,060 groups) | Same meet+event+team+place+identical mark. Pre-existing (not from the athletic.net import, which was dup-guarded). |
 | D4 | **Duplicate athlete records** | 294 cross-school + ~646 ambiguous + 3 conflict clusters | Root cause is U2 below. Visible in-app (e.g. "Obiora Okeke", "Mena Scatchard"). |
 
