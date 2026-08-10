@@ -20,13 +20,7 @@ never delete without a self-proving test · small throttled batches (weak instan
 | # | Issue | Size | Notes |
 |---|---|---|---|
 | D1 | **Cross-meet duplication** — the same performance attributed to 2-4 different meets | **26,846 extra attributions** (Outdoor 2026 alone) | Proven case: "Utah Spring Classic" (12436) holds **100% Arkansas Spring Invitational** (12337) data — 0 unique rows, athletes all from AR/IA/KS/KY/MO/OK. Owner spotted it: an athlete showing a meet she never attended. **Fix:** find meets with zero unique results, corroborate by geography, delete the copied rows (meet returns to empty = accurate). |
-| D2 | **Within-meet round duplicates** — same performance under two round labels | **416,044 extra rows · 69,409 athletes** (2026 seasons alone) | **LARGEST issue in the database. MECHANISM VERIFIED against TFRRS 2026-08:** TFRRS shows a race
-BOTH as a combined result AND broken out by heat, so one run is scraped twice with different round
-labels. Round pairs in the data: **Finals+Heat N ≈ 328,000 groups** (timed-final events — the run
-appears in the combined list and in its heat), Preliminaries+Heat N ≈ 50,000, Finals+Finals 8,762.
-**SAFE RULE:** same athlete+meet+event+**mark**+**place** = one performance, whatever the round
-label. A genuine prelim→final pair has DIFFERENT times (verified: Carson-Newman 39.50 prelim →
-39.30 final), so requiring identical mark AND place cannot merge them. e.g. `11.79 13th "Heat 1"` AND `11.79 13th "Preliminaries"`. 395,160 of 405,301 groups differ ONLY by round label. Same mark **and same place** is the signal (a real prelim/final rarely shares both — place normally differs). Keep Finals > Preliminaries > Heat N. Verify a sample before mass deletion. |
+| ~~D2~~ | ~~Within-meet round duplicates~~ | **DONE 2026-08-10 — 452,748 rows removed** | Whole-DB re-measure found 441,314 groups / 453,113 extra rows / 71,117 athletes. Removed in three runs (pilot 4,427 · full 447,853 · NULL-bug cleanup 468). **185 groups deliberately kept** — both `Preliminaries` and `Finals` at the same mark and place, genuinely ambiguous. `results`: 3,772,655 → **3,319,907**. Backup `results_d2_backup` + per-run audit JSONs. Rollback: `INSERT INTO results SELECT * FROM results_d2_backup;` See the D2 detail section below. |
 | D3 | **Duplicate relay rows** | **43,037 extra rows (42,305 groups)** measured 2026-08-09 | Same meet+event+team+place+identical mark. Pre-existing (not from the athletic.net import, which was dup-guarded). The count rose from ~40,618 partly because linking previously-invisible relays (F5, M3) *surfaces* duplicates that were always there but unlinked. **Run D3 dedup after the relay linking work, not before.** |
 | D4 | **Duplicate athlete records** | 294 cross-school + ~646 ambiguous + 3 conflict clusters | Root cause is U2 below. Visible in-app (e.g. "Obiora Okeke", "Mena Scatchard"). |
 
@@ -167,3 +161,33 @@ season's scrapes, or these come back.**
 
 Row count now equals distinct performances — no real performance lost. Remaining DB-wide:
 436,889 groups. Rollback: `INSERT INTO results SELECT * FROM results_d2_backup;`
+
+### D2 — completed 2026-08-10
+
+**Two duplication mechanisms, both genuine:**
+1. *Same scrape published twice* — TFRRS lists a race in the combined result AND broken out by
+   heat, so it is captured twice under different round labels. 82.9% of groups share `created_at`
+   to the microsecond. Durrell Collins, 200m, WAC Indoor: `21.19 3rd Finals` + `21.19 3rd Heat 1`.
+2. *Whole meet re-imported* — two contiguous `result_id` blocks, differing only in `date`
+   (Anaya Ervin's heptathlon at Carl Kight, once 04-02 and once 04-03).
+
+**Verification:** Collins 51→44 rows, Mallory 58→49, distinct performances unchanged in both.
+Residual is exactly 185, the deliberately-kept ambiguous groups.
+
+**TWO SQL NULL BUGS — the reason the first full run left 376 groups behind.** Both skipped rows
+rather than over-deleting, so nothing was lost, but they are easy to repeat:
+- `g.event_type_id = r.event_type_id` in a join — `NULL = NULL` is **not true**, so 302 groups
+  with a NULL `event_type_id` never matched. Use `IS NOT DISTINCT FROM` for any nullable column.
+- `HAVING NOT (bool_or(round='Preliminaries') AND bool_or(round='Finals'))` — when every row's
+  round is NULL, `bool_or` returns NULL, `NOT NULL` is NULL, and the group **silently vanishes
+  from HAVING**. 74 groups lost this way. Wrap aggregate booleans in `COALESCE(..., false)`.
+
+**Root cause is still unfixed.** The only unique index on `results` is the primary key, so nothing
+at the DB level prevents re-inserting the same performance. A unique constraint cannot be the
+answer either — it would reject the 185 legitimate pairs. The guard must live in the importer,
+and it demonstrably failed for the Ervin meet. **Re-check it before the 2026-27 scrapes or these
+come straight back.**
+
+**Minor finding:** 463 of 3,319,907 results (0.01%) still have no `event_type_id` — event names
+with unmapped suffixes (`5000 M Open`, `100 Meter Dash D1 Elite`, `Hammer Throw Unseeded`).
+Worth an `event_aliases` top-up.

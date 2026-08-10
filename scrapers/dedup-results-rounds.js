@@ -67,7 +67,10 @@ WITH g AS (
     ${meetFilter}
   GROUP BY 1,2,3,4,5
   HAVING count(*) > 1
-     AND NOT (bool_or(round = 'Preliminaries') AND bool_or(round = 'Finals'))
+     -- COALESCE matters: with every round NULL, bool_or returns NULL, NOT NULL is NULL, and the
+     -- group silently vanishes from HAVING. That skipped 74 groups on the first full run.
+     AND NOT (COALESCE(bool_or(round = 'Preliminaries'), false)
+              AND COALESCE(bool_or(round = 'Finals'), false))
 ),
 ranked AS (
   SELECT r.result_id,
@@ -82,7 +85,9 @@ ranked AS (
   FROM results r
   JOIN meets m ON m.meet_id = r.meet_id
   JOIN g ON g.athlete_id = r.athlete_id AND g.meet_id = r.meet_id
-        AND g.event_type_id = r.event_type_id AND g.mark_raw = r.mark_raw
+        -- IS NOT DISTINCT FROM rather than plain equality: event_type_id is nullable, and
+        -- NULL = NULL is not true, so equality silently dropped 302 groups on the first run.
+        AND g.event_type_id IS NOT DISTINCT FROM r.event_type_id AND g.mark_raw = r.mark_raw
         AND g.place IS NOT DISTINCT FROM r.place
   WHERE r.meet_id IS NOT NULL AND r.athlete_id IS NOT NULL AND r.mark_raw IS NOT NULL
     ${meetFilterR}
