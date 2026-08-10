@@ -156,6 +156,25 @@ still has its athletes' marks in the DB — they're just not linked to the meet.
   can be in different conferences (verified: the ACC spans 7 regions). NAIA has no regions
   (national qualifying); NJCAA has 24 (not yet loaded). DI regions are **sport-specific**: XC uses
   9 geographic regions, outdoor track qualifies via East/West prelims (derived, never stored).
+- **ROUNDS, HEATS AND TIMED FINALS — owner-explained 2026-08-10. Read before touching round logic.**
+  - **"Heat N" and "Preliminaries" are the same round.** Heat 2 *is* prelim heat 2. They are not
+    two races. Treat a Heat label as a subdivision of the prelim round, never as its own round.
+  - **Finals is its own race. There is no "Final 1 / Final 2 / Final 3"** — finals is just finals.
+  - **Many meets are "straight" / timed finals: there is no prelim round at all.** You run once,
+    in a heat seeded slowest-to-fastest, and *that heat is the final* — places are decided on time
+    across all heats. In those meets one run legitimately carries BOTH a `Heat N` and a `Finals`
+    label. That is the single biggest duplicate source in the DB (~370k rows, see DUP-2).
+  - **Other meets run true prelims:** run once to qualify, run again in the final. Two real races,
+    and the times differ.
+  - **So a round label alone never tells you whether two rows are two races.** What decides it is
+    whether that event ran a prelim round, which is a property of the meet, not of the label.
+  - **The test:** in a true prelim/final event, some athletes post **two different marks**. In a
+    timed final, nobody does. Measured on the events behind DUP-2: 78% of events that produced a
+    `Finals`+`Heat N` pair were timed finals (nobody ran twice) — one race, two labels.
+  - **Therefore the safe dedup rule:** within one meet + event + athlete, an identical **mark AND
+    place** is one performance whatever the round label says. A genuine prelim→final pair has
+    different times, so this can never merge two real races. Keep the most authoritative label:
+    Finals > Preliminaries > Heat N.
 - Wind ≤ +2.0 is legal outdoors; altitude aids sprints/jumps. `wind` is currently free text and
   mostly null, so PR calculations ignore legality for now (documented v2 refinement).
 
