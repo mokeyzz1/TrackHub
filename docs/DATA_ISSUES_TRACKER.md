@@ -27,16 +27,40 @@ appears in the combined list and in its heat), Preliminaries+Heat N ≈ 50,000, 
 **SAFE RULE:** same athlete+meet+event+**mark**+**place** = one performance, whatever the round
 label. A genuine prelim→final pair has DIFFERENT times (verified: Carson-Newman 39.50 prelim →
 39.30 final), so requiring identical mark AND place cannot merge them. e.g. `11.79 13th "Heat 1"` AND `11.79 13th "Preliminaries"`. 395,160 of 405,301 groups differ ONLY by round label. Same mark **and same place** is the signal (a real prelim/final rarely shares both — place normally differs). Keep Finals > Preliminaries > Heat N. Verify a sample before mass deletion. |
-| D3 | **Duplicate relay rows** | ~40,618 extra rows (40,060 groups) | Same meet+event+team+place+identical mark. Pre-existing (not from the athletic.net import, which was dup-guarded). |
+| D3 | **Duplicate relay rows** | **43,037 extra rows (42,305 groups)** measured 2026-08-09 | Same meet+event+team+place+identical mark. Pre-existing (not from the athletic.net import, which was dup-guarded). The count rose from ~40,618 partly because linking previously-invisible relays (F5, M3) *surfaces* duplicates that were always there but unlinked. **Run D3 dedup after the relay linking work, not before.** |
 | D4 | **Duplicate athlete records** | 294 cross-school + ~646 ambiguous + 3 conflict clusters | Root cause is U2 below. Visible in-app (e.g. "Obiora Okeke", "Mena Scatchard"). |
 
 ## 🟠 OPEN — missing / incomplete data
 
 | # | Issue | Size | Notes |
 |---|---|---|---|
-| M1 | **4x100 times need re-scraping** | 619 meets | Parser is fixed (see F7) but existing rows are still timeless. Re-scrape relay events only, to avoid duplicating individual results. |
+| M1 | **Relay events with no time at all** | **RESCOPED 2026-08-09: 212 events / 1,091 rows / 157 meets** — not "619 meets" | The old figure counted every meet holding *any* timeless 4x100, which swept in legitimate DNFs. The real signal is an event where **every** team is timeless (≥3 teams) — physically impossible, so a parser failure. 4x100 177 events · 4x400 30 · 4x800 4 · DMR 1. The 83% 4x100 share matches the F7 colon bug. **Leave partial-DNF events alone — 4,901 of them are genuine.** ⚠️ **Only 61 of the 157 meets (39%) still have a results link** (14 TFRRS · 52 athletic.net); 96 have none and are unrecoverable (§1b moving window). Realistic ceiling ≈ 420 rows — **low value, do it last.** Also note `NT` (11,282 rows) is the parser's fallback value, vs genuine `DNS`/`DQ`/`FS`/`SCR`. |
 | M2 | **All-DNF relay events** | 408 events / 406 meets (1,439 rows) | Consequence of F7. Recoverable from TFRRS *and* athletic.net. |
-| M3 | **Relays still unlinked to a meet** | ~25,700 | 11,712 have no matching meet; ~14,000 have a name but **no date** (never attempted — matchable by name alone where unambiguous). |
+| M3 | **Relays still unlinked to a meet** | **22,865** (was 26,136 — 3,271 linked 2026-08-09) | 11,712 have a date but no matching meet. Of the 14,365 dateless ones, **3,271 are now linked** with corroboration (`backfill-relay-meet-id-nodate.js`); 11,094 remain and are **deliberately not linkable by name** — see the warning below. |
+
+> ### ⚠️ Name-only matching is a trap — measured proof (2026-08-09)
+> Of the 14,365 dateless relays, 5,907 had a `meet_name` matching **exactly one** meet row, which
+> looks safe. It isn't: meets recur annually, and if only one edition is in `meets`, a relay from
+> another year matches it and gets linked to the **wrong edition**. Testing each candidate against
+> its own leg athletes:
+>
+> | outcome | rows | action |
+> |---|---|---|
+> | a leg athlete has a result **at that meet** | **3,271** | linked ✅ |
+> | meet has no results — can't corroborate | 11 | skipped |
+> | relay's legs aren't known athletes | 4 | skipped |
+> | **meet has results, legs are known, none competed there** | **2,621** | **skipped — contradicted** |
+>
+> That 2,621 is what naive name-matching would have silently mislinked. **Rule: link a dateless
+> relay only when one of its own leg athletes is independently recorded at the target meet.**
+>
+> **Process lesson (cost me the ability to verify):** the first run wrote 3,271 rows without
+> saving their ids. A linked row is indistinguishable from a normally-linked one, so afterwards
+> there was **no way to measure whether any of them duplicated a relay already on that meet**, and
+> no way to roll back just those rows. The script now writes an audit JSON of every id *before*
+> applying, and reports collisions after. **Never run a bulk change without that.** Bound on the
+> unverified run: ≤3,271 rows, all corroborated links; any collisions are D3-shaped and will be
+> absorbed by the D3 dedup pass, which keys on exactly (meet, event, team, place, mark).
 | M4 | **Relays with no team** | 1,418 | Mostly juco — leg athletes aren't in the DB, so the team can't be derived. Lineups are still recorded. |
 | M5 | **Results with no `team_id`** | 394,659 | Mostly pre-2024 (roster history only covers 2024-25, 2025-26). Re-runnable: `backfill-result-team-id.js`. |
 | M6 | **Meets with no results link** | 137 (2025-26) · 671 all-time | **Structurally limited** — USTFCCCA's directory is a moving window, so old links are gone (CLAUDE.md §1b). Don't grind; mark `results_status='unavailable'`. |

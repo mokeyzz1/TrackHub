@@ -249,3 +249,12 @@ athletic.net pipeline built + 108 meets / ~58k results imported · computed PRs 
    `normalizeEventName()`'s 192-entry map is the **fallback only** — it knows 192 of the DB's 1,186
    spellings, and grouping by it split one event into as many as six (see F13 in
    `DATA_ISSUES_TRACKER.md`). Still on text: `get_top_performances` (U4), meet/school screens (U5).
+
+## 7. BULK-WRITE AUDIT RULE (learned 2026-08-09, the hard way)
+
+**Every bulk UPDATE must write the affected row ids to a file BEFORE applying.** A backfill linked
+3,271 relays to their meets; the written rows were then indistinguishable from normally-linked
+rows, so afterwards it was impossible to answer "did this create duplicates?" or to roll back just
+those rows. Verification you can't target is not verification. Pattern:
+`scrapers/backfill-relay-meet-id-nodate.js` — resolve the id list, dump it to JSON, apply, then
+re-read those exact ids to check for collisions.
