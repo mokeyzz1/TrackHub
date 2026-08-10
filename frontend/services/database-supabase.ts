@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { normalizeEventName } from '../utils/eventNames';
+import { normalizeEventName, canonicalEventName } from '../utils/eventNames';
 
 /**
  * Supabase Database Service
@@ -323,6 +323,10 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
       athlete_id,
       team_id,
       event_name,
+      event_type_id,
+      event_types (
+        code
+      ),
       mark_raw,
       mark_seconds,
       date,
@@ -352,6 +356,8 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
   // Transform to include school name from the team they competed for
   return data?.map(r => ({
     ...r,
+    // Canonical event from the DB — group and display by this, never by raw event_name
+    event_canonical: canonicalEventName(r),
     competed_for_school: r.teams?.schools?.official_name || r.teams?.schools?.short_name || null,
   })) || [];
 }
@@ -414,7 +420,7 @@ export async function getAthletePRs(athleteId: number) {
   // Calculate PRs from results table (athlete_prs cache is incomplete)
   const { data, error } = await supabase
     .from('results')
-    .select('event_name, mark_raw, date, meet_name')
+    .select('event_name, event_type_id, event_types ( code ), mark_raw, date, meet_name')
     .eq('athlete_id', athleteId)
     .order('date', { ascending: false });
 
@@ -434,7 +440,9 @@ export async function getAthletePRs(athleteId: number) {
     // Skip relay events (team events don't have individual PRs)
     if (isRelayEvent(result.event_name)) continue;
 
-    const eventName = normalizeEventName(result.event_name);
+    // Group by the DB's canonical event, not the client-side map (the map splits one event into
+    // several labels, which produced duplicate PRs and season bests for the same event)
+    const eventName = canonicalEventName(result);
     const eventLower = eventName.toLowerCase();
     const isFieldEvent = FIELD_EVENTS.some(fe => eventLower.includes(fe));
 
@@ -719,7 +727,7 @@ export async function getAthleteComparisonStats(athleteId: number, seasonFilter:
   // Get all results for this athlete (no date filter to include NULL dates)
   const { data: rawResults, error: resultsError } = await supabase
     .from('results')
-    .select('event_name, place, meet_name, date, mark_raw')
+    .select('event_name, event_type_id, event_types ( code ), place, meet_name, date, mark_raw')
     .eq('athlete_id', athleteId);
 
   if (resultsError) {
@@ -739,7 +747,9 @@ export async function getAthleteComparisonStats(athleteId: number, seasonFilter:
     // Skip relay events (team events don't have individual PRs)
     if (isRelayEvent(result.event_name)) return;
 
-    const eventName = normalizeEventName(result.event_name);
+    // Group by the DB's canonical event, not the client-side map (the map splits one event into
+    // several labels, which produced duplicate PRs and season bests for the same event)
+    const eventName = canonicalEventName(result);
     const eventLower = eventName.toLowerCase();
     const isFieldEvent = FIELD_EVENTS.some(fe => eventLower.includes(fe));
 
@@ -821,12 +831,12 @@ export async function getHeadToHead(athleteId1: number, athleteId2: number, even
   // Don't filter by date here since some results have NULL dates
   const { data: rawResults1, error: error1 } = await supabase
     .from('results')
-    .select('meet_name, date, place, mark_raw, event_name, round')
+    .select('meet_name, date, place, mark_raw, event_name, event_type_id, event_types ( code ), round')
     .eq('athlete_id', athleteId1);
 
   const { data: rawResults2, error: error2 } = await supabase
     .from('results')
-    .select('meet_name, date, place, mark_raw, event_name, round')
+    .select('meet_name, date, place, mark_raw, event_name, event_type_id, event_types ( code ), round')
     .eq('athlete_id', athleteId2);
 
   if (error1 || error2) {
@@ -838,8 +848,9 @@ export async function getHeadToHead(athleteId1: number, athleteId2: number, even
   const allResults1 = filterResultsBySeason(rawResults1 || [], seasonFilter);
   const allResults2 = filterResultsBySeason(rawResults2 || [], seasonFilter);
 
-  const results1 = allResults1.filter(r => normalizeEventName(r.event_name) === eventName);
-  const results2 = allResults2.filter(r => normalizeEventName(r.event_name) === eventName);
+  // must use the same canonical key as getAthleteComparisonStats, which supplies `eventName`
+  const results1 = allResults1.filter(r => canonicalEventName(r) === eventName);
+  const results2 = allResults2.filter(r => canonicalEventName(r) === eventName);
 
   // Find common races (where both athletes competed in SAME RACE)
   // Match by meet_name + date + round, with fallbacks for inconsistent data
@@ -1320,6 +1331,10 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
       relay_results (
         relay_result_id,
         event_name,
+        event_type_id,
+        event_types (
+          code
+        ),
         mark_raw,
         mark_seconds,
         place,
@@ -1363,6 +1378,7 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
     return {
       relay_result_id: relay?.relay_result_id,
       event_name: relay?.event_name,
+      event_types: relay?.event_types,   // carried through so canonicalEventName() can use it
       mark_raw: relay?.mark_raw,
       place: relay?.place,
       round: relay?.round,

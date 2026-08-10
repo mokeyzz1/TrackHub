@@ -49,7 +49,7 @@ label. A genuine prelim→final pair has DIFFERENT times (verified: Carson-Newma
 | U2 | **Unattached modelled per-person, not per-competition** | `athletes.school_id=1835` instead of `results.team_id` → one person's unattached and college records look like two athletes. Root cause of D4. |
 | U3 | **No per-event source fallback** | TFRRS broke on DII 4x100 while athletic.net had it perfectly. Current rule is per-meet; needs to be per-event. |
 | U4 | **`get_top_performances` uses regex, not `event_type_id`** | Home-screen leaderboard normalizes events by hand-written regex and infers indoor by "has a 60m event" — misses athletic.net short codes. Best first target for the frontend migration. |
-| U4b | **Athlete progression & season bests split one event into several** — **36,838 athletes / 58,844 athlete-event pairs affected (18.5%), worst case 6 spellings** | Owner-reported: an athlete shows `100`, `100 Meters`, `100m` as separate events — and separate season bests (her 60m showed two). Verified on athlete 17768: 100m has 3 spellings, 60m 3, 200m 2. Cause: `getAthletePerformances` and `getAthletePRs` **don't even select `event_type_id`** — they group by raw `event_name`. The DB is already 100% canonical, so the fix is small: select `event_type_id` and group/display by it. **Best first frontend win** — visible, contained, low risk. |
+| ~~U4b~~ | ~~Athlete progression & season bests split one event into several~~ | **FIXED 2026-08-09 — see F13.** |
 | U5 | **Frontend still matches by text** | App reads `meet_name`/`event_name` strings instead of IDs. Until this lands most cleanup is dormant. |
 | U6 | **Abandoned live-results code** | In-app live results was dropped (link-out via `meet_url` is the shipped answer). Dead: `live_results` table, `useLiveResults.ts`, `getTopPerformances()`, 8 live scripts. |
 | U7 | **Merge `backend-rebuild` → `main`** | Nothing touches app code; low risk. |
@@ -70,6 +70,40 @@ label. A genuine prelim→final pair has DIFFERENT times (verified: Carson-Newma
 | F10 | Link drift at discovery | athletic.net timing links now also fill `athletic_net_results_url` |
 | F11 | Provenance unknown | `meets.results_source` populated (tfrrs 11,853 · athletic_net 108) |
 | F12 | Context lost between sessions | `CLAUDE.md` + this tracker + priorities doc |
+| F13 | **One event shown as several, each with its own season best / PR** | **34,748 athlete-event pairs · 25,093 athletes · worst case 1 event shown 6×.** First frontend cut-over to `event_type_id`. |
+
+### F13 detail — first use of the canonical event in the app
+
+**Symptom (owner-reported):** progression listed `100` and `100 Meters` separately; season bests
+showed 60m twice.
+
+**Diagnosis — the first guess was wrong and worth recording.** The initial theory was "the frontend
+never normalizes". False: `normalizeEventName()` *is* applied at every grouping site, and it
+collapses `100`/`100 Meters`/`100m` correctly. The real cause is that
+`utils/eventNames.ts` carries a **hand-written 192-entry map**, while the DB resolves **1,186
+spellings** through `event_aliases`. Everything the map doesn't know falls through as its own event.
+
+Measured across the whole DB (2026-08-09): the map splits **58 of 62 event types**;
+**64,054 track & field results** land on a stray label. Examples — `200m` rendered as 35 different
+labels (`200 Meter Dash Open`, `200 M Participate`, `200 Meter Dash Unseeded`…), `800m` as 66,
+`Pole Vault` as 43. Athlete 84383 saw six separate Pole Vault events, each with its own season best.
+
+**Fix:** new `canonicalEventName(row)` in `utils/eventNames.ts` returns `event_types.code` from the
+DB and falls back to `normalizeEventName()` only when a row has no `event_type_id`. Every query
+that groups by event now selects `event_type_id, event_types ( code )`:
+`getAthletePerformances` · `getAthletePRs` · `getAthleteComparisonStats` · `getHeadToHead` ·
+`getAthleteRelays` — plus the grouping sites in `app/athlete/[id].tsx` and `AthleteStatsModal.tsx`.
+`getHeadToHead` had to change **in the same commit** as `getAthleteComparisonStats`: it filters
+using the keys that function produces, so a half-migration would have silently matched nothing.
+
+**Note:** `types/database.ts` was stale — it had no `event_type_id` and no `event_types` table at
+all, so the query wouldn't typecheck. Added those by hand rather than regenerating (a full regen
+churns 41 KB and the file is stale in other ways too — worth doing, separately).
+
+**Not covered by this fix:** XC. 52,496 XC results also carry non-canonical labels, but there the
+distances are genuinely different (`4.97M`, `7k`, `5 MILE (XC)` all map to `8k XC`). Collapsing
+those to one label would *hide* real differences — that's a DB modelling question, not a display
+bug. Left alone deliberately.
 
 **Earlier in the rebuild:** athlete dedup (6,277 merged) · canonical events (63 types, 100%) ·
 `meet_id` FKs + orphan cleanup · divisions dimension · gender 99.96% · names 99.9% ·

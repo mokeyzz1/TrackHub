@@ -243,3 +243,9 @@ athletic.net pipeline built + 108 meets / ~58k results imported · computed PRs 
 5. **Frontend migration** — the app still matches by *text* (`meet_name`, event strings) instead of
    `meet_id` / `event_type_id` / `division_id`. Until this lands, most of the backend cleanup is
    dormant. Riskiest step (user-visible), so do it screen by screen.
+   **First slice landed 2026-08-09 (athlete screen → `event_type_id`).** Use
+   `canonicalEventName(row)` from `utils/eventNames.ts` for anything that groups or displays an
+   event, and select `event_type_id, event_types ( code )` in the query that feeds it.
+   `normalizeEventName()`'s 192-entry map is the **fallback only** — it knows 192 of the DB's 1,186
+   spellings, and grouping by it split one event into as many as six (see F13 in
+   `DATA_ISSUES_TRACKER.md`). Still on text: `get_top_performances` (U4), meet/school screens (U5).
