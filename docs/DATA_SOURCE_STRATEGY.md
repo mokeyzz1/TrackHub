@@ -121,3 +121,45 @@ new-meet ingestion onto stored athletic.net links removes that whole failure mod
 3. **Schema has nowhere to put the richer data yet.** `results` has no qualifying-status column —
    the Q/q distinction the owner wants would need one, plus somewhere for splits. Worth designing
    before the 2026-27 season so the scrape captures it from day one rather than needing a backfill.
+
+
+### The dual-source model the owner actually wants (2026-08-10)
+
+Not a switch. **Scrape the same meet from BOTH sources**, with defined roles:
+
+| role | source | supplies |
+|---|---|---|
+| **identity / skeleton** | TFRRS | `tfrrs_athlete_id`, athlete↔meet resolution, the canonical meet |
+| **detail / enrichment** | athletic.net | Q vs q, splits, wind, PB/SB, year, points |
+
+Both links stay on the meet row; each meet is reachable from either end; either can act as the
+other's fallback.
+
+**THIS CONFLICTS WITH COEXISTENCE RULE #1** ("one meet, one source — never import a second source
+into a meet that already has results"). That rule exists because a batch was once imported onto
+non-empty meets and had to be rolled back. It is not obsolete — what changes is *how* the second
+source writes:
+
+- **exactly one source INSERTS** result rows for a meet (system of record for the performance)
+- **the other only UPDATES** them — attaches Q/q, splits, wind, and backfills the missing athlete
+  pointer (`athletic_net_url` / `tfrrs_athlete_id`)
+- a second INSERT for the same performance is a bug, not a merge strategy
+
+**BLOCKER — the DB guard cannot see cross-source duplicates yet.** `results_no_exact_duplicate`
+keys on `mark_raw`, and the two sources format marks differently:
+
+| source | marks ending `a` (auto-timed) |
+|---|---|
+| athletic.net | **32,229** |
+| TFRRS | 1,313 |
+
+The same race is `10.35a` from one and `10.35` from the other — two different keys, so the index
+lets both in. Before any dual-source import runs, `results` needs a **normalized mark column**
+(strip a trailing `a`/`h` timing flag, keep the `m` field-unit) and the unique index must key on
+that instead of `mark_raw`.
+
+`mark_seconds` / `mark_meters` cannot be used for this: **45% of rows (1,483,604) have neither**,
+and 1,319,151 of those have a numeric `mark_raw` that was simply never parsed.
+
+**Order of work:** normalized mark column → re-key the unique index → define which source inserts
+per meet → only then run both scrapers over the same meet.
