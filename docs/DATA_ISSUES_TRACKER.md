@@ -401,3 +401,32 @@ re-run the resolver to recover them. 5 unresolved: three meets have no `team_id`
 school states to test, and `NJCAA Region 6/KJCCC` vs `Region 6/Jayhawk` are the same Kansas event
 under two names (both host KS with KS schools), which location cannot separate. All pre-2026
 seasons are unscanned.
+
+
+### DUP-1 — 2026 season complete (2026-08-10): 23,766 rows across 33 meets
+
+All removals gated on the rows surviving at a meet **not itself condemned**, backed up whole to
+`results_d1_backup` with audit JSONs. Tools: `resolve-copied-meets-by-location.js` (reports
+verdicts) → `apply-verified-copies.js --ids=… --apply` (enforces the survival gate, then deletes).
+
+**⚠️ THE GATE IS ONLY AS STRONG AS THE CONDEMNED LIST YOU PASS IT.** Applying the copies in two
+batches nearly caused a bad delete: `Mule Tune-Up` "survives at" `Bucknell Tune-Up`, but Bucknell
+is itself a COPY that had been skipped in the earlier batch. Because it wasn't in the second
+batch's `--ids`, the gate счёл it a legitimate survivor. **Always pass the full condemned list,
+even when applying a subset.**
+
+**Deliberately untouched — data with no correct home:** `Bucknell Tune-Up` (#11714, host PA) and
+`Mule Tune-Up` (#11717, host ME) both hold the same 407 rows of IL/MI schools. Neither host state
+matches, so both are copies, and no third meet holds the data. The genuine meet is either missing
+from `meets` or unflagged. **This is a missing-meet problem, not a duplicate one** — deleting
+either would be guessing, deleting both would destroy the results.
+
+**Also unresolved:** three meets have no `team_id`, so there are no school states to test; and
+`NJCAA Region 6/KJCCC` vs `Region 6/Jayhawk` are the same Kansas event under two names (both host
+KS, both KS schools) — location cannot separate them.
+
+**Performance note for extending this to pre-2026 (10,105 meets):** the container query
+self-joins `results` on athlete + mark + place and repeatedly hit the statement timeout on meets
+whose athletes carry a lot of history. Two meets had to be finished by checking containment
+against a single known survivor instead of searching all of them. **That query needs an index or
+a different shape before it is run at that scale — brute force will not survive it.**
