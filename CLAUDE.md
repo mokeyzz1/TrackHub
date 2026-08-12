@@ -219,6 +219,9 @@ still has its athletes' marks in the DB — they're just not linked to the meet.
 | T&F domain rules | `docs/DOMAIN_LOGIC.md` |
 | Columns pending retirement | `docs/COLUMN_RETIREMENT_PLAN.md` |
 | **Every known data issue + status** | **`docs/DATA_ISSUES_TRACKER.md`** |
+| **How to clean data without destroying it — READ BEFORE ANY CLEANUP** | **`docs/DEDUP_METHOD.md`** |
+| **Undoing anything destructive (backups + rollback)** | **`docs/RECOVERY.md`** |
+| Mark codes (`DNS`, `NT`, `ENR`, `NP`, `NWI`…) — all are RESULTS | `docs/MARK_CODES.md` |
 | **Scaling to 10k–20k users (social launch)** | **`docs/SCALING_PLAN.md`** |
 | **Priorities / working checklist** | **`docs/BACKEND_PRIORITIES.md`** |
 | Backend architecture | `docs/BACKEND_ARCHITECTURE.md` |
