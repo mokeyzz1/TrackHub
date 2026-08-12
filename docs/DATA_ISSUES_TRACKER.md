@@ -462,3 +462,38 @@ no way to prove two rows are the same squad. On that key the true count is **674
 
 **Generalisable lesson:** a status code (`DNS`/`DNF`/`NT`/`DQ`) plus a NULL place is the *absence*
 of a performance, not a fingerprint for one. Never let those values act as identity in a dedup key.
+
+
+### DUP-4 — 12,518 empty duplicate athlete records removed (2026-08-10)
+
+Owner-reported: searching "Mena Scatchard" returned four athletes. Two of them were **empty
+shells** — no results, no relay legs, no PRs, no roster history, no external ids — sitting on
+`school_id = 1835` (Unattached). 12,518 such records existed across the DB, every one duplicating
+the name of an athlete who *does* have results. Removed; backup in `athletes_empty_backup`.
+
+Scale: **37,694 of 151,376 athletes (25%) have no results at all.** Only the 12,518 that also
+duplicate a real athlete's name were touched. The other ~22,000 hold nothing but do not duplicate
+anyone — left alone.
+
+**⚠️ CHECK INBOUND FOREIGN KEYS BEFORE DEFINING "EMPTY".** The first version of this test looked
+only at `results` and `relay_athletes` and would have destroyed data for **2,792 athletes**:
+
+| table | on delete | holds |
+|---|---|---|
+| `athlete_prs` | NO ACTION | scraped career bests — 189 of these are unreproducible by `v_athlete_prs` |
+| `athlete_team_seasons` | **CASCADE** | roster history — **deletes silently** |
+| `external_ids` | **CASCADE** | source id mappings — deletes silently (currently 0 rows) |
+| `relay_athletes` | NO ACTION | relay legs |
+| `results` | CASCADE | performances |
+
+`athlete_prs` and `relay_athletes` would have raised an error and stopped the run;
+`athlete_team_seasons` would have gone quietly. **Query `information_schema` for inbound FKs
+before any delete** — this is the third time today the same trap appeared (relay legs, athlete
+PRs, roster history).
+
+**Still open — the real DUP-4:** cases like `Obiora Okeke`, where the Unattached record holds **3
+genuine results** from athletic.net alongside the main record's 124. That is a *merge*, not a
+delete, and it is really U2 (Unattached modelled per-person instead of per-competition). Also
+`Mena Scatchard` still has two Stanford records with **different `tfrrs_athlete_id`s**
+(7914548 with 93 results, 9188510 with 1) — CLAUDE.md §2 warns that one person routinely has two
+TFRRS ids, so this needs corroboration, not an id comparison.
