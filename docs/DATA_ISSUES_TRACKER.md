@@ -73,16 +73,15 @@ never delete without a self-proving test · small throttled batches (weak instan
 
 | # | Issue | Notes |
 |---|---|---|
-| U1 | **Two scraper engines with copy-pasted logic** | The relay colon bug (F7) existed **separately in two files**. One shared engine = fix once. |
+| U1 | **Two scraper engines with copy-pasted logic** | **PARTLY ADDRESSED.** The shared `scrapers/shared/collapse_duplicate_rounds.js` is now used by both, and the colon fix was applied to both. But they are still two parsers — every future fix must be made twice, and this is exactly how the colon bug survived in one file after being fixed in the other. |
 | U2 | **Unattached modelled per-person, not per-competition** | `athletes.school_id=1835` instead of `results.team_id` → one person's unattached and college records look like two athletes. Root cause of DUP-4. |
 | U3 | **No per-event source fallback** | TFRRS broke on DII 4x100 while athletic.net had it perfectly. Current rule is per-meet; needs to be per-event. |
 | U4 | **`get_top_performances` uses regex, not `event_type_id`** | Home-screen leaderboard normalizes events by hand-written regex and infers indoor by "has a 60m event" — misses athletic.net short codes. Best first target for the frontend migration. |
 | ~~U4b~~ | ~~Athlete progression & season bests split one event into several~~ | **FIXED 2026-08-09 — see F13.** |
 | ~~U8~~ | ~~Source of the `Finals`+`Heat N` duplicates~~ | **SOLVED + FIXED 2026-08-10 — see below.** |
-| U8-old | *(superseded)* | **The biggest recurrence risk before Dec/Jan.** DUP-2 removed ~370k of these, and the DB guard does NOT prevent them (the rows legitimately differ in `round`). A single scraper pass over one event page emits **one row per athlete**, so it cannot produce the pair — the duplication happens somewhere else. **Leading hypothesis: the same meet ingested by BOTH `scrape-meet-results.js` and `sync-weekend-results.js`**, each labelling the round from a different view (see U1 — two engines, copy-pasted logic). **Test it** against a meet known to have produced the pairs, before the season starts. A round-label fix was applied 2026-08-10 (label now taken from the cell the mark came from) but verified to change 0 of 48 rows on a live page — latent hardening, *not* the cause. |
 | U5 | **Frontend still matches by text** | App reads `meet_name`/`event_name` strings instead of IDs. Until this lands most cleanup is dormant. |
 | U6 | **Abandoned live-results code** | In-app live results was dropped (link-out via `meet_url` is the shipped answer). Dead: `live_results` table, `useLiveResults.ts`, `getTopPerformances()`, 8 live scripts. |
-| U7 | **Merge `backend-rebuild` → `main`** | Nothing touches app code; low risk. |
+| ~~U7~~ | ~~Merge `backend-rebuild` → `main`~~ | **DONE 2026-08-12** — 88 commits merged (`15307b9`). This mattered more than it looked: `main` is the default branch, so the cron'd scrapers were running WITHOUT any of this year's fixes. Production would have regenerated the duplicates in December. |
 
 ## ✅ FIXED (2026-07 → 2026-08)
 

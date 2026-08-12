@@ -1,128 +1,95 @@
-# Backend Priorities — working checklist
+# Backend priorities — working checklist
 
-**Owner's priority (2026-08): make the backend genuinely good before the next season.**
-The 2026-27 track season starts **Dec 2026 / Jan 2027**, so there is runway now. Frontend and
-marketing come after; the backend is what gets fixed in this window.
+Rewritten 2026-08-12 after the duplicate purge. Season starts **Dec 2026 / Jan 2027**.
 
-Keep this file current — it is the step-by-step of what we're doing and why.
-Problem/solution history lives in `memory/backend-rebuild-status.md`.
+Detail on any item: `DATA_ISSUES_TRACKER.md`. Before writing any cleanup: `DEDUP_METHOD.md`.
+Undoing something: `RECOVERY.md`.
 
 ---
 
-## P0 — Backfill missing meet results for the 2025 + 2026 seasons
-*The single most important item.*
+## ✅ DONE — and the season is protected
 
-| Step | Status |
+| | |
 |---|---|
-| athletic.net path for empty 2025-26 meets | ✅ **exhausted** — the 30 with links have **no results posted** on athletic.net (already tried, marked `imported`) |
-| TFRRS engine verified end-to-end (NSIC, meet 12948) | ✅ 2,326 results, 56 relays, **100% `team_id`**, 0 new athletes |
-| TFRRS batch over the season's remaining empty meets | ⏳ running — 47 meets |
-| Post-batch dup verification (normalized marks) | ⬜ |
-| Mark genuinely unavailable meets `results_status='unavailable'` so we stop rechecking | ⬜ |
+| Duplicates removed | **490,695 rows**, all reversible |
+| Marks repaired | 21,683 (`NM  NM` → `NM`) |
+| Event coverage | **100%** (0 rows without `event_type_id`) |
+| Re-imports | blocked by `results_no_exact_duplicate` (tested) |
+| **U8 — the ~370k-row generator** | fixed in both engines, **verified end-to-end on live data** |
+| Relay colon bug | fixed — 4x100 times no longer dropped |
+| Event grouping in-app | reads `event_type_id`; fixed 25,093 athletes |
+| **Deployed to `main`** | **2026-08-12.** Cron scrapers were running unfixed code until then |
 
-**Scope reality:** 2025-26 season = 2,460 meets, 213 empty at start (91.3% complete).
-Of those 213: 76 had links (48 TFRRS + 30 athletic.net), **137 have no link at all**.
-
-## P1 — Meets with no results link
-*Owner: "that's fine… we can find a way to backfill that eventually."*
-
-The blocker is structural, not effort: **USTFCCCA's directory is a moving window.** Once a meet
-ages out, its links can't be retrieved (see CLAUDE.md §1b). 2025-and-older meets have
-essentially **zero** stored links. So:
-- ⬜ Don't grind these. Profile them, mark the unreachable ones `unavailable`.
-- ⬜ Possible later angles: athlete-overlap matching; scraping athlete profiles (fills marks
-  without needing the meet link); TFRRS team/conference pages.
-- ✅ **Prevention (done):** meet discovery now captures athletic.net timing links into
-  `athletic_net_results_url` so current meets never lose their link again.
-
-## P2 — One proper scraper engine (the "which source" decision)
-
-Today there are two separate pipelines. The goal is **one engine that decides per meet**.
-
-- ✅ Provenance recorded per meet (`meets.results_source`).
-- ✅ Both sources documented as co-equal; TFRRS's 99% share is chronology, not superiority
-  (CLAUDE.md §1).
-- ⬜ **Orchestrator**: per meet — pick source by which link exists; prefer the one with better
-  coverage for that meet; record `results_source`; never import a second source into a meet that
-  already has results.
-- ⬜ Fold both importers onto the shared modules (`event_resolver`, `name_parser`,
-  `AthleteResolver`) so a fix lands once, not twice. *(This copy-paste is what let the same
-  duplicate bug exist separately in `batch_import.js` and `sync-weekend-results.js`.)*
-- ⬜ Consider the status-router already sketched in `backend/SCRAPING_PIPELINE.md`
-  (upcoming→entries, live→live results, completed→final).
-
-**Selection rule of thumb:** TFRRS = structured, complete, canonical identity + rankings.
-athletic.net = live, richer fields (wind/splits/PB-SB), covers meets TFRRS misses. Use whichever
-has the meet; prefer athletic.net when you want the rich fields, TFRRS when you want structure.
-
-## P3 — Data quality still open
-
-- ⬜ **394,659 results have no `team_id`** (mostly pre-2024 seasons; roster history only covers
-  2024-25 and 2025-26). Re-runnable: `scrapers/backfill-result-team-id.js`.
-- ⬜ **1,418 relays have no team** (mostly juco — their leg athletes aren't in the DB).
-- ⬜ **~40,618 DUPLICATE relay rows** (40,060 groups sharing meet+event+team+place+identical mark;
-  ~18% of 228k). Pre-existing, not from the athletic.net import (ours were dup-guarded). Shows up
-  as the same relay listed twice on an athlete's profile. Needs a dedup pass like the athlete one.
-- ⬜ **Broken relay events (owner-reported): 408 relay-event groups across 406 meets have NO
-  times at all** (1,439 rows, all DNF/blank) — a TFRRS parse failure, not real DNFs. Verified case:
-  NCAA DII Outdoor Champs (meet 13142) 4x100 = 7 rows all DNF, while the SAME meet's 4x400 imported
-  perfectly (80 rows with times). This is exactly the owner's "I see the 4x4s but not the 4x1s".
-  **athletic.net has the correct data for that meet** (m 4x100: 24 rows, Carson-Newman 39.30a;
-  f 4x100: 24 rows, Tusculum 44.05a) — so the fix is per-EVENT source fallback, which the current
-  "one meet, one source" rule doesn't cover. Proposed: detect all-DNF relay events, delete those
-  rows, re-import that event from athletic.net where a link exists.
-- ✅ **FIXED 2026-08: orphaned relays linked to their meets.** Root cause of the owner's "4x4s
-  show but 4x1s don't": relays existed but had no `meet_id`, so meet pages couldn't find them —
-  4x100 was only **6%** linked vs 4x400 at 22%. Backfilled by exact meet_name+date
-  (`scrapers/backfill-relay-meet-id.js`, re-runnable): **157,780 rows linked**. Now 4x100 = 85.3%,
-  4x400 = 90.4%. Outdoor meets showing a 4x100 went 343 -> 883.
-  *Remaining:* 11,712 orphans have no matching meet; 240 outdoor meets still have a 4x400 but no
-  4x100 (some genuinely didn't run one; others are the all-DNF parse failures below).
-- ⬜ **relay_results hygiene:** 183,916 rows (81%) have NULL `meet_id` and 14,424 (6.3%) NULL
-  `date` — `getAthleteRelays` sorts by date, so ordering on profiles is unreliable.
-- ⬜ **Dedup tail**: 294 cross-school + ~646 ambiguous pairs + 3 conflict clusters.
-  Duplicate athletes are **user-visible** (e.g. "Obiora Okeke", "Mena Scatchard").
-- ⬜ **Unattached modelled per-person, not per-competition** — the root cause of those duplicates
-  (CLAUDE.md §2). Correct model: `results.team_id` → the Unattached team for that meet.
-- ⬜ Uniqueness guard on `tfrrs_athlete_id` after the dedup tail.
-- 🔁 **Re-run each season:** `migrations/20260719_refresh_athlete_current_school.sql` (transfers),
-  `backfill-result-team-id.js`, `backfill-athlete-{names,gender}.js`.
-
-## P3b — Retire the abandoned live-results feature
-Owner abandoned in-app live results (would need ~24/7 scraping + a timing UI). Shipped solution:
-link out to the timing site (`meet_url` in a WebView) — that stays. Leftovers to retire:
-- ⬜ `frontend/hooks/useLiveResults.ts` — zero imports (zero-risk delete)
-- ⬜ `getTopPerformances()` in `services/database-supabase.ts` — never called (home screen uses the
-  `get_top_performances` RPC). Keep the rest of that file; other functions are in use.
-- ⬜ `live_results` table (48 junk rows) + `unprocessed_live_results` view — drop with the
-  frontend migration (generated types reference them)
-- ⬜ live scrapers: `backend/scripts/*live*` (8 files), `scrapers/live/live_scraper.js`
-- ✅ Keep `backend/LIVE_RESULTS_INVESTIGATION.md` — records *why* it was abandoned
-
-## P4 — Ship / structural
-
-- ⬜ Merge `backend-rebuild` → `main` (nothing here touches app code; low risk).
-- ⬜ **Frontend migration** — app reads by `meet_id`/`event_type_id`/`division_id` instead of
-  matching text. Until this lands most backend cleanup is dormant. Riskiest step; do it screen by
-  screen. Then execute `COLUMN_RETIREMENT_PLAN.md`.
-- ⬜ **Best first target: the `get_top_performances` DB function** (powers the home-screen
-  leaderboard; `hooks/useTopPerformances.ts` calls it via `supabase.rpc`). It reads `results`
-  (good) but does two things by hand that the DB now knows as data:
-  1. **normalizes events with a hand-written regex list** (`'^200\s*(Meters?|Meter\s*Dash|m|M)'`
-     → '200 Meters') instead of `event_type_id` — so it **misses aliases it doesn't list**,
-     notably athletic.net short codes (`60mh`, `1mile`, `weight`, `shot`, `tj`);
-  2. **guesses indoor by "does the meet have a 60m event"** instead of using `results.environment`.
-  Rewriting it on `event_type_id` + `environment` shrinks a 26KB function, picks up every one of
-  the ~1,180 aliases, and makes indoor/outdoor exact. Self-contained (one function, one screen),
-  so it's the lowest-risk way to start the migration and prove the payoff.
-- ⬜ Computed PRs: `v_athlete_prs` is live and fast (0.6 ms/athlete). Only materialize if
-  PR-based leaderboards get built. **Do not drop `athlete_prs`** — it's complementary.
+Standing checks: `scrapers/verify-data-invariants.js` (7 assertions) ·
+`scrapers/tfrrs/meet-scraper/verify-no-duplicate-rounds.js` (run before any scraper release).
 
 ---
 
-## Done in this rebuild (don't redo)
-Athlete dedup (6,277 merged) · canonical events 100% (63 types, incl. relays) · `meet_id` FKs +
-orphan cleanup · divisions dimension (research-validated) · gender 99.96% · first/last name 99.9% ·
-transferred-athlete school fix (5,446) · `team_id` 86.5%→89.3% · athletic.net pipeline
-(108 meets / ~58k results) · relays (3,686 / 11,230 legs) · computed PRs · provenance
-(`results_source`) · scraper hardening (orphan-leak, event resolution, name split, dup guards).
+## 🔴 P0 — before the season (Dec/Jan)
+
+**1. U1 — collapse the two scraper engines into one.**
+`scrape-meet-results.js` and `sync-weekend-results.js` are still separate parsers. Both got the
+collapse module and the colon fix, but every future fix must be made twice — and that is exactly
+how the colon bug survived in one file after being fixed in the other. This is the highest-value
+structural work left, and it gets riskier once meets are arriving weekly.
+
+**2. Capture results links during the season.**
+USTFCCCA's directory is a moving window (CLAUDE.md §1b) — miss it and the links are gone forever.
+2025-26 got 588 athletic.net links vs 89 TFRRS. **This is the only cheap chance each year**, and
+it is what makes the athletic.net plan possible at all.
+
+## 🟠 P1 — unblocks the things you want next
+
+**3. Normalized mark column** — gates the whole athletic.net dual-source plan. The dedup guard
+keys on `mark_raw`, and athletic.net writes `10.35a` where TFRRS writes `10.35`, so the guard
+cannot see a cross-source duplicate. Needs a normalized column + the unique index re-keyed onto
+it. Do this **before** any dual-source import runs.
+
+**4. U2 — Unattached per-competition, not per-person.**
+`athletes.school_id = 1835` should be `results.team_id` → the Unattached team for that meet, with
+the athlete keeping their school. Unblocks the real DUP-4 merges (Okeke's Unattached record holds
+3 genuine results), and it is on the path to the Unattached/social work you want.
+
+**5. U4 — `get_top_performances` still uses regex.**
+The home-screen leaderboard normalizes events with hand-written regex and infers indoor by "has a
+60m event", so it misses athletic.net short codes. Smallest, most visible frontend win — one RPC.
+
+**6. U5 — frontend migration proper.**
+The app still matches by `meet_name` / `event_name` text instead of IDs. **Until this lands most
+of the backend cleanup is invisible to users.** Do it screen by screen; the athlete screen is
+already done. Riskiest item here because it is user-facing.
+
+**7. Schema for athletic.net's richer data.**
+No column exists for qualifying status (**big Q** vs **small q**) or splits. Design it before the
+season so the scrape captures it from day one — retrofitting means re-scraping meets whose links
+have expired.
+
+## 🟡 P2 — real, but no deadline
+
+- **M5** — 394,659 results with no `team_id` (roster history only covers 2024-25, 2025-26)
+- **M7** — 1,483,604 rows with no parsed `mark_seconds`/`mark_meters`; 1.3M of them have a
+  perfectly numeric `mark_raw`
+- **M3** — 22,865 relays unlinked to a meet (11,094 dateless ones are deliberately unlinkable)
+- **DUP-4 tail** — the genuine merges, blocked on U2
+- **DUP-1 pre-2026** — needs the container query indexed first; it timed out repeatedly at 2026
+  scale and will not survive 10,105 meets
+- **U3** — per-event source fallback (TFRRS broke on DII 4x100 while athletic.net had it)
+- **U6** — delete the abandoned live-results code
+
+## ⚪ P3 — measured, deliberately not fixed
+
+- **Partial cross-meet contamination** — ~1,800 athlete-days in distant states. Owner's call
+  2026-08-12: **not worth chasing.** ~0.3% of the database, mostly pre-2026, and every fix
+  requires per-performance judgement where the attribution rules have a poor track record.
+  The invariant keeps it from growing.
+- **M1 / M2** — timeless relay events. Realistic ceiling ~420 rows, and 61% of the meets have no
+  link left. Low value, do last.
+- **M6** — meets with no results link. Structurally unfixable for old meets.
+
+---
+
+## If you only do three things
+
+1. **Merge the two scrapers** (U1) — before meets start arriving.
+2. **Capture links weekly during the season** — the window does not come back.
+3. **Frontend migration** (U4 → U5) — the only item that makes any of this visible to users.
