@@ -525,3 +525,31 @@ rows: **Oregon, UCLA, USC**. All 1,471 rows live at Big Ten Outdoor Championship
 ⚠️ Limitation of the audit, for whoever runs it on pre-2026: a conference with a nationwide
 footprint coincidentally matches many host states. A flag means "check the school **names**", not
 "this was wrong". Tool: `scrapers/verify-dup1-deletions.js` (read-only).
+
+
+### DUP-1 IS BIGGER THAN MEASURED — found 2026-08-12 by an independent invariant
+
+`scrapers/verify-data-invariants.js` asserts things that must hold regardless of how any cleanup
+was written. One of them — *an athlete competing at two different meets on the same day* — fired:
+
+```
+athlete-days at two different meets : 13,504   (2017-09-15 .. 2026-05-09)
+  performances with the SAME mark at both meets : 14,666   <- cross-meet copies
+  performances at one meet only within that day : 14,607   <- partial contamination, or real
+```
+
+**Why the DUP-1 pass missed these.** The detector required a meet to be a **100% copy** (zero
+unique rows). A meet that is only *partially* contaminated has unique rows of its own, so it was
+never flagged. And the scan was scoped to 2026, while this reaches back to 2017.
+
+**This is scope that was never measured, not an error in what was deleted** — the 33 meets cleared
+were separately audited 33/33 correct. But DUP-1 should no longer be thought of as "95 meets in
+2026". The honest statement is: **cross-meet duplication affects ~14,666 performances across
+2017-2026, of which the 100%-copy subset has been cleaned for 2026 only.**
+
+**Do not attack this with the same tool.** The 100%-containment detector cannot see partial
+copies by construction. A partial-contamination fix needs a per-performance approach (which meet
+does THIS row belong to?) rather than a per-meet one, and the same-day invariant is the way to
+find candidates.
+
+Baselines recorded in the invariant suite; the same-day number **should only ever go down**.
