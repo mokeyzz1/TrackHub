@@ -181,8 +181,9 @@ still has its athletes' marks in the DB — they're just not linked to the meet.
   part of the meet record. **Never treat them as missing data, junk, or deletion candidates.**
   They are only *non-identifying*: four squads that all scratch produce four rows reading `DNS`
   with a NULL place, so a status code can never act as identity in a dedup key — use the lineup
-  (relays) or the athlete (individuals). Separately, `NT` is different: it is the relay parser's
-  fallback value, not something the meet reported (see M1).
+  (relays) or the athlete (individuals). **Full reference with counts and sources:
+  `docs/MARK_CODES.md`** — `NT` = No Time, `ENR` = En Route (a split during a longer race),
+  `NP` = No Points (multi-events), `NWI` = No Wind Indication, `ND` = No Distance.
 - Wind ≤ +2.0 is legal outdoors; altitude aids sprints/jumps. `wind` is currently free text and
   mostly null, so PR calculations ignore legality for now (documented v2 refinement).
 
