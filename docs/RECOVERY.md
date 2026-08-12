@@ -58,11 +58,11 @@ exists — that is the guard doing its job. To restore anyway, drop the index, i
 
 Ranked by how long it would go unnoticed:
 
-1. **A wrongly-deleted copied meet (DUP-1).** If the "copy" was actually the real meet, those
-   athletes silently lose a competition. Detection: an athlete's history has a gap. Nobody will
-   notice for months. **This is the highest-risk thing done today** — the attribution rule failed
-   four times before the location test worked, and it was only validated on ~20 hand-checked pairs
-   out of 33 meets cleared.
+1. ~~**A wrongly-deleted copied meet (DUP-1).**~~ **AUDITED 2026-08-12 — 33/33 correct.** Every
+   cleared meet was re-tested from `results_d1_backup` (schools vs host state). 31 clean; the 2
+   flags were false positives caused by the post-expansion Big Ten spanning CA/OR/WA. Tool:
+   `scrapers/verify-dup1-deletions.js`. This was the session's highest-risk change and it is now
+   verified rather than assumed.
 2. **A wrongly-merged/deleted athlete (DUP-4).** 12,518 records went. The test was strict (nothing
    in any of five tables) so the blast radius is small, but a legitimate empty roster entry that
    happened to share a name with a real athlete is gone.

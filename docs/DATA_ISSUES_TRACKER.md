@@ -507,3 +507,21 @@ delete, and it is really U2 (Unattached modelled per-person instead of per-compe
 `Mena Scatchard` still has two Stanford records with **different `tfrrs_athlete_id`s**
 (7914548 with 93 results, 9188510 with 1) — CLAUDE.md §2 warns that one person routinely has two
 TFRRS ids, so this needs corroboration, not an id comparison.
+
+
+### DUP-1 deletions AUDITED 2026-08-12 — 33/33 correct
+
+Every one of the 33 meets cleared was re-tested from `results_d1_backup`: reconstruct the deleted
+rows' schools and check them against that meet's own host state. A genuine copy's host state is
+absent from its own schools.
+
+**31 clean. 2 flagged, both false positives.** "Big West" (host CA) and "Big Sky" (host OR) hold
+Big Ten data, and the **post-expansion Big Ten includes USC/UCLA (CA), Oregon (OR) and Washington
+(WA)** — so the host state matched by coincidence. Confirmed by listing the CA/OR schools in those
+rows: **Oregon, UCLA, USC**. All 1,471 rows live at Big Ten Outdoor Championships (13056).
+
+**No wrong deletions. DUP-1's 2026 pass is verified.**
+
+⚠️ Limitation of the audit, for whoever runs it on pre-2026: a conference with a nationwide
+footprint coincidentally matches many host states. A flag means "check the school **names**", not
+"this was wrong". Tool: `scrapers/verify-dup1-deletions.js` (read-only).
