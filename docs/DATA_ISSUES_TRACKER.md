@@ -533,10 +533,20 @@ footprint coincidentally matches many host states. A flag means "check the schoo
 was written. One of them — *an athlete competing at two different meets on the same day* — fired:
 
 ```
-athlete-days at two different meets : 13,504   (2017-09-15 .. 2026-05-09)
-  performances with the SAME mark at both meets : 14,666   <- cross-meet copies
-  performances at one meet only within that day : 14,607   <- partial contamination, or real
+raw: athlete-days at two different meets           13,504   <- MOSTLY LEGITIMATE, see below
+with geography: two meets in DIFFERENT STATES       2,789
+  ~500 adjacent states, still plausible (ill+ind 242, ky+ohio 69, ore+wash 49, kan+mo 25)
+  ~1,800 distant pairs, NOT plausible in a day (mass+texas 736, texas+wis 460, maine+pa 301,
+                                                calif+colo 191, mich+pa 138)
 ```
+
+**⚠️ THE RAW SAME-DAY COUNT IS NOT A DEFECT COUNT — I got this wrong three times.**
+Owner (2026-08-12): **competing at two meets on the same day is normal when they are close by.**
+Texas Relays and the Bobcat Invitational are ~30 miles apart and athletes do both routinely; a
+multi-day meet also spreads its rows over a date window that overlaps nearby one-day meets. I
+called the check "physically impossible", then "a strong smell", and both were wrong. **Geography
+is the signal**, and even then adjacent states are fine. Only ~1,800 of the original 13,504 look
+like genuine problems, and `mass+texas` (736) is the place to start.
 
 **Why the DUP-1 pass missed these.** The detector required a meet to be a **100% copy** (zero
 unique rows). A meet that is only *partially* contaminated has unique rows of its own, so it was

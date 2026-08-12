@@ -22,18 +22,39 @@ const host = 'db.' + new URL(process.env.SUPABASE_URL).host.split('.')[0] + '.su
 
 const CHECKS = [
   {
-    name: 'athlete at two different meets on the same day',
-    why: 'A STRONG SMELL, NOT A PROOF — an athlete can occasionally compete twice in a day, so ' +
-         'this is not literally impossible. Independent of the DUP-1 cleanup logic: it does not ' +
-         'reuse the host-location signal DUP-1 was decided with, so it can catch what that audit ' +
-         'structurally cannot. Baseline 2026-08-12 = 13,504 (2017-09-15..2026-05-09). Of the ' +
-         'underlying performances, 14,666 have the SAME mark at both meets, i.e. genuine ' +
-         'cross-meet copies. THIS NUMBER SHOULD ONLY EVER GO DOWN.',
-    tolerate: 13504,
-    sql: `SELECT count(*)::int AS n FROM (
-            SELECT athlete_id, date FROM results
-            WHERE meet_id IS NOT NULL AND athlete_id IS NOT NULL AND date IS NOT NULL
-            GROUP BY 1,2 HAVING count(DISTINCT meet_id) > 1) t`,
+    name: 'athlete at two meets on the same day IN DIFFERENT STATES',
+    why: 'OWNER, 2026-08-12: competing at two meets on one day is NORMAL when they are close by ' +
+         '-- Texas Relays and the Bobcat Invitational are ~30 miles apart and athletes do both. ' +
+         'A multi-day meet also spreads its rows across a date window that can overlap a nearby ' +
+         'one-day meet. So the raw same-day check is near-useless: 13,504 hits, overwhelmingly ' +
+         'legitimate. GEOGRAPHY is the real signal -- one person cannot be in two states on the ' +
+         'same day. Independent of the DUP-1 location rule in the sense that it compares the two ' +
+         'meets to EACH OTHER, not a meet to its schools.\n' +
+         '         BASELINE 2026-08-12 = 2,789 (raw same-day check was 13,504, so ~79%% were ' +
+         'same-state and legitimate). Of the 2,789, roughly 500 are ADJACENT states and still ' +
+         'plausible (ill+ind 242, ky+ohio 69, ore+wash 49, kan+mo 25 -- Kansas City sits on the ' +
+         'line). The remaining ~1,800 are distant pairs that are NOT plausible in one day: ' +
+         'mass+texas 736, texas+wis 460, maine+pa 301, calif+colo 191, mich+pa 138. Those are ' +
+         'the ones worth investigating; start with mass+texas.\n' +
+         '         DO NOT tune this to zero -- three earlier versions were wrong from ' +
+         'over-fitting a detector to data that was not understood yet.',
+    tolerate: 2789,
+    sql: `WITH st AS (
+            SELECT meet_id,
+              CASE
+                WHEN location IS NULL THEN NULL
+                WHEN split_part(split_part(location,'*',1),',',2) ~ '^\\s*[A-Z]{2}\\s*$'
+                  THEN upper(trim(split_part(split_part(location,'*',1),',',2)))
+                ELSE lower(trim(trailing '.' from trim(split_part(split_part(location,'*',1),',',2))))
+              END AS st
+            FROM meets WHERE location IS NOT NULL),
+          pairs AS (
+            SELECT r.athlete_id, r.date, count(DISTINCT s.st)::int AS states
+            FROM results r JOIN st s ON s.meet_id = r.meet_id
+            WHERE r.meet_id IS NOT NULL AND r.athlete_id IS NOT NULL
+              AND r.date IS NOT NULL AND s.st IS NOT NULL
+            GROUP BY 1,2)
+          SELECT count(*)::int AS n FROM pairs WHERE states > 1`,
   },
   {
     name: 'every result resolves to a canonical event',
