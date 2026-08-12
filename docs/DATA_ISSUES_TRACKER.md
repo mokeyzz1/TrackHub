@@ -316,6 +316,8 @@ each athlete 2-3 times — same mark, same place, different round label. That is
 ~370k `Finals`+`Heat N` rows removed in DUP-2, and the DB guard cannot stop them because the rows
 legitimately differ in `round`.
 
+**VERIFIED END-TO-END 2026-08-12** with `scrapers/tfrrs/meet-scraper/verify-no-duplicate-rounds.js` — real parse path, live 2026 NCAA DI Outdoor Championships, 113 rows across 4 events, **0 duplicate performances**, and genuine prelim/final pairs preserved (Jaiden Reid 19.63 final / 20.05 prelim). Long Jump collapsed 48 → 24, exactly half, every athlete having appeared in two tables. **Re-run this before any release touching the scrapers.**
+
 **Fix:** `scrapers/shared/collapse_duplicate_rounds.js`, applied in **both** engines
 (`scrape-meet-results.js` and `sync-weekend-results.js` — U1 is why it had to go in both).
 Collapses rows sharing (athlete, event, normalized mark, place), keeping Finals > Preliminaries >

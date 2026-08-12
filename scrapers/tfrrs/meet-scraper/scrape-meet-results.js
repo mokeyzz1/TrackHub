@@ -714,5 +714,13 @@ async function scrapeMeets() {
   log(`Log saved to: ${LOG_FILE}`);
 }
 
-// Run
-scrapeMeets().catch(console.error);
+// Exported so the parse path can be tested without running a full scrape.
+// Added 2026-08-12 to verify the U8 fix (collapseDuplicateRounds) end-to-end against a live
+// event page -- previously the only way to exercise fetchEventResults was to run the whole CLI,
+// which writes to the database.
+module.exports = { fetchEventResults, fetchMeetEvents, scrapeMeets };
+
+// Run only when invoked directly, not when required by a test harness.
+if (require.main === module) {
+  scrapeMeets().catch(console.error);
+}
