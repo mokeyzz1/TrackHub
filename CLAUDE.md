@@ -175,6 +175,14 @@ still has its athletes' marks in the DB — they're just not linked to the meet.
     place** is one performance whatever the round label says. A genuine prelim→final pair has
     different times, so this can never merge two real races. Keep the most authoritative label:
     Finals > Preliminaries > Heat N.
+- **STATUS CODES ARE RESULTS** (owner, 2026-08-12). `DNS` (did not start), `DQ` (disqualified),
+  `FS` (false start), `DNF` (did not finish), `SCR` (scratched) are legitimate results, exactly
+  like a time is. The athlete or squad was entered and in the field, and what happened to them is
+  part of the meet record. **Never treat them as missing data, junk, or deletion candidates.**
+  They are only *non-identifying*: four squads that all scratch produce four rows reading `DNS`
+  with a NULL place, so a status code can never act as identity in a dedup key — use the lineup
+  (relays) or the athlete (individuals). Separately, `NT` is different: it is the relay parser's
+  fallback value, not something the meet reported (see M1).
 - Wind ≤ +2.0 is legal outdoors; altitude aids sprints/jumps. `wind` is currently free text and
   mostly null, so PR calculations ignore legality for now (documented v2 refinement).
 

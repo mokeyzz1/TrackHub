@@ -460,8 +460,15 @@ than trusting that matching columns meant a matching performance.
 if they name the same athletes. Rows with no lineup are left alone entirely — without one there is
 no way to prove two rows are the same squad. On that key the true count is **674**, all removed.
 
-**Generalisable lesson:** a status code (`DNS`/`DNF`/`NT`/`DQ`) plus a NULL place is the *absence*
-of a performance, not a fingerprint for one. Never let those values act as identity in a dedup key.
+**Generalisable lesson — stated carefully, because the first version of this line was wrong.**
+`DNS`, `DQ`, `FS`, `DNF`, `SCR` **ARE results** (owner, 2026-08-12). The team was entered and in
+the field; what happened to them is part of the meet record. They are never junk and never
+deletion candidates.
+
+What they are not is **identifying**. Four squads that all scratch produce four rows reading
+`DNS` / NULL place, so those values cannot tell you *which* squad a row belongs to. That is a
+statement about dedup keys only: **a status code may never act as identity.** For relays the
+lineup supplies identity; for individuals the athlete does.
 
 
 ### DUP-4 — 12,518 empty duplicate athlete records removed (2026-08-10)
