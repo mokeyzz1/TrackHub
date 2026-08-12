@@ -41,7 +41,7 @@ code. The scrapers read it from the page; they do not invent it.
 The real M1 signal is not the presence of `NT` but an event where **every** team is timeless with
 3+ teams, which is physically impossible and therefore a parse failure.
 
-## 🔴 Known bug: doubled codes (21,692 rows)
+## ✅ FIXED 2026-08-12: doubled codes (21,692 rows)
 
 | stored value | should be | rows |
 |---|---|---|
@@ -51,10 +51,17 @@ The real M1 signal is not the presence of `NT` but an event where **every** team
 Two spaces, value repeated. Appears only in field events (HJ, LJ, PV, SP, TJ), so a scraper
 concatenated a cell with itself. Tracked as **M8**.
 
-⚠️ Normalising these is **not** a plain UPDATE: `mark_raw` is part of
-`results_no_exact_duplicate`, so collapsing `NM  NM` → `NM` can collide with an existing row.
-Handle it the way `backfill-null-event-types.js` does — delete the row that would collide instead
-of updating it.
+Repaired by `scrapers/fix-doubled-mark-codes.js`: **21,683 updated in place, 9 deleted** as
+duplicates the doubling had been hiding (backed up to `results_d2_backup`), **0 remaining**.
+
+Normalising was **not** a plain UPDATE: `mark_raw` is part of `results_no_exact_duplicate`, so
+collapsing `NM  NM` → `NM` can collide with an existing row. Only 9 did; those were always
+duplicates and were deleted rather than updated, the same pattern as
+`backfill-null-event-types.js`.
+
+**This was a repair, not a deletion** — the athletes keep their results, the text just reads
+correctly now. Worth contrasting with what a naive cleanup would have done: 21,692 unparseable
+marks look like junk, and deleting them would have erased real competition records.
 
 ## Sources
 
