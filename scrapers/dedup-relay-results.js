@@ -126,12 +126,20 @@ SELECT relay_result_id FROM ranked WHERE copies > 1 AND rn > 1`;
       console.log(`  ${Math.min(i + BATCH, ids.length).toLocaleString()}/${ids.length.toLocaleString()}  deleted ${deleted.toLocaleString()} (legs saved ${legsSaved.toLocaleString()})`);
   }
 
+  // Verify on the CORRECT key (lineup included). Measuring on the column-only key here would
+  // report ~28,400 "remaining duplicates" that are really legitimate A/B/C/D squads sharing a
+  // DNS and a null place -- the exact misreading that made DUP-3 look like 43,037 rows.
   const { rows: [v] } = await c.query(`
-    WITH g AS (
-      SELECT meet_id, event_type_id, team_id, place, mark_raw, round, count(*)::int AS n
-      FROM relay_results
-      WHERE meet_id IS NOT NULL AND team_id IS NOT NULL AND mark_raw IS NOT NULL
-      GROUP BY 1,2,3,4,5,6 HAVING count(*) > 1)
+    WITH sig AS (
+      SELECT rr.relay_result_id, rr.meet_id, rr.event_type_id, rr.team_id, rr.place, rr.mark_raw, rr.round,
+             (SELECT string_agg(DISTINCT COALESCE(ra.athlete_id::text, ra.athlete_name), ','
+                                ORDER BY COALESCE(ra.athlete_id::text, ra.athlete_name))
+              FROM relay_athletes ra WHERE ra.relay_result_id = rr.relay_result_id) AS squad
+      FROM relay_results rr
+      WHERE rr.meet_id IS NOT NULL AND rr.team_id IS NOT NULL AND rr.mark_raw IS NOT NULL),
+    g AS (
+      SELECT count(*)::int AS n FROM sig WHERE squad IS NOT NULL
+      GROUP BY meet_id, event_type_id, team_id, place, mark_raw, round, squad HAVING count(*) > 1)
     SELECT count(*)::int AS groups_left, COALESCE(sum(n-1),0)::int AS extra_left FROM g`);
   console.log(`\nDONE — relays backed up ${saved.toLocaleString()}, legs backed up ${legsSaved.toLocaleString()}, deleted ${deleted.toLocaleString()}`);
   console.log(`remaining duplicate groups: ${v.groups_left.toLocaleString()} (${v.extra_left.toLocaleString()} extra rows)`);
