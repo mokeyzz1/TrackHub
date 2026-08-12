@@ -223,6 +223,7 @@ still has its athletes' marks in the DB — they're just not linked to the meet.
 | **Undoing anything destructive (backups + rollback)** | **`docs/RECOVERY.md`** |
 | Mark codes (`DNS`, `NT`, `ENR`, `NP`, `NWI`…) — all are RESULTS | `docs/MARK_CODES.md` |
 | **Scaling to 10k–20k users (social launch)** | **`docs/SCALING_PLAN.md`** |
+| **Building the community: auth, claimed profiles, social** | **`docs/COMMUNITY_BUILD_PLAN.md`** |
 | **Priorities / working checklist** | **`docs/BACKEND_PRIORITIES.md`** |
 | Backend architecture | `docs/BACKEND_ARCHITECTURE.md` |
 | Live results: NO public API (already investigated) | `backend/LIVE_RESULTS_INVESTIGATION.md` |

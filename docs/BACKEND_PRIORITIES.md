@@ -25,6 +25,16 @@ Standing checks: `scrapers/verify-data-invariants.js` (7 assertions) ·
 
 ---
 
+## ⚠️ THIS FILE IS THE SCRAPER/DATA TRACK ONLY
+
+The owner's actual next product is the **community** — accounts, claimed profiles, better UI. That
+is a **separate track** and it does NOT wait for most of this list: see
+`docs/COMMUNITY_BUILD_PLAN.md`. The only backend items that genuinely block it are **U2** and the
+**DUP-4 merges**, because a person cannot claim their own career while it is split across an
+Unattached record and a school record.
+
+The Dec/Jan deadline below constrains the **scrapers**, not the community build.
+
 ## 🔴 P0 — before the season (Dec/Jan)
 
 **1. U1 — collapse the two scraper engines into one.**
@@ -45,7 +55,7 @@ keys on `mark_raw`, and athletic.net writes `10.35a` where TFRRS writes `10.35`,
 cannot see a cross-source duplicate. Needs a normalized column + the unique index re-keyed onto
 it. Do this **before** any dual-source import runs.
 
-**4. U2 — Unattached per-competition, not per-person.**
+**4. U2 — Unattached per-competition, not per-person.** ← **BLOCKS CLAIMED PROFILES**
 `athletes.school_id = 1835` should be `results.team_id` → the Unattached team for that meet, with
 the athlete keeping their school. Unblocks the real DUP-4 merges (Okeke's Unattached record holds
 3 genuine results), and it is on the path to the Unattached/social work you want.
