@@ -5,6 +5,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+const { EventResolver } = require('../../shared/event_resolver');
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -12,6 +13,9 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+// Resolves raw relay event names -> canonical event_type_id via event_aliases (loaded in main).
+const events = new EventResolver();
 
 const RESULTS_FILE = path.join(__dirname, 'output/meet-results.json');
 
@@ -28,6 +32,10 @@ async function importRelayResults(commit = false) {
   console.log('========================================');
   console.log(commit ? 'IMPORTING RELAY RESULTS' : 'DRY RUN');
   console.log('========================================\n');
+
+  // Load the canonical event catalog so relays get a resolved event_type_id.
+  const aliasCount = await events.load(supabase);
+  console.log(`Loaded ${aliasCount.toLocaleString()} event aliases for resolution.\n`);
 
   // Load scraped results
   const allResults = JSON.parse(fs.readFileSync(RESULTS_FILE, 'utf-8'));
@@ -162,6 +170,7 @@ async function importRelayResults(commit = false) {
     const relayInserts = batch.map(r => ({
       team_id: r.team_id,
       event_name: r.event_name,
+      event_type_id: events.resolve(r.event_name),  // canonical event; null -> logged to unmapped_events
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,
       place: r.place,
@@ -217,6 +226,7 @@ async function importRelayResults(commit = false) {
           resultInserts.push({
             athlete_id: a.athlete_id,
             event_name: originalRelay.event_name,
+            event_type_id: events.resolve(originalRelay.event_name),  // canonical event
             mark_raw: originalRelay.mark_raw,
             mark_seconds: originalRelay.mark_seconds,
             place: originalRelay.place,
@@ -245,6 +255,17 @@ async function importRelayResults(commit = false) {
 
     if ((i + 100) % 1000 === 0) {
       console.log(`  ${imported.toLocaleString()}/${dbRelayResults.length.toLocaleString()} imported`);
+    }
+  }
+
+  // Report/persist any relay event names that weren't in the alias map (drift detection).
+  if (events.unmappedCount > 0) {
+    console.log(`\n⚠ ${events.unmappedCount} relay event name(s) had no alias mapping (event_type_id left null).`);
+    if (commit) {
+      const flushed = await events.flushUnmapped(supabase);
+      console.log(`  Logged ${flushed} to unmapped_events for review — add them to event_aliases.`);
+    } else {
+      console.log('  (dry run — not logged to unmapped_events)');
     }
   }
 

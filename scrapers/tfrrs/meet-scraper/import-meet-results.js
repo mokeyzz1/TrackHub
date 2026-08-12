@@ -11,6 +11,8 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+const { EventResolver } = require('../../shared/event_resolver');
+const { parseName } = require('../../shared/name_parser');
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -18,6 +20,9 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+// Resolves raw event names -> canonical event_type_id via event_aliases (loaded in main).
+const events = new EventResolver();
 
 const RESULTS_FILE = path.join(__dirname, 'output/meet-results.json');
 
@@ -37,6 +42,10 @@ async function importMeetResults(commit = false) {
   console.log('========================================');
   console.log(commit ? 'IMPORTING MEET RESULTS' : 'DRY RUN');
   console.log('========================================\n');
+
+  // Load the canonical event catalog so results get a resolved event_type_id.
+  const aliasCount = await events.load(supabase);
+  console.log(`Loaded ${aliasCount.toLocaleString()} event aliases for resolution.\n`);
 
   // Load scraped results
   if (!fs.existsSync(RESULTS_FILE)) {
@@ -120,6 +129,27 @@ async function importMeetResults(commit = false) {
 
   console.log(`Found ${tfrrsToInternalId.size} existing athletes\n`);
 
+  // Pre-load existing Unattached athletes (no TFRRS id) by name, so weekly re-syncs REUSE
+  // them instead of creating a fresh duplicate every weekend. Not doing this is what leaked
+  // ~34k orphan name-only rows over a season: each run only remembered its OWN creations, so
+  // the same post-collegiate athlete got a new row every weekend and results landed on one copy.
+  console.log('Loading existing unattached athletes by name...');
+  const existingUnattachedByName = new Map(); // full_name -> athlete_id
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase
+      .from('athletes')
+      .select('athlete_id, full_name')
+      .eq('school_id', UNATTACHED_SCHOOL_ID)
+      .is('tfrrs_athlete_id', null)
+      .range(from, from + 999);
+    if (error || !data || data.length === 0) break;
+    data.forEach(a => {
+      if (!existingUnattachedByName.has(a.full_name)) existingUnattachedByName.set(a.full_name, a.athlete_id);
+    });
+    if (data.length < 1000) break;
+  }
+  console.log(`Found ${existingUnattachedByName.size} existing unattached athletes\n`);
+
   // Process results
   let matched = 0;
   let noTeam = 0;
@@ -177,6 +207,7 @@ async function importMeetResults(commit = false) {
           newAthletes.push({
             tfrrs_athlete_id: String(r.athlete_id),
             full_name: r.athlete_name,
+            ...(parseName(r.athlete_name) || {}),  // first_name/last_name on insert (stops the split-backfill mess recurring)
             gender: r.team_gender || null,
             school_id: schoolId,
             is_active: true
@@ -184,18 +215,25 @@ async function importMeetResults(commit = false) {
         }
       }
     } else if (r.athlete_name) {
-      // No TFRRS ID (unattached) - create athlete by name
-      noAthlete++;
-      const nameKey = `unattached:${r.athlete_name}`;
-      if (!seenAthletes.has(nameKey)) {
-        seenAthletes.add(nameKey);
-        newAthletes.push({
-          tfrrs_athlete_id: null,
-          full_name: r.athlete_name,
-          gender: r.team_gender || null,
-          school_id: UNATTACHED_SCHOOL_ID,
-          is_active: true
-        });
+      // No TFRRS ID (unattached / post-collegiate). Reuse an existing record by name first —
+      // only create if this athlete has never been seen (in the DB or earlier this run).
+      const existingId = existingUnattachedByName.get(r.athlete_name);
+      if (existingId) {
+        internalAthleteId = existingId;
+      } else {
+        noAthlete++;
+        const nameKey = `unattached:${r.athlete_name}`;
+        if (!seenAthletes.has(nameKey)) {
+          seenAthletes.add(nameKey);
+          newAthletes.push({
+            tfrrs_athlete_id: null,
+            full_name: r.athlete_name,
+            ...(parseName(r.athlete_name) || {}),  // first_name/last_name on insert
+            gender: r.team_gender || null,
+            school_id: UNATTACHED_SCHOOL_ID,
+            is_active: true
+          });
+        }
       }
     }
 
@@ -362,6 +400,7 @@ async function importMeetResults(commit = false) {
     const batch = newResults.slice(i, i + 500).map(r => ({
       athlete_id: r.athlete_id,
       event_name: r.event_name,
+      event_type_id: events.resolve(r.event_name),  // canonical event; null -> logged to unmapped_events
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,
       mark_meters: r.mark_meters,
@@ -379,14 +418,30 @@ async function importMeetResults(commit = false) {
       .insert(batch);
 
     if (error) {
-      console.log(`  Batch ${i/500 + 1} error: ${error.message}`);
-      errors += batch.length; // Skip the batch, don't try one-by-one (too slow)
+      // Don't drop the whole batch — one bad row would strand 499 athletes' results (and leave
+      // those athletes as zero-result shells). Retry row-by-row so only the truly-bad rows fail.
+      console.log(`  Batch ${i/500 + 1} error: ${error.message}. Retrying row-by-row...`);
+      for (const row of batch) {
+        const { error: rowErr } = await supabase.from('results').insert(row);
+        if (rowErr) { errors++; } else { imported++; }
+      }
     } else {
       imported += batch.length;
     }
 
     if ((i + 500) % 5000 === 0 || i + 500 >= newResults.length) {
       console.log(`  ${imported.toLocaleString()}/${newResults.length.toLocaleString()} imported (${errors} errors)`);
+    }
+  }
+
+  // Report/persist any event names that weren't in the alias map (drift detection).
+  if (events.unmappedCount > 0) {
+    console.log(`\n⚠ ${events.unmappedCount} event name(s) had no alias mapping (event_type_id left null).`);
+    if (commit) {
+      const flushed = await events.flushUnmapped(supabase);
+      console.log(`  Logged ${flushed} to unmapped_events for review — add them to event_aliases.`);
+    } else {
+      console.log('  (dry run — not logged to unmapped_events)');
     }
   }
 

@@ -18,8 +18,14 @@
 
 const axios = require('axios');
 const cheerio = require('cheerio');
+const { collapseDuplicateRounds } = require('../../shared/collapse_duplicate_rounds');
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
+const { parseName } = require('../../shared/name_parser');
+const { EventResolver } = require('../../shared/event_resolver');
+
+// Resolves raw event names -> canonical event_type_id via event_aliases (loaded in importResults).
+const events = new EventResolver();
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -106,7 +112,10 @@ function parseArgs() {
     scrape: args.includes('--scrape') || args.includes('--commit'),
     commit: args.includes('--commit'),
     fuzzy: args.includes('--fuzzy'),
-    days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7')
+    days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7'),
+    // --meet <id>: run against ONE meet regardless of the date window. Use this to verify the
+    // engine end-to-end before pointing it at a batch (it writes results).
+    meetId: args.find((a, i) => args[i-1] === '--meet') || null
   };
 }
 
@@ -302,7 +311,24 @@ function normalizeSchoolName(name) {
 }
 
 // Fetch meets from database that need results
-async function getMeetsNeedingResults(daysBack) {
+async function getMeetsNeedingResults(daysBack, meetId = null) {
+  // Single-meet mode: skip the date window entirely (used to verify before batching).
+  if (meetId) {
+    const { data, error } = await supabase
+      .from('meets')
+      .select('meet_id, name, date, location, meet_url, status, tfrrs_url, athletic_net_results_url, results_status')
+      .eq('meet_id', meetId);
+    if (error) { console.error('Error fetching meet:', error.message); return []; }
+    const { count } = await supabase.from('results')
+      .select('*', { count: 'exact', head: true }).eq('meet_id', meetId);
+    if (count) {
+      console.log(`Meet ${meetId} already has ${count} results — refusing to import a second source into a non-empty meet.`);
+      return [];
+    }
+    console.log(`Single-meet mode: ${data?.length || 0} meet selected (${count || 0} existing results)`);
+    return data || [];
+  }
+
   const today = new Date();
   const startDate = new Date(today);
   startDate.setDate(startDate.getDate() - daysBack);
@@ -351,18 +377,29 @@ async function getMeetsNeedingResults(daysBack) {
 
   console.log(`Found ${meets.length} meets in date range`);
 
-  // Check which ones have results
-  const meetsWithResultsCheck = await Promise.all(meets.map(async (meet) => {
-    const { count } = await supabase
+  // Which ones actually need results?
+  //
+  // This used to Promise.all a count query for EVERY meet in the window (thousands at once).
+  // On this weak instance most of those requests fail, and a failed count read as `undefined`
+  // made `count > 0` false — i.e. a meet full of results looked EMPTY, so the engine would
+  // import a second source on top of it and create duplicates. Two fixes:
+  //   1. only check meets we could actually import (a stored results link) — cuts thousands to dozens
+  //   2. check sequentially, and FAIL SAFE: if the count can't be read, assume it HAS results
+  const importable = meets.filter(m => m.tfrrs_url);
+  console.log(`${importable.length} of ${meets.length} meets have a stored TFRRS url; checking which are empty...`);
+
+  const needsResults = [];
+  let skippedNonEmpty = 0, skippedUnknown = 0;
+  for (const meet of importable) {
+    const { count, error } = await supabase
       .from('results')
       .select('*', { count: 'exact', head: true })
       .eq('meet_id', meet.meet_id);
-
-    return { ...meet, hasResults: count > 0, resultCount: count };
-  }));
-
-  const needsResults = meetsWithResultsCheck.filter(m => !m.hasResults);
-  console.log(`${needsResults.length} meets need results\n`);
+    if (error || count == null) { skippedUnknown++; continue; }   // fail safe — never import blind
+    if (count > 0) { skippedNonEmpty++; continue; }               // one meet, one source
+    needsResults.push({ ...meet, hasResults: false, resultCount: 0 });
+  }
+  console.log(`${needsResults.length} meets need results (skipped ${skippedNonEmpty} already populated, ${skippedUnknown} unverifiable)\n`);
 
   return needsResults;
 }
@@ -653,7 +690,15 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
           if (id) relayAthletes.push({ athlete_id: id, name });
         });
 
-        // Find mark (time) for relay
+        // Find mark (time) for relay.
+        //
+        // BUG FIXED 2026-08: this used to require MM:SS.ss (a colon), so it only ever matched
+        // relays slower than a minute. A 4x400 ("3:17.58") matched; a 4x100 ("39.30") did NOT,
+        // fell through to the DNF/DQ fallback below, and the ONLY 4x100 rows that survived were
+        // the teams that literally DNF'd. Effect: 4x100 was 14% usable vs 4x400 at 47%, and
+        // meets appeared to have no 4x1 at all. Sub-minute relays now match too.
+        // (Two digits before the decimal keeps this from grabbing points/wind-style values.)
+        const RELAY_TIME = /^(\d{1,2}:\d{2}\.\d{2,3}|\d{2}\.\d{2,3})$/;
         let markRaw = null;
 
         // Priority 1: Look for checkmark icon
@@ -662,7 +707,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
           const hasCheckmark = $cell.find('img[src*="ico-check"], img[src*="ico-plus"]').length > 0;
           if (hasCheckmark && !markRaw) {
             const text = $cell.text().trim();
-            if (text && /^\d{1,2}:\d{2}\.\d{2,3}$/.test(text)) {
+            if (text && RELAY_TIME.test(text)) {
               markRaw = text;
             }
           }
@@ -678,7 +723,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
             if (isHidden) return;
 
             const text = $cell.text().trim();
-            if (/^\d{1,2}:\d{2}\.\d{2,3}$/.test(text)) {
+            if (RELAY_TIME.test(text)) {
               markRaw = text;
             }
           });
@@ -812,7 +857,13 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
       });
     });
 
-    return results;
+    // Same defect as scrape-meet-results.js (U1: two engines, copy-pasted logic -- exactly how
+    // the relay colon bug survived in one file after being fixed in the other). A TFRRS event
+    // page renders the event as several tables (combined view + one per heat) and the loop above
+    // walks ALL of them, emitting each athlete 2-3 times with different round labels.
+    const { rows: deduped, collapsed } = collapseDuplicateRounds(results);
+    if (collapsed) console.log(`      collapsed ${collapsed} duplicate round rows (${results.length} -> ${deduped.length})`);
+    return deduped;
 
   } catch (error) {
     console.error(`Error fetching event ${eventUrl}: ${error.message}`);
@@ -859,6 +910,10 @@ async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate) {
 
 // Import results to database
 async function importResults(results, commit) {
+  // Load the canonical event catalog so new results/relays get a resolved event_type_id.
+  const aliasCount = await events.load(supabase);
+  console.log(`Loaded ${aliasCount.toLocaleString()} event aliases for resolution.`);
+
   // Separate relays from individual results
   const relayResults = results.filter(r => r.is_relay === true);
   const individualResults = results.filter(r => r.is_relay !== true);
@@ -945,6 +1000,22 @@ async function importResults(results, commit) {
 
   console.log(`Found ${tfrrsToInternalId.size} existing athletes`);
 
+  // Pre-load existing Unattached athletes (no TFRRS id) by name so weekly re-syncs REUSE them
+  // instead of creating a fresh duplicate every weekend — the cause of ~34k orphan name-only rows.
+  const existingUnattachedByName = new Map(); // full_name -> athlete_id
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase
+      .from('athletes')
+      .select('athlete_id, full_name')
+      .eq('school_id', UNATTACHED_SCHOOL_ID)
+      .is('tfrrs_athlete_id', null)
+      .range(from, from + 999);
+    if (error || !data || data.length === 0) break;
+    data.forEach(a => { if (!existingUnattachedByName.has(a.full_name)) existingUnattachedByName.set(a.full_name, a.athlete_id); });
+    if (data.length < 1000) break;
+  }
+  console.log(`Found ${existingUnattachedByName.size} existing unattached athletes`);
+
   // Process individual results
   let matched = 0;
   let noTeam = 0;
@@ -994,6 +1065,7 @@ async function importResults(results, commit) {
           newAthletes.push({
             tfrrs_athlete_id: String(r.athlete_id),
             full_name: r.athlete_name,
+            ...(parseName(r.athlete_name) || {}),  // first_name/last_name on insert
             gender: r.team_gender || null,
             school_id: schoolId,
             is_active: true
@@ -1001,17 +1073,25 @@ async function importResults(results, commit) {
         }
       }
     } else if (r.athlete_name) {
-      noAthlete++;
-      const nameKey = `unattached:${r.athlete_name}`;
-      if (!seenAthletes.has(nameKey)) {
-        seenAthletes.add(nameKey);
-        newAthletes.push({
-          tfrrs_athlete_id: null,
-          full_name: r.athlete_name,
-          gender: r.team_gender || null,
-          school_id: UNATTACHED_SCHOOL_ID,
-          is_active: true
-        });
+      // No TFRRS ID (unattached / post-collegiate). Reuse an existing record by name first —
+      // only create if never seen (in the DB or earlier this run).
+      const existingId = existingUnattachedByName.get(r.athlete_name);
+      if (existingId) {
+        internalAthleteId = existingId;
+      } else {
+        noAthlete++;
+        const nameKey = `unattached:${r.athlete_name}`;
+        if (!seenAthletes.has(nameKey)) {
+          seenAthletes.add(nameKey);
+          newAthletes.push({
+            tfrrs_athlete_id: null,
+            full_name: r.athlete_name,
+            ...(parseName(r.athlete_name) || {}),  // first_name/last_name on insert
+            gender: r.team_gender || null,
+            school_id: UNATTACHED_SCHOOL_ID,
+            is_active: true
+          });
+        }
       }
     }
 
@@ -1053,6 +1133,7 @@ async function importResults(results, commit) {
         newAthletes.push({
           tfrrs_athlete_id: String(a.athlete_id),
           full_name: a.name,
+          ...(parseName(a.name) || {}),  // first_name/last_name on insert
           gender: r.team_gender || null,
           school_id: schoolId,
           is_active: true
@@ -1197,6 +1278,7 @@ async function importResults(results, commit) {
     const batch = newResults.slice(i, i + 500).map(r => ({
       athlete_id: r.athlete_id,
       event_name: r.event_name,
+      event_type_id: events.resolve(r.event_name),  // canonical event; null -> logged to unmapped_events
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,
       mark_meters: r.mark_meters,
@@ -1214,8 +1296,13 @@ async function importResults(results, commit) {
       .insert(batch);
 
     if (error) {
-      console.log(`  Batch error: ${error.message}`);
-      errors += batch.length;
+      // Don't drop the whole batch — one bad row would strand 499 athletes as zero-result
+      // shells. Retry row-by-row so only truly-bad rows fail.
+      console.log(`  Batch error: ${error.message}. Retrying row-by-row...`);
+      for (const row of batch) {
+        const { error: rowErr } = await supabase.from('results').insert(row);
+        if (rowErr) { errors++; } else { imported++; }
+      }
     } else {
       imported += batch.length;
     }
@@ -1233,6 +1320,7 @@ async function importResults(results, commit) {
       .insert({
         team_id: relay.team_id,
         event_name: relay.event_name,
+        event_type_id: events.resolve(relay.event_name),  // canonical event
         mark_raw: relay.mark_raw,
         mark_seconds: relay.mark_seconds,
         place: relay.place,
@@ -1278,6 +1366,7 @@ async function importResults(results, commit) {
       .map(a => ({
         athlete_id: a.athlete_id,
         event_name: relay.event_name,
+        event_type_id: events.resolve(relay.event_name),  // canonical event
         mark_raw: relay.mark_raw,
         mark_seconds: relay.mark_seconds,
         place: relay.place,
@@ -1312,6 +1401,17 @@ async function importResults(results, commit) {
 
   console.log(`Relay results imported: ${relaysImported.toLocaleString()}`);
 
+  // Report/persist any event names that weren't in the alias map (drift detection).
+  if (events.unmappedCount > 0) {
+    console.log(`\n⚠ ${events.unmappedCount} event name(s) had no alias mapping (event_type_id left null).`);
+    if (commit) {
+      const flushed = await events.flushUnmapped(supabase);
+      console.log(`  Logged ${flushed} to unmapped_events for review — add them to event_aliases.`);
+    } else {
+      console.log('  (dry run — not logged to unmapped_events)');
+    }
+  }
+
   return { imported, errors, skipped: skippedDupes, relaysImported, relayErrors };
 }
 
@@ -1327,7 +1427,7 @@ async function main() {
   console.log(`Fuzzy fallback: ${options.fuzzy ? 'enabled' : 'disabled'}`);
 
   // Step 1: Find meets that need results
-  const meetsNeedingResults = await getMeetsNeedingResults(options.days);
+  const meetsNeedingResults = await getMeetsNeedingResults(options.days, options.meetId);
 
   if (meetsNeedingResults.length === 0) {
     console.log('\nNo meets need results. All caught up!');

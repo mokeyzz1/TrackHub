@@ -13,6 +13,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+const { EventResolver } = require('../../shared/event_resolver');
 
 // Load environment variables (go up to scrapers/.env)
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
@@ -21,6 +22,9 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+// Resolves raw event names -> canonical event_type_id via event_aliases (loaded in importResults).
+const events = new EventResolver();
 
 const RESULTS_FILE = path.join(__dirname, './output/scraped-results.json');
 const IMPORT_LOG = path.join(__dirname, './logs/import-log.json');
@@ -107,6 +111,10 @@ async function importResults(options = {}) {
   console.log(commit ? 'IMPORTING TO DATABASE' : 'DRY RUN (use --commit to import)');
   console.log('========================================\n');
 
+  // Load the canonical event catalog so results get a resolved event_type_id.
+  const aliasCount = await events.load(supabase);
+  console.log(`Loaded ${aliasCount.toLocaleString()} event aliases for resolution.\n`);
+
   // Load scraped results
   if (!fs.existsSync(RESULTS_FILE)) {
     console.error(`Results file not found: ${RESULTS_FILE}`);
@@ -166,6 +174,7 @@ async function importResults(options = {}) {
   const allDbResults = results.map(r => ({
     athlete_id: r.athlete_id,
     event_name: r.event_name || null,
+    event_type_id: events.resolve(r.event_name),  // canonical event; null -> logged to unmapped_events
     meet_name: r.meet_name || null,
     date: parseDate(r.date),
     mark_raw: r.mark_raw,
@@ -318,6 +327,17 @@ async function importResults(options = {}) {
   };
 
   fs.writeFileSync(IMPORT_LOG, JSON.stringify(importLog, null, 2));
+
+  // Report/persist any event names that weren't in the alias map (drift detection).
+  if (events.unmappedCount > 0) {
+    console.log(`\n⚠ ${events.unmappedCount} event name(s) had no alias mapping (event_type_id left null).`);
+    if (commit) {
+      const flushed = await events.flushUnmapped(supabase);
+      console.log(`  Logged ${flushed} to unmapped_events for review — add them to event_aliases.`);
+    } else {
+      console.log('  (dry run — not logged to unmapped_events)');
+    }
+  }
 
   console.log('\n========================================');
   console.log('IMPORT COMPLETE');

@@ -173,6 +173,17 @@ function parseMeetDate(dateStr) {
   return { start: today, end: today };
 }
 
+function deriveSeason(dateStr) {
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  const m = d.getUTCMonth() + 1;
+  const y = d.getUTCFullYear();
+  if (m === 12) return `Indoor ${y + 1}`;   // Dec belongs to next year's indoor season
+  if (m <= 3) return `Indoor ${y}`;
+  if (m <= 7) return `Outdoor ${y}`;
+  if (m === 8) return `Summer ${y}`;
+  return `XC ${y}`;
+}
+
 function detectTimingPlatform(url) {
   if (!url) return null;
 
@@ -415,6 +426,15 @@ async function scrapeMeets(datescope = 'this_week') {
 }
 
 // Upsert meets to Supabase
+// A meet whose TIMING SITE is athletic.net (live.athletic.net, *.anet.live, an AthleticLIVE
+// instance) has a link that doubles as its RESULTS source. USTFCCCA only lists it under
+// "timing site", so it used to land in meet_url alone and athletic_net_results_url stayed empty.
+// Derive it here so new meets never drift again. meet_url keeps the link (it's the live link).
+const ATHLETIC_NET_HOST = /athletic\.net|anet\.live/i;
+const deriveAthleticNetResultsUrl = (meet) =>
+  meet.athleticNetResultsUrl ||
+  (meet.timingUrl && ATHLETIC_NET_HOST.test(meet.timingUrl) ? meet.timingUrl : null);
+
 async function upsertMeets(meets) {
   log(`Upserting ${meets.length} meets to Supabase...`);
 
@@ -444,8 +464,9 @@ async function upsertMeets(meets) {
             updates.results_status = 'tfrrs_available';
           }
         }
-        if (meet.athleticNetResultsUrl && meet.athleticNetResultsUrl !== existing.athletic_net_results_url) {
-          updates.athletic_net_results_url = meet.athleticNetResultsUrl;
+        const anetResults = deriveAthleticNetResultsUrl(meet);
+        if (anetResults && anetResults !== existing.athletic_net_results_url) {
+          updates.athletic_net_results_url = anetResults;
         }
         if (meet.waResultsUrl && meet.waResultsUrl !== existing.wa_results_url) {
           updates.wa_results_url = meet.waResultsUrl;
@@ -471,12 +492,12 @@ async function upsertMeets(meets) {
           meet_url: meet.timingUrl,
           timing_platform: timingPlatform,
           tfrrs_url: meet.tfrrsUrl,
-          athletic_net_results_url: meet.athleticNetResultsUrl,
+          athletic_net_results_url: deriveAthleticNetResultsUrl(meet),
           wa_results_url: meet.waResultsUrl,
           results_status: meet.tfrrsUrl ? 'tfrrs_available' : 'pending',
           status: 'upcoming',
           level: 'college',
-          season: 'indoor'
+          season: deriveSeason(meetDate)
         });
         log(`  Added: ${meet.name} (${meetDate}${meetEndDate !== meetDate ? ' to ' + meetEndDate : ''})`);
         newCount++;

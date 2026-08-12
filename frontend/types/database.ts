@@ -778,6 +778,7 @@ export type Database = {
           date: string | null
           event_id: number | null
           event_name: string
+          event_type_id: number | null
           mark_raw: string | null
           mark_seconds: number | null
           meet_id: number | null
@@ -792,6 +793,7 @@ export type Database = {
           date?: string | null
           event_id?: number | null
           event_name: string
+          event_type_id?: number | null
           mark_raw?: string | null
           mark_seconds?: number | null
           meet_id?: number | null
@@ -806,6 +808,7 @@ export type Database = {
           date?: string | null
           event_id?: number | null
           event_name?: string
+          event_type_id?: number | null
           mark_raw?: string | null
           mark_seconds?: number | null
           meet_id?: number | null
@@ -816,6 +819,13 @@ export type Database = {
           team_id?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "relay_results_event_type_id_fkey"
+            columns: ["event_type_id"]
+            isOneToOne: false
+            referencedRelation: "event_types"
+            referencedColumns: ["event_type_id"]
+          },
           {
             foreignKeyName: "relay_results_team_id_fkey"
             columns: ["team_id"]
@@ -832,6 +842,30 @@ export type Database = {
           },
         ]
       }
+      event_types: {
+        Row: {
+          category: string | null
+          code: string
+          environment_scope: string | null
+          event_type_id: number
+          measure: string | null
+        }
+        Insert: {
+          category?: string | null
+          code: string
+          environment_scope?: string | null
+          event_type_id?: number
+          measure?: string | null
+        }
+        Update: {
+          category?: string | null
+          code?: string
+          environment_scope?: string | null
+          event_type_id?: number
+          measure?: string | null
+        }
+        Relationships: []
+      }
       results: {
         Row: {
           athlete_id: number
@@ -839,6 +873,7 @@ export type Database = {
           date: string | null
           event_id: number | null
           event_name: string
+          event_type_id: number | null
           is_pr: boolean | null
           is_season_best: boolean | null
           mark_feet: string | null
@@ -862,6 +897,7 @@ export type Database = {
           date?: string | null
           event_id?: number | null
           event_name: string
+          event_type_id?: number | null
           is_pr?: boolean | null
           is_season_best?: boolean | null
           mark_feet?: string | null
@@ -885,6 +921,7 @@ export type Database = {
           date?: string | null
           event_id?: number | null
           event_name?: string
+          event_type_id?: number | null
           is_pr?: boolean | null
           is_season_best?: boolean | null
           mark_feet?: string | null
@@ -903,6 +940,13 @@ export type Database = {
           wind?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "results_event_type_id_fkey"
+            columns: ["event_type_id"]
+            isOneToOne: false
+            referencedRelation: "event_types"
+            referencedColumns: ["event_type_id"]
+          },
           {
             foreignKeyName: "results_athlete_id_fkey"
             columns: ["athlete_id"]

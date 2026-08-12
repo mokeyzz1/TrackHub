@@ -217,6 +217,28 @@ const EVENT_MAPPINGS: Record<string, string> = {
   '10k (xc)': '10k XC',
 };
 
+/**
+ * Canonical event label for a result row.
+ *
+ * PREFER THE DATABASE. `event_types.code` is the authoritative canonical name — the DB resolves
+ * ~1,180 `event_aliases` down to 62 event types at 100% coverage. The `EVENT_MAPPINGS` table
+ * below only knows ~192 spellings, so it silently splits one event into several labels
+ * (measured 2026-08: 58 of 62 event types split, 64,054 results landing on a stray label —
+ * e.g. "200 Meter Dash Open", "200 M Participate" and "200 Meter Dash Unseeded" each became
+ * their own event on an athlete's page, with their own season best).
+ *
+ * Falls back to normalizeEventName() only when a row has no event_type_id.
+ */
+export function canonicalEventName(row: {
+  event_name?: string | null;
+  event_types?: { code?: string | null } | { code?: string | null }[] | null;
+}): string {
+  // supabase returns an embedded row as an object, or an array depending on the relationship
+  const et = Array.isArray(row.event_types) ? row.event_types[0] : row.event_types;
+  if (et?.code) return et.code;
+  return normalizeEventName(row.event_name || '');
+}
+
 export function normalizeEventName(eventName: string): string {
   if (!eventName) return eventName;
 

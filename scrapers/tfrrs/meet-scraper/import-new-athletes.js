@@ -6,6 +6,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+const { parseName } = require('../../shared/name_parser');
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -118,6 +119,7 @@ async function importNewAthletes(commit = false) {
       newAthletes.push({
         tfrrs_athlete_id: String(r.athlete_id),
         full_name: r.athlete_name,
+        ...(parseName(r.athlete_name) || {}),  // first_name/last_name on insert
         gender: r.team_gender || null,
         school_id: schoolId,
         is_active: true

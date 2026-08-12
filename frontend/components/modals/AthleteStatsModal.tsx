@@ -14,7 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../design-system/colors';
 import { Performance, PersonalRecord } from '../../hooks/useAthleteDetails';
 import { SeasonProgressionChart } from '../charts/SeasonProgressionChart';
-import { normalizeEventName } from '../../utils/eventNames';
+import { normalizeEventName, canonicalEventName } from '../../utils/eventNames';
 
 const { width, height } = Dimensions.get('window');
 
@@ -206,7 +206,8 @@ export function AthleteStatsModal({
       // Skip results with invalid/unparseable marks
       if (perfValue === null) return;
 
-      const normalizedName = normalizeEventName(perf.event_name);
+      // group by the DB canonical event so one event yields exactly one season best
+      const normalizedName = canonicalEventName(perf);
       const existing = eventBests.get(normalizedName);
 
       if (!existing) {

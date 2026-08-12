@@ -14,7 +14,7 @@ import { FadeInCard } from '../../components/animations/FadeInCard';
 import { useAthleteDetails } from '../../hooks/useAthleteDetails';
 import { AthleteStatsModal } from '../../components/modals/AthleteStatsModal';
 import { AthleteShareCard } from '../../components/share/AthleteShareCard';
-import { normalizeEventName } from '../../utils/eventNames';
+import { normalizeEventName, canonicalEventName } from '../../utils/eventNames';
 
 // Helper to check if a date is from Dec 2025+ (clean data from new scraper)
 function isCleanDataSeason(dateString: string): boolean {
@@ -65,7 +65,7 @@ export default function AthleteDetailScreen() {
   const stats = useMemo(() => {
     if (!filteredPerformances.length) return { events: 0, meets: 0, wins: 0 };
 
-    const uniqueEvents = new Set(filteredPerformances.map(p => normalizeEventName(p.event_name)));
+    const uniqueEvents = new Set(filteredPerformances.map(p => canonicalEventName(p)));
     const uniqueMeets = new Set(filteredPerformances.map(p => p.meet_name));
     const wins = filteredPerformances.filter(p => p.place === 1).length;
 
@@ -131,7 +131,7 @@ export default function AthleteDetailScreen() {
       for (const event of meet.events) {
         // Key: normalized event_name + mark_raw (same event, same time = same performance)
         // Normalize to catch variations like "Men's 200 Meters" vs "200 Meters"
-        const key = `${normalizeEventName(event.event_name)}|${event.mark_raw}`;
+        const key = `${canonicalEventName(event)}|${event.mark_raw}`;
         const existing = deduped.get(key);
 
         if (!existing) {
@@ -459,7 +459,7 @@ export default function AthleteDetailScreen() {
                           >
                             <View style={styles.meetEventInfo}>
                               <View style={styles.meetEventNameRow}>
-                                <Text style={styles.meetEventName}>{normalizeEventName(event.event_name)}</Text>
+                                <Text style={styles.meetEventName}>{canonicalEventName(event)}</Text>
                                 {event.round && (
                                   <View style={styles.roundTag}>
                                     <Text style={styles.roundTagText}>{shortenRound(event.round)}</Text>
@@ -493,7 +493,7 @@ export default function AthleteDetailScreen() {
                         >
                           <View style={styles.meetEventInfo}>
                             <View style={styles.meetEventNameRow}>
-                              <Text style={[styles.meetEventName, styles.meetEventNameDisabled]}>{normalizeEventName(event.event_name)}</Text>
+                              <Text style={[styles.meetEventName, styles.meetEventNameDisabled]}>{canonicalEventName(event)}</Text>
                               {event.round && (
                                 <View style={styles.roundTag}>
                                   <Text style={styles.roundTagText}>{shortenRound(event.round)}</Text>
@@ -551,7 +551,7 @@ export default function AthleteDetailScreen() {
                       >
                         <View style={styles.meetEventInfo}>
                           <View style={styles.meetEventNameRow}>
-                            <Text style={styles.meetEventName}>{normalizeEventName(relay.event_name)}</Text>
+                            <Text style={styles.meetEventName}>{canonicalEventName(relay)}</Text>
                             <View style={styles.legTag}>
                               <Text style={styles.legTagText}>Leg {relay.leg_order}</Text>
                             </View>
@@ -624,7 +624,7 @@ export default function AthleteDetailScreen() {
               schoolName={athlete?.school_name || 'Unknown School'}
               division={athlete?.division}
               prs={personalRecords.map(pr => ({
-                event_name: normalizeEventName(pr.event_name),
+                event_name: pr.event_name, // already canonical from getAthletePRs
                 mark_raw: pr.mark_raw
               }))}
             />
