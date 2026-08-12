@@ -298,3 +298,18 @@ Added after DUP-2 deleted 452,748 duplicate rows. Full rationale:
 - **Setting a NULL `event_type_id` can now fail.** Resolving a NULL event type can make a row
   collide with a twin it was previously hidden from. Delete the duplicate rather than update it —
   see `scrapers/backfill-null-event-types.js`.
+
+## 9. EVERY DESTRUCTIVE CHANGE IS LOGGED IN `docs/RECOVERY.md`
+
+The owner is explicitly **not reviewing individual changes** ("I'm letting you just cook",
+2026-08-10). That is workable only while every destructive operation stays reversible and the
+reversal is written down outside a chat log. Before deleting anything:
+
+1. **Query `information_schema` for inbound foreign keys first.** This trap appeared three times
+   in one day — relay legs (`ON DELETE CASCADE`), athlete PRs, roster history. Defining "safe to
+   delete" from the tables you happen to remember is how real data disappears silently.
+2. **Copy whole rows to a backup table, children before parents**, plus an audit JSON of the ids.
+3. **Add the operation to `docs/RECOVERY.md`** — table, row count, rollback statement.
+4. **Documented issue sizes are hypotheses, not facts.** Measured 2026-08-10: M1 overstated 3×,
+   DUP-3 overstated 98× (43,037 claimed vs 674 real), DUP-2 *understated* (416k vs 453k).
+   Re-measure before acting on any number in the tracker, including one you wrote yourself.
