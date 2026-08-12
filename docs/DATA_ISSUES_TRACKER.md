@@ -28,7 +28,7 @@ never delete without a self-proving test · small throttled batches (weak instan
 |---|---|---|---|
 | DUP-1 | **Cross-meet duplication** — the same performance attributed to 2-4 different meets | **26,846 extra attributions** (Outdoor 2026 alone) | Proven case: "Utah Spring Classic" (12436) holds **100% Arkansas Spring Invitational** (12337) data — 0 unique rows, athletes all from AR/IA/KS/KY/MO/OK. Owner spotted it: an athlete showing a meet she never attended. **Fix:** find meets with zero unique results, corroborate by geography, delete the copied rows (meet returns to empty = accurate). |
 | ~~DUP-2~~ | ~~Within-meet round duplicates~~ | **DONE 2026-08-10 — 452,748 rows removed** | Whole-DB re-measure found 441,314 groups / 453,113 extra rows / 71,117 athletes. Removed in three runs (pilot 4,427 · full 447,853 · NULL-bug cleanup 468). **185 groups deliberately kept** — both `Preliminaries` and `Finals` at the same mark and place, genuinely ambiguous. `results`: 3,772,655 → **3,319,907**. Backup `results_d2_backup` + per-run audit JSONs. Rollback: `INSERT INTO results SELECT * FROM results_d2_backup;` See the DUP-2 detail section below. |
-| DUP-3 | **Duplicate relay rows** | **43,037 extra rows (42,305 groups)** measured 2026-08-09 | Same meet+event+team+place+identical mark. Pre-existing (not from the athletic.net import, which was dup-guarded). The count rose from ~40,618 partly because linking previously-invisible relays (F5, M3) *surfaces* duplicates that were always there but unlinked. **Run DUP-3 dedup after the relay linking work, not before.** |
+| DUP-3 | **Duplicate relay rows** | **674, not 43,037 — the old figure was 98% wrong.** 674 removed 2026-08-10 | Same meet+event+team+place+identical mark. Pre-existing (not from the athletic.net import, which was dup-guarded). The count rose from ~40,618 partly because linking previously-invisible relays (F5, M3) *surfaces* duplicates that were always there but unlinked. **Run DUP-3 dedup after the relay linking work, not before.** |
 | DUP-4 | **Duplicate athlete records** | 294 cross-school + ~646 ambiguous + 3 conflict clusters | Root cause is U2 below. Visible in-app (e.g. "Obiora Okeke", "Mena Scatchard"). |
 | ~~DUP-5~~ | ~~Duplicate athlete-history rows~~ (`meet_id IS NULL`) | **976 removed 2026-08-10; 707 left deliberately** | Found 2026-08-10 while building the dedup guard — a non-partial unique index could not be created because of them. **Not covered by `results_no_exact_duplicate`**, which is partial on `meet_id IS NOT NULL`. These are the dual-purpose rows that power athlete history rather than meet pages, so DUP-2's meet-scoped key never saw them. Same rule should apply, keyed on (athlete, event_type, mark, place, round) without `meet_id`. |
 
@@ -430,3 +430,35 @@ self-joins `results` on athlete + mark + place and repeatedly hit the statement 
 whose athletes carry a lot of history. Two meets had to be finished by checking containment
 against a single known survivor instead of searching all of them. **That query needs an index or
 a different shape before it is run at that scale — brute force will not survive it.**
+
+
+### DUP-3 — the documented size was wrong by 98%, and acting on it would have destroyed real data
+
+**DUP-3 was recorded as 43,037 duplicate relay rows on the key
+(meet, event, team, place, mark). That key is invalid for relays.** A school enters multiple
+squads (A/B/C/D), and when they all DNS they share `mark='DNS'` and `place=NULL` — identical on
+every column in that key while being entirely different teams.
+
+Real case, Chico Invitational 4x400m, four rows all `DNS` / NULL place / same `team_id`:
+
+| row | squad |
+|---|---|
+| 216035 | Zach Blood, Cameron Bishop, Joey Bowser, Jamie Saunders |
+| 216036 | Ryan Giglio, Keegan Henry, Elias Wiggins, Hunter Phillips |
+| 216045 | Lucas Garin, Evan Schweitzer, Rylan Huryn, Walker Dorris |
+| 216046 | Saul Jimenez, Kees Van Der Meer, James Woolery, Arlo Gagnon |
+
+**Four separate squads.** A first version of the dedup script would have deleted 29,184 rows.
+`relay_athletes` is **ON DELETE CASCADE**, so 37,561 legs would have gone with them — and
+**34,822 of those (93%) named an athlete absent from the surviving row.** It was erasing real
+people's races, not duplicates.
+
+**Caught by** checking whether the doomed rows' athletes actually existed in the survivor, rather
+than trusting that matching columns meant a matching performance.
+
+**Correct rule: the lineup must be part of the key.** Two relay rows are the same performance only
+if they name the same athletes. Rows with no lineup are left alone entirely — without one there is
+no way to prove two rows are the same squad. On that key the true count is **674**, all removed.
+
+**Generalisable lesson:** a status code (`DNS`/`DNF`/`NT`/`DQ`) plus a NULL place is the *absence*
+of a performance, not a fingerprint for one. Never let those values act as identity in a dedup key.
