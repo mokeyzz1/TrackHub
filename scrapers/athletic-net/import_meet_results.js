@@ -373,7 +373,7 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
   const relayStats = await importRelays(meet, relayEvents, events, resolveAthlete, { commit });
 
   // 5. report
-  console.log('=== DRY RUN — translation report ===');
+  console.log(`=== ${commit ? 'COMMIT' : 'DRY RUN'} — translation report ===`);
   console.log(`  events: ${stats.events} (event_type_id resolved: ${stats.evResolved}${Object.keys(stats.evMissed).length ? ', MISSED: ' + JSON.stringify(stats.evMissed) : ''})`);
   console.log(`  results: ${stats.results} | marks parsed: ${stats.markParsed} | blank rows skipped: ${stats.skippedBlank}`);
   console.log(`  athletes: matched by athletic.net id = ${stats.matchAnet} | matched by name+school = ${stats.matchName} | name-only REJECTED (no school corroboration) = ${stats.nameRejectedNoSchool || 0} | NEW = ${stats.athNew} (${newAthletes.size} distinct)`);
@@ -422,8 +422,21 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
     const { error } = await supabase.from('results').insert(insertable.slice(i, i + 500));
     if (error) console.log(`  results batch error: ${error.message}`); else imported += Math.min(500, insertable.length - i);
   }
-  await supabase.from('meets').update({ results_status: 'imported', results_source: 'athletic_net', results_imported_at: new Date().toISOString() }).eq('meet_id', meet.meet_id);
-  console.log(`\nDONE: imported ${imported} results, created ${created.size} athletes, meet marked imported.`);
+  // Do NOT claim 'imported'/'athletic_net' when nothing was actually written.
+  // Found 2026-08-12: 31 of 45 meets in a batch scraped cleanly but the athletic.net page had no
+  // results posted at all (real case: meet 665605 "TXWES Last Chance" -> 0 event-result links).
+  // They were still marked imported with results_source='athletic_net', which (a) lied about
+  // provenance -- `results_source` is the provenance record, see CLAUDE.md coexistence rule 2 --
+  // and (b) meant they would never be retried if results appeared later.
+  if (imported === 0) {
+    await supabase.from('meets')
+      .update({ results_status: 'no_results_at_source', results_source: null })
+      .eq('meet_id', meet.meet_id);
+    console.log(`\nDONE: source page had NO results — meet marked no_results_at_source (not imported).`);
+  } else {
+    await supabase.from('meets').update({ results_status: 'imported', results_source: 'athletic_net', results_imported_at: new Date().toISOString() }).eq('meet_id', meet.meet_id);
+    console.log(`\nDONE: imported ${imported} results, created ${created.size} athletes, meet marked imported.`);
+  }
 }
 
 module.exports = { run };
