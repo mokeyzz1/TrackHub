@@ -67,7 +67,7 @@ never delete without a self-proving test · small throttled batches (weak instan
 | M5 | **Results with no `team_id`** | 394,659 | Mostly pre-2024 (roster history only covers 2024-25, 2025-26). Re-runnable: `backfill-result-team-id.js`. |
 | M7 | **Numeric marks never parsed into `mark_seconds` / `mark_meters`** | **1,483,604 rows (45%) have neither, and 1,319,151 of those have a numeric `mark_raw`** | Found 2026-08-10 while checking whether those columns could key the cross-source dedup — they can't. Blocks using them for anything computed (PR maths already works off `mark_raw`). Related: the normalized-mark column needed for dual-source imports (`DATA_SOURCE_STRATEGY.md`). |
 | ~~M8~~ | ~~Doubled mark codes~~ — `NM  NM`, `NH  NH` | **FIXED 2026-08-12: 21,683 repaired, 9 collisions removed, 0 left** (11,452 + 10,240) | Scraper concatenated a field-event cell with itself; appears only in HJ/LJ/PV/SP/TJ. Should be `NM` / `NH`. ⚠️ Not a plain UPDATE — `mark_raw` is in `results_no_exact_duplicate`, so normalising can collide with an existing row; delete the collider instead, as `backfill-null-event-types.js` does. |
-| M6 | **Meets with no results link** | 137 (2025-26) · 671 all-time | **Structurally limited** — USTFCCCA's directory is a moving window, so old links are gone (CLAUDE.md §1b). Don't grind; mark `results_status='unavailable'`. |
+| M6 | **Meets with no results link** | **2025-26 now 93% covered (2,392/2,573).** Remaining 181 = 31 source-has-no-results · 92 timing-platform-only · 58 no link | **Structurally limited** — USTFCCCA's directory is a moving window, so old links are gone (CLAUDE.md §1b). Don't grind; mark `results_status='unavailable'`. |
 
 ## 🟡 OPEN — modelling / structural
 
@@ -562,3 +562,35 @@ does THIS row belong to?) rather than a per-meet one, and the same-day invariant
 find candidates.
 
 Baselines recorded in the invariant suite; the same-day number **should only ever go down**.
+
+
+### 2025-26 backfill — finished as far as it goes (2026-08-12)
+
+**93% coverage (2,392 of 2,573 meets).** Everything reachable by a stored link has been fetched.
+
+| action | meets | rows |
+|---|---|---|
+| athletic.net batch import | 14 filled (of 45 attempted) | +8,731 results, +440 relays |
+| TFRRS links found in the WRONG COLUMN | 4 | +1,800 results, +81 relays |
+
+**The wrong-column find:** 4 meets had a `tfrrs.org/results/...` URL sitting in `meet_url`
+instead of `tfrrs_url`, so no scraper ever looked at it. One was **Big West Championships** —
+emptied earlier that day as a DUP-1 copy, and its real results were in the database all along,
+one column over. Now holds all 11 Big West schools (Cal Poly, CSUN, Hawaii, Long Beach State,
+UC Davis…) where it previously held Big Ten.
+
+**⚠️ Worth re-checking periodically:** `meet_url` is meant to be the live/timing link, but results
+links leak into it. `SELECT ... WHERE meet_url ILIKE '%tfrrs.org/results%' AND tfrrs_url IS NULL`.
+
+**What is left, and why it is the ceiling:**
+- **31** — source page exists on athletic.net but no results were ever posted (`no_results_at_source`)
+- **58** — no link of any kind; USTFCCCA's window closed (CLAUDE.md §1b)
+- **92** — a timing-platform link only, scattered across **15+ companies** with 1-6 meets each:
+  blacksquirreltiming 6 · trackscoreboard 12 (3 subdomains) · wayzatatiming 3 · wingfootfinish 3 ·
+  MileSplit 28 · Flash Results 3 · OpenTrack 1 · and a dozen more singletons.
+  **A scraper per platform is not worth it.** The one cheap experiment left: several of those
+  (blacksquirrel, mentzertiming, mastiming, athletictiming.net) are AthleticLIVE instances, and
+  per §1 every live page links to its permanent `www.athletic.net` meet. If the existing scraper
+  can follow that from a timing-company URL, ~20-30 might come free with no new code.
+
+**2024-25 is done at 95%** — all 125 remaining empties have no link at all.
