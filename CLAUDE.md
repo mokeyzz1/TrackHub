@@ -225,6 +225,11 @@ is why facts drifted apart and got re-derived. Now:
 | `docs/reference/` | schema, domain rules, architecture, platform notes |
 | `docs/archive/` | superseded — do not act on |
 
+**[`docs/OWNER_DECISIONS.md`](docs/OWNER_DECISIONS.md) — read this FIRST.** Every domain
+correction, standing direction and technique the owner has given, in one file, because they were
+spread across six memory files and kept being rediscovered. If you are reasoning toward something
+listed there, stop: it is already decided.
+
 **The four you will actually need:** `DATA_ISSUES_TRACKER` (what is broken) ·
 `BACKEND_PRIORITIES` (what next) · `DEDUP_METHOD` (**read before any cleanup**) ·
 `RECOVERY` (undo anything).

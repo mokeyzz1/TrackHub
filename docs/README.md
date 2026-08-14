@@ -20,6 +20,7 @@ docs/
 
 | doc | when you need it |
 |---|---|
+| **[OWNER_DECISIONS](OWNER_DECISIONS.md)** | **every decision, correction and technique the owner has given — READ FIRST, do not re-derive these** |
 | **[DATA_ISSUES_TRACKER](DATA_ISSUES_TRACKER.md)** | every known data problem, its real size, and status |
 | **[BACKEND_PRIORITIES](BACKEND_PRIORITIES.md)** | what to work on next, ordered by deadline |
 | **[DEDUP_METHOD](DEDUP_METHOD.md)** | **read before writing ANY cleanup script** — nine rules that each cost a near-miss |
