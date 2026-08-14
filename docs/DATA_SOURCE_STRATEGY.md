@@ -163,3 +163,47 @@ and 1,319,151 of those have a numeric `mark_raw` that was simply never parsed.
 
 **Order of work:** normalized mark column → re-key the unique index → define which source inserts
 per meet → only then run both scrapers over the same meet.
+
+
+## The recovery cascade for meets with no stored results link (owner's idea, proven 2026-08-14)
+
+For a meet that is empty and has no `tfrrs_url` / `athletic_net_results_url`, try in order:
+
+1. **TFRRS search** — `tfrrs.org/results_search.html`, paginated, ~30 meets per page. TFRRS
+   aggregates every college meet regardless of which timing company ran it, so the results almost
+   always exist there; what is missing is the URL, not the data.
+2. **The timing site itself** — only worth it where the platform is an AthleticLIVE instance,
+   because those link back to a permanent `www.athletic.net` meet page the existing scraper can
+   already read.
+3. **athletic.net directly**, if a link resolves.
+
+### ⚠️ Step 1 is the thing CLAUDE.md §1b bans — it is only safe WITH verification
+
+Name matching is what produced DUP-1. The existing `--fuzzy` matcher strips
+`invitational|invite|indoor|outdoor|classic|open|championships` and the year, so
+"Big West Track & Field Championships" normalises to just **"big west"**. That is how Big Ten
+results ended up in three wrong conferences.
+
+**The rule: never write a found URL without a falsifiable check first.**
+- the candidate page's own **date** must contain the meet's date
+- the **teams/schools** must fit the meet's identity (host state, conference, region)
+- prefer meets whose names are **globally unique** (a national championship) over recurring ones
+  ("Cougar Classic" happens every year in several states)
+
+### Proven case (2026-08-14)
+
+`NCAA DI Outdoor Championships – East/West First-Rounds` (meets 13134/13135) had only a
+`flashresults.ncaa.com` link. TFRRS search listed both. Page dates read "May 27-30, 2026",
+containing our 2026-05-30. Imported **4,157 results + 189 relays**, then verified:
+
+| meet | states |
+|---|---|
+| East | AL CT DC DE FL GA IN KY LA MA MD ME MI MS NC NH NJ NY OH PA RI SC TN VA VT WV |
+| West | AR AZ CA CO HI IA ID IL KS MN MO MT ND NE NM NV OK OR SD TX UT WA WI WY |
+
+**Zero overlap** — a clean geographic partition, exactly what East/West regional qualifying must
+produce and not something a wrong match could fake.
+
+Also found the same day: **4 meets had a `tfrrs.org/results/...` URL sitting in `meet_url`**
+instead of `tfrrs_url`, so no scraper ever looked. Worth re-checking periodically:
+`WHERE meet_url ILIKE '%tfrrs.org/results%' AND tfrrs_url IS NULL`.
