@@ -167,7 +167,10 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit 
   // existing relays for this meet (dedup + idempotent re-runs)
   const { data: existingRelays } = await supabase.from('relay_results')
     .select('relay_result_id, event_type_id, team_id, mark_raw').eq('meet_id', meet.meet_id);
-  const relayIdByKey = new Map((existingRelays || []).map(r => [`${r.event_type_id}|${r.team_id}|${r.mark_raw}`, r.relay_result_id]));
+  // normMark on BOTH sides: TFRRS stores "3:17.58" where athletic.net serves "3:17.58a", so a
+  // raw comparison treats the same race as new and duplicates the whole field. Caught 2026-08-14
+  // by a dry run that reported only 4 of 87 existing relays as already present.
+  const relayIdByKey = new Map((existingRelays || []).map(r => [`${r.event_type_id}|${r.team_id}|${normMark(r.mark_raw)}`, r.relay_result_id]));
 
   // Existing per-leg rows in `results`. THIS MATTERS: the app builds a meet's event list from
   // `results` (getEventsByMeetWithGender), so a relay only shows up in the app if each leg also
@@ -175,7 +178,7 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit 
   // relay_results but there is nothing for the user to click.
   const { data: existingLegRows } = await supabase.from('results')
     .select('athlete_id, event_type_id, mark_raw').eq('meet_id', meet.meet_id);
-  const seenLegRow = new Set((existingLegRows || []).map(r => `${r.athlete_id}|${r.event_type_id}|${r.mark_raw}`));
+  const seenLegRow = new Set((existingLegRows || []).map(r => `${r.athlete_id}|${r.event_type_id}|${normMark(r.mark_raw)}`));
 
   const stats = { relays: 0, inserted: 0, legs: 0, dupSkipped: 0, noTeam: 0 };
 
@@ -197,15 +200,15 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit 
       const teamId = schoolId ? (teamBySchoolGender.get(`${schoolId}|${gender}`) || null) : null;
       if (!teamId) stats.noTeam++;
 
-      const key = `${etid}|${teamId}|${r.mark_raw}`;
+      const key = `${etid}|${teamId}|${normMark(r.mark_raw)}`;
       const alreadyHave = relayIdByKey.has(key);
       if (alreadyHave) stats.dupSkipped++;
 
       // per-leg rows for `results` — what makes the relay visible in the app's event list
       const legResultRows = legs
-        .filter(l => l.athlete_id && !seenLegRow.has(`${l.athlete_id}|${etid}|${r.mark_raw}`))
+        .filter(l => l.athlete_id && !seenLegRow.has(`${l.athlete_id}|${etid}|${normMark(r.mark_raw)}`))
         .map(l => {
-          seenLegRow.add(`${l.athlete_id}|${etid}|${r.mark_raw}`);
+          seenLegRow.add(`${l.athlete_id}|${etid}|${normMark(r.mark_raw)}`);
           return {
             athlete_id: l.athlete_id, team_id: teamId,
             event_name: ev.eventCode, event_type_id: etid,
@@ -258,7 +261,7 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit 
   return stats;
 }
 
-async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}) {
+async function run(meetDbId, { commit = false, jsonFile = null, limit = 0, relaysOnly = false } = {}) {
   // 1. the DB meet we're importing into
   const { data: meet, error: me } = await supabase
     .from('meets').select('meet_id, name, date, end_date, season, athletic_net_results_url, meet_url')
@@ -406,6 +409,23 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0 } = {}
   }
   for (const r of rows) if (!r.athlete_id && r._newKey) r.athlete_id = created.get(r._newKey) || null;
 
+  // RELAYS-ONLY MODE. Added 2026-08-14 for the timeless-4x100 repair (M1).
+  // 463 meets have a 4x100 where every row is a status code, because the old parser required
+  // MM:SS and dropped sub-minute times (39.30). 412 of those have a WORKING 4x400 at the same
+  // meet, proving the page scraped fine and only the short relay broke. The parser is fixed, but
+  // the meets are already populated, so neither importer will revisit them -- both skip non-empty
+  // meets by design, which is correct and is what prevents duplicate disasters.
+  //
+  // This mode adds ONLY missing relay rows. It must never touch individual results here: these
+  // meets are usually TFRRS-sourced, and the dedup guard keys on mark_raw, where athletic.net
+  // writes "39.30a" against TFRRS's "39.30" -- so a cross-source individual insert would slip
+  // straight past it. importRelays() has its own (event_type + team + mark) guard.
+  if (relaysOnly) {
+    console.log(`RELAYS-ONLY: skipping ${claims.length} claims and ${rows.length} individual results.`);
+    console.log(`\nDONE (relays only): ${relayStats && relayStats.inserted != null ? relayStats.inserted : 'see above'} relay rows handled.`);
+    return;
+  }
+
   // claim existing athlete-history rows (link, don't duplicate)
   if (claims.length) {
     console.log(`Claiming ${claims.length} existing history rows (setting meet_id)...`);
@@ -445,8 +465,9 @@ if (require.main === module) {
   const args = process.argv.slice(2);
   const meetDbId = args[0];
   const commit = args.includes('--commit');
+  const relaysOnly = args.includes('--relays-only');
   const jIdx = args.indexOf('--json'); const jsonFile = jIdx >= 0 ? args[jIdx + 1] : null;
   const lIdx = args.indexOf('--limit'); const limit = lIdx >= 0 ? parseInt(args[lIdx + 1], 10) : 0;
   if (!meetDbId) { console.log('Usage: node import_meet_results.js <db_meet_id> [--commit] [--json f] [--limit N]'); process.exit(1); }
-  run(meetDbId, { commit, jsonFile, limit }).catch(e => { console.error('ERROR', e.message); process.exit(1); });
+  run(meetDbId, { commit, relaysOnly, jsonFile, limit }).catch(e => { console.error('ERROR', e.message); process.exit(1); });
 }

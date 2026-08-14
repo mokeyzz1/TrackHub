@@ -210,30 +210,29 @@ still has its athletes' marks in the DB — they're just not linked to the meet.
   Fixing logic there fixes it for every importer — the copy-paste between importers is what let
   bugs live in one path and not the other.
 
-## 5. WHERE THINGS ARE
+## 5. WHERE THINGS ARE — one place: `docs/`
 
-| Topic | File |
+**START AT [`docs/README.md`](docs/README.md).** It is the index for everything.
+
+Until 2026-08-14 documentation was scattered across `docs/`, `backend/`, `backend/scripts/`,
+`scrapers/tfrrs/` and an agent-memory directory **outside the repo** — 37 files in 6 places. That
+is why facts drifted apart and got re-derived. Now:
+
+| | |
 |---|---|
-| Data sources & orchestration | `docs/DATA_SOURCE_STRATEGY.md` |
-| Target schema / north star | `docs/TARGET_SCHEMA_BLUEPRINT.md` |
-| T&F domain rules | `docs/DOMAIN_LOGIC.md` |
-| Columns pending retirement | `docs/COLUMN_RETIREMENT_PLAN.md` |
-| **Every known data issue + status** | **`docs/DATA_ISSUES_TRACKER.md`** |
-| **How to clean data without destroying it — READ BEFORE ANY CLEANUP** | **`docs/DEDUP_METHOD.md`** |
-| **Undoing anything destructive (backups + rollback)** | **`docs/RECOVERY.md`** |
-| Mark codes (`DNS`, `NT`, `ENR`, `NP`, `NWI`…) — all are RESULTS | `docs/MARK_CODES.md` |
-| **Scaling to 10k–20k users (social launch)** | **`docs/SCALING_PLAN.md`** |
-| **Building the community: auth, claimed profiles, social** | **`docs/COMMUNITY_BUILD_PLAN.md`** |
-| **Priorities / working checklist** | **`docs/BACKEND_PRIORITIES.md`** |
-| Backend architecture | `docs/BACKEND_ARCHITECTURE.md` |
-| Live results: NO public API (already investigated) | `backend/LIVE_RESULTS_INVESTIGATION.md` |
-| Status-router scraper design | `backend/SCRAPING_PIPELINE.md` |
-| Problem/solution history across sessions | `memory/backend-rebuild-status.md` |
-| athletic.net scraper | `scrapers/athletic-net/scrape_meet_results.js` |
-| athletic.net import bridge | `scrapers/athletic-net/import_meet_results.js` |
-| Batch importer | `scrapers/athletic-net/batch_import.js` |
-| TFRRS weekly engine | `scrapers/tfrrs/meet-scraper/sync-weekend-results.js` |
-| Meet result-link backfill (USTFCCCA/TFRRS) | `scrapers/meets/backfill_result_links.js` |
+| `docs/*.md` | the 8 ACTIVE docs (tracker, priorities, dedup method, recovery, sources, mark codes, community, scaling) |
+| `docs/memory/` | cross-session history — `backend-rebuild-status.md` is the source of truth |
+| `docs/reference/` | schema, domain rules, architecture, platform notes |
+| `docs/archive/` | superseded — do not act on |
+
+**The four you will actually need:** `DATA_ISSUES_TRACKER` (what is broken) ·
+`BACKEND_PRIORITIES` (what next) · `DEDUP_METHOD` (**read before any cleanup**) ·
+`RECOVERY` (undo anything).
+
+**⚠️ "Fixed" means the DATA is fixed, not just the code.** F7 was logged as "relay colon parser
+FIXED in both scrapers" — true, and it left **463 meets** whose 4x100 was already stored as status
+codes. A scraper fix and a data repair are two separate lines; the second is not done until it is
+measured. Never write FIXED against a parser change alone.
 
 ## 6. CURRENT STATE (2026-07, branch `backend-rebuild`)
 

@@ -112,6 +112,7 @@ function parseArgs() {
     scrape: args.includes('--scrape') || args.includes('--commit'),
     commit: args.includes('--commit'),
     fuzzy: args.includes('--fuzzy'),
+    relaysOnly: args.includes('--relays-only'),
     days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7'),
     // --meet <id>: run against ONE meet regardless of the date window. Use this to verify the
     // engine end-to-end before pointing it at a batch (it writes results).
@@ -311,7 +312,7 @@ function normalizeSchoolName(name) {
 }
 
 // Fetch meets from database that need results
-async function getMeetsNeedingResults(daysBack, meetId = null) {
+async function getMeetsNeedingResults(daysBack, meetId = null, relaysOnly = false) {
   // Single-meet mode: skip the date window entirely (used to verify before batching).
   if (meetId) {
     const { data, error } = await supabase
@@ -321,9 +322,19 @@ async function getMeetsNeedingResults(daysBack, meetId = null) {
     if (error) { console.error('Error fetching meet:', error.message); return []; }
     const { count } = await supabase.from('results')
       .select('*', { count: 'exact', head: true }).eq('meet_id', meetId);
-    if (count) {
+    if (count && !relaysOnly) {
       console.log(`Meet ${meetId} already has ${count} results — refusing to import a second source into a non-empty meet.`);
       return [];
+    }
+    // RELAYS-ONLY escape hatch (added 2026-08-14 for the M1 timeless-4x100 repair).
+    // The refusal above exists because importing a SECOND source into a populated meet is how
+    // duplicates were mass-created. This is different: it re-reads the SAME source that already
+    // filled the meet, to recover relay rows the old parser dropped. 463 meets have a 4x100 where
+    // every row is a status code -- the pre-fix regex required MM:SS and threw away 39.30 -- and
+    // 412 of them have a perfectly good 4x400 at the same meet, proving only the short relay broke.
+    // Individual results are NOT written in this mode, so the meet's existing rows are untouched.
+    if (count && relaysOnly) {
+      console.log(`Meet ${meetId} has ${count} results — RELAYS-ONLY mode: individual results will not be touched.`);
     }
     console.log(`Single-meet mode: ${data?.length || 0} meet selected (${count || 0} existing results)`);
     return data || [];
@@ -909,7 +920,7 @@ async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate) {
 }
 
 // Import results to database
-async function importResults(results, commit) {
+async function importResults(results, commit, relaysOnly = false) {
   // Load the canonical event catalog so new results/relays get a resolved event_type_id.
   const aliasCount = await events.load(supabase);
   console.log(`Loaded ${aliasCount.toLocaleString()} event aliases for resolution.`);
@@ -1266,6 +1277,10 @@ async function importResults(results, commit) {
   });
 
   const skippedDupes = validResults.length - newResults.length;
+  // In relays-only mode the meet is already populated from this same source; leave its individual
+  // results completely alone and write only the relay rows the old parser dropped.
+  const individualsToWrite = relaysOnly ? [] : newResults;
+  if (relaysOnly) console.log(`RELAYS-ONLY: withholding ${newResults.length.toLocaleString()} individual results`);
   console.log(`Skipping ${skippedDupes.toLocaleString()} duplicate individual results`);
   console.log(`Importing ${newResults.length.toLocaleString()} new individual results`);
   console.log(`Importing ${newRelays.length.toLocaleString()} new relay results`);
@@ -1274,8 +1289,8 @@ async function importResults(results, commit) {
   let errors = 0;
 
   // Import individual results
-  for (let i = 0; i < newResults.length; i += 500) {
-    const batch = newResults.slice(i, i + 500).map(r => ({
+  for (let i = 0; i < individualsToWrite.length; i += 500) {
+    const batch = individualsToWrite.slice(i, i + 500).map(r => ({
       athlete_id: r.athlete_id,
       event_name: r.event_name,
       event_type_id: events.resolve(r.event_name),  // canonical event; null -> logged to unmapped_events
@@ -1427,7 +1442,7 @@ async function main() {
   console.log(`Fuzzy fallback: ${options.fuzzy ? 'enabled' : 'disabled'}`);
 
   // Step 1: Find meets that need results
-  const meetsNeedingResults = await getMeetsNeedingResults(options.days, options.meetId);
+  const meetsNeedingResults = await getMeetsNeedingResults(options.days, options.meetId, options.relaysOnly);
 
   if (meetsNeedingResults.length === 0) {
     console.log('\nNo meets need results. All caught up!');
@@ -1539,7 +1554,7 @@ async function main() {
   console.log('IMPORTING RESULTS');
   console.log('='.repeat(60));
 
-  const { imported, errors, skipped, relaysImported, relayErrors } = await importResults(allScrapedResults, options.commit);
+  const { imported, errors, skipped, relaysImported, relayErrors } = await importResults(allScrapedResults, options.commit, options.relaysOnly);
 
   if (options.commit) {
     const importedMeetIds = new Set(allScrapedResults.map(r => r.meet_id).filter(Boolean));
