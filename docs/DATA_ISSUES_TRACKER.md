@@ -594,3 +594,53 @@ links leak into it. `SELECT ... WHERE meet_url ILIKE '%tfrrs.org/results%' AND t
   can follow that from a timing-company URL, ~20-30 might come free with no new code.
 
 **2024-25 is done at 95%** — all 125 remaining empties have no link at all.
+
+
+### M1 — 4x100 repair, 2026-08-14 (owner-reported, third time)
+
+**The owner reported missing 4x100s three times before this was actually fixed.** F7 corrected the
+parser and was logged as FIXED; the 463 meets already holding broken data were never re-fetched.
+"Fixed the scraper" and "fixed the data" are different things — see `docs/README.md`.
+
+**Repaired: 35 meets, 716 relay rows**, all via TFRRS `--relays-only`.
+
+| meet | 4x100 timed | fastest |
+|---|---|---|
+| NCAA DI Outdoor | 56 | **37.75** |
+| NAIA Outdoor | 66 | 39.57 |
+| NCAA DIII Outdoor | 48 | 39.25 |
+| NCAA DII Outdoor | 15 | 39.30 |
+| Big Ten Outdoor | 23 | 38.44 |
+
+**SOURCE MATTERS: use TFRRS, not athletic.net.** athletic.net returns the times but with **no round
+label**, and the app groups relays by round — a round-less row looks repaired in the database and
+is still broken on screen. Proven on meet 13142: athletic.net gave 44 rows with `round = NULL`
+(rolled back), TFRRS gave the same 44 correctly labelled Finals / Preliminaries.
+
+**Still broken: ~428 meets.** Only 35 of the 463 had a TFRRS link. 148 have athletic.net only and
+need the relay round-capture fixed first; the rest have no link at all.
+
+### 🔴 DUP-3 REOPENED — the lineup key missed ~26,000 duplicates
+
+Keying the relay dedup on the **lineup** (after the A/B/C/D near-miss) was safe but far too
+narrow. Measured 2026-08-14:
+
+```
+same meet+event+team+place+REAL MARK+round : 26,413 groups (26,494 rows)
+   ...of which the lineup-key invariant reports :      0
+same key but a STATUS-CODE mark             :  1,990 groups  <- legitimate A/B/C/D squads, keep
+```
+
+26,494 rows are the same squad running the same time in the same race, differing **only in how the
+legs are written**: TFRRS stores the heat view as `Grant, Cleveland, Jefferson, Wilson` and the
+prelim view as `Cody Grant, Cameron Cleveland, Phillip Jefferson, Rylan Wilson`.
+
+So DUP-3's "674, not 43,037" correction was wrong in the other direction. The truth is ~26,000+.
+
+**A unique index on `relay_results` CANNOT be built until these are cleaned** — 26,494 rows would
+violate it. `relay_results` currently has **no database-level duplicate protection at all**, unlike
+`results`. Order of work:
+1. normalise the lineup comparison (match on **last names**, which both formats share)
+2. re-run DUP-3 on that key
+3. **then** add `UNIQUE (meet_id, event_type_id, team_id, place, mark_raw, round) WHERE mark_raw ~ '[0-9]'`
+   — partial on real marks so the A/B/C/D status-code squads stay legal
