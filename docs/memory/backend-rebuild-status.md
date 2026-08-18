@@ -1,3 +1,58 @@
+## SESSION 2026-08-14/18: relays, guards, and prevention
+
+Continues the 2026-08-10/12 purge. Everything reversible — `docs/RECOVERY.md`.
+
+**DUPLICATES ARE NOW PREVENTED, NOT CLEANED UP.** Owner: *"why can't we just have something there
+so it can prevent duplicates from happening... you keep deleting and re-deleting."* Correct.
+Four unique indexes now exist; the important pair key on the **normalised** mark
+(`lower(regexp_replace(mark_raw,'[ah]$',''))`) so `10.35a` and `10.35` collide. Verified by
+inserting `22.82a` against an existing `22.82` → rejected. **This closed the cross-source gap that
+blocked the dual-source athletic.net plan.** Expression indexes, not generated columns — checked
+against the PG docs: a STORED column has the same per-write cost plus a full table rewrite, and
+PG18 VIRTUAL columns cannot be indexed.
+
+**DUP-3 finished — 40,210 relay rows** (13,716 round-label + 26,494 real-mark), 86,499 legs backed
+up. **The tracker said 43,037, I "corrected" it to 674, the truth was 40,210** — my correction was
+the wrong one. I over-narrowed the key after the A/B/C/D near-miss and trusted the narrow result
+because it came with a dramatic story attached.
+
+**4x100 repair — 163 meets, 2,953 relay rows** (463 broken → 300). DI Outdoor now shows 37.75.
+Owner reported this THREE times before it was actually fixed: F7 repaired the parser and was
+logged FIXED while 463 meets kept the broken data. **Use TFRRS, not athletic.net** — athletic.net
+returns relay times with NO round label, and the app groups by round, so those rows look repaired
+in the DB and are invisible on screen (cost a 44-row rollback).
+
+**Also:** 45 empty 2025-26 meets filled (+9,171); 4 meets had a `tfrrs.org/results` URL sitting in
+`meet_url`; the TFRRS recovery cascade proven on NCAA First Rounds (+4,157, verified by a perfect
+East/West state partition).
+
+### THE ROOT CAUSE OF THE REPETITION (owner named it)
+*"Why didn't all that get fixed at the same time?"* Because I fixed the instance, not the class —
+three times: parser without data, `results` without `relay_results`, a new insight without
+re-checking the dedup it invalidated. Now `DEDUP_METHOD.md` §0: before closing anything, ask
+**is the DATA fixed or only the code · where else does this pattern live · does this invalidate an
+earlier fix.**
+
+### SECOND RULE, learned three times in one hour
+**A guard's WHERE must match the cleanup's WHERE.** Rows the cleanup skipped will violate a guard
+that does not skip them too — `squad IS NOT NULL` (26,494), `team_id IS NOT NULL` (failed build),
+`meet_id IS NOT NULL` (results index). Postgres was a more reliable checker than my own SQL: my
+violation query returned zero twice while CREATE INDEX disagreed.
+
+### DOCS ARE NOW IN ONE PLACE
+37 files across 6 locations, with agent memory outside the repo entirely. Consolidated into
+`docs/` (active · `memory/` · `reference/` · `archive/`) with `docs/README.md` as the index and
+**`docs/OWNER_DECISIONS.md` read FIRST** — every decision, correction and technique the owner has
+given, because I had been rediscovering them (the fuzzy-with-review approval, the link-column
+warning, the AI-judge plan, the athlete-overlap technique).
+
+### STILL OPEN
+U1 merge the two scraper engines (pre-season) · U2 Unattached per-competition (**blocks claimed
+profiles**) · U4/U5 frontend still text-matching · ~300 meets' 4x100 with no link · athlete-history
+duplicates (1,524 groups, the last unguarded surface) · capture links weekly during the season.
+
+---
+
 ## SESSION 2026-08-10/12: the duplicate purge — 477,503 rows removed, 21,683 repaired
 
 Branch `backend-rebuild`, 25+ commits. Everything reversible — see `docs/RECOVERY.md` in the repo
