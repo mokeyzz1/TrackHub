@@ -234,6 +234,11 @@ listed there, stop: it is already decided.
 `BACKEND_PRIORITIES` (what next) · `DEDUP_METHOD` (**read before any cleanup**) ·
 `RECOVERY` (undo anything).
 
+**⚠️ Before closing anything, ask: is the DATA fixed or only the code · where else does this
+pattern live (`results` ↔ `relay_results` ↔ history rows are siblings) · does this invalidate an
+earlier fix? See `docs/DEDUP_METHOD.md` §0 — skipping these caused the same bug to be reported
+three times.**
+
 **⚠️ "Fixed" means the DATA is fixed, not just the code.** F7 was logged as "relay colon parser
 FIXED in both scrapers" — true, and it left **463 meets** whose 4x100 was already stored as status
 codes. A scraper fix and a data repair are two separate lines; the second is not done until it is
