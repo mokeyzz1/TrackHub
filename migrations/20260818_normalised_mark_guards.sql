@@ -15,10 +15,23 @@
 -- 32,229 athletic.net marks carry that suffix against 1,313 from TFRRS. This was the documented
 -- blocker on the dual-source plan: neither source could safely write into the other's meet.
 --
--- WHY AN EXPRESSION INDEX RATHER THAN A GENERATED COLUMN. `mark_norm GENERATED ALWAYS AS (...)
--- STORED` would be tidier to read, but adding a stored column rewrites the whole table under an
--- ACCESS EXCLUSIVE lock -- 3.3M rows on a weak instance with a live app. The expression index
--- gives identical enforcement with a CONCURRENT build and no rewrite.
+-- WHY AN EXPRESSION INDEX RATHER THAN A GENERATED COLUMN (checked against the Postgres docs,
+-- 2026-08-18, rather than decided on instinct):
+--   * The docs name this exact use case: a UNIQUE expression index "can be used to enforce
+--     constraints that are not definable as a simple unique constraint", e.g. preventing rows
+--     "whose values differ only in case". `10.35a` vs `10.35` is that, so this is an intended
+--     pattern rather than a workaround.
+--   * COST, stated honestly: "index expressions are relatively expensive to maintain because the
+--     derived expression(s) must be computed for each row insertion and non-HOT update." Every
+--     insert now runs that regex. Acceptable HERE because writes are weekly batch scrapes, not
+--     high-frequency transactions. On a write-heavy table the trade would go the other way.
+--   * A `GENERATED ALWAYS AS (...) STORED` column would NOT avoid that cost -- it has the same
+--     per-write computation, plus disk, plus a full table rewrite under an ACCESS EXCLUSIVE lock
+--     (3.3M rows, weak instance, live app).
+--   * PG18's VIRTUAL generated columns cut write overhead but CANNOT BE INDEXED, so they are
+--     useless for a uniqueness guard. This instance is 17.6 in any case.
+-- Refs: postgresql.org/docs/current/indexes-expressional.html · .../indexes-unique.html ·
+--       .../ddl-generated-columns.html
 --
 -- Verified immediately after creation: inserting "22.82a" where "22.82" already existed was
 -- REJECTED.
