@@ -41,35 +41,47 @@ const mk = () => new Client({ host, port: 5432, user: 'postgres', password: root
   database: 'postgres', ssl: { rejectUnauthorized: false },
   connectionTimeoutMillis: 25000, statement_timeout: 600000 });
 
-// ⚠️ THE KEY MUST INCLUDE THE LINEUP. (meet, event, team, place, mark, round) is NOT enough.
-// A school enters multiple relay squads (A/B/C/D), and when they all DNS they share mark='DNS'
-// and place=NULL -- identical on every one of those columns while being completely different
-// teams. Real example, Chico Invitational 4x400m, four rows all "DNS"/NULL:
-//     216035  Zach Blood, Cameron Bishop, Joey Bowser, Jamie Saunders
-//     216036  Ryan Giglio, Keegan Henry, Elias Wiggins, Hunter Phillips
-//     216045  Lucas Garin, Evan Schweitzer, Rylan Huryn, Walker Dorris
-//     216046  Saul Jimenez, Kees Van Der Meer, James Woolery, Arlo Gagnon
-// Four separate squads. Deduping on the columns alone would have deleted 29,184 rows, and 93% of
-// the 37,561 cascading legs named an athlete absent from the surviving row -- i.e. it was
-// erasing real people's races, not duplicates. With the lineup in the key the true figure is 674.
-// A status code plus a null place is the ABSENCE of a performance, not a fingerprint for one.
+// ⚠️ THE KEY — every clause here was learned by getting it wrong first.
+//
+// LINEUP, so A/B/C/D squads survive. A school enters multiple relay teams; when they all DNS they
+// share mark='DNS' and place=NULL and are identical on every column. Deduping without the lineup
+// would have deleted 29,184 rows, and 93% of the 37,561 cascading legs named an athlete absent
+// from the surviving row -- erasing real races, not duplicates.
+//
+// LAST NAMES ONLY in the lineup signature. TFRRS writes the heat view as
+// "Grant, Cleveland, Jefferson, Wilson" and the prelim view as "Cody Grant, Cameron Cleveland,
+// Phillip Jefferson, Rylan Wilson" -- same four people, two strings. A full-name signature made
+// the first DUP-3 pass find only 674 of ~13,700 real duplicates.
+//
+// NORMALISED MARK, because athletic.net writes 10.35a where TFRRS writes 10.35.
+//
+// ACROSS ROUND LABELS, because "Heat N" and "Preliminaries" are the SAME round (owner) and in a
+// timed final the heat IS the final. Verified safe: 0 groups hold both a Finals and a
+// Preliminaries row at the same mark, so no genuine prelim->final pair can be merged.
+//
+// Keeps the most authoritative label: Finals > Preliminaries > Heat N, then the row with the most
+// legs, then the lowest id.
+const LAST = `lower(split_part(btrim(ra.athlete_name),' ', array_length(string_to_array(btrim(ra.athlete_name),' '),1)))`;
 const DOOMED_SQL = `
 WITH sig AS (
-  SELECT rr.relay_result_id, rr.meet_id, rr.event_type_id, rr.team_id, rr.place, rr.mark_raw, rr.round,
-         (SELECT string_agg(DISTINCT COALESCE(ra.athlete_id::text, ra.athlete_name), ','
-                            ORDER BY COALESCE(ra.athlete_id::text, ra.athlete_name))
-          FROM relay_athletes ra WHERE ra.relay_result_id = rr.relay_result_id) AS squad
+  SELECT rr.relay_result_id, rr.meet_id, rr.event_type_id, rr.team_id, rr.place, rr.round,
+         lower(regexp_replace(rr.mark_raw,'[ah]$','')) AS nmark,
+         (SELECT string_agg(x, ',' ORDER BY x) FROM (
+            SELECT DISTINCT ${LAST} AS x FROM relay_athletes ra
+            WHERE ra.relay_result_id = rr.relay_result_id) t) AS squad,
+         (SELECT count(*) FROM relay_athletes ra2 WHERE ra2.relay_result_id = rr.relay_result_id) AS n_legs
   FROM relay_results rr
   WHERE rr.meet_id IS NOT NULL AND rr.team_id IS NOT NULL AND rr.mark_raw IS NOT NULL),
 ranked AS (
   SELECT relay_result_id,
          row_number() OVER (
-           PARTITION BY meet_id, event_type_id, team_id, place, mark_raw, round, squad
-           ORDER BY relay_result_id ASC) AS rn,
-         count(*) OVER (
-           PARTITION BY meet_id, event_type_id, team_id, place, mark_raw, round, squad) AS copies
+           PARTITION BY meet_id, event_type_id, team_id, place, nmark, squad
+           ORDER BY CASE round WHEN 'Finals' THEN 3 WHEN 'Preliminaries' THEN 2
+                               WHEN NULL THEN 0 ELSE 1 END DESC,
+                    n_legs DESC, relay_result_id ASC) AS rn,
+         count(*) OVER (PARTITION BY meet_id, event_type_id, team_id, place, nmark, squad) AS copies
   FROM sig
-  WHERE squad IS NOT NULL)   -- no lineup, no way to prove it is the same squad: leave it alone
+  WHERE squad IS NOT NULL)   -- no lineup, no proof it is the same squad: leave it alone
 SELECT relay_result_id FROM ranked WHERE copies > 1 AND rn > 1`;
 
 (async () => {
