@@ -231,6 +231,15 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit 
           team_id: teamId, event_name: ev.eventCode, event_type_id: etid,
           mark_raw: r.mark_raw, mark_seconds: parseMark(r.mark_raw).mark_seconds,
           place: parseInt(r.place, 10) || null,
+          // ROUND: athletic.net publishes NO round information for relays -- verified 2026-08-14
+          // against meet 640046 (NCAA DII Outdoor): the payload has no heat/prelim/final/section
+          // field anywhere, just one row per team with place, mark, points and legs.
+          // Leaving it NULL is worse than wrong: the app GROUPS relays by round, so a round-less
+          // row is invisible on screen even though it looks repaired in the database (this cost a
+          // rollback of 44 rows on meet 13142). A list of places 1..N with points awarded IS the
+          // final standing, so 'Finals' is the honest label. TFRRS, where available, gives real
+          // Finals/Preliminaries/Heat N and should be preferred -- see repair-timeless-4x100.js.
+          round: 'Finals',
           meet_name: meet.name, meet_id: meet.meet_id, date: meet.date,
         }).select('relay_result_id').single();
         if (error) { console.log(`    relay insert error: ${error.message}`); continue; }

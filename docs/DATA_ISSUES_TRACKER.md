@@ -644,3 +644,32 @@ violate it. `relay_results` currently has **no database-level duplicate protecti
 2. re-run DUP-3 on that key
 3. **then** add `UNIQUE (meet_id, event_type_id, team_id, place, mark_raw, round) WHERE mark_raw ~ '[0-9]'`
    — partial on real marks so the A/B/C/D status-code squads stay legal
+
+
+### M1 — COMPLETE as far as links allow (2026-08-18)
+
+**463 broken meets → 300.** 163 repaired, **2,953 relay rows recovered**, 31,730 timed 4x100 rows
+now in the database.
+
+| arm | meets | rows | round labels |
+|---|---|---|---|
+| `repair-timeless-4x100.js` (TFRRS) | 35 | 716 | real Finals / Preliminaries / Heat N |
+| `repair-4x100-anet.js` (athletic.net) | 131 | 2,237 | `Finals` (athletic.net has none — see below) |
+
+Full circle on the DUP-1 meets: CAA held Big Ten results this morning and now has its own 4x100
+(17/23 timed); Patriot League held Summit League results and now has 15/17.
+
+**athletic.net publishes NO round data for relays** — verified against meet 640046: no
+heat/prelim/final/section field anywhere, just one row per team with place, mark, points, legs.
+Rows are labelled `Finals` because a list of places 1..N with points IS the final standing, and
+because the app **groups relays by round** — a NULL round is invisible on screen while looking
+repaired in the database (cost a 44-row rollback on meet 13142). **Prefer TFRRS wherever it
+exists**; it gives the real round structure.
+
+**Throttling is required, not optional.** A first athletic.net batch failed 2 of 3, and every
+failure succeeded when re-run by hand — Cloudflare dislikes back-to-back headless requests. With
+2.5s between meets + one retry: 131 ok, 4 failed, and **18 needed the retry**. Without it those 18
+would have been reported as failures.
+
+**The remaining 300 have no usable link** (plus 4 transient failures worth a re-run). They need the
+TFRRS search cascade in `DATA_SOURCE_STRATEGY.md`, one verified match at a time.
