@@ -300,6 +300,20 @@ those rows. Verification you can't target is not verification. Pattern:
 `scrapers/backfill-relay-meet-id-nodate.js` — resolve the id list, dump it to JSON, apply, then
 re-read those exact ids to check for collisions.
 
+## 8b. NORMALISED-MARK GUARDS (added 2026-08-18) — duplicates are now PREVENTED
+
+`results_no_dup_normmark` + `relay_no_dup_normmark` key on the **normalised** mark
+(`lower(regexp_replace(mark_raw,'[ah]$',''))`), so `10.35a` and `10.35` collide instead of both
+being accepted. **This closed the cross-source gap that blocked the dual-source athletic.net
+plan** — verified by inserting `22.82a` against an existing `22.82` and getting a rejection.
+
+Expression indexes, not generated columns: a STORED column rewrites a 3.3M-row table under an
+exclusive lock. Same enforcement, concurrent build, no rewrite.
+Migration: `migrations/20260818_normalised_mark_guards.sql`.
+
+**Not covered, by design:** Finals+Heat N (differ in `round`; collapsed at scrape time by U8) and
+athlete-history rows (`meet_id IS NULL`, 1,524 duplicate groups still to clean).
+
 ## 8. THE DUPLICATE GUARD ON `results` (added 2026-08-10)
 
 `results_no_exact_duplicate` — a **partial, NULLS NOT DISTINCT unique index** on
