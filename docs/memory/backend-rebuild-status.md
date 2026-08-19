@@ -250,3 +250,54 @@ Committed on backend-rebuild (no co-author, not pushed): FK migration (b540025),
 `scratchpad/cluster3.js` — union-find over the 945 same-name groups with ≥3 members. Per-pair signals incl. result FINGERPRINTS (event|mark|date shared → SAME definitive) + day-conflict (same date/diff meet → hard separator) + gender-conflict; transitive-contamination guard (any cluster containing a hard-conflict pair → REVIEW not merge). Correctly SPLITS a name into multiple people (e.g. "jacob jones" → 2 clusters). Result: 645 merge clusters (1,192 dupes) + only 3 review clusters. Merged all via `scratchpad/merge_cluster3.js`: **5,411 results moved; athletes 142,664 → 141,472**.
 **DEDUP GRAND TOTAL: 6,277 removed** (384 + 3,967 + 734 + 1,192), 147,749 → 141,472.
 REMAINING (the genuine judgment tail): (a) **294 cross-school REVIEW** (`cross_review.json`); (b) **3 conflict clusters** (`cluster3_review.json`); (c) **~646 ambiguous 2-member** (the classifier's REVIEW minus the 945 groups); (d) Unattached (1835) ~39k, deferred; (e) uniqueness guard on tfrrs_athlete_id after (a)-(c). These need human/LLM eyeball, not bulk rules.
+
+## UPDATE 2026-08-19: M9 — 1.3M text-only marks parsed; six parsers collapsed into one
+
+**Scope correction from the owner first.** They asked how much of the rebuild had actually been
+aimed at **2025-26**, the season they care about. Honest answer: very little was *scoped* to it.
+Nearly all the work (DUP-1/2/3/4/5, the guards, event canonicalisation) was database-wide and
+therefore covered 2025-26 among everything else, but the link-recovery push on 2026-08-18 sent
+87,146 results to pre-2024 and only 13,114 to 2025-26 — because the TFRRS index crawl skews old
+and I filled whatever matched instead of asking which season mattered. **Work the owner's
+priority, not the data's convenience.**
+
+2025-26 state when measured: 2,573 meets · 2,400 with results (93%) · 100% event coverage ·
+95% of results have a team · 173 empty (31 permanently — the source page exists but never posted
+results; 142 have no usable link).
+
+**M9 (logged as M7 on 2026-08-10 at 1,483,604 rows; re-measured to 1,301,371 before acting).**
+`mark_seconds` was NULL on 1.3M rows that hold a real time in `mark_raw`, so they could not be
+sorted, ranked or PR-ed. `mark_raw` displayed fine, which is exactly why it survived nine months —
+the app looked right and only computed features were broken.
+
+Root cause was **U1 in its purest form: six** copy-pasted `parseMarkSeconds` implementations. All
+required 2-3 decimals (`10.6` → null), none stripped a trailing wind reading (`10.24  (2.0)` →
+null, 190,129 rows), and athletic.net's did `const [mm, ss] = clean.split(':')` — which on
+`1:05:37.73` binds `mm="1"`, `ss="05"` and stored **65 seconds for a 65-minute run**.
+
+*Timing proved the code was already fixed and only the data was stale* (the DEDUP_METHOD §0
+split): 856,765 of the unparsed rows came from one bulk import in Nov 2025, and every import from
+Mar 2026 on parses cleanly.
+
+**The technique worth reusing: validate a repair expression against data that is already correct.**
+Before writing anything, the expression was run over the 1,082,583 rows that already had a
+`mark_seconds` and reproduced 1,082,576 exactly — the 7 misses being the 6 corrupt rows (where the
+expression was right and the stored value wrong) plus one rounding difference. That single check
+proved correctness *and* found the corruption, before touching a row.
+
+**Left unparsed on purpose (182,146).** 175,611 status codes (results, not junk) and 15,767 bare
+integers on Decathlon/Heptathlon/Pentathlon rows — those are **points**; writing 8420 into
+`mark_seconds` would rank a decathlete as the slowest athlete in the database. Worth a
+`mark_points` column eventually.
+
+All six parsers replaced by `scrapers/shared/mark_parser.js` (25 unit-tested cases). Two standing
+invariants added; all 9 now pass.
+
+### A footgun found by tripping over it
+`require()`-ing `scrapers/tools/scrape-and-import.js` to check it loaded **started an import** —
+it called `main()` at module scope. It wrote 31 rows into a meet that already held 834, all with
+NULL `event_type_id` and `Preliminaries`+`Heat N` duplicate pairs. Rolled back in full. It now
+refuses to run without `--i-know-this-is-legacy` and is behind `require.main === module`.
+Two general lessons: **never `require()` a script to test it — use `node --check`**, and a legacy
+script that still runs is a live hazard no matter how clearly the docs call it legacy.
+Note `scrapers/tools/` is **gitignored**, so that fix is not version-controlled.
