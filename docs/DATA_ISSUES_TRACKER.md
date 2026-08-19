@@ -735,3 +735,35 @@ script, all previously only suspected:
 It is documented elsewhere as a legacy Feb-2026 one-off, but nothing stopped it running. It now
 refuses without `--i-know-this-is-legacy`, and `main()` is behind `require.main === module` so a
 bare `require()` can never start an import again.
+
+### The verification itself was single-table — 379,508 rows hidden behind that (2026-08-19)
+
+**The owner asked: "are you sure you are doing a good verification, and with the entire
+database??"** The answer was no, and the question found real data.
+
+M9 repaired `results.mark_seconds` and I wrote the invariant against `results` alone. But
+`DEDUP_METHOD.md` §0 rule 2 says plainly: *where else does this pattern live?* `results` ↔
+`relay_results` ↔ `athlete_prs` are siblings. Re-asking that question of every check found:
+
+| table | defect | rows |
+|---|---|---|
+| `relay_results` | time stored as text, `mark_seconds` NULL | **119,148** |
+| `athlete_prs` | same | **260,360** |
+| `athlete_prs` | doubled mark codes (`NH  NH`, `NM  NM`) — **M8 was marked FIXED in Aug 2026 but only ever touched `results`** | 41 |
+| `relay_results` | NULL `event_type_id` — relay coverage was documented as 100% | 48 |
+| `relay_results` | cross-source duplicate, invisible until the NULL event type resolved | 1 |
+
+All fixed. The expression was validated against each table's already-correct rows first —
+`relay_results` 64,894/64,894 exact, `athlete_prs` 117,497/117,497 exact.
+
+**The durable lesson is about the CHECK, not the data.** A single-table invariant makes a
+whole-database claim it cannot support, and it passes, which is worse than having no check at all:
+it actively certifies the gap. Every invariant in `verify-data-invariants.js` that can apply to a
+sibling table now does.
+
+**A near-miss worth recording.** Backfilling the 48 relay event types hit
+`relay_no_dup_normmark`. The pre-flight collision check I ran compared `mark_raw` exactly, but
+that index keys on the *normalised* mark — so `1:02.87a` and `1:02.87` collide under the index and
+not under my check. The transaction rolled back and nothing was written, but the check had been
+wrong. **When testing whether a write will violate an index, test the index's own expression,
+not an approximation of it.**

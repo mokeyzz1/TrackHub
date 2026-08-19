@@ -88,17 +88,26 @@ const tokens = s => new Set(norm(s).split(' ').filter(w => w && !STOP.has(w)));
   for (const m of empties) {
     const mt = tokens(m.name);
     if (!mt.size) continue;
-    const matches = indexed.filter(cand => {
-      if (!cand.tok.size) return false;
+    const matches = [];
+    for (const cand of indexed) {
+      if (!cand.tok.size) continue;
       let shared = 0;
       for (const t of mt) if (cand.tok.has(t)) shared++;
       // every discriminating token of the SHORTER name must be present in the longer one
-      return shared === Math.min(mt.size, cand.tok.size);
-    });
+      if (shared === Math.min(mt.size, cand.tok.size)) matches.push({ cand, shared });
+    }
     if (!matches.length) continue;
-    const best = matches.reduce((a, b) => (b.tok.size < a.tok.size ? b : a));
-    const tied = matches.filter(x => x.tok.size === best.tok.size && x.url !== best.url);
-    if (tied.length) { ambiguous++; continue; }
+
+    // ⚠️ MOST SPECIFIC WINS — never "shortest name wins". A first version preferred the candidate
+    // with the fewest tokens, and so matched "Big 12 Outdoor Championships" (May) to the index's
+    // "Big 12 Championships" instead of its "Big 12 OUTDOOR Track & Field Championships",
+    // throwing away the one word that separates the May meet from the February one. It was then
+    // correctly rejected on date — a right answer for a wrong reason, which loses a real link.
+    const top = Math.max(...matches.map(x => x.shared));
+    const bests = matches.filter(x => x.shared === top);
+    const urls = new Set(bests.map(x => x.cand.url));
+    if (urls.size > 1) { ambiguous++; continue; }   // equally specific rivals: refuse to guess
+    const best = bests[0].cand;
     hits.push({ ...m, cand_name: best.name, cand_url: best.url });
   }
 
@@ -144,6 +153,26 @@ const tokens = s => new Set(norm(s).split(' ').filter(w => w && !STOP.has(w)));
     await sleep(1200);   // be polite to TFRRS
     if ((i + 1) % 10 === 0) console.log(`  ...verified ${i + 1}/${hits.length}`);
   }
+
+  // ---- GATE 4: one results page may belong to ONE meet ---------------------------------------
+  // THIS IS DUP-1. If two meet rows both point at the same TFRRS page, importing it twice puts
+  // the identical performances on two different meets, which is precisely the bug the owner found
+  // by noticing an athlete listed at a meet she never attended. Two rows matching one page usually
+  // means our `meets` table split a multi-day meet (e.g. "Ron Kamaka Open" on Feb 19 AND Feb 21
+  // against one page dated Feb 19-21) — a modelling problem to resolve deliberately, never by
+  // importing the page twice and hoping.
+  const claims = new Map();
+  verified.forEach(v => { if (!claims.has(v.cand_url)) claims.set(v.cand_url, []); claims.get(v.cand_url).push(v); });
+  const contested = [...claims.values()].filter(v => v.length > 1);
+  const sole = verified.filter(v => claims.get(v.cand_url).length === 1);
+  if (contested.length) {
+    console.log(`\nHELD BACK — one page claimed by several meets (would recreate DUP-1): ${contested.flat().length} meets`);
+    contested.forEach(g => {
+      console.log(`  ${g[0].cand_url}  (${g[0].cand_name})`);
+      g.forEach(v => console.log(`     #${v.meet_id}  ${String(v.date).slice(0,10)}  ${v.name}`));
+    });
+  }
+  verified.length = 0; verified.push(...sole);
 
   console.log(`\nVERIFIED (date on the page matches, page has results): ${verified.length}`);
   verified.forEach(v => console.log(`  ${String(v.date).slice(0,10)}  #${v.meet_id}  ${v.name}\n              -> ${v.cand_name}  ${v.cand_url}  (${v.page_rows} rows)`));

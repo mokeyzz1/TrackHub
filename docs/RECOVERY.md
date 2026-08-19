@@ -45,6 +45,21 @@ INSERT INTO athletes SELECT * FROM athletes_empty_backup;
 INSERT INTO results SELECT * FROM results_accidental_import_20260819_backup;
 ```
 
+## Sibling-table gaps (2026-08-19) — found by asking whether verification covered the whole DB
+
+The owner asked whether the checks really covered the entire database. They did not. Three fixes:
+
+| what | rows | reversal |
+|---|---|---|
+| `relay_results.mark_seconds` backfill | **119,148** | ids in `scrapers/backfill-mark-seconds-relay_results-*.jsonl.gz` (verified 119,148 unique) → `UPDATE relay_results SET mark_seconds = NULL WHERE relay_result_id = ANY(...)` |
+| `athlete_prs.mark_seconds` backfill | **260,360** | ids in `scrapers/backfill-mark-seconds-athlete_prs-*.jsonl.gz` (verified 260,360 unique) → same pattern on `id` |
+| `athlete_prs` doubled mark codes + 48 relay event types | 41 + 48 | `migrations/20260819_sibling_table_gaps.sql` — a repair, not a deletion; re-derivable from `mark_raw`/`event_name` |
+| 1 cross-source duplicate relay deleted | **1** | `INSERT INTO relay_results SELECT * FROM relay_results_20260819_backup;` |
+
+The deleted relay (234919, `1:02.87a` from athletic.net) duplicated 215793 (`1:02.87` from TFRRS) —
+same meet, team, place and round. It was invisible until its NULL `event_type_id` was resolved,
+because the unique index keys on `event_type_id`. Both rows had 0 legs, so nothing cascaded.
+
 ## M9 — mark_seconds backfill (2026-08-19), 1,301,371 rows UPDATED
 
 Not a deletion: it filled `mark_seconds` on rows that held a time only as text. Reversal is per-id,

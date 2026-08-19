@@ -57,10 +57,14 @@ const CHECKS = [
           SELECT count(*)::int AS n FROM pairs WHERE states > 1`,
   },
   {
-    name: 'every result resolves to a canonical event',
-    why: 'event_type_id NULL means the row cannot be grouped, ranked or PR-ed correctly.',
+    name: 'every result resolves to a canonical event (results + relay_results)',
+    why: 'event_type_id NULL means the row cannot be grouped, ranked or PR-ed correctly.\n' +
+         '         COVERS THE RELAY TABLE TOO. Checking only `results` reported 100% coverage ' +
+         'while relay_results held 48 NULLs (athletic.net short codes sprintmed2248 / 110shuttleh ' +
+         '/ 4x1600m had no alias). Fixed 2026-08-19, migrations/20260819_sibling_table_gaps.sql.',
     tolerate: 0,
-    sql: `SELECT count(*)::int AS n FROM results WHERE event_type_id IS NULL`,
+    sql: `SELECT (SELECT count(*) FROM results       WHERE event_type_id IS NULL)
+               + (SELECT count(*) FROM relay_results WHERE event_type_id IS NULL) AS n`,
   },
   {
     name: 'no exact duplicate performance on a meet-linked result',
@@ -90,10 +94,17 @@ const CHECKS = [
             HAVING count(*) > 1) t`,
   },
   {
-    name: 'no malformed doubled mark codes',
-    why: 'M8. The app renders mark_raw verbatim, so "NM  NM" reaches the user.',
+    name: 'no malformed doubled mark codes (all three tables)',
+    why: 'M8. The app renders mark_raw verbatim, so "NM  NM" reaches the user.\n' +
+         '         M8 was marked FIXED on 2026-08-12 after repairing 21,683 rows in `results` — ' +
+         'but it never reached the siblings, and athlete_prs still held 41 ("NH  NH" x22, ' +
+         '"NM  NM" x19) until 2026-08-19. A single-table check made a whole-database claim it ' +
+         'could not support. This is the M8/M9/DUP-3 pattern: fix the class, and make the CHECK ' +
+         'cover the class too.',
     tolerate: 0,
-    sql: `SELECT count(*)::int AS n FROM results WHERE mark_raw ~ '^(NM|NH|ND|DNS|DNF|DQ|NT)\\s+\\1$'`,
+    sql: `SELECT (SELECT count(*) FROM results       WHERE mark_raw ~ '^(NM|NH|ND|DNS|DNF|DQ|NT)\\s+\\1$')
+               + (SELECT count(*) FROM relay_results WHERE mark_raw ~ '^(NM|NH|ND|DNS|DNF|DQ|NT)\\s+\\1$')
+               + (SELECT count(*) FROM athlete_prs   WHERE mark_raw ~ '^(NM|NH|ND|DNS|DNF|DQ|NT)\\s+\\1$') AS n`,
   },
   {
     name: 'no meet holds results that are 100% duplicated at another meet',
@@ -131,11 +142,21 @@ const CHECKS = [
          'slowest athlete in the DB) and status codes (DNS/DQ/NM/NT — real results with no ' +
          'numeric value, see MARK_CODES.md).',
     tolerate: 0,
+    // ⚠️ ALL THREE SIBLING TABLES. The first version of this check looked only at `results`, and
+    // that omission hid 379,508 rows with the identical defect (119,148 relay_results + 260,360
+    // athlete_prs). A single-table invariant makes a whole-database claim it cannot support.
     sql: `WITH c AS (
-            SELECT regexp_replace(
-                     btrim(regexp_replace(mark_raw,'\\s*\\([-+]?[0-9.]+\\)\\s*$','')),
-                     '[ahcyAHCY]$','') AS core
-            FROM results WHERE mark_seconds IS NULL AND mark_meters IS NULL AND mark_raw IS NOT NULL)
+            SELECT regexp_replace(btrim(regexp_replace(mark_raw,'\\s*\\([-+]?[0-9.]+\\)\\s*$','')),
+                                  '[ahcyAHCY]$','') AS core
+            FROM results       WHERE mark_seconds IS NULL AND mark_meters IS NULL AND mark_raw IS NOT NULL
+            UNION ALL
+            SELECT regexp_replace(btrim(regexp_replace(mark_raw,'\\s*\\([-+]?[0-9.]+\\)\\s*$','')),
+                                  '[ahcyAHCY]$','')
+            FROM relay_results WHERE mark_seconds IS NULL AND mark_raw IS NOT NULL
+            UNION ALL
+            SELECT regexp_replace(btrim(regexp_replace(mark_raw,'\\s*\\([-+]?[0-9.]+\\)\\s*$','')),
+                                  '[ahcyAHCY]$','')
+            FROM athlete_prs   WHERE mark_seconds IS NULL AND mark_meters IS NULL AND mark_raw IS NOT NULL)
           SELECT count(*)::int AS n FROM c
           WHERE (core ~ '^[0-9]+:[0-9]{2}:[0-9]{1,2}(\\.[0-9]+)?$'
               OR core ~ '^[0-9]+:[0-9]{2}(\\.[0-9]+)?$'
@@ -156,10 +177,16 @@ const CHECKS = [
          '         shared/mark_parser.js now rejects non-positive values outright, and mark_raw ' +
          'still preserves whatever the source actually published.',
     tolerate: 0,
-    sql: `SELECT count(*)::int AS n FROM results
-          WHERE mark_seconds IS NOT NULL
-            AND (mark_seconds <= 0
-                 OR (mark_raw ~ '^[0-9]+:[0-9]{2}:[0-9]' AND mark_seconds < 600))`,
+    sql: `SELECT (SELECT count(*) FROM results WHERE mark_seconds IS NOT NULL
+                    AND (mark_seconds <= 0
+                         OR (mark_raw ~ '^[0-9]+:[0-9]{2}:[0-9]' AND mark_seconds < 600)))
+               + (SELECT count(*) FROM relay_results WHERE mark_seconds IS NOT NULL
+                    AND (mark_seconds <= 0
+                         OR (mark_raw ~ '^[0-9]+:[0-9]{2}:[0-9]' AND mark_seconds < 600)))
+               + (SELECT count(*) FROM athlete_prs WHERE mark_seconds IS NOT NULL
+                    AND (mark_seconds <= 0
+                         OR (mark_raw ~ '^[0-9]+:[0-9]{2}:[0-9]' AND mark_seconds < 600)))
+               AS n`,
   },
   {
     name: 'no result dated more than 7 days from its own meet date',
