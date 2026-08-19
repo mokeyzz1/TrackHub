@@ -274,9 +274,9 @@ export async function getSchoolMeets(schoolId: number, limit: number = 50) {
 
   // Dedupe by meet_id
   const meetsMap = new Map<number, { meet_id: number; meet_name: string; date: string }>();
-  results?.forEach(r => {
+  results?.forEach((r: any) => {
     if (r.meet_id && !meetsMap.has(r.meet_id)) {
-      meetsMap.set(r.meet_id, { meet_id: r.meet_id, meet_name: r.meet_name, date: r.date });
+      meetsMap.set(r.meet_id, { meet_id: r.meet_id, meet_name: r.meet_name || '', date: r.date || '' });
     }
   });
 
@@ -1011,9 +1011,7 @@ export async function addToWaitlist(email: string, feature: string = 'community'
       email: email.toLowerCase().trim(),
       feature,
       created_at: new Date().toISOString(),
-    })
-    .select()
-    .single();
+    });
 
   if (error) {
     // Check if duplicate email
@@ -1029,6 +1027,26 @@ export async function addToWaitlist(email: string, feature: string = 'community'
 // ============================================
 // MEET RESULTS
 // ============================================
+
+function scopeMeetFactQuery(query: any, meetName: string, date: string, meetId?: number) {
+  // meet_id is authoritative for newly ingested facts. Keep the name/date fallback only for the
+  // historical athlete-history rows that have not been claimed by a meet yet.
+  return meetId
+    ? query.eq('meet_id', meetId)
+    : query.eq('meet_name', meetName).eq('date', date);
+}
+
+async function resolveEventTypeId(eventName: string): Promise<number | null> {
+  const { data, error } = await supabase
+    .from('event_types')
+    .select('event_type_id')
+    .eq('code', eventName)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.event_type_id ?? null;
+}
 
 // Get meet by ID
 export async function getMeetById(meetId: number) {
@@ -1065,13 +1083,15 @@ export async function getMeetByName(meetName: string, date?: string) {
 }
 
 // Get all events at a specific meet
-export async function getEventsByMeet(meetName: string, date: string) {
-  const { data, error } = await supabase
-    .from('results')
-    .select('event_name')
-    .eq('meet_name', meetName)
-    .eq('date', date)
-    .not('event_name', 'is', null);
+export async function getEventsByMeet(meetName: string, date: string, meetId?: number) {
+  const query = scopeMeetFactQuery(
+    supabase.from('results')
+    .select('event_name, event_type_id, event_types ( code )'),
+    meetName,
+    date,
+    meetId
+  );
+  const { data, error } = await query.not('event_name', 'is', null);
 
   if (error) {
     console.error('Error fetching events by meet:', error);
@@ -1079,7 +1099,7 @@ export async function getEventsByMeet(meetName: string, date: string) {
   }
 
   // Get unique event names and sort them
-  const uniqueEvents = [...new Set(data?.map(r => r.event_name))].sort();
+  const uniqueEvents = [...new Set(data?.map((r: any) => (r.event_types as any)?.code || r.event_name))].sort();
   return uniqueEvents;
 }
 
@@ -1093,16 +1113,19 @@ export async function getEventsByMeetWithGender(meetName: string, date: string, 
   const pageSize = 1000;
 
   while (true) {
-    const { data, error } = await supabase
-      .from('results')
+    let query = scopeMeetFactQuery(
+      supabase.from('results')
       .select(`
         event_name,
-        athletes (
-          gender
-        )
-      `)
-      .eq('meet_name', meetName)
-      .eq('date', date)
+        event_type_id,
+        event_types ( code ),
+        athletes ( gender )
+      `),
+      meetName,
+      date,
+      meetId
+    );
+    const { data, error } = await query
       .not('event_name', 'is', null)
       .range(offset, offset + pageSize - 1);
 
@@ -1114,12 +1137,12 @@ export async function getEventsByMeetWithGender(meetName: string, date: string, 
     if (!data || data.length === 0) break;
 
     // Organize events by gender
-    data.forEach(r => {
+    data.forEach((r: any) => {
       const gender = (r.athletes as any)?.gender;
       if (gender === 'M') {
-        mensEvents.add(r.event_name);
+        mensEvents.add((r.event_types as any)?.code || r.event_name);
       } else if (gender === 'F') {
-        womensEvents.add(r.event_name);
+        womensEvents.add((r.event_types as any)?.code || r.event_name);
       }
     });
 
@@ -1139,13 +1162,14 @@ export async function getEventsByMeetWithGender(meetName: string, date: string, 
 // gender parameter filters to only show M or F results (since event names don't include gender)
 // Paginates through all results to handle events with >1000 results
 export async function getEventResults(meetName: string, eventName: string, date: string, gender?: string, meetId?: number) {
+  const eventTypeId = await resolveEventTypeId(eventName);
   let allData: any[] = [];
   let offset = 0;
   const pageSize = 1000;
 
   while (true) {
-    const { data, error } = await supabase
-      .from('results')
+    let query = scopeMeetFactQuery(
+      supabase.from('results')
       .select(`
         result_id,
         athlete_id,
@@ -1164,10 +1188,14 @@ export async function getEventResults(meetName: string, eventName: string, date:
             short_name
           )
         )
-      `)
-      .eq('meet_name', meetName)
-      .eq('event_name', eventName)
-      .eq('date', date)
+      `),
+      meetName,
+      date,
+      meetId
+    );
+    if (eventTypeId) query = query.eq('event_type_id', eventTypeId);
+    else query = query.eq('event_name', eventName);
+    const { data, error } = await query
       .order('round', { ascending: true })
       .order('place', { ascending: true })
       .range(offset, offset + pageSize - 1);
@@ -1205,20 +1233,22 @@ export async function getEventResults(meetName: string, eventName: string, date:
 
   // Filter by gender if provided
   if (gender) {
-    results = results.filter(r => r.gender === gender);
+    results = results.filter((r: any) => r.gender === gender);
   }
 
   return results;
 }
 
 // Get count of results per event at a meet (for displaying athlete counts)
-export async function getEventCountsByMeet(meetName: string, date: string) {
-  const { data, error } = await supabase
-    .from('results')
-    .select('event_name')
-    .eq('meet_name', meetName)
-    .eq('date', date)
-    .not('event_name', 'is', null);
+export async function getEventCountsByMeet(meetName: string, date: string, meetId?: number) {
+  const query = scopeMeetFactQuery(
+    supabase.from('results')
+    .select('event_name, event_type_id, event_types ( code )'),
+    meetName,
+    date,
+    meetId
+  );
+  const { data, error } = await query.not('event_name', 'is', null);
 
   if (error) {
     console.error('Error fetching event counts:', error);
@@ -1227,8 +1257,9 @@ export async function getEventCountsByMeet(meetName: string, date: string) {
 
   // Count results per event
   const counts: Record<string, number> = {};
-  data?.forEach(r => {
-    counts[r.event_name] = (counts[r.event_name] || 0) + 1;
+  data?.forEach((r: any) => {
+    const eventName = (r.event_types as any)?.code || r.event_name;
+    counts[eventName] = (counts[eventName] || 0) + 1;
   });
   return counts;
 }
@@ -1251,8 +1282,9 @@ export function isRelayEvent(eventName: string): boolean {
 
 // Get relay results for a specific event at a meet
 export async function getRelayResults(meetName: string, eventName: string, date: string, gender?: string, meetId?: number) {
-  const { data, error } = await supabase
-    .from('relay_results')
+  const eventTypeId = await resolveEventTypeId(eventName);
+  let query = scopeMeetFactQuery(
+    supabase.from('relay_results')
     .select(`
       relay_result_id,
       team_id,
@@ -1277,10 +1309,14 @@ export async function getRelayResults(meetName: string, eventName: string, date:
           class_year
         )
       )
-    `)
-    .eq('meet_name', meetName)
-    .eq('event_name', eventName)
-    .eq('date', date)
+    `),
+    meetName,
+    date,
+    meetId
+  );
+  if (eventTypeId) query = query.eq('event_type_id', eventTypeId);
+  else query = query.eq('event_name', eventName);
+  const { data, error } = await query
     .order('round', { ascending: true })
     .order('place', { ascending: true });
 
@@ -1290,7 +1326,7 @@ export async function getRelayResults(meetName: string, eventName: string, date:
   }
 
   // Transform and filter by gender
-  let results = data?.map(r => {
+  let results = data?.map((r: any) => {
     const team = r.teams as any;
     const school = team?.schools as any;
     const athletes = (r.relay_athletes as any[])?.sort((a, b) => a.leg_order - b.leg_order) || [];
@@ -1315,7 +1351,7 @@ export async function getRelayResults(meetName: string, eventName: string, date:
 
   // Filter by gender if provided
   if (gender) {
-    results = results.filter(r => r.gender === gender);
+    results = results.filter((r: any) => r.gender === gender);
   }
 
   return results;

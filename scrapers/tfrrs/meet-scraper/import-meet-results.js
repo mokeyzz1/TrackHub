@@ -3,7 +3,7 @@
  *
  * Usage:
  *   node import-meet-results.js                      # Dry run (all)
- *   node import-meet-results.js --commit             # Import all
+ *   node import-meet-results.js --commit --legacy-direct-write # Explicit legacy write
  *   node import-meet-results.js --month 2026-01      # Dry run January only
  *   node import-meet-results.js --month 2026-01 --commit  # Import January only
  */
@@ -13,7 +13,10 @@ const fs = require('fs');
 const path = require('path');
 const { EventResolver } = require('../../shared/event_resolver');
 const { parseName } = require('../../shared/name_parser');
-const { fingerprint, loadMeetFingerprints } = require('../../shared/result_fingerprint');
+const { fingerprint, loadMeetFingerprints, fetchAll, normaliseMarkKey } = require('../../shared/result_fingerprint');
+const { requireControlledCommit } = require('../../shared/write_mode_guard');
+const ALLOW_UNMAPPED = process.argv.includes('--allow-unmapped');
+const LEGACY_DIRECT_WRITE = process.argv.includes('--legacy-direct-write');
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -40,6 +43,13 @@ function normalizeSchoolName(name) {
 }
 
 async function importMeetResults(commit = false) {
+  requireControlledCommit({
+    commit,
+    controlPlane: false,
+    legacyDirectWrite: LEGACY_DIRECT_WRITE,
+    importer: 'legacy TFRRS meet importer'
+  });
+
   console.log('========================================');
   console.log(commit ? 'IMPORTING MEET RESULTS' : 'DRY RUN');
   console.log('========================================\n');
@@ -370,6 +380,31 @@ async function importMeetResults(commit = false) {
     .map(r => ({ ...r, event_type_id: events.resolve(r.event_name) }));
   console.log(`\nImporting ${validResults.length.toLocaleString()} results (skipping ${dbResults.length - validResults.length} relays)...`);
 
+  // ⚠️ PRE-FLIGHT GATE — refuse to write rows we cannot categorise.
+  //
+  // WHY. On 2026-08-19 this importer wrote 10,137 rows, reported "COMPLETE" and exited 0 while
+  // leaving 310 rows with a NULL event_type_id from 7 unmapped names ("1500m Run", "800m Run",
+  // "200m Dash", "(Invite)"/"(Afternoon)" session variants). Those rows cannot be grouped, ranked
+  // or PR-ed, and they broke the 100%-event-coverage invariant the moment they landed — but the
+  // run announced success, so nothing stopped. That is the same class as the older
+  // "31 meets marked imported while writing nothing" (CLAUDE.md). An importer that cannot FAIL
+  // is not a guard.
+  //
+  // The names are logged either way, so the fix is: add the alias, re-run. Nothing is lost by
+  // stopping, and a partial import is far more expensive to unpick than a refused one.
+  if (commit && events.unmappedCount > 0 && !ALLOW_UNMAPPED) {
+    const rowsAffected = validResults.filter(r => r.event_type_id == null).length;
+    console.error(`\n✖ REFUSING TO IMPORT — ${events.unmappedCount} event name(s) have no alias, `
+                + `which would leave ${rowsAffected.toLocaleString()} rows with a NULL event_type_id.`);
+    [...events.unmapped.entries()].sort((a, b) => b[1] - a[1])
+      .forEach(([name, n]) => console.error(`    ${String(n).padStart(6)}x  ${name}`));
+    console.error(`\n  Fix: add these to event_aliases (look the id up in event_types — do NOT`);
+    console.error(`  guess it; "5,000 Meters" was mis-filed as 10k XC that way), then re-run.`);
+    console.error(`  To import anyway and accept the NULLs: --allow-unmapped\n`);
+    await events.flushUnmapped(supabase);   // still record them for review
+    process.exit(1);
+  }
+
   // Check for existing results to avoid duplicates
   console.log('Checking for existing results to avoid duplicates...');
   // ⚠️ CROSS-SOURCE DUPLICATE GUARD — see scrapers/shared/result_fingerprint.js for the full
@@ -442,12 +477,47 @@ async function importMeetResults(commit = false) {
     }
   }
 
+  // ⚠️ POST-WRITE VERIFICATION — "verify after writing, don't assume" (CLAUDE.md §4), enforced
+  // rather than left to whoever remembers to run a query afterwards. Re-reads the meets we just
+  // touched and checks the two things this importer can actually break.
+  let failed = errors > 0;
+  if (commit && meetIds.length) {
+    console.log('\nVerifying what was actually written...');
+    const nullEvent = await fetchAll(() => supabase.from('results')
+      .select('result_id').in('meet_id', meetIds).is('event_type_id', null));
+    const written = await fetchAll(() => supabase.from('results')
+      .select('meet_id, athlete_id, event_type_id, mark_raw, place, round')
+      .in('meet_id', meetIds).not('athlete_id', 'is', null));
+
+    // Identical round AND place is a true duplicate; differing round is a real prelim/final.
+    const seen = new Map();
+    let trueDupes = 0;
+    for (const r of written) {
+      const k = `${r.meet_id}|${r.athlete_id}|${r.event_type_id}|${normaliseMarkKey(r.mark_raw)}|${r.place}|${r.round}`;
+      if (seen.has(k)) trueDupes++; else seen.set(k, 1);
+    }
+
+    console.log(`  rows with NULL event_type_id: ${nullEvent.length}`);
+    console.log(`  duplicate performances (identical round AND place): ${trueDupes}`);
+    if (nullEvent.length || trueDupes) failed = true;
+  }
+
   console.log('\n========================================');
-  console.log('COMPLETE');
+  console.log(failed ? 'COMPLETED WITH PROBLEMS' : 'COMPLETE');
   console.log('========================================');
   console.log(`Imported: ${imported.toLocaleString()}`);
   console.log(`Errors: ${errors.toLocaleString()}`);
+  if (failed) {
+    console.error('\n✖ This run did NOT finish clean. Do not treat these meets as done —');
+    console.error('  fix the cause above and re-run, or roll back per docs/RECOVERY.md.');
+  }
+  return failed ? 1 : 0;
 }
 
 const commit = process.argv.includes('--commit');
-importMeetResults(commit).catch(console.error);
+// Exit code must reflect reality. This used to be `.catch(console.error)`, which printed the
+// error and then exited 0 — so a crashed or damaged import looked identical to a clean one to
+// any caller, cron job or human skim-reading the tail of a log.
+importMeetResults(commit)
+  .then(code => process.exit(code))
+  .catch(e => { console.error('FATAL:', e.message); process.exit(1); });

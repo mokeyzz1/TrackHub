@@ -1,0 +1,42 @@
+name: Validate backend
+
+on:
+  push:
+    branches: [backend-rebuild]
+  pull_request:
+    branches: [backend-rebuild]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: scrapers/package-lock.json
+
+      - name: Install scraper dependencies
+        working-directory: scrapers
+        run: npm ci
+
+      - name: Run ingestion contract tests
+        run: npm run test:ingestion
+
+      - name: Parse every scraper module
+        run: |
+          find scrapers -type f -name '*.js' -not -path '*/node_modules/*' -print0 \
+            | xargs -0 -n1 node --check
+
+      - name: Check patch whitespace
+        run: git diff --check

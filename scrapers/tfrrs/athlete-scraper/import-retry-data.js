@@ -5,6 +5,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+const { requireControlledCommit } = require('../../shared/write_mode_guard');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const supabase = createClient(
@@ -32,6 +33,13 @@ function parseDate(dateStr) {
 }
 
 async function importRetryData() {
+  requireControlledCommit({
+    commit: true,
+    controlPlane: false,
+    legacyDirectWrite: process.argv.includes('--legacy-direct-write'),
+    importer: 'legacy retry-data importer'
+  });
+
   console.log('========================================');
   console.log('IMPORT RETRY DATA');
   console.log('========================================\n');

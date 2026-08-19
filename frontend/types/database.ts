@@ -1226,6 +1226,10 @@ export type Database = {
     }
     Functions: {
       detect_timing_platform: { Args: { url: string }; Returns: string }
+      register_push_token: {
+        Args: { p_expo_push_token: string; p_platform?: string }
+        Returns: undefined
+      }
       get_weekly_performances: {
         Args: {
           p_division?: string

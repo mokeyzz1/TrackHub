@@ -23,6 +23,10 @@ const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 const { parseName } = require('../../shared/name_parser');
 const { EventResolver } = require('../../shared/event_resolver');
+const { fingerprint, fetchAll, normaliseMarkKey } = require('../../shared/result_fingerprint');
+const { ControlledIngestion } = require('../../shared/controlled_ingestion');
+const { normalizeSourceRows } = require('../../shared/source_observation_adapter');
+const { requireControlledCommit } = require('../../shared/write_mode_guard');
 
 // Resolves raw event names -> canonical event_type_id via event_aliases (loaded in importResults).
 const events = new EventResolver();
@@ -119,6 +123,8 @@ function parseArgs() {
     commit: args.includes('--commit'),
     fuzzy: args.includes('--fuzzy'),
     relaysOnly: args.includes('--relays-only'),
+    controlPlane: args.includes('--control-plane'),
+    legacyDirectWrite: args.includes('--legacy-direct-write'),
     days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7'),
     // --meet <id>: run against ONE meet regardless of the date window. Use this to verify the
     // engine end-to-end before pointing it at a batch (it writes results).
@@ -733,6 +739,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
             school_name: schoolName,
             team_gender: getGenderFromEventName(pageEventName) || teamInfo?.gender || null,
             meet_id: dbMeetId,
+            source_meet_key: meetId ? String(meetId) : null,
             meet_name: dbMeetName,
             date: meetDate,
             round: roundName
@@ -832,6 +839,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
         team_gender: getGenderFromEventName(pageEventName) || teamInfo?.gender || null,
         year,
         meet_id: dbMeetId,
+        source_meet_key: meetId ? String(meetId) : null,
         meet_name: dbMeetName,
         date: meetDate,
         round: roundName
@@ -890,7 +898,7 @@ async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate) {
 }
 
 // Import results to database
-async function importResults(results, commit, relaysOnly = false) {
+async function importResults(results, commit, relaysOnly = false, controlPlane = false) {
   // Load the canonical event catalog so new results/relays get a resolved event_type_id.
   const aliasCount = await events.load(supabase);
   console.log(`Loaded ${aliasCount.toLocaleString()} event aliases for resolution.`);
@@ -1087,6 +1095,7 @@ async function importResults(results, commit, relaysOnly = false) {
       place: r.place,
       meet_name: r.meet_name,
       meet_id: r.meet_id,
+      source_meet_key: r.source_meet_key,
       event_id: r.event_id,
       date: r.date,
       team_id: teamId,
@@ -1136,6 +1145,7 @@ async function importResults(results, commit, relaysOnly = false) {
       place: r.place,
       meet_name: r.meet_name,
       meet_id: r.meet_id,
+      source_meet_key: r.source_meet_key,
       event_id: r.event_id,
       date: r.date,
       round: r.round,
@@ -1149,6 +1159,53 @@ async function importResults(results, commit, relaysOnly = false) {
   console.log(`  Missing athletes: ${noAthlete.toLocaleString()}`);
   console.log(`  New athletes to create: ${newAthletes.length.toLocaleString()}`);
   console.log(`  Relay results: ${dbRelayResults.length.toLocaleString()}`);
+
+  // Resolve every event before creating athletes or writing facts. A run that cannot classify all
+  // of its rows must stop before it creates partial side effects. The old path resolved events at
+  // insert time, which allowed a successful-looking import to leave NULL event_type_id rows.
+  for (const row of [...dbResults, ...dbRelayResults]) {
+    row.event_type_id = events.resolve(row.event_name);
+  }
+  if (events.unmappedCount > 0) {
+    console.error(`\n✖ ${events.unmappedCount} unmapped event name(s) found before write.`);
+    [...events.unmapped.entries()].sort((a, b) => b[1] - a[1])
+      .forEach(([name, count]) => console.error(`    ${String(count).padStart(6)}x  ${name}`));
+    if (commit && !controlPlane) {
+      await events.flushUnmapped(supabase);
+      console.error('  Import refused. Add aliases, then re-run. No athletes or result rows were written.');
+      return { imported: 0, errors: 1, skipped: 0, relaysImported: 0, relayErrors: 0 };
+    }
+  }
+
+  const stageControlPlane = async (commitMode) => {
+    const sourceRows = relaysOnly ? dbRelayResults : [...dbResults, ...dbRelayResults];
+    const records = normalizeSourceRows('tfrrs', sourceRows, events);
+    const controlled = new ControlledIngestion();
+    const outcome = await controlled.run({
+      source: 'tfrrs',
+      scope: { meet_ids: [...new Set(sourceRows.map(row => row.meet_id).filter(Boolean))], relays_only: relaysOnly },
+      parserVersion: 'tfrrs-html-v2',
+      records,
+      commit: commitMode
+    });
+    console.log(`\nCONTROL PLANE RUN ${outcome.runId}`);
+    console.log(`  staged=${outcome.staged_observations} inserted=${outcome.inserted || 0} claimed=${outcome.claimed || 0} skipped=${outcome.skipped || 0} quarantined=${outcome.quarantined || 0}`);
+    if (events.unmappedCount > 0 && commitMode) await events.flushUnmapped(supabase);
+    return outcome;
+  };
+
+  // This mode persists an auditable dry-run without touching athletes or public facts.
+  if (controlPlane && !commit) {
+    const outcome = await stageControlPlane(false);
+    return {
+      imported: 0,
+      errors: outcome.quarantined || 0,
+      skipped: outcome.skipped || 0,
+      relaysImported: 0,
+      relayErrors: 0,
+      runId: outcome.runId
+    };
+  }
 
   if (!commit) {
     console.log('\n>>> DRY RUN - No changes made <<<');
@@ -1201,49 +1258,83 @@ async function importResults(results, commit, relaysOnly = false) {
     }
   }
 
+  if (controlPlane) {
+    const outcome = await stageControlPlane(true);
+    if (outcome.quarantined) process.exitCode = 1;
+    return {
+      imported: outcome.inserted || 0,
+      errors: outcome.quarantined || 0,
+      skipped: outcome.skipped || 0,
+      relaysImported: outcome.relayParents || 0,
+      relayErrors: 0,
+      runId: outcome.runId
+    };
+  }
+
   // Filter valid individual results
   const validResults = dbResults.filter(r => r.athlete_id != null);
   console.log(`\nValid individual results: ${validResults.length.toLocaleString()}`);
 
-  // Check for existing results to avoid duplicates
+  // Check for existing results to avoid duplicates. Always paginate these reads: PostgREST's
+  // default response cap is 1,000 rows, and a large meet otherwise looks partially empty to the
+  // duplicate guard.
   console.log('Checking for existing results...');
   const meetIds = [...new Set([...validResults, ...dbRelayResults].map(r => r.meet_id).filter(Boolean))];
   const existingResults = new Set();
   const existingRelays = new Set();
 
+  const relayFingerprint = row => {
+    if (!row.team_id || !row.event_type_id || !row.mark_raw || !/\d/.test(String(row.mark_raw))) return null;
+    return `${row.team_id}|${row.event_type_id}|${normaliseMarkKey(row.mark_raw)}`;
+  };
+  const scopedResultFingerprint = row => `${row.meet_id}|${fingerprint(row)}`;
+  const scopedRelayFingerprint = row => {
+    const key = relayFingerprint(row);
+    return key ? `${row.meet_id}|${key}` : null;
+  };
+
   for (const meetId of meetIds) {
-    const { data: existing } = await supabase
+    const existing = await fetchAll(() => supabase
       .from('results')
-      .select('athlete_id, event_name, mark_raw, date')
-      .eq('meet_id', meetId);
+      .select('athlete_id, event_type_id, mark_raw, mark_seconds, mark_meters, place, round, date')
+      .eq('meet_id', meetId));
 
     existing?.forEach(r => {
-      const key = `${r.athlete_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
-      existingResults.add(key);
+      if (r.event_type_id != null) existingResults.add(`${meetId}|${fingerprint(r)}`);
     });
 
-    const { data: existingRelayData } = await supabase
+    const existingRelayData = await fetchAll(() => supabase
       .from('relay_results')
-      .select('team_id, event_name, mark_raw, date')
-      .eq('meet_id', meetId);
+      .select('team_id, event_type_id, mark_raw, mark_seconds, place, round, date')
+      .eq('meet_id', meetId));
 
-    existingRelayData?.forEach(r => {
-      const key = `${r.team_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
-      existingRelays.add(key);
+    existingRelayData.forEach(r => {
+      const key = relayFingerprint(r);
+      if (key) existingRelays.add(`${meetId}|${key}`);
     });
   }
   console.log(`Found ${existingResults.size.toLocaleString()} existing individual results`);
   console.log(`Found ${existingRelays.size.toLocaleString()} existing relay results`);
 
   // Filter out duplicates
+  const seenResultFingerprints = new Set(existingResults);
   const newResults = validResults.filter(r => {
-    const key = `${r.athlete_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
-    return !existingResults.has(key);
+    const key = scopedResultFingerprint(r);
+    if (seenResultFingerprints.has(key)) return false;
+    seenResultFingerprints.add(key);
+    return true;
   });
 
+  const seenRelayFingerprints = new Set(existingRelays);
   const newRelays = dbRelayResults.filter(r => {
-    const key = `${r.team_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
-    return !existingRelays.has(key);
+    const key = scopedRelayFingerprint(r);
+    // DNS/DQ/etc. are legitimate relay facts but have no numeric performance identity. Keep them
+    // for now; the private source-record key will make their replays idempotent once this writer
+    // is fully routed through the control plane.
+    if (!key) return true;
+    if (seenRelayFingerprints.has(key)) return false;
+    seenRelayFingerprints.add(key);
+    return true;
   });
 
   const skippedDupes = validResults.length - newResults.length;
@@ -1263,7 +1354,7 @@ async function importResults(results, commit, relaysOnly = false) {
     const batch = individualsToWrite.slice(i, i + 500).map(r => ({
       athlete_id: r.athlete_id,
       event_name: r.event_name,
-      event_type_id: events.resolve(r.event_name),  // canonical event; null -> logged to unmapped_events
+      event_type_id: r.event_type_id,
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,
       mark_meters: r.mark_meters,
@@ -1286,10 +1377,16 @@ async function importResults(results, commit, relaysOnly = false) {
       console.log(`  Batch error: ${error.message}. Retrying row-by-row...`);
       for (const row of batch) {
         const { error: rowErr } = await supabase.from('results').insert(row);
-        if (rowErr) { errors++; } else { imported++; }
+        if (rowErr) {
+          errors++;
+        } else {
+          imported++;
+          existingResults.add(scopedResultFingerprint(row));
+        }
       }
     } else {
       imported += batch.length;
+      batch.forEach(row => existingResults.add(scopedResultFingerprint(row)));
     }
   }
   console.log(`Individual results imported: ${imported.toLocaleString()}`);
@@ -1305,7 +1402,7 @@ async function importResults(results, commit, relaysOnly = false) {
       .insert({
         team_id: relay.team_id,
         event_name: relay.event_name,
-        event_type_id: events.resolve(relay.event_name),  // canonical event
+        event_type_id: relay.event_type_id,
         mark_raw: relay.mark_raw,
         mark_seconds: relay.mark_seconds,
         place: relay.place,
@@ -1323,6 +1420,8 @@ async function importResults(results, commit, relaysOnly = false) {
       relayErrors++;
       continue;
     }
+    const relayKey = scopedRelayFingerprint(relay);
+    if (relayKey) existingRelays.add(relayKey);
 
     // 2. Insert into relay_athletes
     const athleteInserts = relay.relay_athletes
@@ -1351,7 +1450,7 @@ async function importResults(results, commit, relaysOnly = false) {
       .map(a => ({
         athlete_id: a.athlete_id,
         event_name: relay.event_name,
-        event_type_id: events.resolve(relay.event_name),  // canonical event
+        event_type_id: relay.event_type_id,
         mark_raw: relay.mark_raw,
         mark_seconds: relay.mark_seconds,
         place: relay.place,
@@ -1365,9 +1464,12 @@ async function importResults(results, commit, relaysOnly = false) {
 
     if (resultInserts.length > 0) {
       // Check for duplicates before inserting
+      const batchKeys = new Set();
       const newResultInserts = resultInserts.filter(r => {
-        const key = `${r.athlete_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
-        return !existingResults.has(key);
+        const key = scopedResultFingerprint(r);
+        if (existingResults.has(key) || batchKeys.has(key)) return false;
+        batchKeys.add(key);
+        return true;
       });
 
       if (newResultInserts.length > 0) {
@@ -1377,6 +1479,8 @@ async function importResults(results, commit, relaysOnly = false) {
 
         if (resultError) {
           console.log(`  Relay results error: ${resultError.message}`);
+        } else {
+          batchKeys.forEach(key => existingResults.add(key));
         }
       }
     }
@@ -1403,6 +1507,16 @@ async function importResults(results, commit, relaysOnly = false) {
 // Main function
 async function main() {
   const options = parseArgs();
+
+  requireControlledCommit({
+    commit: options.commit,
+    controlPlane: options.controlPlane,
+    legacyDirectWrite: options.legacyDirectWrite,
+    importer: 'TFRRS weekend importer'
+  });
+  if (options.commit && options.legacyDirectWrite) {
+    console.warn('WARNING: explicit legacy direct-write mode enabled; no private ingest transaction will protect this run.');
+  }
 
   console.log('='.repeat(60));
   console.log('SYNC WEEKEND RESULTS');
@@ -1524,25 +1638,42 @@ async function main() {
   console.log('IMPORTING RESULTS');
   console.log('='.repeat(60));
 
-  const { imported, errors, skipped, relaysImported, relayErrors } = await importResults(allScrapedResults, options.commit, options.relaysOnly);
+  const { imported, errors, skipped, relaysImported, relayErrors } = await importResults(
+    allScrapedResults,
+    options.commit,
+    options.relaysOnly,
+    options.controlPlane
+  );
 
   if (options.commit) {
     const importedMeetIds = new Set(allScrapedResults.map(r => r.meet_id).filter(Boolean));
+    const totalImported = imported + (relaysImported || 0);
+    const hasErrors = errors > 0 || relayErrors > 0;
+    const status = hasErrors ? 'partial' : totalImported > 0 ? 'imported' : 'pending';
+    const statusError = hasErrors
+      ? `individual_errors=${errors}; relay_errors=${relayErrors}`
+      : totalImported === 0
+        ? 'Scrape returned rows but wrote no new rows; leaving the meet retryable.'
+        : null;
+
     for (const meetId of importedMeetIds) {
       await supabase
         .from('meets')
         .update({
-          results_status: 'imported',
-          results_imported_at: new Date().toISOString(),
+          results_status: status,
+          results_source: status === 'imported' ? 'tfrrs' : null,
+          results_imported_at: status === 'imported' ? new Date().toISOString() : null,
           results_last_checked_at: new Date().toISOString(),
-          results_error: null
+          results_error: statusError
         })
         .eq('meet_id', meetId);
     }
+
+    if (hasErrors) process.exitCode = 1;
   }
 
   console.log('\n' + '='.repeat(60));
-  console.log('COMPLETE');
+  console.log(errors || relayErrors ? 'COMPLETED WITH PROBLEMS' : 'COMPLETE');
   console.log('='.repeat(60));
   console.log(`Individual results imported: ${imported.toLocaleString()}`);
   console.log(`Relay results imported: ${(relaysImported || 0).toLocaleString()}`);
@@ -1550,4 +1681,11 @@ async function main() {
   console.log(`Errors: ${errors.toLocaleString()}`);
 }
 
-main().catch(console.error);
+main()
+  .then(() => {
+    if (process.exitCode === 1) process.exit(1);
+  })
+  .catch(error => {
+    console.error('FATAL:', error?.stack || error);
+    process.exit(1);
+  });

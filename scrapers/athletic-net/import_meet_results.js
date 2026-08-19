@@ -13,10 +13,10 @@
  *
  * Athlete matching: primary key = athletic.net athlete id (athletes.athletic_net_url holds it,
  * 55% populated). No id match -> created (school matching is deferred; new ones land Unattached
- * with their athletic_net_url + gender for later linking). Runs on Node 20+ (puppeteer/supabase).
+ * with their athletic_net_url + gender for later linking). Runs on Node 22+ (puppeteer/supabase).
  *
  *   node import_meet_results.js <db_meet_id>              # DRY RUN (reports mapping quality)
- *   node import_meet_results.js <db_meet_id> --commit     # write
+ *   node import_meet_results.js <db_meet_id> --commit --control-plane # controlled write
  *   node import_meet_results.js <db_meet_id> --json f.json --limit 4   # use a cached scrape
  */
 const path = require('path');
@@ -25,6 +25,9 @@ const { createClient } = require('@supabase/supabase-js');
 const { EventResolver } = require('../shared/event_resolver');
 const { parseName } = require('../shared/name_parser');
 const { AthleticNetMeetScraper } = require('./scrape_meet_results');
+const { ControlledIngestion } = require('../shared/controlled_ingestion');
+const { normalizeSourceRows } = require('../shared/source_observation_adapter');
+const { requireControlledCommit } = require('../shared/write_mode_guard');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -136,7 +139,7 @@ async function loadFingerprints(athleteIds, from, to) {
  * athletic.net id), then take the school they agree on and find that school's team for the
  * event's gender. Falls back to a normalized school-name match.
  */
-async function importRelays(meet, relayEvents, events, resolveAthlete, { commit }) {
+async function importRelays(meet, relayEvents, events, resolveAthlete, { commit, controlled = false }) {
   if (!relayEvents.length) return { relays: 0, inserted: 0, legs: 0, dupSkipped: 0, noTeam: 0 };
 
   // school lookup for the name fallback
@@ -171,7 +174,8 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit 
     .select('athlete_id, event_type_id, mark_raw').eq('meet_id', meet.meet_id);
   const seenLegRow = new Set((existingLegRows || []).map(r => `${r.athlete_id}|${r.event_type_id}|${normMark(r.mark_raw)}`));
 
-  const stats = { relays: 0, inserted: 0, legs: 0, dupSkipped: 0, noTeam: 0 };
+  const stats = { relays: 0, inserted: 0, legs: 0, dupSkipped: 0, noTeam: 0,
+    controlledRows: [] };
 
   for (const ev of relayEvents) {
     const etid = events.resolve(ev.eventCode);
@@ -194,6 +198,29 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit 
       const key = `${etid}|${teamId}|${normMark(r.mark_raw)}`;
       const alreadyHave = relayIdByKey.has(key);
       if (alreadyHave) stats.dupSkipped++;
+
+      if (controlled) {
+        // The control-plane writer owns the transaction and provenance link. Keep this source
+        // row intact, including the ordered legs, and let unresolved legs quarantine individually.
+        stats.controlledRows.push({
+          meet_id: meet.meet_id,
+          source_meet_key: String(meet.meet_id),
+          event_id: ev.eventCode,
+          event_name: ev.eventCode,
+          team_id: teamId,
+          team_name: r.team_name,
+          mark_raw: r.mark_raw,
+          mark_seconds: parseMark(r.mark_raw).mark_seconds,
+          place: parseInt(r.place, 10) || null,
+          meet_name: meet.name,
+          date: meet.date,
+          round: 'Finals',
+          is_relay: true,
+          environment: environmentFor(meet.season),
+          relay_athletes: legs
+        });
+        continue;
+      }
 
       // per-leg rows for `results` — what makes the relay visible in the app's event list
       const legResultRows = legs
@@ -261,7 +288,21 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit 
   return stats;
 }
 
-async function run(meetDbId, { commit = false, jsonFile = null, limit = 0, relaysOnly = false } = {}) {
+async function run(meetDbId, {
+  commit = false,
+  jsonFile = null,
+  limit = 0,
+  relaysOnly = false,
+  controlPlane = false,
+  legacyDirectWrite = false
+} = {}) {
+  requireControlledCommit({
+    commit,
+    controlPlane,
+    legacyDirectWrite,
+    importer: 'athletic.net importer'
+  });
+
   // 1. the DB meet we're importing into
   const { data: meet, error: me } = await supabase
     .from('meets').select('meet_id, name, date, end_date, season, athletic_net_results_url, meet_url')
@@ -340,6 +381,8 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0, relay
       if (mk.mark_seconds != null || mk.mark_meters != null) stats.markParsed++;
       rows.push({
         _newKey: newKey, athlete_id: athleteId, event_type_id: etid, meet_id: meet.meet_id,
+        athletic_net_athlete_id: anetId,
+        source_meet_key: String(meet.meet_id),
         event_name: ev.eventCode, mark_raw: r.mark_raw, ...mk,
         wind: r.wind, place: parseInt(r.place, 10) || null, date: meet.date,
         meet_name: meet.name, is_pr: !!r.is_pr, environment: env,
@@ -373,7 +416,10 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0, relay
     return { athleteId: null, schoolId: null };     // ambiguous/new — leg keeps its name only
   };
   const relayEvents = scraped.events.filter(ev => (ev.results || []).some(r => r.is_relay));
-  const relayStats = await importRelays(meet, relayEvents, events, resolveAthlete, { commit });
+  const relayStats = await importRelays(meet, relayEvents, events, resolveAthlete, {
+    commit,
+    controlled: controlPlane
+  });
 
   // 5. report
   console.log(`=== ${commit ? 'COMMIT' : 'DRY RUN'} — translation report ===`);
@@ -385,6 +431,38 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0, relay
   console.log(`  RELAYS: ${relayStats.relays} rows across ${relayEvents.length} relay events -> ${relayStats.inserted} relay_results, ${relayStats.legs} legs, ${relayStats.legResultRows || 0} leg rows in results (makes relays visible in the app) | ${relayStats.dupSkipped} already present | ${relayStats.noTeam} without a resolved team`);
   console.log('\n  sample rows:');
   rows.slice(0, 4).forEach(r => console.log(`   ${r.place}. et=${r.event_type_id} ath=${r.athlete_id || 'NEW'} ${r.event_name} ${r.mark_raw}->${r.mark_seconds ?? r.mark_meters} wind=${r.wind}`));
+
+  const stageControlPlane = async (commitMode) => {
+    const sourceRows = relaysOnly ? relayStats.controlledRows : [...rows, ...relayStats.controlledRows];
+    const records = normalizeSourceRows('athletic_net', sourceRows, events);
+    const controlled = new ControlledIngestion();
+    const outcome = await controlled.run({
+      source: 'athletic_net',
+      mode: commitMode ? 'commit' : 'dry_run',
+      scope: { meet_id: meet.meet_id, source_url: target, relays_only: relaysOnly },
+      parserVersion: 'athletic-net-html-v1',
+      records,
+      commit: commitMode
+    });
+    console.log(`\nCONTROL PLANE RUN ${outcome.runId}`);
+    console.log(`  staged=${outcome.staged_observations} inserted=${outcome.inserted || 0} claimed=${outcome.claimed || 0} skipped=${outcome.skipped || 0} quarantined=${outcome.quarantined || 0}`);
+    if (events.unmappedCount > 0 && commitMode) await events.flushUnmapped(supabase);
+    return outcome;
+  };
+
+  // Control-plane dry runs intentionally persist their observations for audit/review, but they
+  // never create athletes or public facts. This branch occurs before the legacy write path.
+  if (controlPlane && !commit) {
+    const outcome = await stageControlPlane(false);
+    return {
+      imported: 0,
+      errors: outcome.quarantined || 0,
+      skipped: outcome.skipped || 0,
+      relaysImported: 0,
+      relayErrors: 0,
+      runId: outcome.runId
+    };
+  }
 
   if (!commit) { console.log('\n(dry run — pass --commit to write)'); return; }
 
@@ -408,6 +486,19 @@ async function run(meetDbId, { commit = false, jsonFile = null, limit = 0, relay
     data.forEach((a, idx) => created.set(batch[idx][0], a.athlete_id));
   }
   for (const r of rows) if (!r.athlete_id && r._newKey) r.athlete_id = created.get(r._newKey) || null;
+
+  if (controlPlane) {
+    const outcome = await stageControlPlane(true);
+    if (outcome.quarantined) process.exitCode = 1;
+    return {
+      imported: outcome.inserted || 0,
+      errors: outcome.quarantined || 0,
+      skipped: outcome.skipped || 0,
+      relaysImported: outcome.relayParents || 0,
+      relayErrors: 0,
+      runId: outcome.runId
+    };
+  }
 
   // RELAYS-ONLY MODE. Added 2026-08-14 for the timeless-4x100 repair (M1).
   // 463 meets have a 4x100 where every row is a status code, because the old parser required
@@ -466,8 +557,10 @@ if (require.main === module) {
   const meetDbId = args[0];
   const commit = args.includes('--commit');
   const relaysOnly = args.includes('--relays-only');
+  const controlPlane = args.includes('--control-plane');
+  const legacyDirectWrite = args.includes('--legacy-direct-write');
   const jIdx = args.indexOf('--json'); const jsonFile = jIdx >= 0 ? args[jIdx + 1] : null;
   const lIdx = args.indexOf('--limit'); const limit = lIdx >= 0 ? parseInt(args[lIdx + 1], 10) : 0;
-  if (!meetDbId) { console.log('Usage: node import_meet_results.js <db_meet_id> [--commit] [--json f] [--limit N]'); process.exit(1); }
-  run(meetDbId, { commit, relaysOnly, jsonFile, limit }).catch(e => { console.error('ERROR', e.message); process.exit(1); });
+  if (!meetDbId) { console.log('Usage: node import_meet_results.js <db_meet_id> [--commit --control-plane] [--legacy-direct-write] [--json f] [--limit N]'); process.exit(1); }
+  run(meetDbId, { commit, relaysOnly, controlPlane, legacyDirectWrite, jsonFile, limit }).catch(e => { console.error('ERROR', e.message); process.exit(1); });
 }

@@ -6,8 +6,8 @@
  * anything already imported), and each meet's outcome is recorded on the meet row
  * (results_status / results_source / results_error).
  *
- *   node batch_import.js --limit 10 --commit     # first tranche
- *   node batch_import.js --commit                # everything remaining
+ *   node batch_import.js --limit 10 --commit --control-plane # first controlled tranche
+ *   node batch_import.js --commit --legacy-direct-write # explicitly approved legacy path
  *   node batch_import.js --limit 5               # dry-run 5 (no writes)
  */
 const path = require('path');
@@ -21,6 +21,8 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
 (async () => {
   const args = process.argv.slice(2);
   const commit = args.includes('--commit');
+  const controlPlane = args.includes('--control-plane');
+  const legacyDirectWrite = args.includes('--legacy-direct-write');
   const lIdx = args.indexOf('--limit');
   const limit = lIdx >= 0 ? parseInt(args[lIdx + 1], 10) : 0;
 
@@ -52,7 +54,7 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
   for (const [i, m] of meets.entries()) {
     console.log(`\n[${i + 1}/${meets.length}] ======== meet ${m.meet_id} "${m.name}" (${m.date}) ========`);
     try {
-      await run(m.meet_id, { commit });
+      await run(m.meet_id, { commit, controlPlane, legacyDirectWrite });
       ok++;
     } catch (e) {
       failed++;

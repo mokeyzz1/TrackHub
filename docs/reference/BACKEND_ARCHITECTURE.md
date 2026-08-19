@@ -1,4 +1,4 @@
-# TrackHub Backend Architecture (Reality, as of 2026-07-09)
+# TrackHub Backend Architecture (historical snapshot plus verified overlay)
 
 This is the canonical map of how the backend actually works — verified against code and the
 production database, not aspiration. If you change the pipeline, **update this doc in the same
@@ -13,21 +13,50 @@ USTFCCCA calendar ──► meets table ◄── status updater (hourly)
       (Mon/Thu/Fri)        │
                            │  meets needing results (last 7 days)
                            ▼
-                 sync-weekend-results.js ──► TFRRS meet pages
-                      (Sun/Mon)                    │
+                 source adapters ──► private ingest control plane
+                (TFRRS + athletic.net)              │
                                                    ▼
-                              results / relay_results / relay_athletes / athletes
+                              canonical writer ──► results / relay_results / relay_athletes
                                                    │
                                                    ▼
-                              app reads by meet_name + date  (NOT meet_id)
+                              app reads published facts by Supabase API
 ```
 
 Sources: `.github/workflows/*.yml`, `scrapers/meets/scrape_meets*.js`,
 `scrapers/tfrrs/meet-scraper/sync-weekend-results.js`, `frontend/services/database-supabase.ts`.
 
-**Data sources: USTFCCCA (meet calendar + result links) and TFRRS (all results).**
-athletic.net is NOT a data source. It appears only as (a) the timing-vendor URL some meets
-store in `meet_url` (a tap-through link in the app), and (b) legacy unwired code.
+## Verified live overlay — 2026-08-19
+
+The sections below contain historical audit snapshots and must not be treated as current state
+without rechecking PostgreSQL. The live project was queried directly on 2026-08-19:
+
+| Fact table | Live rows |
+|---|---:|
+| `results` | 3,482,616 |
+| `relay_results` | 198,899 |
+| `relay_athletes` | 443,605 |
+| `athletes` | 152,121 |
+| `meets` | 12,694 |
+
+The current ingestion architecture is additive and private: source rows stage in `ingest.runs`,
+`ingest.source_records`, and `ingest.observations`; `canonical_fact_writer.js` is the controlled
+writer for public facts and `ingest.source_links`; ambiguous rows go to `ingest.quarantine`.
+TFRRS and athletic.net both have adapters into this contract. `ingest.recovery_queue` inventories
+historical meet coverage and source candidates before a recovery run. The scheduled TFRRS workflow
+now fails closed unless the `INGEST_DATABASE_URL` secret is present and invokes controlled mode.
+
+The live security audit also confirmed RLS on every public table, no browser DML on result/fact
+tables, private backup tables, and the PR view set to `security_invoker=true`. These claims come
+from live catalog queries, not this document.
+
+Meet result screens now scope by `meet_id` when the route provides it and group/filter by
+`event_type_id`; name/date and raw event-name fallbacks remain only for legacy rows or older call
+sites that have not yet been migrated.
+
+**Data sources: USTFCCCA (meet calendar + result links), TFRRS, and athletic.net.**
+TFRRS remains the foundation for canonical athlete identity and historical coverage; athletic.net
+is a gap-filler and richer source where its result page is available. They must converge through
+the shared source-record/canonical-performance contract, not write competing raw rows directly.
 
 ---
 
@@ -37,7 +66,8 @@ store in `meet_url` (a tap-through link in the app), and (b) legacy unwired code
 |---|---|---|---|
 | `scrape-meets.yml` | Mon/Thu/Fri 6AM Central | `meets/scrape_meets_github.js all` | `meets` (upsert; links by label: "Timing Site"→`meet_url`, "TFRRS Results"→`tfrrs_url`, AthleticNet/WA final links) |
 | `check-live-status.yml` | hourly Wed–Sun meet hours + daily 6AM | `meets/update_meet_status.js` | `meets.status` (upcoming→completed by `end_date`) |
-| `sync-results.yml` | Sun 10PM + Mon 8AM Central | `scrape_meets_github.js last_week`, then `tfrrs/meet-scraper/sync-weekend-results.js --days 7 --commit` | `results`, `relay_results`, `relay_athletes`, `athletes` (creates missing), `meets.results_status` |
+| `sync-results.yml` | Sun 10PM + Mon 8AM Central | `scrape_meets_github.js last_week`, then TFRRS `--commit --control-plane` | staged observations, canonical facts/provenance, `athletes` (legacy resolver), `meets.results_status` |
+| manual recovery queue | operator-run | `recovery/refresh_recovery_queue.js --scope ... --from ... --to ...` | private `ingest.recovery_queue` only; no fact writes |
 
 **Anything not in this table does not run automatically.**
 
@@ -51,6 +81,7 @@ store in `meet_url` (a tap-through link in the app), and (b) legacy unwired code
 | `scrapers/meets/scrape_meets.js` / `scrape_meets_github.js` | Meet discovery from USTFCCCA (stealth Puppeteer). ⚠ hardcodes `season:'indoor'` (`scrape_meets.js:490`) |
 | `scrapers/meets/update_meet_status.js` | Status flips (uses `end_date` for multi-day) |
 | `scrapers/tfrrs/meet-scraper/sync-weekend-results.js` | **The results engine.** Finds recent meets w/o results; prefers stored `tfrrs_url` (`--fuzzy` enables name-match fallback ≥35% similarity); scrapes TFRRS; imports w/ `meet_id`, relays, dupe checks |
+| `scrapers/athletic-net/import_meet_results.js` + `batch_import.js` | Gap-filler bridge; supports cached/live scrape and opt-in `--control-plane` staging/commit |
 | `scrapers/meets/backfill_result_links.js` | Off-season tool: re-scrape USTFCCCA/TFRRS listings to fill missing result links on past meets (only fills empty fields) |
 | `scrapers/meets/cleanup_duplicate_meets.js` | Duplicate meet merge tool |
 | `scrapers/meets/fix_meet_urls.js` | One-time `meet_url` junk cleanup (ran 2026-07-09: 182 rewrites, 89 nulls) |
@@ -63,6 +94,10 @@ store in `meet_url` (a tap-through link in the app), and (b) legacy unwired code
 | `scrapers/tfrrs/meet-scraper/{fetch-meet-list,scrape-meet-results,import-meet-results,import-new-athletes,import-relay-results}.js` | Manual 3-step pipeline superseded by `sync-weekend-results.js` (still usable for bulk backfills) |
 | `scrapers/{entries,live,final,platforms,athletic-net}/` | Old athletic.net-era pipeline (entries, live polling, finals). Writes `live_results` (48 rows). Not scheduled |
 | `scrapers/rosters/` | Roster diff/upload tooling (manual) |
+
+Legacy result writers remain in the tree for forensic recovery, but their commit paths now fail
+closed unless the operator explicitly supplies `--legacy-direct-write`. Normal production commits
+must use `--control-plane`.
 
 ---
 

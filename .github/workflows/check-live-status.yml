@@ -14,21 +14,37 @@ on:
 jobs:
   check-status:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: read
+
+    concurrency:
+      group: trackhub-production-writer
+      cancel-in-progress: false
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: scrapers/package-lock.json
 
       - name: Update meet statuses
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-        run: node scrapers/meets/update_meet_status.js
+        run: |
+          cd scrapers
+          npm ci
+          cd ..
+          node scrapers/meets/update_meet_status.js
 
       - name: Log summary
         run: echo "Meet status update completed at $(date)"

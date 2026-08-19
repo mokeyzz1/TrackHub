@@ -2,7 +2,48 @@
 
 Audit date: 19 August 2026  
 Scope: live Supabase/Postgres project, repository schema/migrations, scraper writers, duplicate logic, workflows, and frontend database reads.  
-Mode: read-only. No production rows, schema objects, grants, or existing worktree changes were modified.
+Mode: read-only baseline capture. No production fact rows were modified during the baseline audit; the
+remediation status below records the verified changes applied afterward.
+
+## Remediation status verified after the baseline
+
+The audit findings were used to install the first safety boundary:
+
+- `ingest.runs`, `ingest.source_records`, `ingest.observations`, `ingest.source_links`, and
+  `ingest.quarantine` now exist in a private schema with transactional staging and provenance.
+- `canonical_fact_writer.js` is the controlled writer for individual facts, relay parents, relay
+  legs, and source links. TFRRS and athletic.net adapters now emit the same contract.
+- All public base tables and backup tables have RLS enabled. Browser roles can read published data,
+  but cannot write result facts or diagnostics. The push-token write is a validated RPC rather than
+  direct table DML.
+- `meets_meet_id_seq` was reconciled to the live maximum (`94,959`), so the next default ID is
+  `94,960`.
+- The scheduled TFRRS writer is fail-closed unless `INGEST_DATABASE_URL` is configured, and it now
+  invokes controlled mode. A dry run must be completed before enabling production commits.
+- The active TFRRS and athletic.net importer commit paths also fail closed unless `--control-plane`
+  is supplied; the old direct path requires the explicit `--legacy-direct-write` escape hatch.
+
+These changes are additive and do not deduplicate, delete, or rewrite the existing fact rows. The
+remaining recovery work is deliberately separate: verify source availability, run the 2025–26
+reconciliation queue in dry-run mode, then commit only unambiguous rows.
+
+Current live recheck after the remediation: `results` 3,482,616; `relay_results` 198,899;
+`relay_athletes` 443,605; `meets` 12,694; `athletes` 152,121; `event_types` 64; and
+`event_aliases` 1,235. The detailed inventory below is the baseline snapshot and is retained for
+audit comparison, not as a substitute for a fresh query.
+
+The first recovery-queue dry run used the explicit overlap window `2025-08-01` through
+`2026-07-31` (scope key `2025-26`), rather than trusting the inconsistent `meets.season` labels:
+2,573 meets were inventoried; 1,442 are covered, 332 are queued behind a supported TFRRS or
+athletic.net link (99 empty, 227 individual-only, 6 relay-only), and 799 are blocked because no
+supported result link is currently recorded (49 empty, 745 individual-only, 5 relay-only). This is
+an auditable workload inventory, not a claim that every blocked meet is absent from both sources.
+
+The live event catalog currently has 51 time, 9 distance, 3 points, and 1 unknown event types;
+both fact tables have zero null `event_type_id` rows. Legacy semantic cleanup is not complete,
+though: 34,531 points-category results still carry `mark_seconds` and 37,251 carry `mark_meters`.
+The new contract quarantines those component/aggregate conflicts for future imports; it does not
+silently rewrite the historical rows.
 
 ## Technical summary
 
@@ -17,7 +58,7 @@ The target recovery seasons—Indoor 2026, Outdoor 2026, and XC 2025—contain 2
 
 The immediate recommendation is to pause unattended result writes, repair the access and identity foundations, and then run a source-aware recovery queue. Model or sub-agent selection should follow that control-plane work.
 
-## Live database inventory
+## Baseline live database inventory
 
 Exact counts queried from PostgreSQL on 19 August 2026:
 
@@ -183,7 +224,11 @@ High confidence: live counts, constraints, policies, grants, sequence state, mig
 Medium confidence: duplicate classification and source/status interpretation.  
 Requires external verification: whether each no-row meet is actually absent from TFRRS or athletic.net; no external source crawl was performed.
 
-## Recommended remediation sequence
+## Baseline remediation sequence
+
+The sequence below is the original recommendation from the read-only audit. The current state of
+the first controls is recorded in the remediation status above; the remaining items are still
+open unless explicitly marked there.
 
 ### P0 — Stop new damage
 

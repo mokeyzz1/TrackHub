@@ -7,6 +7,7 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 const { parseName } = require('../../shared/name_parser');
+const { requireControlledCommit } = require('../../shared/write_mode_guard');
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -27,6 +28,13 @@ function normalizeSchoolName(name) {
 }
 
 async function importNewAthletes(commit = false) {
+  requireControlledCommit({
+    commit,
+    controlPlane: false,
+    legacyDirectWrite: process.argv.includes('--legacy-direct-write'),
+    importer: 'legacy new-athletes importer'
+  });
+
   console.log('========================================');
   console.log(commit ? 'IMPORTING NEW ATHLETES' : 'DRY RUN');
   console.log('========================================\n');

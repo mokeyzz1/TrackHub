@@ -55,18 +55,10 @@ export async function registerForPushNotifications(): Promise<string | null> {
 
 async function savePushToken(token: string): Promise<void> {
   try {
-    const { error } = await supabase
-      .from('push_tokens')
-      .upsert(
-        {
-          expo_push_token: token,
-          platform: Platform.OS,
-          is_active: true,
-        },
-        {
-          onConflict: 'expo_push_token',
-        }
-      );
+    const { error } = await supabase.rpc('register_push_token', {
+      p_expo_push_token: token,
+      p_platform: Platform.OS,
+    });
 
     if (error) {
       console.error('Error saving push token:', error);

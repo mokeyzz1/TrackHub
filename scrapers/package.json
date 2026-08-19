@@ -1,12 +1,16 @@
 {
   "name": "scrapers",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=22"
+  },
   "description": "Track meet scrapers - meets, entries, live, final results, rosters",
   "scripts": {
     "meets": "node meets/scrape_meets.js",
     "entries": "node entries/entries_scraper.js",
     "live": "node live/live_scraper.js",
-    "final": "node final/final_scraper.js"
+    "final": "node final/final_scraper.js",
+    "recovery:queue": "node recovery/refresh_recovery_queue.js"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +20,7 @@
     "axios": "^1.13.4",
     "cheerio": "^1.2.0",
     "dotenv": "^17.2.3",
+    "pg": "^8.16.3",
     "puppeteer": "^24.35.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"

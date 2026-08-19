@@ -18,25 +18,37 @@ on:
 jobs:
   sync-results:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    permissions:
+      contents: read
+
+    concurrency:
+      group: trackhub-production-writer
+      cancel-in-progress: false
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: scrapers/package-lock.json
 
       - name: Install dependencies
         run: |
           cd scrapers
-          npm install
+          npm ci
 
       - name: Refresh completed meet result links
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
           cd scrapers/meets
           node scrape_meets_github.js last_week
@@ -45,9 +57,15 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          INGEST_DATABASE_URL: ${{ secrets.INGEST_DATABASE_URL }}
         run: |
+          if [ -z "${INGEST_DATABASE_URL:-}" ]; then
+            echo "::error::INGEST_DATABASE_URL is required; uncontrolled result writes are disabled."
+            exit 1
+          fi
           cd scrapers/tfrrs/meet-scraper
-          node sync-weekend-results.js --days ${{ github.event.inputs.days || '7' }} --commit 2>&1 | tee sync.log
+          set -o pipefail
+          node sync-weekend-results.js --days ${{ github.event.inputs.days || '7' }} --commit --control-plane 2>&1 | tee sync.log
 
       - name: Upload logs
         uses: actions/upload-artifact@v4

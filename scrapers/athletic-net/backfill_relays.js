@@ -11,7 +11,7 @@
  * missing.
  *
  *   node backfill_relays.js            # dry run
- *   node backfill_relays.js --commit   # write
+ *   node backfill_relays.js --commit --control-plane   # controlled write
  *   node backfill_relays.js --commit --limit 5
  */
 const path = require('path');
@@ -26,6 +26,8 @@ const BRIDGE = path.join(__dirname, 'import_meet_results.js');
 (async () => {
   const args = process.argv.slice(2);
   const commit = args.includes('--commit');
+  const controlPlane = args.includes('--control-plane');
+  const legacyDirectWrite = args.includes('--legacy-direct-write');
   const li = args.indexOf('--limit');
   const limit = li >= 0 ? parseInt(args[li + 1], 10) : 0;
 
@@ -52,7 +54,11 @@ const BRIDGE = path.join(__dirname, 'import_meet_results.js');
     const m = list[i];
     console.log(`[${i + 1}/${list.length}] meet ${m.meet_id} "${m.name}" (${m.date})`);
     try {
-      const out = execFileSync(NODE, [BRIDGE, String(m.meet_id), ...(commit ? ['--commit'] : [])],
+      const flags = [];
+      if (commit) flags.push('--commit');
+      if (controlPlane) flags.push('--control-plane');
+      if (legacyDirectWrite) flags.push('--legacy-direct-write');
+      const out = execFileSync(NODE, [BRIDGE, String(m.meet_id), ...flags],
         { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 32 * 1024 * 1024 });
       const line = out.split('\n').find(l => l.includes('RELAYS:'));
       if (line) console.log(' ', line.trim());

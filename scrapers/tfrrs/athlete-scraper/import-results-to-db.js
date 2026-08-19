@@ -6,7 +6,7 @@
  *
  * Usage:
  *   node import-results-to-db.js              # Dry run (shows what would be imported)
- *   node import-results-to-db.js --commit     # Actually import to database
+ *   node import-results-to-db.js --commit --legacy-direct-write # Explicit legacy import
  *   node import-results-to-db.js --batch 500  # Import in batches of 500
  */
 
@@ -14,6 +14,7 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 const { EventResolver } = require('../../shared/event_resolver');
+const { requireControlledCommit } = require('../../shared/write_mode_guard');
 
 // Load environment variables (go up to scrapers/.env)
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
@@ -74,6 +75,13 @@ function resultKey(r) {
 
 async function importResults(options = {}) {
   const { commit = false, batchSize = 1000 } = options;
+
+  requireControlledCommit({
+    commit,
+    controlPlane: false,
+    legacyDirectWrite: process.argv.includes('--legacy-direct-write'),
+    importer: 'legacy athlete-history importer'
+  });
 
   console.log('========================================');
   console.log(commit ? 'IMPORTING TO DATABASE' : 'DRY RUN (use --commit to import)');

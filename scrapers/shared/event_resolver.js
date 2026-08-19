@@ -21,6 +21,7 @@
 class EventResolver {
   constructor() {
     this.map = new Map();       // normalized raw_name -> event_type_id
+    this.catalog = new Map();   // event_type_id -> canonical event metadata
     this.unmapped = new Map();  // original raw_name -> miss count (this run)
     this.loaded = false;
   }
@@ -32,6 +33,7 @@ class EventResolver {
   /** Load the full event_aliases table into memory. Returns the alias count. */
   async load(supabase) {
     this.map.clear();
+    this.catalog.clear();
     let from = 0;
     const page = 1000;
     for (;;) {
@@ -45,6 +47,21 @@ class EventResolver {
       if (data.length < page) break;
       from += page;
     }
+
+    // Load the measurement metadata separately instead of relying on a nested PostgREST
+    // relationship shape. The live schema is the authority, and this remains portable if the
+    // API relationship is renamed or not exposed in a local environment.
+    for (let from = 0; ; from += page) {
+      const { data, error } = await supabase
+        .from('event_types')
+        .select('event_type_id, code, category, measure, environment_scope')
+        .range(from, from + page - 1);
+      if (error) throw new Error(`event_types load failed: ${error.message}`);
+      if (!data || data.length === 0) break;
+      for (const event of data) this.catalog.set(event.event_type_id, event);
+      if (data.length < page) break;
+    }
+
     this.loaded = true;
     return this.map.size;
   }
@@ -61,6 +78,19 @@ class EventResolver {
       this.unmapped.set(rawName, (this.unmapped.get(rawName) || 0) + 1);
     }
     return null;
+  }
+
+  /** Return canonical metadata without recording an unmapped event. */
+  details(rawName) {
+    if (!this.loaded) throw new Error('EventResolver.details() called before load()');
+    const id = this.map.get(this._key(rawName));
+    return id == null ? null : this.catalog.get(id) || null;
+  }
+
+  /** Return canonical metadata by already-resolved event_type_id. */
+  detailsById(eventTypeId) {
+    if (!this.loaded) throw new Error('EventResolver.detailsById() called before load()');
+    return this.catalog.get(eventTypeId) || null;
   }
 
   /** Count of distinct unknown event names seen this run. */
