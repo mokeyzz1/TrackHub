@@ -13,6 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const { EventResolver } = require('../../shared/event_resolver');
 const { parseName } = require('../../shared/name_parser');
+const { fingerprint, loadMeetFingerprints } = require('../../shared/result_fingerprint');
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -362,33 +363,29 @@ async function importMeetResults(commit = false) {
   }
 
   // Import results (skip those without athlete_id - relays not supported yet)
-  const validResults = dbResults.filter(r => r.athlete_id != null);
+  // Resolve the canonical event BEFORE deduping, not at insert time. The fingerprint keys on
+  // event_type_id, and if it is still undefined here every fingerprint collapses to
+  // "athlete|undefined|mark" — which silently matches the wrong rows.
+  const validResults = dbResults.filter(r => r.athlete_id != null)
+    .map(r => ({ ...r, event_type_id: events.resolve(r.event_name) }));
   console.log(`\nImporting ${validResults.length.toLocaleString()} results (skipping ${dbResults.length - validResults.length} relays)...`);
 
   // Check for existing results to avoid duplicates
   console.log('Checking for existing results to avoid duplicates...');
+  // ⚠️ CROSS-SOURCE DUPLICATE GUARD — see scrapers/shared/result_fingerprint.js for the full
+  // story. The key used to be `athlete|event_NAME|RAW mark|date`, and it had three defects that
+  // together put the NCAA DII 4x100 on an athlete's profile FOUR times (1,252 rows / 243 meets):
+  //   1. RAW mark, so the stored athletic.net "45.15a" never matched this importer's "45.15" —
+  //      the trailing `a` is all-weather-track notation, not part of the time;
+  //   2. event_NAME, which differs by source ("60mh" vs "60 Meter Hurdles");
+  //   3. a bare .select(), capped by PostgREST at 1000 rows, so in meet 13142 (1,937 rows) the
+  //      guard could not even see all of its own meet.
+  // Both importers now share one definition, so they cannot drift apart again.
   const meetIds = [...new Set(validResults.map(r => r.meet_id).filter(Boolean))];
-  const existingResults = new Set();
+  const existingResults = await loadMeetFingerprints(supabase, meetIds);
+  console.log(`Found ${existingResults.size.toLocaleString()} existing performances in these meets`);
 
-  for (const meetId of meetIds) {
-    const { data: existing } = await supabase
-      .from('results')
-      .select('athlete_id, event_name, mark_raw, date')
-      .eq('meet_id', meetId);
-
-    existing?.forEach(r => {
-      // Create unique key: athlete_id|event_name|mark_raw|date
-      const key = `${r.athlete_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
-      existingResults.add(key);
-    });
-  }
-  console.log(`Found ${existingResults.size.toLocaleString()} existing results in these meets`);
-
-  // Filter out duplicates
-  const newResults = validResults.filter(r => {
-    const key = `${r.athlete_id}|${r.event_name}|${r.mark_raw}|${r.date}`;
-    return !existingResults.has(key);
-  });
+  const newResults = validResults.filter(r => !existingResults.has(fingerprint(r)));
 
   const skippedDupes = validResults.length - newResults.length;
   console.log(`Skipping ${skippedDupes.toLocaleString()} duplicates, importing ${newResults.length.toLocaleString()} new results`);
@@ -400,7 +397,7 @@ async function importMeetResults(commit = false) {
     const batch = newResults.slice(i, i + 500).map(r => ({
       athlete_id: r.athlete_id,
       event_name: r.event_name,
-      event_type_id: events.resolve(r.event_name),  // canonical event; null -> logged to unmapped_events
+      event_type_id: r.event_type_id,  // resolved above, before dedup; null -> logged to unmapped_events
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,
       mark_meters: r.mark_meters,

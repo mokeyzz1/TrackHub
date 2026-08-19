@@ -130,6 +130,56 @@ const CHECKS = [
           SELECT count(*)::int AS n FROM per_meet WHERE total > 0 AND shared = total`,
   },
   {
+    name: 'no cross-source duplicate performance (round-insensitive)',
+    why: 'FOUND BY THE OWNER IN THE APP, 2026-08-19: the NCAA DII Outdoor 4x100 appeared FOUR ' +
+         'times on an athlete profile — "45.15a"/"45.34a" from athletic.net beside "45.15 F"/' +
+         '"45.34 P" from TFRRS. 1,252 rows across 243 meets.\n' +
+         '         NEITHER UNIQUE INDEX CAN CATCH THIS, and no index ever will: both include ' +
+         '`round`, and athletic.net supplies no round at all, so NULL vs \'Finals\' reads as two ' +
+         'separate performances. `round` is in those indexes deliberately (185 real prelim/final ' +
+         'pairs share mark and place), so it cannot simply be removed. That is exactly why this ' +
+         'check exists OUTSIDE the indexes — it is the only thing that can see the gap.\n' +
+         '         The mixed-suffix test is what makes it safe: a trailing `a` (all-weather) or ' +
+         '`h` (hand-timed) is a SOURCE annotation, so one row with a suffix and one without, at ' +
+         'the same athlete/meet/event/mark, is two sources describing one race — never two races. ' +
+         'A genuine prelim and final differ in TIME, so they cannot be caught here.\n' +
+         '         Prevention is in scrapers/shared/result_fingerprint.js (both importers now ' +
+         'share one definition of "already have it"). This check is the backstop.',
+    tolerate: 0,
+    sql: `WITH k AS (
+            SELECT athlete_id, meet_id, event_type_id,
+                   lower(regexp_replace(mark_raw,'[ahm]$','')) AS nm,
+                   count(*) FILTER (WHERE mark_raw ~ '[ahm]$')::int  AS suffixed,
+                   count(*) FILTER (WHERE mark_raw !~ '[ahm]$')::int AS plain
+            FROM results
+            WHERE meet_id IS NOT NULL AND athlete_id IS NOT NULL AND mark_raw ~ '[0-9]'
+            GROUP BY 1,2,3,4 HAVING count(*) > 1)
+          SELECT count(*)::int AS n FROM k WHERE suffixed > 0 AND plain > 0`,
+  },
+  {
+    name: 'no same-round duplicate performance with disagreeing places',
+    why: 'The residual after the cross-source cleanup. Same athlete, meet, event and mark, same ' +
+         'round label, but two different places — one race stored twice with conflicting ' +
+         'placings, so at least one is wrong. Measured 2026-08-19 = 99 groups.\n' +
+         '         Two known causes, and they need different fixes, which is why this is a ' +
+         'TRACKED BASELINE rather than something auto-deleted: (a) sectioned races, where TFRRS ' +
+         'publishes both an overall place and a within-section place ("5000 Meter" place 18 vs ' +
+         '"5000 Meter Section 1" place 2 — the same run); (b) an athlete appearing at several ' +
+         'meet rows that are themselves duplicates of one meet (DUP-1 shaped).\n' +
+         '         Do NOT tune this to zero by deleting rows — resolve the cause. Legitimate ' +
+         'prelim/final pairs are excluded automatically because they differ in round.',
+    tolerate: 99,
+    sql: `WITH k AS (
+            SELECT athlete_id, meet_id, event_type_id,
+                   lower(regexp_replace(mark_raw,'[ahm]$','')) AS nm,
+                   count(DISTINCT COALESCE(round,'~NULL~'))::int AS dr,
+                   count(DISTINCT COALESCE(place,-1))::int       AS dp
+            FROM results
+            WHERE meet_id IS NOT NULL AND athlete_id IS NOT NULL AND mark_raw ~ '[0-9]'
+            GROUP BY 1,2,3,4 HAVING count(*) > 1)
+          SELECT count(*)::int AS n FROM k WHERE dr = 1 AND dp > 1`,
+  },
+  {
     name: 'every parseable mark has a numeric mark_seconds',
     why: 'M9. 1,301,371 rows held a time as TEXT with mark_seconds NULL, so they could not be ' +
          'sorted, ranked or PR-ed. Cause: six copy-pasted parsers, all of which demanded 2-3 ' +

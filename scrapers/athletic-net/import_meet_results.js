@@ -98,10 +98,10 @@ function schoolCorroborates(scrapedTeam, schoolText) {
 
 const addDays = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
 
-// Normalize a mark for cross-source fingerprint matching: athletic.net writes "10.35a"
-// (a = auto/altitude) and "5.08m", TFRRS writes "10.35"/"5.08". Strip trailing letters + units
-// so the same performance matches regardless of source formatting.
-const normMark = m => String(m || '').trim().toLowerCase().replace(/\s+/g, '').replace(/[a-z]+$/, '');
+// Cross-source mark normalisation now lives in scrapers/shared/result_fingerprint.js. This copy
+// was correct; the TFRRS importer's was not (it compared RAW marks, so "45.15a" never matched
+// "45.15"), and that disagreement is what duplicated 1,252 rows across 243 meets. One definition.
+const { normaliseMarkKey: normMark } = require('../shared/result_fingerprint');
 
 /**
  * Existing-result fingerprints for these athletes around the meet dates — the duplicate-result
