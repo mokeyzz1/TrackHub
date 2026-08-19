@@ -82,9 +82,12 @@ meets; after a few weeks a meet's links are no longer retrievable there. Consequ
 - Link capture only started recently, so: 2026 meets mostly have links; **2025 and older have
   essentially zero** (`OVERNIGHT_BACKFILL_PLAN.md`: 2025 = 2,178 missing / 0 with a link;
   2024-and-older ≈ 8,700 / 0).
-- **So "just go get the links" is not generally possible for old meets.** Treat link-less
-  historical meets as likely-unfillable rather than a backlog to grind. Mark genuinely
-  unavailable ones `results_status='unavailable'` and stop rechecking.
+- ~~**So "just go get the links" is not generally possible for old meets.**~~ **CORRECTED
+  2026-08-18 — this was wrong and cost months.** USTFCCCA's window does close, but **TFRRS keeps
+  its own enumerable meet index** (`results_search.html?page=N`, 1,757 meets). Crawling it once
+  recovered links for **313 meets → 197 filled (+128,788 results) + 113 4x100 repairs.** Tools:
+  `crawl-tfrrs-index.js` → `match-tfrrs-index.js` (two verification gates). See
+  `docs/DATA_SOURCE_STRATEGY.md`.
 - Corollary: **capture links promptly for current meets** — that window is the only cheap
   chance to get them.
 

@@ -207,3 +207,32 @@ produce and not something a wrong match could fake.
 Also found the same day: **4 meets had a `tfrrs.org/results/...` URL sitting in `meet_url`**
 instead of `tfrrs_url`, so no scraper ever looked. Worth re-checking periodically:
 `WHERE meet_url ILIKE '%tfrrs.org/results%' AND tfrrs_url IS NULL`.
+
+
+## ⚠️ CORRECTION 2026-08-18: "old meets are unfillable" was WRONG
+
+This file and `CLAUDE.md` §1b both stated that once USTFCCCA's window closes a meet's links are
+"simply gone" and such meets should be treated as "likely-unfillable rather than a backlog to
+grind." **That was wrong, and it stopped the work from being attempted for months.**
+
+USTFCCCA's window does close. But **TFRRS keeps its own meet index**, and
+`results_search.html?page=N` is enumerable — 1,757 unique meets before it stops yielding new ones.
+The links were never gone; there was simply no lookup.
+
+**What that recovered, in one pass:**
+
+| step | result |
+|---|---|
+| `crawl-tfrrs-index.js` | 1,757 TFRRS meets cached locally |
+| `match-tfrrs-index.js` | 1,020 meets needed a link · 527 unambiguous candidates · **313 verified and stored** · 214 correctly rejected |
+| empty-meet backfill | **197 meets filled, +128,788 results** |
+| `repair-timeless-4x100.js` | **113 meets, +1,388 relay rows** |
+
+**Why the 214 rejections are the system working.** A name match with a non-matching page date is a
+*different edition of the same annual meet* — linking it would repeat the Utah Spring Classic bug.
+The matcher has two gates before anything is written: discriminating tokens must agree
+(`big west` ≠ `big ten` — the exact DUP-1 failure), and the candidate page's own date text must
+contain the meet's date ±3 days.
+
+**The general lesson:** a stated limitation is a hypothesis. "The links are gone" was inferred from
+one source's behaviour and written down as fact, which stopped anyone testing the others.

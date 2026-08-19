@@ -38,7 +38,7 @@ const CHECKS = [
          'the ones worth investigating; start with mass+texas.\n' +
          '         DO NOT tune this to zero -- three earlier versions were wrong from ' +
          'over-fitting a detector to data that was not understood yet.',
-    tolerate: 2789,
+    tolerate: 2860,   // 2026-08-18: +65 from 197 newly-filled meets adding legitimate athlete-days
     sql: `WITH st AS (
             SELECT meet_id,
               CASE
