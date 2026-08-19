@@ -45,6 +45,30 @@ INSERT INTO athletes SELECT * FROM athletes_empty_backup;
 INSERT INTO results SELECT * FROM results_accidental_import_20260819_backup;
 ```
 
+## 14 meets IMPORTED (2026-08-19) — 11,651 results, 827 new athletes
+
+Additive, not destructive, but recorded because it is the largest write of the day and because
+an import is only "safe" while it can be undone. Meet ids:
+
+`13053, 11825, 11837, 11778, 11794, 12079, 12300, 12731, 12705, 12670, 12789, 12857, 12894, 13048`
+
+```sql
+-- undo the import (results only; relay_athletes cascades from relay_results)
+DELETE FROM relay_results WHERE meet_id IN (13053,11825,11837,11778,11794,12079,12300,12731,
+                                            12705,12670,12789,12857,12894,13048);
+DELETE FROM results       WHERE meet_id IN (13053,11825,11837,11778,11794,12079,12300,12731,
+                                            12705,12670,12789,12857,12894,13048);
+UPDATE meets SET results_status = 'pending'
+ WHERE meet_id IN (13053,11825,11837,11778,11794,12079,12300,12731,12705,12670,12789,12857,12894,13048);
+```
+
+⚠️ **The 827 athletes created by this run are NOT removed by the above**, and should not be —
+they may since have picked up results at other meets. `athlete_team_seasons` and `athlete_prs`
+cascade from `athletes`, so never bulk-delete them to "finish" a rollback (DEDUP_METHOD §2).
+
+Verified after writing: 0 NULL `event_type_id`, and 0 duplicate groups with identical round AND
+place across all 14 meets.
+
 ## Cross-source duplicates (2026-08-19) — 1,252 rows DELETED, found by the owner in the app
 
 The NCAA DII Outdoor 4x100 showed FOUR times on an athlete profile: `45.15a`/`45.34a`
