@@ -148,9 +148,9 @@ const CHECKS = [
     tolerate: 0,
     sql: `WITH k AS (
             SELECT athlete_id, meet_id, event_type_id,
-                   lower(regexp_replace(mark_raw,'[ahm]$','')) AS nm,
-                   count(*) FILTER (WHERE mark_raw ~ '[ahm]$')::int  AS suffixed,
-                   count(*) FILTER (WHERE mark_raw !~ '[ahm]$')::int AS plain
+                   lower(regexp_replace(mark_raw,'[ah]$','')) AS nm,
+                   count(*) FILTER (WHERE mark_raw ~ '[ah]$')::int  AS suffixed,
+                   count(*) FILTER (WHERE mark_raw !~ '[ah]$')::int AS plain
             FROM results
             WHERE meet_id IS NOT NULL AND athlete_id IS NOT NULL AND mark_raw ~ '[0-9]'
             GROUP BY 1,2,3,4 HAVING count(*) > 1)
@@ -171,7 +171,7 @@ const CHECKS = [
     tolerate: 99,
     sql: `WITH k AS (
             SELECT athlete_id, meet_id, event_type_id,
-                   lower(regexp_replace(mark_raw,'[ahm]$','')) AS nm,
+                   lower(regexp_replace(mark_raw,'[ah]$','')) AS nm,
                    count(DISTINCT COALESCE(round,'~NULL~'))::int AS dr,
                    count(DISTINCT COALESCE(place,-1))::int       AS dp
             FROM results

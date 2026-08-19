@@ -28,17 +28,23 @@
 /**
  * Normalise a mark for MATCHING ONLY — never for storage or display.
  *
- * Strips whitespace, lowercases, and removes a trailing source annotation:
- *   a = all-weather track · h = hand-timed · c = converted · y = yard conversion · m = metres
- * so "45.15a", "45.15", "5.08m" and "5.08" all collapse to the same key.
+ * Strips whitespace, lowercases, and removes a trailing TIMING annotation:
+ *   a = all-weather track · h = hand-timed · c = converted · y = yard conversion
+ * so "45.15a" and "45.15" collapse to one key.
  *
- * ⚠️ This is DELIBERATELY more aggressive than mark_parser.js, which must NOT strip a trailing
- * "m" (doing so turned the 5.08-metre jump into 5.08 seconds). Here the result is only ever a
- * comparison key, so collapsing "5.08m" and "5.08" is correct: they are the same performance
- * written by two sources. Never store the output of this function.
+ * ⚠️ "m" IS NOT STRIPPED, and this cost a near-miss. A first version removed every trailing
+ * letter, which collapses "6.88" (a 60m hurdles TIME, in seconds) and "6.88m" (a long jump
+ * DISTANCE, in metres) into the same key. In a Heptathlon or Decathlon EVERY sub-event is stored
+ * under the one multi-event `event_type_id`, so those two rows share a fingerprint — and the
+ * importer would have skipped a real long jump because a running time happened to have the same
+ * digits. 31 such pairs exist in the database and they are all legitimate.
+ *
+ * "m" is a UNIT. "a"/"h"/"c"/"y" are source annotations. Only the annotations may be discarded.
+ * (mark_parser.js learned the same lesson from the other direction: stripping the "m" turned a
+ * 5.08-metre jump into 5.08 seconds.)
  */
 function normaliseMarkKey(mark) {
-  return String(mark || '').trim().toLowerCase().replace(/\s+/g, '').replace(/[a-z]+$/, '');
+  return String(mark || '').trim().toLowerCase().replace(/\s+/g, '').replace(/[ahcy]+$/, '');
 }
 
 /**
