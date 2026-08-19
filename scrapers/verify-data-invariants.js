@@ -119,6 +119,49 @@ const CHECKS = [
           SELECT count(*)::int AS n FROM per_meet WHERE total > 0 AND shared = total`,
   },
   {
+    name: 'every parseable mark has a numeric mark_seconds',
+    why: 'M9. 1,301,371 rows held a time as TEXT with mark_seconds NULL, so they could not be ' +
+         'sorted, ranked or PR-ed. Cause: six copy-pasted parsers, all of which demanded 2-3 ' +
+         'decimals (so "10.6" returned null) and none of which stripped a trailing wind reading ' +
+         '("10.24  (2.0)"). Repaired 2026-08-19; all six replaced by shared/mark_parser.js. ' +
+         'This check is what makes the repair stick — a new importer that forgets to parse ' +
+         'shows up here instead of quietly accumulating for nine months.\n' +
+         '         NOT counted, deliberately: bare integers (Decathlon/Heptathlon/Pentathlon ' +
+         'POINTS, ~15,767 rows — writing 8420 into mark_seconds would rank a decathlete as the ' +
+         'slowest athlete in the DB) and status codes (DNS/DQ/NM/NT — real results with no ' +
+         'numeric value, see MARK_CODES.md).',
+    tolerate: 0,
+    sql: `WITH c AS (
+            SELECT regexp_replace(
+                     btrim(regexp_replace(mark_raw,'\\s*\\([-+]?[0-9.]+\\)\\s*$','')),
+                     '[ahcyAHCY]$','') AS core
+            FROM results WHERE mark_seconds IS NULL AND mark_meters IS NULL AND mark_raw IS NOT NULL)
+          SELECT count(*)::int AS n FROM c
+          WHERE (core ~ '^[0-9]+:[0-9]{2}:[0-9]{1,2}(\\.[0-9]+)?$'
+              OR core ~ '^[0-9]+:[0-9]{2}(\\.[0-9]+)?$'
+              OR core ~ '^[0-9]+\\.[0-9]+$')
+            -- "0:00.0" / "0.00" are shaped like times but are placeholders for a MISSING time.
+            -- They are meant to stay NULL (the next check owns them); counting them here would
+            -- make this invariant permanently unsatisfiable.
+            AND core !~ '^[0:.]+$'`,
+  },
+  {
+    name: 'no zero or negative mark_seconds, and no truncated h:mm:ss',
+    why: 'Two distinct corruptions, both found 2026-08-19, both of which put a bogus WORLD ' +
+         'RECORD at the top of a leaderboard:\n' +
+         '         (a) athletic.net\'s parser did `const [mm, ss] = clean.split(\':\')`, so ' +
+         '"1:05:37.73" bound mm="1", ss="05" and stored 65 SECONDS for a 65-MINUTE run. 6 rows.\n' +
+         '         (b) sources emit "0:00.0"/"0.00" as a placeholder for a missing time; parsed ' +
+         'naively that is faster than any human. 2 rows.\n' +
+         '         shared/mark_parser.js now rejects non-positive values outright, and mark_raw ' +
+         'still preserves whatever the source actually published.',
+    tolerate: 0,
+    sql: `SELECT count(*)::int AS n FROM results
+          WHERE mark_seconds IS NOT NULL
+            AND (mark_seconds <= 0
+                 OR (mark_raw ~ '^[0-9]+:[0-9]{2}:[0-9]' AND mark_seconds < 600))`,
+  },
+  {
     name: 'no result dated more than 7 days from its own meet date',
     why: 'a result far from its meet date usually means it was attached to the wrong meet. ' +
          'Baseline 2026-08-12 = 0, which is real evidence the DUP-1 deletions did not scramble ' +

@@ -19,8 +19,10 @@ and nobody has noticed yet.
 | `relay_results_d3_backup` | **674** | DUP-3 duplicate relay rows |
 | `relay_athletes_d3_backup` | **2,387** | the legs of those relays (saved BEFORE the parent, because of the cascade) |
 | `athletes_empty_backup` | **12,518** | DUP-4 empty duplicate athlete records |
+| `results_accidental_import_20260819_backup` | **31** | rows the legacy `scrape-and-import.js` wrote into MAAC Indoor Championships by accident — see below |
 
-Per-run audit JSONs of the exact ids live in `scrapers/*.json` (16 files as of 2026-08-10).
+Per-run audit JSONs of the exact ids live in `scrapers/*.json` (16 files as of 2026-08-10), plus
+`scrapers/backfill-mark-seconds-2026-08-19T04-16-01-505Z.jsonl.gz` for M9 (below).
 
 ## Rollback commands
 
@@ -37,7 +39,34 @@ INSERT INTO relay_athletes SELECT * FROM relay_athletes_d3_backup;
 
 -- DUP-4: empty duplicate athlete records
 INSERT INTO athletes SELECT * FROM athletes_empty_backup;
+
+-- Accidental legacy import, 2026-08-19 (only if you want the bad rows BACK, which you don't —
+-- they carry NULL event_type_id and Preliminaries+"Heat N" duplicates)
+INSERT INTO results SELECT * FROM results_accidental_import_20260819_backup;
 ```
+
+## M9 — mark_seconds backfill (2026-08-19), 1,301,371 rows UPDATED
+
+Not a deletion: it filled `mark_seconds` on rows that held a time only as text. Reversal is per-id,
+and the ids are on disk — `scrapers/backfill-mark-seconds-2026-08-19T04-16-01-505Z.jsonl.gz`, one JSON
+array of `result_id`s per line, written **before** each batch was applied. Verified complete:
+1,301,371 unique ids across 30 batch lines, exactly matching the number of rows the run reported.
+Read it with `gzcat`.
+
+```sql
+-- revert one batch (repeat per line of the audit file)
+UPDATE results SET mark_seconds = NULL WHERE result_id = ANY('{...}'::bigint[]);
+```
+
+**Two exceptions where NULL is the wrong restore value:**
+
+- Line 1 of the audit file is `{"prior_values":[...]}` — the 6 rows that already had a
+  *wrong* `mark_seconds` (a 1:05:37 run stored as 65 seconds, from athletic.net's
+  `split(':')` bug). Restore those to their listed old numbers, not to NULL.
+- `result_id` 3847312 and 7716203 (`"0:00.0"` and `"0.00"`) were set to NULL by hand afterwards,
+  because a zero time parses to a value faster than any world record. They should stay NULL.
+
+Guarded going forward by two new checks in `scrapers/verify-data-invariants.js`.
 
 **Restoring DUP-2 will now fail** on `results_no_exact_duplicate` for any row whose twin still
 exists — that is the guard doing its job. To restore anyway, drop the index, insert, re-create it:

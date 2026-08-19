@@ -65,7 +65,7 @@ never delete without a self-proving test · small throttled batches (weak instan
 > absorbed by the DUP-3 dedup pass, which keys on exactly (meet, event, team, place, mark).
 | M4 | **Relays with no team** | 1,418 | Mostly juco — leg athletes aren't in the DB, so the team can't be derived. Lineups are still recorded. |
 | M5 | **Results with no `team_id`** | 394,659 | Mostly pre-2024 (roster history only covers 2024-25, 2025-26). Re-runnable: `backfill-result-team-id.js`. |
-| M7 | **Numeric marks never parsed into `mark_seconds` / `mark_meters`** | **1,483,604 rows (45%) have neither, and 1,319,151 of those have a numeric `mark_raw`** | Found 2026-08-10 while checking whether those columns could key the cross-source dedup — they can't. Blocks using them for anything computed (PR maths already works off `mark_raw`). Related: the normalized-mark column needed for dual-source imports (`DATA_SOURCE_STRATEGY.md`). |
+| ~~M7~~ | ~~**Numeric marks never parsed into `mark_seconds` / `mark_meters`**~~ | ~~1,483,604 rows~~ | **FIXED 2026-08-19 as M9 — 1,301,371 rows written. See the M9 section below.** The residual 182k is correct-by-design: multi-event points and status codes. |
 | ~~M8~~ | ~~Doubled mark codes~~ — `NM  NM`, `NH  NH` | **FIXED 2026-08-12: 21,683 repaired, 9 collisions removed, 0 left** (11,452 + 10,240) | Scraper concatenated a field-event cell with itself; appears only in HJ/LJ/PV/SP/TJ. Should be `NM` / `NH`. ⚠️ Not a plain UPDATE — `mark_raw` is in `results_no_exact_duplicate`, so normalising can collide with an existing row; delete the collider instead, as `backfill-null-event-types.js` does. |
 | M6 | **Meets with no results link** | **2025-26 now 93% covered (2,392/2,573).** Remaining 181 = 31 source-has-no-results · 92 timing-platform-only · 58 no link | **Structurally limited** — USTFCCCA's directory is a moving window, so old links are gone (CLAUDE.md §1b). Don't grind; mark `results_status='unavailable'`. |
 
@@ -673,3 +673,65 @@ would have been reported as failures.
 
 **The remaining 300 have no usable link** (plus 4 transient failures worth a re-run). They need the
 TFRRS search cascade in `DATA_SOURCE_STRATEGY.md`, one verified match at a time.
+
+### M9 — 1,301,371 marks were text-only; six copy-pasted parsers were why (2026-08-19)
+
+Logged as M7 on 2026-08-10 ("numeric marks never parsed"), measured then at 1,483,604 rows.
+Re-measured before acting, per `DEDUP_METHOD.md` §1 — the real repairable set was **1,301,371**.
+
+**What the column meant.** `mark_seconds` NULL means the row cannot be sorted, ranked or compared.
+`mark_raw` still displayed fine, which is exactly why this survived nine months: the app looked
+correct and only computed features were broken.
+
+**Root cause — U1 again, in its purest form.** There were **six** near-identical
+`parseMarkSeconds` implementations (`tfrrs/meet-scraper/scrape-meet-results.js`,
+`tfrrs/meet-scraper/sync-weekend-results.js`, `tfrrs/athlete-scraper/import-results-to-db.js`,
+`tfrrs/athlete-scraper/import-prs-to-table.js`, `tools/scrape-and-import.js`, and
+`athletic-net/import_meet_results.js`). Shared defects:
+
+- the seconds branch required `\d{1,2}\.\d{2,3}`, so **`10.6` returned null**;
+- none stripped a trailing wind reading, so **`10.24  (2.0)` returned null** (190,129 rows);
+- athletic.net's did `const [mm, ss] = clean.split(':')`, which on `1:05:37.73` binds `mm="1"`,
+  `ss="05"` and returns **65 seconds for a 65-minute run**.
+
+**Timing proves the code was already fixed and only the data was stale** — the split
+`DEDUP_METHOD.md` §0 warns about. 856,765 of the unparsed rows were created in **one bulk import
+in November 2025**; every import from March 2026 onward parses cleanly (0 unparsed).
+
+**Validated before writing.** The repair expression was run against the 1,082,583 rows that
+*already* had a `mark_seconds` and reproduced **1,082,576** of them exactly. The 7 misses were the
+6 corrupt `h:mm:ss` rows (expression right, stored value wrong) and one 3-decimal rounding
+difference. An expression that cannot reproduce known-good data has no business writing new data.
+
+**Deliberately left unparsed (182,146 rows) — these are not failures:**
+
+| rows | why |
+|---|---|
+| 175,611 | status codes — `DNS`/`DQ`/`NM`/`NT`/… are **results** (`OWNER_DECISIONS.md`), just not numeric |
+| 15,767 | bare integers on Decathlon/Heptathlon/Pentathlon rows — those are **points**. Writing `8420` into `mark_seconds` would rank a decathlete as the slowest athlete in the database. There is no points column yet. |
+| 2 | `"0:00.0"` / `"0.00"` — placeholders for a missing time; as a number, faster than any world record |
+
+**Fixed the class, not the instance.** All six parsers deleted and replaced by one
+`scrapers/shared/mark_parser.js` (25 unit-tested cases). Two standing invariants added so a future
+importer that forgets to parse fails loudly instead of accumulating for nine months.
+
+### A hazard found by tripping over it: `tools/scrape-and-import.js` (2026-08-19)
+
+While rewiring the parsers I ran `require()` on `tools/scrape-and-import.js` to check it loaded.
+It called `main()` at module scope, so it **started importing**, and wrote 31 rows into MAAC Indoor
+Championships (meet 11842) before being killed. Rolled back in full
+(`results_accidental_import_20260819_backup`; meet is back to its original 834 rows).
+
+Worth recording because the 31 rows were a compact demonstration of three real defects in that
+script, all previously only suspected:
+
+1. **`event_type_id` NULL on all 31** — never wired to `shared/event_resolver`. Those 31 rows were
+   the *only* NULL-event rows in the database; it broke the 100%-coverage invariant by itself.
+2. **`Preliminaries` + `Heat N` duplicate pairs** — it does not call
+   `shared/collapse_duplicate_rounds`. The unique index cannot catch this (the rows differ in
+   `round`), which is precisely why U8 has to be handled at import time.
+3. **It imported into a meet that already held 834 rows** — the one-meet-one-source rule.
+
+It is documented elsewhere as a legacy Feb-2026 one-off, but nothing stopped it running. It now
+refuses without `--i-know-this-is-legacy`, and `main()` is behind `require.main === module` so a
+bare `require()` can never start an import again.

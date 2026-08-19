@@ -103,3 +103,6 @@ supabase/.branches
 supabase/.temp
 
 /app/generated/prisma
+
+# raw M9 audit (10MB); the .gz is committed instead
+scrapers/backfill-mark-seconds-*.jsonl

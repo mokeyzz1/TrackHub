@@ -10,6 +10,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { collapseDuplicateRounds } = require('../../shared/collapse_duplicate_rounds');
+const { parseMarkSeconds, parseMarkMeters } = require('../../shared/mark_parser');
 const fs = require('fs');
 const path = require('path');
 
@@ -109,48 +110,10 @@ function getGenderFromEventName(eventName) {
   return null;
 }
 
-// Parse mark to seconds (for running events)
-function parseMarkSeconds(mark) {
-  if (!mark) return null;
-
-  // Clean the mark
-  mark = mark.trim();
-
-  // Format: "10.45" (seconds only)
-  const secMatch = mark.match(/^(\d{1,2}\.\d{2,3})$/);
-  if (secMatch) return parseFloat(secMatch[1]);
-
-  // Format: "1:45.67" or "4:32.10" (min:sec)
-  const minSecMatch = mark.match(/^(\d{1,2}):(\d{2}\.\d{2,3})$/);
-  if (minSecMatch) return parseInt(minSecMatch[1]) * 60 + parseFloat(minSecMatch[2]);
-
-  // Format: "1:02:34.56" (hour:min:sec)
-  const hourMatch = mark.match(/^(\d{1,2}):(\d{2}):(\d{2}\.\d{2,3})$/);
-  if (hourMatch) {
-    return parseInt(hourMatch[1]) * 3600 + parseInt(hourMatch[2]) * 60 + parseFloat(hourMatch[3]);
-  }
-
-  return null;
-}
-
-// Parse mark to meters (for field events)
-function parseMarkMeters(mark) {
-  if (!mark) return null;
-
-  // Format: "4.73m" or "15.67m"
-  const meterMatch = mark.match(/([\d.]+)\s*m/i);
-  if (meterMatch) return parseFloat(meterMatch[1]);
-
-  // Format: "15' 6.75"" (feet and inches)
-  const feetInchMatch = mark.match(/(\d+)'\s*([\d.]+)"/);
-  if (feetInchMatch) {
-    const feet = parseInt(feetInchMatch[1]);
-    const inches = parseFloat(feetInchMatch[2]);
-    return (feet * 12 + inches) * 0.0254; // Convert to meters
-  }
-
-  return null;
-}
+// Mark parsing lives in scrapers/shared/mark_parser.js — see the header there. The two engines
+// used to carry their own copies and they disagreed: this one silently returned null for "10.6"
+// and "1:00:06.1" (it demanded 2-3 decimals), while athletic.net's mis-read h:mm:ss as minutes.
+// Both bugs reached the database. One implementation now, so a fix lands everywhere.
 
 // Parse date from meet page
 function parseDate(dateStr) {

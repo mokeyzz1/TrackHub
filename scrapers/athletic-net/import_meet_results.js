@@ -32,21 +32,12 @@ const UNATTACHED = 1835;
 
 const anetIdFromUrl = url => (String(url || '').match(/\/athlete\/(\d+)/) || [])[1] || null;
 
-// "10.35a" -> {mark_seconds:10.35}; "1:52.34" -> {mark_seconds:112.34}; "5.08m" -> {mark_meters:5.08}
-function parseMark(raw) {
-  if (!raw) return { mark_seconds: null, mark_meters: null };
-  const t = String(raw).trim();
-  const md = t.match(/(\d+(?:\.\d+)?)\s*m\b/); // field mark in meters
-  if (md && !t.includes(':')) return { mark_seconds: null, mark_meters: parseFloat(md[1]) };
-  const clean = t.replace(/[^\d:.]/g, ''); // strip 'a'/'c'/etc. timing suffixes
-  if (clean.includes(':')) {
-    const [mm, ss] = clean.split(':');
-    const sec = parseInt(mm, 10) * 60 + parseFloat(ss);
-    return { mark_seconds: isNaN(sec) ? null : +sec.toFixed(2), mark_meters: null };
-  }
-  const f = parseFloat(clean);
-  return { mark_seconds: isNaN(f) ? null : f, mark_meters: null };
-}
+// Mark parsing lives in scrapers/shared/mark_parser.js — see the header there.
+// The local copy that used to sit here did `const [mm, ss] = clean.split(':')`, which on
+// "1:05:37.73" binds mm="1", ss="05" and returned 65 SECONDS for a 65-minute run. Six rows in the
+// database carried that (repaired 2026-08-19 by scrapers/backfill-mark-seconds.js). One shared
+// implementation now, so the two engines cannot drift apart again.
+const { parseMark } = require('../shared/mark_parser');
 
 function environmentFor(season) {
   const s = (season || '').toLowerCase();
