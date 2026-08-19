@@ -45,6 +45,28 @@ INSERT INTO athletes SELECT * FROM athletes_empty_backup;
 INSERT INTO results SELECT * FROM results_accidental_import_20260819_backup;
 ```
 
+## Cross-source duplicates (2026-08-19) — 1,252 rows DELETED, found by the owner in the app
+
+The NCAA DII Outdoor 4x100 showed FOUR times on an athlete profile: `45.15a`/`45.34a`
+(athletic.net) beside `45.15 F`/`45.34 P` (TFRRS). Same two races, two sources — the trailing `a`
+is all-weather-track notation, not part of the time. 1,252 such rows across 243 meets.
+
+The athletic.net copies were the ones removed, because TFRRS carries the round label. **Their
+extra fields were merged onto the surviving row first** — wind (345 rows) and `team_id` — so
+athletic.net's richer data was not lost.
+
+```sql
+-- restore the deleted athletic.net copies (they will reappear as duplicates)
+INSERT INTO results SELECT * FROM results_xsource_20260819_backup;
+```
+
+⚠️ The merge is **not** reversed by that statement: wind/team_id copied onto surviving TFRRS rows
+stay. That is deliberate — the values are correct regardless of which row holds them — but it
+means the restore is not a bit-exact rollback.
+
+Prevention: `scrapers/shared/result_fingerprint.js`, now used by both importers. Detection: two
+new checks in `verify-data-invariants.js`.
+
 ## Sibling-table gaps (2026-08-19) — found by asking whether verification covered the whole DB
 
 The owner asked whether the checks really covered the entire database. They did not. Three fixes:
