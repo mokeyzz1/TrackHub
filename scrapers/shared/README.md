@@ -68,6 +68,15 @@ explicit per-meet operation until all source-specific athlete creation paths are
 canonical writer. Abandoned `in_progress` leases older than 30 minutes are returned to `queued`
 automatically; adjust that recovery window with `--stale-minutes`.
 
+After reviewing a successful dry-run's private observations, promote exactly that run with an
+explicit run ID. A single-meet run is required by default, and quarantines require an additional
+explicit flag:
+
+```sh
+INGEST_DATABASE_URL='postgresql://...' node recovery/promote_ingest_run.js \
+  --run-id <reviewed-run-id> --commit
+```
+
 The private writer requires an explicit server-side PostgreSQL connection in
 `INGEST_DATABASE_URL`. It deliberately does not fall back to `DATABASE_URL` or
 `SUPABASE_DB_URL`, because a generic application URL can point at a developer database or another

@@ -11,7 +11,8 @@
     "live": "node live/live_scraper.js",
     "final": "node final/final_scraper.js",
     "recovery:queue": "node recovery/refresh_recovery_queue.js",
-    "recovery:dry-run": "node recovery/run_recovery_batch.js"
+    "recovery:dry-run": "node recovery/run_recovery_batch.js",
+    "recovery:promote": "node recovery/promote_ingest_run.js"
   },
   "keywords": [],
   "author": "",
