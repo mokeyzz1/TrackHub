@@ -26,6 +26,7 @@ const { EventResolver } = require('../../shared/event_resolver');
 const { fingerprint, fetchAll, normaliseMarkKey } = require('../../shared/result_fingerprint');
 const { ControlledIngestion } = require('../../shared/controlled_ingestion');
 const { normalizeSourceRows } = require('../../shared/source_observation_adapter');
+const { TeamAliasResolver } = require('../../shared/team_alias_resolver');
 const { requireControlledCommit } = require('../../shared/write_mode_guard');
 
 // Resolves raw event names -> canonical event_type_id via event_aliases (loaded in importResults).
@@ -1213,8 +1214,15 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
 
   const stageControlPlane = async (commitMode) => {
     const sourceRows = relaysOnly ? dbRelayResults : [...dbResults, ...dbRelayResults];
-    const records = normalizeSourceRows('tfrrs', sourceRows, events);
     const controlled = new ControlledIngestion();
+    let teamAliases;
+    try {
+      teamAliases = await TeamAliasResolver.load(controlled.store.pool, 'tfrrs');
+    } catch (error) {
+      if (controlled.ownsStore) await controlled.store.close();
+      throw error;
+    }
+    const records = normalizeSourceRows('tfrrs', sourceRows, events, { teamResolver: teamAliases });
     const outcome = await controlled.run({
       source: 'tfrrs',
       scope: { meet_ids: [...new Set(sourceRows.map(row => row.meet_id).filter(Boolean))], relays_only: relaysOnly },

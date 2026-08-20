@@ -27,6 +27,7 @@ const { parseName } = require('../shared/name_parser');
 const { AthleticNetMeetScraper } = require('./scrape_meet_results');
 const { ControlledIngestion } = require('../shared/controlled_ingestion');
 const { normalizeSourceRows } = require('../shared/source_observation_adapter');
+const { TeamAliasResolver } = require('../shared/team_alias_resolver');
 const { requireControlledCommit } = require('../shared/write_mode_guard');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
@@ -436,8 +437,15 @@ async function run(meetDbId, {
 
   const stageControlPlane = async (commitMode) => {
     const sourceRows = relaysOnly ? relayStats.controlledRows : [...rows, ...relayStats.controlledRows];
-    const records = normalizeSourceRows('athletic_net', sourceRows, events);
     const controlled = new ControlledIngestion();
+    let teamAliases;
+    try {
+      teamAliases = await TeamAliasResolver.load(controlled.store.pool, 'athletic_net');
+    } catch (error) {
+      if (controlled.ownsStore) await controlled.store.close();
+      throw error;
+    }
+    const records = normalizeSourceRows('athletic_net', sourceRows, events, { teamResolver: teamAliases });
     const outcome = await controlled.run({
       source: 'athletic_net',
       mode: commitMode ? 'commit' : 'dry_run',

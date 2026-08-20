@@ -22,9 +22,22 @@ function sourceEventKey(row) {
   return row.source_event_key || row.event_id || row.event_code || row.event_name;
 }
 
-function commonInput(source, row, events, entityType, overrides = {}) {
+function resolveTeam(source, row, teamResolver) {
+  if (row.team_id) return { team_id: row.team_id, match_field: 'row_team_id', match_method: 'source_resolved' };
+  if (!teamResolver || typeof teamResolver.resolve !== 'function') return null;
+
+  return teamResolver.resolve({
+    source,
+    sourceTeamKey: sourceTeamKey(source, row),
+    sourceTeamName: row.school_name || row.team_name,
+    sourceGender: row.team_gender || row.gender
+  });
+}
+
+function commonInput(source, row, events, entityType, overrides = {}, options = {}) {
   const eventTypeId = row.event_type_id || events.resolve(row.event_name || row.event_code);
   const eventType = eventTypeId ? events.detailsById(eventTypeId) : null;
+  const teamResolution = resolveTeam(source, row, options.teamResolver);
   return {
     source,
     entity_type: entityType,
@@ -35,7 +48,7 @@ function commonInput(source, row, events, entityType, overrides = {}) {
     source_url: row.source_url || row.meet_url || row.event_url || null,
     target_meet_id: row.meet_id,
     target_athlete_id: row.athlete_id,
-    target_team_id: row.team_id,
+    target_team_id: teamResolution?.team_id || null,
     event_type_id: eventTypeId,
     event_type: eventType,
     raw_event_name: row.event_name || row.event_code,
@@ -46,13 +59,15 @@ function commonInput(source, row, events, entityType, overrides = {}) {
     place: row.place,
     round: row.round,
     date: row.date,
-    payload: row,
+    payload: teamResolution && teamResolution.match_field !== 'row_team_id'
+      ? { ...row, ingestion_team_resolution: teamResolution }
+      : row,
     ...overrides
   };
 }
 
-function normalizeSourceRow(source, row, events, entityType = row.is_relay ? 'relay_result' : 'individual_result') {
-  const normalized = normalizeObservation(commonInput(source, row, events, entityType));
+function normalizeSourceRow(source, row, events, entityType = row.is_relay ? 'relay_result' : 'individual_result', options = {}) {
+  const normalized = normalizeObservation(commonInput(source, row, events, entityType, {}, options));
   const records = [normalized];
 
   if (entityType === 'relay_result') {
@@ -68,7 +83,7 @@ function normalizeSourceRow(source, row, events, entityType = row.is_relay ? 're
       }, events, 'relay_leg', {
         source_record_key: `${parentKey}:leg:${leg.leg_order || index + 1}`,
         payload: { ...row, leg, relay_parent_source_record_key: parentKey }
-      });
+      }, options);
       records.push(normalizeObservation(legInput));
     }
   }
@@ -76,11 +91,11 @@ function normalizeSourceRow(source, row, events, entityType = row.is_relay ? 're
   return records;
 }
 
-function normalizeSourceRows(source, rows, events) {
+function normalizeSourceRows(source, rows, events, options = {}) {
   const seen = new Set();
   const out = [];
   for (const row of rows) {
-    for (const record of normalizeSourceRow(source, row, events)) {
+    for (const record of normalizeSourceRow(source, row, events, undefined, options)) {
       const key = `${record.sourceRecord.source}|${record.sourceRecord.source_record_key}`;
       // HTML pages occasionally repeat the same row in two presentation tables. The source
       // identity is stable, so collapse the exact replay before it reaches the batch writer.
