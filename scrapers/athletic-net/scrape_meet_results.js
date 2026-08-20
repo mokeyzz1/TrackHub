@@ -57,6 +57,140 @@ function normalizeEventResultLink(href, anchorText = '') {
   }
 }
 
+function parseAthleticLiveEventLink(href, rowText = '', baseUrl = 'https://live.athletic.net') {
+  try {
+    const parsed = new URL(href, baseUrl);
+    const match = parsed.pathname.match(/\/meets\/(\d+)\/events\/(individual|relay)\/(\d+)/i);
+    if (!match) return null;
+    parsed.search = '';
+    parsed.hash = '';
+    const text = String(rowText || '').replace(/\s+/g, ' ').trim();
+    return {
+      url: parsed.toString(),
+      liveMeetId: match[1],
+      liveEventType: match[2].toLowerCase(),
+      liveEventId: match[3],
+      rowText: text,
+      resultAvailable: /\bResults\b/i.test(text) && !/\bScheduled\b/i.test(text),
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
+function athleticLiveEventCode(source = {}) {
+  let code = source.n || source.sn || source.ab || '';
+  code = String(code).replace(/\s+/g, ' ').trim()
+    .replace(/^(?:Men|Women)\s+/i, '')
+    .replace(/\s+-\s+(?:Prelims?|Finals?|Semifinals?|Timed Final)\s*$/i, '')
+    .replace(/^(?:Heptathlon|Hept|Decathlon|Dec|Pentathlon|Pent)\s+/i, '')
+    .replace(/\s+Relay$/i, '')
+    .replace(/\s+Steeplechase$/i, ' SC')
+    .replace(/\s+Hurdles?$/i, ' H')
+    .replace(/^(Discus|Javelin) Throw$/i, '$1')
+    .replace(/\s+(Discus|Javelin) Throw$/i, ' $1')
+    .replace(/R$/i, '')
+    .trim();
+
+  // When only the compact abbreviation is present, expand the field-event
+  // shorthand used by AthleticLIVE. These names are grounded in the public
+  // payload's full `n` labels and the canonical event catalog.
+  const compact = {
+    LJ: 'Long Jump',
+    TJ: 'Triple Jump',
+    HJ: 'High Jump',
+    PV: 'Pole Vault',
+    SP: 'Shot Put',
+    DT: 'Discus',
+    JAV: 'Javelin',
+  };
+  if (compact[code]) code = compact[code];
+  code = code.replace(/^(\d+m)H$/i, '$1 H');
+  return code;
+}
+
+function athleticLiveGender(source = {}) {
+  const raw = String(source.g || source.gl || source.sg || '').toLowerCase();
+  if (raw.includes('female') || raw.includes('women')) return 'f';
+  if (raw.includes('male') || raw.includes('men')) return 'm';
+  return null;
+}
+
+function sourceId(value) {
+  return value == null || value === '' ? null : String(value);
+}
+
+/**
+ * Convert AthleticLIVE's public result JSON into the same row shape used by
+ * the Athletic.net HTML parser. The live payload is preferable to display
+ * text: it carries stable competitor/team keys and ordered relay legs.
+ *
+ * IMPORTANT: AthleticLIVE's `a.i`/`t.i` values are timing-platform competitor
+ * keys, not AthleticNET profile IDs. Keep them as source keys. An
+ * `athletic_net_athlete_id` is only populated by the HTML parser when the
+ * source actually supplies an /athlete/{id} profile link.
+ */
+function parseAthleticLivePayload(payload, event = {}) {
+  const source = payload?._source || {};
+  const gender = athleticLiveGender(source);
+  const eventCode = athleticLiveEventCode(source);
+  const common = {
+    url: event.url || null,
+    live_event_id: sourceId(source.i || event.liveEventId),
+    live_meet_id: sourceId(source.mi || event.liveMeetId),
+    gender,
+    divId: sourceId(source.enu || source.nu),
+    eventCode,
+    divLabel: source.n || source.sn || event.rowText || eventCode,
+  };
+
+  if (event.liveEventType === 'relay' || source.ec === 'Relay') {
+    return {
+      ...common,
+      is_relay_event: true,
+      round: source.runm || null,
+      results: (source.rts || []).map(row => ({
+        is_relay: true,
+        place: row.p,
+        team_name: row.t?.n || row.t?.f || null,
+        source_team_key: sourceId(row.t?.i),
+        athletic_live_team_id: sourceId(row.t?.i),
+        mark_raw: row.m,
+        points: row.pt,
+        round: source.runm || null,
+        relay_squad: row.rd || null,
+        legs: (row.rm || []).map((leg, index) => ({
+          leg_order: Number(leg.to) || index + 1,
+          athlete_name: leg.a?.n || null,
+          source_athlete_key: sourceId(leg.a?.i),
+          athletic_live_athlete_id: sourceId(leg.a?.i),
+        })),
+      })),
+    };
+  }
+
+  return {
+    ...common,
+    is_relay_event: false,
+    round: source.runm || null,
+    results: (source.r || []).map(row => ({
+      place: row.p,
+      athlete_name: row.a?.n || null,
+      source_athlete_key: sourceId(row.a?.i),
+      athletic_live_athlete_id: sourceId(row.a?.i),
+      team_name: row.a?.t?.n || row.a?.t?.f || null,
+      source_team_key: sourceId(row.a?.t?.i),
+      athletic_live_team_id: sourceId(row.a?.t?.i),
+      mark_raw: row.m,
+      wind: row.w,
+      points: row.pt,
+      round: source.runm || null,
+      year_in_school: row.a?.y || null,
+      is_pr: false,
+    })),
+  };
+}
+
 class AthleticNetSourceBlockedError extends Error {
   constructor({ status = null, reason }) {
     super(`athletic.net source blocked (${reason}${status ? `, HTTP ${status}` : ''})`);
@@ -144,6 +278,62 @@ class AthleticNetMeetScraper {
     return events;
   }
 
+  /**
+   * AthleticLIVE is a separate, working presentation/API surface. Its meet
+   * dashboard exposes /meets/{id}/events/... links even when the linked
+   * www.athletic.net page is Cloudflare-protected.
+   */
+  async getAthleticLiveEventLinks(target) {
+    const parsedTarget = new URL(target);
+    const meetMatch = parsedTarget.pathname.match(/\/meets\/(\d+)/i);
+    if (!meetMatch) throw new Error(`Could not parse AthleticLIVE meet id from ${target}`);
+    const meetUrl = `${parsedTarget.origin}/meets/${meetMatch[1]}`;
+    await this._goto(meetUrl);
+
+    const pageState = await this.page.evaluate(() => ({
+      title: document.title,
+      body: document.body?.innerText || '',
+      athleticNetHref: [...document.querySelectorAll('a[href]')]
+        .map(a => a.getAttribute('href') || '')
+        .find(href => /athletic\.net\/TrackAndField\/meet\/\d+/i.test(href)) || null,
+      links: [...document.querySelectorAll('a[href*="/events/"]')].map(anchor => ({
+        href: anchor.getAttribute('href') || '',
+        rowText: anchor.closest('.events-table--row')?.innerText ||
+          anchor.parentElement?.innerText || '',
+      })),
+    }));
+
+    const seen = new Map();
+    for (const link of pageState.links) {
+      const normalized = parseAthleticLiveEventLink(link.href, link.rowText, parsedTarget.origin);
+      if (normalized && normalized.resultAvailable && !seen.has(normalized.url)) {
+        seen.set(normalized.url, normalized);
+      }
+    }
+
+    const netIdMatch = pageState.athleticNetHref?.match(/\/meet\/(\d+)/i);
+    return {
+      meetId: meetMatch[1],
+      athleticNetMeetId: netIdMatch ? netIdMatch[1] : null,
+      canceled: /\bcancelled?\b/i.test(`${pageState.title}\n${pageState.body}`),
+      events: [...seen.values()],
+    };
+  }
+
+  /** Fetch the public AthleticLIVE JSON backing one event page. */
+  async scrapeAthleticLiveEvent(event) {
+    const collection = event.liveEventType === 'relay' ? 'rel_res_list' : 'ind_res_list';
+    const apiUrl = `https://athleticlive.blob.core.windows.net/$web/${collection}/_doc/${event.liveEventId}`;
+    const payload = await this.page.evaluate(async url => {
+      const response = await fetch(url, { headers: { accept: 'application/json' } });
+      const body = await response.text();
+      if (!response.ok) throw new Error(`AthleticLIVE event API HTTP ${response.status}`);
+      try { return JSON.parse(body); }
+      catch (_) { throw new Error('AthleticLIVE event API returned invalid JSON'); }
+    }, apiUrl);
+    return { ...parseAthleticLivePayload(payload, event), api_url: apiUrl };
+  }
+
   /** Parse one event's results page (div.result-row layout). */
   async scrapeEvent(ev) {
     await this._goto(ev.url);
@@ -215,6 +405,45 @@ class AthleticNetMeetScraper {
     if (!this.browser) await this.init();
     let meetId = null;
 
+    const isAthleticLive = (() => {
+      try {
+        const parsed = new URL(target);
+        const host = parsed.hostname.toLowerCase();
+        return (host === 'live.athletic.net' || host === 'anet.live' || host.endsWith('.anet.live')) &&
+          /\/meets\/\d+/i.test(parsed.pathname);
+      } catch (_) { return false; }
+    })();
+
+    if (isAthleticLive) {
+      const live = await this.getAthleticLiveEventLinks(target);
+      let events = live.events;
+      if (limit) events = events.slice(0, limit);
+
+      console.log(`AthleticLIVE meet ${live.meetId}: found ${live.events.length} completed event links`);
+      if (live.canceled) console.log('  SOURCE STATUS: CANCELED');
+
+      const out = {
+        meet_id_athletic_live: live.meetId,
+        meet_id_athletic_net: live.athleticNetMeetId,
+        source_status: live.canceled ? 'canceled' : (live.events.length ? 'results_available' : 'empty'),
+        scraped_at: new Date().toISOString(),
+        events: [],
+      };
+      for (const ev of events) {
+        try {
+          const parsed = await this.scrapeAthleticLiveEvent(ev);
+          console.log(`  ${parsed.gender}/${parsed.eventCode}: ${parsed.results.length} results`);
+          out.events.push(parsed);
+        } catch (e) {
+          console.log(`  ${ev.liveEventId}: ERROR ${e.message}`);
+          out.events.push({ ...ev, error: e.message, results: [] });
+        }
+        await delay(150);
+      }
+      out.total_results = out.events.reduce((sum, event) => sum + (event.results?.length || 0), 0);
+      return out;
+    }
+
     if (/^\d+$/.test(String(target))) meetId = String(target);
     else if (/athletic\.net\/TrackAndField\/meet\/(\d+)/i.test(target)) meetId = target.match(/\/meet\/(\d+)/)[1];
     // Any AthleticLIVE live page (live.athletic.net, *.anet.live, live.herostiming.com, etc.) uses
@@ -252,6 +481,10 @@ module.exports = {
   AthleticNetSourceBlockedError,
   detectSourceBlock,
   normalizeEventResultLink,
+  parseAthleticLiveEventLink,
+  athleticLiveEventCode,
+  athleticLiveGender,
+  parseAthleticLivePayload,
 };
 
 if (require.main === module) {

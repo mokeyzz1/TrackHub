@@ -12,8 +12,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 const config = require('./config');
+const { AthleticNetSearchClient } = require('./athletic_net_api');
 
 // Load environment variables
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
@@ -49,44 +49,16 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Search athletic.net API
-function searchAthleticNet(query) {
-  return new Promise((resolve, reject) => {
-    const url = `${config.SEARCH_API}?q=${encodeURIComponent(query)}&sport=tf`;
+const searchClient = new AthleticNetSearchClient({
+  endpoint: config.SEARCH_API,
+  minDelayMs: config.DELAY_BETWEEN_REQUESTS,
+  maxRetries: config.MAX_RETRIES,
+  retryBackoffMs: config.RETRY_BACKOFF_MS,
+  timeoutMs: config.REQUEST_TIMEOUT_MS,
+});
 
-    const req = https.get(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-        'Accept': 'application/json',
-      }
-    }, (res) => {
-      if (res.statusCode === 429) {
-        reject(new Error('RATE_LIMITED'));
-        return;
-      }
-      if (res.statusCode !== 200) {
-        reject(new Error(`HTTP ${res.statusCode}`));
-        return;
-      }
-
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try {
-          resolve(JSON.parse(data));
-        } catch (e) {
-          reject(new Error('Invalid JSON'));
-        }
-      });
-      res.on('error', reject);
-    });
-
-    req.on('error', reject);
-    req.setTimeout(10000, () => {
-      req.destroy();
-      reject(new Error('Timeout'));
-    });
-  });
+async function searchAthleticNet(query) {
+  return searchClient.search(query, { sport: 'tf' });
 }
 
 // Normalize name for comparison (remove suffixes, trim, lowercase)
@@ -133,6 +105,10 @@ function namesMatch(name1, name2) {
 function schoolsMatch(ourSchool, theirSubtext) {
   const ourNorm = ourSchool.toLowerCase().trim();
   const theirSchool = extractSchoolFromSubtext(theirSubtext);
+
+  // Empty profile metadata is not school corroboration. Without this guard,
+  // `some school`.includes('') would incorrectly score blank API profiles.
+  if (!ourNorm || !theirSchool) return false;
 
   // Exact match
   if (ourNorm === theirSchool) return true;
@@ -431,20 +407,29 @@ async function mapAthletes(options = {}) {
   log(`Mapping saved to: ${path.join(OUTPUT_DIR, 'athlete-mapping.json')}`);
 }
 
-// Parse args
-const args = process.argv.slice(2);
-const options = {
-  fresh: args.includes('--fresh'),
-  testLimit: null
-};
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const options = {
+    fresh: args.includes('--fresh'),
+    testLimit: null
+  };
 
-const testIndex = args.indexOf('--test');
-if (testIndex !== -1 && args[testIndex + 1]) {
-  options.testLimit = parseInt(args[testIndex + 1]);
+  const testIndex = args.indexOf('--test');
+  if (testIndex !== -1 && args[testIndex + 1]) {
+    options.testLimit = parseInt(args[testIndex + 1]);
+  }
+
+  mapAthletes(options).catch(error => {
+    log(`Fatal error: ${error.message}`, 'ERROR');
+    process.exit(1);
+  });
 }
 
-// Run
-mapAthletes(options).catch(error => {
-  log(`Fatal error: ${error.message}`, 'ERROR');
-  process.exit(1);
-});
+module.exports = {
+  extractSchoolFromSubtext,
+  findBestMatch,
+  namesMatch,
+  normalizeName,
+  schoolsMatch,
+  searchAthleticNet,
+};

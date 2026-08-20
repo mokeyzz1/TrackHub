@@ -101,7 +101,7 @@ function normalizeSourceRow(source, row, events, entityType = row.is_relay ? 're
         ...row,
         athlete_id: leg.athlete_id,
         athlete_name: leg.athlete_name || leg.name,
-        source_athlete_key: leg.tfrrs_athlete_id || leg.athletic_net_athlete_id || leg.athlete_id || leg.athlete_name,
+        source_athlete_key: leg.source_athlete_key || leg.tfrrs_athlete_id || leg.athletic_net_athlete_id || leg.athlete_id || leg.athlete_name,
         source_event_key: sourceEventKey(row),
         payload: { ...row, leg }
       }, events, 'relay_leg', {

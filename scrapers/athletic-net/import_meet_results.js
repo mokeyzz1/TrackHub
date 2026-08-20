@@ -241,14 +241,14 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit,
           athletic_net_team_id: r.athletic_net_team_id || null,
           team_name: r.team_name,
           team_gender: gender,
-          source_team_key: r.athletic_net_team_id || r.team_name || null,
+          source_team_key: r.source_team_key || r.athletic_net_team_id || r.team_name || null,
           source_team_name: r.team_name || null,
           mark_raw: r.mark_raw,
           mark_seconds: parseMark(r.mark_raw).mark_seconds,
           place: parseInt(r.place, 10) || null,
           meet_name: meet.name,
           date: meet.date,
-          round: 'Finals',
+          round: r.round || 'Finals',
           is_relay: true,
           environment: environmentFor(meet.season),
           relay_athletes: legs
@@ -265,7 +265,7 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit,
             athlete_id: l.athlete_id, team_id: teamId,
             event_name: ev.eventCode, event_type_id: etid,
             mark_raw: r.mark_raw, mark_seconds: parseMark(r.mark_raw).mark_seconds,
-            place: parseInt(r.place, 10) || null,
+            place: parseInt(r.place, 10) || null, round: r.round || null,
             meet_name: meet.name, meet_id: meet.meet_id, date: meet.date,
             environment: environmentFor(meet.season),
           };
@@ -291,7 +291,7 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit,
           // rollback of 44 rows on meet 13142). A list of places 1..N with points awarded IS the
           // final standing, so 'Finals' is the honest label. TFRRS, where available, gives real
           // Finals/Preliminaries/Heat N and should be preferred -- see repair-timeless-4x100.js.
-          round: 'Finals',
+          round: r.round || 'Finals',
           meet_name: meet.name, meet_id: meet.meet_id, date: meet.date,
         }).select('relay_result_id').single();
         if (error) { console.log(`    relay insert error: ${error.message}`); continue; }
@@ -387,7 +387,10 @@ async function run(meetDbId, {
       if (r.is_relay) continue;                    // handled by importRelays() below
       if (!r.athlete_name || !r.athlete_name.trim()) { stats.skippedBlank++; continue; } // empty rows
       stats.results++;
+      // AthleticLIVE's competitor key is not an AthleticNET profile ID. Only the
+      // HTML parser's profile-link ID is safe to turn into an athletic.net URL.
       const anetId = r.athletic_net_athlete_id;
+      const sourceAthleteKey = r.source_athlete_key || anetId || null;
       const anetUrl = anetId ? `https://www.athletic.net/athlete/${anetId}/track-and-field` : null;
       let athleteId = null, newKey = null, athleteSchoolId = null;
 
@@ -411,7 +414,7 @@ async function run(meetDbId, {
           if (nameHits.length === 1) stats.nameRejectedNoSchool = (stats.nameRejectedNoSchool || 0) + 1;
           // (c) genuinely new (unmatched) OR ambiguous name -> create keyed by anet id/name
           stats.athNew++;
-          newKey = anetId ? 'a:' + anetId : 'n:' + r.athlete_name + '|' + (gender || '');
+          newKey = anetId ? 'a:' + anetId : sourceAthleteKey ? 's:' + sourceAthleteKey : 'n:' + r.athlete_name + '|' + (gender || '');
           if (!newAthletes.has(newKey)) newAthletes.set(newKey, {
             full_name: r.athlete_name, ...(parseName(r.athlete_name) || {}),
             gender, school_id: UNATTACHED, is_active: true, athletic_net_url: anetUrl,
@@ -430,15 +433,18 @@ async function run(meetDbId, {
       rows.push({
         _newKey: newKey, athlete_id: athleteId, team_id: teamId, event_type_id: etid, meet_id: meet.meet_id,
         athletic_net_athlete_id: anetId,
+        source_athlete_key: sourceAthleteKey,
+        athlete_name: r.athlete_name || null,
         // Preserve source team identity for the shared control-plane resolver. The legacy
         // bridge only carried athlete/event fields, which made athletic.net observations lose
         // team context before verified aliases could be applied.
         athletic_net_team_id: r.athletic_net_team_id || null,
+        source_team_key: r.source_team_key || r.athletic_net_team_id || null,
         team_name: r.team_name || null,
         team_gender: gender,
         source_meet_key: String(meet.meet_id),
         event_name: ev.eventCode, mark_raw: r.mark_raw, ...mk,
-        wind: r.wind, place: parseInt(r.place, 10) || null, date: meet.date,
+        wind: r.wind, place: parseInt(r.place, 10) || null, round: r.round || null, date: meet.date,
         meet_name: meet.name, is_pr: !!r.is_pr, environment: env,
       });
     }

@@ -154,6 +154,7 @@ if (require.main === module) {
 module.exports = {
   connectionString,
   parseArgs,
+  promoteRun,
   scopeMeetIds,
   summarizeDecisions,
   validateReview,

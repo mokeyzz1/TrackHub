@@ -10,6 +10,8 @@ module.exports = {
   DELAY_BETWEEN_REQUESTS: 100,   // 100ms between API calls
   DELAY_ON_ERROR: 5000,          // 5s on error
   DELAY_ON_RATE_LIMIT: 60000,    // 1 min if rate limited
+  RETRY_BACKOFF_MS: 500,
+  REQUEST_TIMEOUT_MS: 10000,
 
   // Batch processing
   SAVE_EVERY: 500,               // Save checkpoint every N athletes
