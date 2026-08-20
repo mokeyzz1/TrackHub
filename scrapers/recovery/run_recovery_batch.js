@@ -229,7 +229,13 @@ async function releaseQueueRow(pool, queueId, { runId = null, error = null } = {
 }
 
 function dryRunError(result) {
-  if (result.code === 0) return 'dry_run_pending_review';
+  if (result.code === 0) {
+    const output = String(result.output || '');
+    if (/found 0 event-result links|Scraped 0 results|staged=0\s+inserted=0\s+claimed=0\s+skipped=0\s+quarantined=0/i.test(output)) {
+      return 'source_returned_no_observations';
+    }
+    return 'dry_run_pending_review';
+  }
   const tail = String(result.output || '').trim().split(/\r?\n/).slice(-3).join(' | ');
   return `importer_exit_${result.code ?? 'unknown'}${result.signal ? `_${result.signal}` : ''}${tail ? `: ${tail}` : ''}`;
 }

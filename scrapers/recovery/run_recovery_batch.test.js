@@ -5,6 +5,7 @@ const {
   buildImporterCommand,
   chooseSource,
   connectionString,
+  dryRunError,
   extractRunId,
   parseArgs,
   selectSupportedRows,
@@ -79,6 +80,17 @@ test('run ids are extracted from importer output without exposing credentials', 
     'bb04f4ed-397d-4ad9-ad8b-a5d7cb7f55f1'
   );
   assert.equal(extractRunId('no run id'), null);
+});
+
+test('classifies a successful empty-source dry run separately from pending review', () => {
+  assert.equal(dryRunError({
+    code: 0,
+    output: 'Meet 667160: found 0 event-result links\nCONTROL PLANE RUN abc\n  staged=0 inserted=0 claimed=0 skipped=0 quarantined=0'
+  }), 'source_returned_no_observations');
+  assert.equal(dryRunError({
+    code: 0,
+    output: 'CONTROL PLANE RUN abc\n  staged=10 inserted=0 claimed=0 skipped=0 quarantined=0'
+  }), 'dry_run_pending_review');
 });
 
 test('controlled recovery requires the explicit database URL', () => {
