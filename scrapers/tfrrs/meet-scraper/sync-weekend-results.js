@@ -762,6 +762,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
             mark_seconds: parseMarkSeconds(markRaw),
             place,
             school_name: schoolName,
+            source_team_key: teamInfo?.teamSlug || schoolName || null,
             team_gender: getGenderFromEventName(pageEventName) || teamInfo?.gender || null,
             meet_id: dbMeetId,
             source_meet_key: meetId ? String(meetId) : null,
@@ -1169,6 +1170,9 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       // quarantined every relay even when all legs were matched.
       is_relay: true,
       team_id: teamId,
+      school_name: r.school_name,
+      source_team_key: r.source_team_key || r.school_name || null,
+      team_gender: r.team_gender || null,
       event_name: r.event_name,
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,

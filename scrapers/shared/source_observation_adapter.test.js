@@ -58,6 +58,8 @@ test('emits a parent relay observation and separately attributable leg observati
     event_id: 99,
     event_name: '4x100 Relay',
     team_id: 8,
+    source_team_key: 'ca_college_m_orange_coast',
+    school_name: 'Orange Coast',
     mark_raw: '39.30',
     mark_seconds: 39.3,
     place: 1,
@@ -73,6 +75,8 @@ test('emits a parent relay observation and separately attributable leg observati
   assert.equal(rows.length, 3);
   assert.equal(rows[0].observation.entity_type, 'relay_result');
   assert.equal(rows[0].observation.target_team_id, 8);
+  assert.equal(rows[0].observation.source_team_key, 'ca_college_m_orange_coast');
+  assert.equal(rows[0].sourceRecord.payload.school_name, 'Orange Coast');
   assert.equal(rows[1].observation.entity_type, 'relay_leg');
   assert.equal(rows[2].observation.entity_type, 'relay_leg');
   assert.notEqual(rows[1].sourceRecord.source_record_key, rows[2].sourceRecord.source_record_key);

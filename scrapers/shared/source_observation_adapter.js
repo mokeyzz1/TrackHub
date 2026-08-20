@@ -12,6 +12,7 @@ function sourceAthleteKey(source, row) {
 }
 
 function sourceTeamKey(source, row) {
+  if (row.source_team_key) return row.source_team_key;
   if (source === 'tfrrs') return row.tfrrs_team_id || row.team_id || row.school_name;
   if (source === 'athletic_net') return row.athletic_net_team_id || row.team_id || row.team_name;
   return row.source_team_key || row.team_id || row.school_name || row.team_name;
