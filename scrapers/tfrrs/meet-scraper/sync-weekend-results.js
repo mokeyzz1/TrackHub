@@ -230,6 +230,25 @@ function parseMeetId(url) {
   return match ? parseInt(match[1]) : null;
 }
 
+// Older meet rows often store the TFRRS result page in the generic meet_url column while the
+// newer tfrrs_url column is null. Treat that URL as a TFRRS source only after validating its host
+// and result-id shape; never guess from a name or accept an unrelated generic link.
+function storedTfrrsUrl(meet) {
+  for (const candidate of [meet?.tfrrs_url, meet?.meet_url]) {
+    if (!candidate) continue;
+    try {
+      const parsed = new URL(candidate);
+      const host = parsed.hostname.toLowerCase();
+      if ((host === 'tfrrs.org' || host.endsWith('.tfrrs.org')) && parseMeetId(candidate)) {
+        return candidate;
+      }
+    } catch (_) {
+      // Invalid source URLs are ignored and can be handled by the normal matching path.
+    }
+  }
+  return null;
+}
+
 // Parse event ID from URL
 function parseEventId(url) {
   const match = url.match(/\/results\/\d+\/(\d+)/);
@@ -312,8 +331,12 @@ async function getMeetsNeedingResults(daysBack, meetId = null, relaysOnly = fals
     if (count && relaysOnly) {
       console.log(`Meet ${meetId} has ${count} results — RELAYS-ONLY mode: individual results will not be touched.`);
     }
-    console.log(`Single-meet mode: ${data?.length || 0} meet selected (${count || 0} existing results)`);
-    return data || [];
+    const normalized = (data || []).map(meet => ({
+      ...meet,
+      tfrrs_url: storedTfrrsUrl(meet)
+    }));
+    console.log(`Single-meet mode: ${normalized.length} meet selected (${count || 0} existing results)`);
+    return normalized;
   }
 
   const today = new Date();
@@ -372,7 +395,9 @@ async function getMeetsNeedingResults(daysBack, meetId = null, relaysOnly = fals
   // import a second source on top of it and create duplicates. Two fixes:
   //   1. only check meets we could actually import (a stored results link) — cuts thousands to dozens
   //   2. check sequentially, and FAIL SAFE: if the count can't be read, assume it HAS results
-  const importable = meets.filter(m => m.tfrrs_url);
+  const importable = meets
+    .map(meet => ({ ...meet, tfrrs_url: storedTfrrsUrl(meet) }))
+    .filter(meet => meet.tfrrs_url);
   console.log(`${importable.length} of ${meets.length} meets have a stored TFRRS url; checking which are empty...`);
 
   const needsResults = [];
