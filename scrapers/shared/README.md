@@ -61,7 +61,9 @@ INGEST_DATABASE_URL='postgresql://...' node recovery/run_recovery_batch.js \
 
 Rows with unsupported timing-site URLs remain queued for a dedicated adapter. Use `--meet <id>`
 to inspect one meet and `--source tfrrs` or `--source athletic_net` only when the queue has that
-validated source candidate. The runner rejects `--commit` by design; reviewed writes remain an
+validated source candidate. `--limit` counts supported candidates, so generic URLs do not consume
+batch capacity; untouched rows are prioritized ahead of previous attempts. The runner rejects
+`--commit` by design; reviewed writes remain an
 explicit per-meet operation until all source-specific athlete creation paths are behind the
 canonical writer. Abandoned `in_progress` leases older than 30 minutes are returned to `queued`
 automatically; adjust that recovery window with `--stale-minutes`.

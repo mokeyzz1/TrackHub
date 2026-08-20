@@ -158,9 +158,9 @@ function runImporter({ command, args, env = process.env, timeoutMs = 15 * 60 * 1
   });
 }
 
-async function loadQueueRows(pool, { scope, limit, meetId }) {
-  const values = [scope, limit];
-  const meetClause = meetId == null ? '' : ' AND q.meet_id = $3';
+async function loadQueueRows(pool, { scope, meetId }) {
+  const values = [scope];
+  const meetClause = meetId == null ? '' : ' AND q.meet_id = $2';
   if (meetId != null) values.push(meetId);
   const { rows } = await pool.query(
     `SELECT q.queue_id, q.meet_id, q.coverage_status, q.needs_individual, q.needs_relays,
@@ -170,11 +170,24 @@ async function loadQueueRows(pool, { scope, limit, meetId }) {
       WHERE q.scope_key = $1
         AND q.status = 'queued'
         ${meetClause}
-      ORDER BY q.priority, q.queue_id
-      LIMIT $2`,
+      ORDER BY q.attempts, q.priority, q.queue_id`,
     values
   );
   return rows;
+}
+
+function selectSupportedRows(rows, { source, limit }) {
+  const selected = [];
+  let unsupported = 0;
+  for (const row of rows) {
+    try {
+      chooseSource(row, source);
+      if (selected.length < limit) selected.push(row);
+    } catch (_) {
+      unsupported++;
+    }
+  }
+  return { selected, unsupported };
 }
 
 async function claimQueueRow(pool, queueId) {
@@ -243,9 +256,15 @@ async function main() {
     if (recovered.length) {
       console.log(`Recovered ${recovered.length} stale in-progress queue row(s)`);
     }
-    const rows = await loadQueueRows(pool, args);
+    const queuedRows = await loadQueueRows(pool, args);
+    const selection = selectSupportedRows(queuedRows, args);
+    const rows = selection.selected;
     summary.selected = rows.length;
-    console.log(`Recovery dry-run: ${args.scope} | selected ${rows.length} queued meet(s)`);
+    summary.skipped_unsupported = selection.unsupported;
+    console.log(`Recovery dry-run: ${args.scope} | selected ${rows.length} supported queued meet(s)`);
+    if (selection.unsupported) {
+      console.log(`  left queued for future adapters: ${selection.unsupported}`);
+    }
 
     for (const row of rows) {
       let selection;
@@ -313,4 +332,5 @@ module.exports = {
   extractRunId,
   parseArgs,
   validCandidate,
+  selectSupportedRows,
 };

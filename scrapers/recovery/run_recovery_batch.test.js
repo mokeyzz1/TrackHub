@@ -7,6 +7,7 @@ const {
   connectionString,
   extractRunId,
   parseArgs,
+  selectSupportedRows,
   validCandidate,
 } = require('./run_recovery_batch');
 
@@ -60,6 +61,16 @@ test('athletic.net command uses the controlled relay-only path when needed', () 
   assert.equal(command.command, process.execPath);
   assert.match(command.script, /athletic-net[\\/]import_meet_results\.js$/);
   assert.deepEqual(command.args, ['11579', '--control-plane', '--relays-only']);
+});
+
+test('batch limits count supported candidates instead of generic timing URLs', () => {
+  const result = selectSupportedRows([
+    { meet_id: 1, source_candidates: { meet_url: 'https://milesplit.live/meets/1' } },
+    { meet_id: 2, source_candidates: { tfrrs_url: 'https://www.tfrrs.org/results/2/meet.html' } },
+    { meet_id: 3, source_candidates: { athletic_net_results_url: 'https://www.athletic.net/TrackAndField/meet/3/results' } },
+  ], { source: 'auto', limit: 2 });
+  assert.deepEqual(result.selected.map(row => row.meet_id), [2, 3]);
+  assert.equal(result.unsupported, 1);
 });
 
 test('run ids are extracted from importer output without exposing credentials', () => {
