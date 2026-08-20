@@ -44,6 +44,14 @@ const anetIdFromUrl = url => (String(url || '').match(/\/athlete\/(\d+)/) || [])
 // implementation now, so the two engines cannot drift apart again.
 const { parseMark } = require('../shared/mark_parser');
 
+function countScrapedObservations(scraped, relayStats = {}) {
+  const individualRows = (scraped?.events || []).reduce(
+    (total, event) => total + (event.results || []).filter(result => !result.is_relay && result.athlete_name && result.athlete_name.trim()).length,
+    0
+  );
+  return individualRows + Number(relayStats.relays || 0);
+}
+
 function environmentFor(season) {
   const s = (season || '').toLowerCase();
   if (s.startsWith('indoor')) return 'indoor';
@@ -74,10 +82,13 @@ async function loadExisting(anetIds, names) {
       if (id) byAnet.set(id, { id: a.athlete_id, school_id: a.school_id }); });
   }
   // 2. name matches (for the fallback) — carry the school name for team corroboration
-  for (const c of chunk([...new Set(names)], 200)) {
-    const { data } = await supabase.from('athletes')
+  for (const c of chunk([...new Set(names)], 50)) {
+    const filter = athleteNameFilter(c);
+    if (!filter) continue;
+    const { data, error } = await supabase.from('athletes')
       .select('athlete_id, full_name, gender, school_id, schools(official_name, short_name)')
-      .in('full_name', c);
+      .or(filter);
+    if (error) throw new Error(`athlete lookup failed: ${error.message}`);
     data?.forEach(a => add(byName, `${(a.full_name || '').toLowerCase()}|${a.gender || ''}`, {
       id: a.athlete_id,
       school_id: a.school_id,
@@ -118,6 +129,42 @@ function schoolCorroborates(scrapedTeam, schoolText) {
   const a = schoolTokens(scrapedTeam), b = schoolTokens(schoolText);
   for (const t of a) if (b.has(t)) return true;
   return false;
+}
+
+function quotedPostgrestValue(value) {
+  return `"${String(value || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+}
+
+function athleteNameFilter(names) {
+  return [...new Set(names.map(name => String(name || '').trim()).filter(Boolean))]
+    .map(name => `full_name.ilike.${quotedPostgrestValue(name)}`)
+    .join(',');
+}
+
+/**
+ * Resolve a duplicate-prone name safely. A same-name row is only claimable when exactly one
+ * candidate's recorded school corroborates the source team. Unattached/other-school duplicates
+ * do not block the known-school candidate; two candidates at the same school still quarantine.
+ */
+function resolveExistingAthlete({ name, gender, scrapedTeam }, byName) {
+  const nameHits = byName.get(`${String(name || '').toLowerCase()}|${gender || ''}`) || [];
+  if (!nameHits.length) return { athleteId: null, schoolId: null, reason: 'no_name_match' };
+
+  const schoolHits = nameHits.filter(hit => schoolCorroborates(scrapedTeam, hit.school));
+  if (schoolHits.length === 1) {
+    return {
+      athleteId: schoolHits[0].id,
+      schoolId: schoolHits[0].school_id,
+      reason: 'name_school'
+    };
+  }
+  if (schoolHits.length > 1) {
+    return { athleteId: null, schoolId: null, reason: 'ambiguous_school' };
+  }
+  if (nameHits.length === 1) {
+    return { athleteId: null, schoolId: null, reason: 'no_school_corroboration' };
+  }
+  return { athleteId: null, schoolId: null, reason: 'ambiguous_name' };
 }
 
 function resolveIndividualTeam({ schoolId, scrapedTeam, gender }, teamBySchoolGender) {
@@ -216,7 +263,12 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit,
       const legs = [];
       const schoolVotes = new Map();
       for (const leg of (r.legs || [])) {
-        const a = resolveAthlete({ anetId: leg.athletic_net_athlete_id, name: leg.athlete_name, gender });
+        const a = resolveAthlete({
+          anetId: leg.athletic_net_athlete_id,
+          name: leg.athlete_name,
+          gender,
+          scrapedTeam: r.team_name
+        });
         legs.push({ ...leg, athlete_id: a.athleteId });
         if (a.schoolId && a.schoolId !== UNATTACHED) schoolVotes.set(a.schoolId, (schoolVotes.get(a.schoolId) || 0) + 1);
       }
@@ -402,16 +454,25 @@ async function run(meetDbId, {
         stats.matchAnet++;
       }
       else {
-        // (b) fallback: existing athlete by name+gender — ONLY if unambiguous (exactly one)
-        // AND the scraped team corroborates their school. Same name at a different school is
-        // treated as a different person (create; multi-signal dedup can merge later).
-        const nameHits = byName.get(`${r.athlete_name.toLowerCase()}|${gender || ''}`) || [];
-        if (nameHits.length === 1 && schoolCorroborates(r.team_name, nameHits[0].school)) {
-          athleteId = nameHits[0].id; stats.matchName++;
-          athleteSchoolId = nameHits[0].school_id;
+        // (b) fallback: use the one same-name candidate whose school corroborates the source
+        // team. Older unattached duplicates do not block a known-school match, but two candidates
+        // at the same school remain ambiguous and are quarantined.
+        const resolved = resolveExistingAthlete({
+          name: r.athlete_name,
+          gender,
+          scrapedTeam: r.team_name
+        }, byName);
+        if (resolved.athleteId) {
+          athleteId = resolved.athleteId; stats.matchName++;
+          athleteSchoolId = resolved.schoolId;
           if (anetUrl && !backfillAnet.has(athleteId)) backfillAnet.set(athleteId, anetUrl); // link them going forward
         } else {
-          if (nameHits.length === 1) stats.nameRejectedNoSchool = (stats.nameRejectedNoSchool || 0) + 1;
+          if (resolved.reason === 'no_school_corroboration') {
+            stats.nameRejectedNoSchool = (stats.nameRejectedNoSchool || 0) + 1;
+          }
+          if (resolved.reason === 'ambiguous_school' || resolved.reason === 'ambiguous_name') {
+            stats.nameRejectedAmbiguous = (stats.nameRejectedAmbiguous || 0) + 1;
+          }
           // (c) genuinely new (unmatched) OR ambiguous name -> create keyed by anet id/name
           stats.athNew++;
           newKey = anetId ? 'a:' + anetId : sourceAthleteKey ? 's:' + sourceAthleteKey : 'n:' + r.athlete_name + '|' + (gender || '');
@@ -466,13 +527,13 @@ async function run(meetDbId, {
   }
 
   // 4c. relays — same athlete-matching cascade, but the competitor is a team with ordered legs
-  const resolveAthlete = ({ anetId, name, gender }) => {
+  const resolveAthlete = ({ anetId, name, gender, scrapedTeam }) => {
     if (anetId && byAnet.has(anetId)) {
       const hit = byAnet.get(anetId);
       return { athleteId: hit.id, schoolId: hit.school_id };
     }
-    const hits = byName.get(`${(name || '').toLowerCase()}|${gender || ''}`) || [];
-    if (hits.length === 1) return { athleteId: hits[0].id, schoolId: hits[0].school_id };
+    const resolved = resolveExistingAthlete({ name, gender, scrapedTeam }, byName);
+    if (resolved.athleteId) return { athleteId: resolved.athleteId, schoolId: resolved.schoolId };
     return { athleteId: null, schoolId: null };     // ambiguous/new — leg keeps its name only
   };
   const relayEvents = scraped.events.filter(ev => (ev.results || []).some(r => r.is_relay));
@@ -537,6 +598,22 @@ async function run(meetDbId, {
     };
   }
 
+  // Controlled commits must go through the canonical writer before any legacy public-athlete
+  // creation path. Otherwise an unresolved source identity could create an unattached athlete
+  // here and bypass the quarantine boundary this mode is designed to enforce.
+  if (controlPlane) {
+    const outcome = await stageControlPlane(true);
+    if (outcome.quarantined) process.exitCode = 1;
+    return {
+      imported: outcome.inserted || 0,
+      errors: outcome.quarantined || 0,
+      skipped: outcome.skipped || 0,
+      relaysImported: outcome.relayParents || 0,
+      relayErrors: 0,
+      runId: outcome.runId
+    };
+  }
+
   if (!commit) { console.log('\n(dry run — pass --commit to write)'); return; }
 
   // 6a. link athletic.net url onto existing athletes matched by name (prevents future dupes)
@@ -559,19 +636,6 @@ async function run(meetDbId, {
     data.forEach((a, idx) => created.set(batch[idx][0], a.athlete_id));
   }
   for (const r of rows) if (!r.athlete_id && r._newKey) r.athlete_id = created.get(r._newKey) || null;
-
-  if (controlPlane) {
-    const outcome = await stageControlPlane(true);
-    if (outcome.quarantined) process.exitCode = 1;
-    return {
-      imported: outcome.inserted || 0,
-      errors: outcome.quarantined || 0,
-      skipped: outcome.skipped || 0,
-      relaysImported: outcome.relayParents || 0,
-      relayErrors: 0,
-      runId: outcome.runId
-    };
-  }
 
   // RELAYS-ONLY MODE. Added 2026-08-14 for the timeless-4x100 repair (M1).
   // 463 meets have a 4x100 where every row is a status code, because the old parser required
@@ -612,18 +676,32 @@ async function run(meetDbId, {
   // They were still marked imported with results_source='athletic_net', which (a) lied about
   // provenance -- `results_source` is the provenance record, see CLAUDE.md coexistence rule 2 --
   // and (b) meant they would never be retried if results appeared later.
-  if (imported === 0) {
+  const observed = countScrapedObservations(scraped, relayStats);
+  if (observed === 0) {
     await supabase.from('meets')
-      .update({ results_status: 'no_results_at_source', results_source: null })
+      .update({
+        results_status: 'no_results_at_source',
+        results_source: null,
+        results_imported_at: null,
+        results_error: null,
+      })
       .eq('meet_id', meet.meet_id);
     console.log(`\nDONE: source page had NO results — meet marked no_results_at_source (not imported).`);
-  } else {
+  } else if (imported > 0) {
     await supabase.from('meets').update({ results_status: 'imported', results_source: 'athletic_net', results_imported_at: new Date().toISOString() }).eq('meet_id', meet.meet_id);
     console.log(`\nDONE: imported ${imported} results, created ${created.size} athletes, meet marked imported.`);
+  } else {
+    console.log(`\nDONE: source returned ${observed} observations already represented in the database; provenance unchanged.`);
   }
 }
 
-module.exports = { run, resolveIndividualTeam, schoolCorroborates };
+module.exports = {
+  countScrapedObservations,
+  resolveExistingAthlete,
+  run,
+  resolveIndividualTeam,
+  schoolCorroborates
+};
 
 if (require.main === module) {
   const args = process.argv.slice(2);

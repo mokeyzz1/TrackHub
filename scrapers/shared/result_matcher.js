@@ -10,7 +10,8 @@ const {
   isStatusCode,
   makePerformanceKey,
   makeCanonicalKey,
-  stableMarkKey
+  stableMarkKey,
+  normalizeRound
 } = require('./ingestion_contract');
 
 function asComparableRow(observation, existing) {
@@ -44,6 +45,12 @@ function dateDistanceDays(left, right) {
   const b = new Date(`${String(right).slice(0, 10)}T00:00:00Z`);
   if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return null;
   return Math.abs(a.getTime() - b.getTime()) / 86400000;
+}
+
+function knownRoundsAreDistinct(left, right) {
+  const leftRound = normalizeRound(left?.round).canonical;
+  const rightRound = normalizeRound(right?.round).canonical;
+  return Boolean(leftRound && rightRound && leftRound !== rightRound);
 }
 
 /**
@@ -88,6 +95,10 @@ function matchObservation(observation, existingRows = [], options = {}) {
       continue;
     }
     if (performanceKey && existingPerformanceKey === performanceKey) {
+      // A known prelim/heat and a known final are separate races, even when the athlete
+      // records the same mark. Keep the round distinction when both sources provide it;
+      // if either source omits the round, retain the conservative conflict quarantine.
+      if (knownRoundsAreDistinct(observation, existing)) continue;
       candidates.push({ existing, comparable, kind: 'same_performance_place_conflict' });
     }
   }
@@ -175,4 +186,4 @@ function matchObservation(observation, existingRows = [], options = {}) {
   };
 }
 
-module.exports = { matchObservation, historyKey, dateDistanceDays };
+module.exports = { matchObservation, historyKey, dateDistanceDays, knownRoundsAreDistinct };

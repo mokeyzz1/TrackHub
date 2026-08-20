@@ -29,11 +29,18 @@ puppeteer.use(StealthPlugin());
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
 
-function detectSourceBlock({ status = null, title = '', body = '' } = {}) {
+function detectSourceBlock({ status = null, title = '', body = '', headers = {} } = {}) {
   if (Number(status) === 403) return `HTTP ${status}`;
+  const normalizedHeaders = Object.fromEntries(
+    Object.entries(headers || {}).map(([key, value]) => [String(key).toLowerCase(), String(value)])
+  );
+  if (normalizedHeaders['cf-mitigated']) return 'Cloudflare response';
   const text = `${title}\n${body}`;
-  if (/sorry, you have been blocked|attention required!\s*\|\s*cloudflare|performance & security by\s*cloudflare/i.test(text)) {
-    return 'Cloudflare block page';
+  if (
+    /sorry, you have been blocked|attention required!\s*\|\s*cloudflare|performance & security by\s*cloudflare/i.test(text)
+    || /just a moment\.\.\.|enable javascript and cookies to continue|cf[_-]chl[_-]|cf-mitigated/i.test(text)
+  ) {
+    return 'Cloudflare challenge page';
   }
   return null;
 }
@@ -91,6 +98,21 @@ function athleticLiveEventCode(source = {}) {
     .replace(/\s+(Discus|Javelin) Throw$/i, ' $1')
     .replace(/R$/i, '')
     .trim();
+
+  // AthleticLIVE uses compact labels that are valid for display but do not match the
+  // canonical event-alias vocabulary. These translations are intentionally source-specific:
+  // they preserve the event meaning while handing EventResolver a verified alias.
+  const verifiedAliases = {
+    '60m Hurdles Open': '60 Meter Hurdles Open',
+    '60m Open': '60 Meters Open',
+    '200m Open': '200 Meters Open',
+    '300m Hurdles Open': '300 Hurdles',
+    '400m Open': '400 Meters Open',
+    '800m Open': '800 Meters Open',
+    '3000m Open': '3000 Meters Open',
+    '4x400m Relay Open': '4 x 400 Relay Open',
+  };
+  code = verifiedAliases[code] || code;
 
   // When only the compact abbreviation is present, expand the field-event
   // shorthand used by AthleticLIVE. These names are grounded in the public
@@ -226,9 +248,10 @@ class AthleticNetMeetScraper {
     const response = await this.page.goto(url, { waitUntil: 'networkidle2', timeout: this.timeout });
     await delay(this.settle);
     const status = response?.status?.() || null;
+    const headers = response?.headers?.() || {};
     const title = await this.page.title().catch(() => '');
     const body = await this.page.evaluate(() => document.body?.innerText || '').catch(() => '');
-    const reason = detectSourceBlock({ status, title, body });
+    const reason = detectSourceBlock({ status, title, body, headers });
     if (reason) throw new AthleticNetSourceBlockedError({ status, reason });
   }
 

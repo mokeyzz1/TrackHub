@@ -113,6 +113,42 @@ test('quarantines same mark with conflicting place instead of choosing a source'
   assert.equal(result.reason, 'same_performance_place_conflict');
 });
 
+test('keeps known preliminaries and finals as separate performances', () => {
+  const row = individual({ place: 5, round: 'Preliminaries' });
+  const result = matchObservation(row, [{
+    result_id: 904,
+    meet_id: 42,
+    athlete_id: 7,
+    event_type_id: 1,
+    mark_raw: '45.15',
+    mark_seconds: 45.15,
+    place: 4,
+    round: 'Finals',
+    date: '2026-08-19'
+  }]);
+
+  assert.equal(result.action, 'insert');
+  assert.equal(result.reason, 'no_existing_match');
+});
+
+test('does not guess a round when one source omits it', () => {
+  const row = individual({ place: 5, round: 'Preliminaries' });
+  const result = matchObservation(row, [{
+    result_id: 905,
+    meet_id: 42,
+    athlete_id: 7,
+    event_type_id: 1,
+    mark_raw: '45.15',
+    mark_seconds: 45.15,
+    place: 4,
+    round: null,
+    date: '2026-08-19'
+  }]);
+
+  assert.equal(result.action, 'quarantine');
+  assert.equal(result.reason, 'same_performance_place_conflict');
+});
+
 test('claims one matching unlinked history row only inside the date window', () => {
   const row = individual({ date: '2026-08-19' });
   const result = matchObservation(row, [{

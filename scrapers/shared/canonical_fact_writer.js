@@ -52,6 +52,14 @@ function nullableInteger(value) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
+function linkedTarget(resultId, relayResultId) {
+  const result = nullableInteger(resultId);
+  const relay = nullableInteger(relayResultId);
+  if (result && !relay) return { resultId: result, relayResultId: null };
+  if (relay && !result) return { resultId: null, relayResultId: relay };
+  return null;
+}
+
 function asObservation(row) {
   return {
     source: row.source,
@@ -227,7 +235,8 @@ class CanonicalFactWriter {
 
         if (match.action === 'skip_duplicate' || match.action === 'claim') {
           const existingRow = match.matched;
-          if (!existingRow) {
+          const target = linkedTarget(existingRow?.result_id, existingRow?.relay_result_id);
+          if (!target) {
             await this.quarantine(client, row.observation_id, 'matched_without_target', 0);
             stats.quarantined++;
             continue;
@@ -238,16 +247,16 @@ class CanonicalFactWriter {
               `UPDATE public.results
                   SET meet_id = $2
                 WHERE result_id = $1 AND meet_id IS NULL`,
-              [existingRow.result_id, row.target_meet_id]
+              [target.resultId, row.target_meet_id]
             );
             stats.claimed++;
           } else {
             stats.skipped++;
           }
 
-          await this.linkSource(client, row, existingRow.result_id, null);
+          await this.linkSource(client, row, target.resultId, target.relayResultId);
           await this.markObservation(client, row.observation_id, match.action, match.reason,
-            match.confidence, existingRow.result_id, null);
+            match.confidence, target.resultId, target.relayResultId);
           rememberLinkedSource(linkedSourceKeys, row);
           continue;
         }
@@ -467,4 +476,4 @@ class CanonicalFactWriter {
   }
 }
 
-module.exports = { CanonicalFactWriter, chunk, nullableInteger };
+module.exports = { CanonicalFactWriter, chunk, linkedTarget, nullableInteger };

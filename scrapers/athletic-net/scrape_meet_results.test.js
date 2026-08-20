@@ -28,7 +28,25 @@ test('detects a Cloudflare page even when the browser reports HTTP 200', () => {
       title: 'Attention Required! | Cloudflare',
       body: 'Sorry, you have been blocked',
     }),
-    'Cloudflare block page'
+    'Cloudflare challenge page'
+  );
+});
+
+test('detects the current Cloudflare challenge page returned by Athletic.net', () => {
+  assert.equal(
+    detectSourceBlock({
+      status: 200,
+      title: 'Just a moment...',
+      body: 'Enable JavaScript and cookies to continue',
+    }),
+    'Cloudflare challenge page'
+  );
+});
+
+test('detects Cloudflare response headers even when the body is not available', () => {
+  assert.equal(
+    detectSourceBlock({ status: 200, headers: { 'cf-mitigated': 'challenge' } }),
+    'Cloudflare response'
   );
 });
 
@@ -87,6 +105,17 @@ test('normalizes AthleticLIVE event abbreviations and gender', () => {
   assert.equal(athleticLiveEventCode({ ab: 'LJ' }), 'Long Jump');
   assert.equal(athleticLiveGender({ g: 'Male', gl: 'Men' }), 'm');
   assert.equal(athleticLiveGender({ g: 'Female', gl: 'Women' }), 'f');
+});
+
+test('maps AthleticLIVE open labels into verified event aliases', () => {
+  assert.equal(athleticLiveEventCode({ n: '60m Hurdles Open' }), '60 Meter Hurdles Open');
+  assert.equal(athleticLiveEventCode({ n: '60m Open' }), '60 Meters Open');
+  assert.equal(athleticLiveEventCode({ n: '200m Open' }), '200 Meters Open');
+  assert.equal(athleticLiveEventCode({ n: '300m Hurdles Open' }), '300 Hurdles');
+  assert.equal(athleticLiveEventCode({ n: '400m Open' }), '400 Meters Open');
+  assert.equal(athleticLiveEventCode({ n: '800m Open' }), '800 Meters Open');
+  assert.equal(athleticLiveEventCode({ n: '3000m Open' }), '3000 Meters Open');
+  assert.equal(athleticLiveEventCode({ n: '4x400m Relay Open' }), '4 x 400 Relay Open');
 });
 
 test('maps AthleticLIVE individual payloads with source keys, not guessed profile IDs', () => {
