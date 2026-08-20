@@ -87,10 +87,29 @@ async function loadExisting(anetIds, names) {
   return { byAnet, byName };
 }
 
+async function loadTeamLookup() {
+  const { data, error } = await supabase
+    .from('teams')
+    .select('team_id, school_id, gender, schools(official_name, short_name)');
+  if (error) throw new Error(`team lookup failed: ${error.message}`);
+
+  const bySchoolGender = new Map();
+  for (const row of data || []) {
+    const school = row.schools || {};
+    bySchoolGender.set(`${row.school_id}|${row.gender}`, {
+      teamId: row.team_id,
+      schoolName: `${school.official_name || ''} ${school.short_name || ''}`.trim()
+    });
+  }
+  return bySchoolGender;
+}
+
 // Does the scraped team ("Bethel (Minn.)") plausibly name the athlete's school
 // ("Bethel University")? Corroboration = they share a distinctive token. Generic words don't
 // count, so "Saint Mary" can never corroborate "Saint John" on "saint" alone.
-const SCHOOL_GENERIC = new Set(['university', 'college', 'univ', 'state', 'the', 'of', 'and', 'saint', 'community']);
+const SCHOOL_GENERIC = new Set([
+  'university', 'college', 'univ', 'state', 'the', 'of', 'and', 'saint', 'community', 'valley'
+]);
 function schoolTokens(s) {
   return new Set(String(s || '').toLowerCase().replace(/['’.]/g, '').replace(/[^a-z0-9]+/g, ' ')
     .split(' ').filter(t => t.length >= 4 && !SCHOOL_GENERIC.has(t)));
@@ -99,6 +118,13 @@ function schoolCorroborates(scrapedTeam, schoolText) {
   const a = schoolTokens(scrapedTeam), b = schoolTokens(schoolText);
   for (const t of a) if (b.has(t)) return true;
   return false;
+}
+
+function resolveIndividualTeam({ schoolId, scrapedTeam, gender }, teamBySchoolGender) {
+  if (!schoolId || !scrapedTeam || !gender) return null;
+  const candidate = teamBySchoolGender?.get(`${schoolId}|${gender}`);
+  if (!candidate || !schoolCorroborates(scrapedTeam, candidate.schoolName)) return null;
+  return candidate.teamId;
 }
 
 const addDays = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
@@ -212,7 +238,11 @@ async function importRelays(meet, relayEvents, events, resolveAthlete, { commit,
           event_id: ev.eventCode,
           event_name: ev.eventCode,
           team_id: teamId,
+          athletic_net_team_id: r.athletic_net_team_id || null,
           team_name: r.team_name,
+          team_gender: gender,
+          source_team_key: r.athletic_net_team_id || r.team_name || null,
+          source_team_name: r.team_name || null,
           mark_raw: r.mark_raw,
           mark_seconds: parseMark(r.mark_raw).mark_seconds,
           place: parseInt(r.place, 10) || null,
@@ -337,13 +367,15 @@ async function run(meetDbId, {
     }
   }
   const { byAnet, byName } = await loadExisting(scrapedIds, scrapedNames);
+  const teamBySchoolGender = await loadTeamLookup();
   console.log(`Existing matches available: ${byAnet.size} by athletic.net id, ${byName.size} name/gender keys\n`);
 
   // 4. translate
   const env = environmentFor(meet.season);
   const rows = [];
   const stats = { events: scraped.events.length, results: 0, evResolved: 0, evMissed: {},
-    matchAnet: 0, matchName: 0, athNew: 0, markParsed: 0, skippedBlank: 0 };
+    matchAnet: 0, matchName: 0, athNew: 0, teamMatched: 0, teamUnresolved: 0,
+    markParsed: 0, skippedBlank: 0 };
   const newAthletes = new Map();  // key -> athlete payload (created on commit)
   const backfillAnet = new Map(); // athlete_id -> athletic_net_url (link existing on name-match)
 
@@ -357,10 +389,15 @@ async function run(meetDbId, {
       stats.results++;
       const anetId = r.athletic_net_athlete_id;
       const anetUrl = anetId ? `https://www.athletic.net/athlete/${anetId}/track-and-field` : null;
-      let athleteId = null, newKey = null;
+      let athleteId = null, newKey = null, athleteSchoolId = null;
 
       // (a) exact athletic.net-id match
-      if (anetId && byAnet.has(anetId)) { athleteId = byAnet.get(anetId).id; stats.matchAnet++; }
+      if (anetId && byAnet.has(anetId)) {
+        const match = byAnet.get(anetId);
+        athleteId = match.id;
+        athleteSchoolId = match.school_id;
+        stats.matchAnet++;
+      }
       else {
         // (b) fallback: existing athlete by name+gender — ONLY if unambiguous (exactly one)
         // AND the scraped team corroborates their school. Same name at a different school is
@@ -368,6 +405,7 @@ async function run(meetDbId, {
         const nameHits = byName.get(`${r.athlete_name.toLowerCase()}|${gender || ''}`) || [];
         if (nameHits.length === 1 && schoolCorroborates(r.team_name, nameHits[0].school)) {
           athleteId = nameHits[0].id; stats.matchName++;
+          athleteSchoolId = nameHits[0].school_id;
           if (anetUrl && !backfillAnet.has(athleteId)) backfillAnet.set(athleteId, anetUrl); // link them going forward
         } else {
           if (nameHits.length === 1) stats.nameRejectedNoSchool = (stats.nameRejectedNoSchool || 0) + 1;
@@ -383,9 +421,21 @@ async function run(meetDbId, {
 
       const mk = parseMark(r.mark_raw);
       if (mk.mark_seconds != null || mk.mark_meters != null) stats.markParsed++;
+      const teamId = resolveIndividualTeam({
+        schoolId: athleteSchoolId,
+        scrapedTeam: r.team_name,
+        gender
+      }, teamBySchoolGender);
+      if (teamId) stats.teamMatched++; else stats.teamUnresolved++;
       rows.push({
-        _newKey: newKey, athlete_id: athleteId, event_type_id: etid, meet_id: meet.meet_id,
+        _newKey: newKey, athlete_id: athleteId, team_id: teamId, event_type_id: etid, meet_id: meet.meet_id,
         athletic_net_athlete_id: anetId,
+        // Preserve source team identity for the shared control-plane resolver. The legacy
+        // bridge only carried athlete/event fields, which made athletic.net observations lose
+        // team context before verified aliases could be applied.
+        athletic_net_team_id: r.athletic_net_team_id || null,
+        team_name: r.team_name || null,
+        team_gender: gender,
         source_meet_key: String(meet.meet_id),
         event_name: ev.eventCode, mark_raw: r.mark_raw, ...mk,
         wind: r.wind, place: parseInt(r.place, 10) || null, date: meet.date,
@@ -430,6 +480,7 @@ async function run(meetDbId, {
   console.log(`  events: ${stats.events} (event_type_id resolved: ${stats.evResolved}${Object.keys(stats.evMissed).length ? ', MISSED: ' + JSON.stringify(stats.evMissed) : ''})`);
   console.log(`  results: ${stats.results} | marks parsed: ${stats.markParsed} | blank rows skipped: ${stats.skippedBlank}`);
   console.log(`  athletes: matched by athletic.net id = ${stats.matchAnet} | matched by name+school = ${stats.matchName} | name-only REJECTED (no school corroboration) = ${stats.nameRejectedNoSchool || 0} | NEW = ${stats.athNew} (${newAthletes.size} distinct)`);
+  console.log(`  teams: matched by athlete school + scraped team corroboration = ${stats.teamMatched} | unresolved = ${stats.teamUnresolved}`);
   console.log(`  duplicate-result guard: ${claims.length} existing history rows will be CLAIMED (meet_id set, no new row) | ${dupSkips} exact dups skipped`);
   console.log(`  (${backfillAnet.size} existing athletes will get their athletic.net url linked)`);
   console.log(`  RELAYS: ${relayStats.relays} rows across ${relayEvents.length} relay events -> ${relayStats.inserted} relay_results, ${relayStats.legs} legs, ${relayStats.legResultRows || 0} leg rows in results (makes relays visible in the app) | ${relayStats.dupSkipped} already present | ${relayStats.noTeam} without a resolved team`);
@@ -566,7 +617,7 @@ async function run(meetDbId, {
   }
 }
 
-module.exports = { run };
+module.exports = { run, resolveIndividualTeam, schoolCorroborates };
 
 if (require.main === module) {
   const args = process.argv.slice(2);

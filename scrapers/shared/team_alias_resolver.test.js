@@ -106,3 +106,35 @@ test('does not override an explicit scraper team id', () => {
   assert.equal(row.observation.target_team_id, 999);
   assert.equal(row.sourceRecord.payload.ingestion_team_resolution, undefined);
 });
+
+test('resolves an athletic.net team from preserved source identity and gender', () => {
+  const resolver = new TeamAliasResolver([
+    {
+      team_alias_id: 11,
+      source: 'athletic_net',
+      source_team_key: 'anet-team-7',
+      source_team_name: 'Grand Valley State',
+      source_gender: 'M',
+      team_id: 742,
+      match_method: 'verified_alias',
+      status: 'active'
+    }
+  ]);
+  const [row] = normalizeSourceRow('athletic_net', {
+    meet_id: 11727,
+    source_meet_key: '11727',
+    event_name: '60m',
+    athletic_net_team_id: 'anet-team-7',
+    team_name: 'Grand Valley State',
+    team_gender: 'M',
+    mark_raw: '6.83a',
+    mark_seconds: 6.83,
+    place: 1,
+    date: '2026-02-20'
+  }, events(), undefined, { teamResolver: resolver });
+
+  assert.equal(row.observation.target_team_id, 742);
+  assert.equal(row.observation.source_team_key, 'anet-team-7');
+  assert.equal(row.sourceRecord.payload.team_name, 'Grand Valley State');
+  assert.equal(row.sourceRecord.payload.ingestion_team_resolution.team_alias_id, 11);
+});
