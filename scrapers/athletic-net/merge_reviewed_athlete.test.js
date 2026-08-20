@@ -27,6 +27,59 @@ test('builds a reviewed merge plan with explicit duplicate mappings', () => {
   assert.deepEqual(plan.duplicate_source_record_ids, [3510]);
 });
 
+test('allows only explicitly mapped relay legs to move during a reviewed merge', () => {
+  const plan = buildPlan({
+    old_athlete_id: 10,
+    target_athlete_id: 20,
+    source_athlete_key: 'profile-10',
+    athletic_net_profile_id: '10',
+    duplicate_result_mappings: [],
+    relay_leg_mappings: [{ old_relay_athlete_id: 77, action: 'move' }],
+    evidence: ['one', 'two', 'three'],
+  }, {
+    athletes: [
+      { athlete_id: 10, full_name: 'Old Person', gender: 'M', athletic_net_url: 'https://www.athletic.net/athlete/10/track-and-field' },
+      { athlete_id: 20, full_name: 'Person', gender: 'M', athletic_net_url: null, tfrrs_athlete_id: '123' },
+    ],
+    results: [],
+    targetResults: [],
+    profileOwners: [{ athlete_id: 10, athletic_net_url: 'https://www.athletic.net/athlete/10/track-and-field' }],
+    sourceLinks: [],
+    dependentCounts: [{ dependency: 'relay_legs', count: 1 }],
+    relayLegs: [{ relay_athlete_id: 77, relay_result_id: 88, leg_order: 1 }],
+    targetRelayLegs: [],
+  });
+  assert.equal(plan.action, 'merge');
+  assert.deepEqual(plan.relay_leg_moves, [{ old_relay_athlete_id: 77, relay_result_id: 88, leg_order: 1 }]);
+  assert.equal(plan.target_tfrrs_athlete_id, '123');
+});
+
+test('holds a relay merge when the target already occupies the same relay leg', () => {
+  const plan = buildPlan({
+    old_athlete_id: 10,
+    target_athlete_id: 20,
+    source_athlete_key: 'profile-10',
+    athletic_net_profile_id: '10',
+    duplicate_result_mappings: [],
+    relay_leg_mappings: [{ old_relay_athlete_id: 77, action: 'move' }],
+    evidence: ['one', 'two', 'three'],
+  }, {
+    athletes: [
+      { athlete_id: 10, full_name: 'Old Person', gender: 'M', athletic_net_url: 'https://www.athletic.net/athlete/10/track-and-field' },
+      { athlete_id: 20, full_name: 'Person', gender: 'M', athletic_net_url: null },
+    ],
+    results: [],
+    targetResults: [],
+    profileOwners: [{ athlete_id: 10, athletic_net_url: 'https://www.athletic.net/athlete/10/track-and-field' }],
+    sourceLinks: [],
+    dependentCounts: [{ dependency: 'relay_legs', count: 1 }],
+    relayLegs: [{ relay_athlete_id: 77, relay_result_id: 88, leg_order: 1 }],
+    targetRelayLegs: [{ relay_athlete_id: 99, relay_result_id: 88, leg_order: 1 }],
+  });
+  assert.equal(plan.action, 'hold');
+  assert.equal(plan.reason, 'relay_leg_target_conflict');
+});
+
 test('holds a merge when an unhandled dependency exists', () => {
   const plan = buildPlan({
     old_athlete_id: 1, target_athlete_id: 2, source_athlete_key: 'x', athletic_net_profile_id: '9',

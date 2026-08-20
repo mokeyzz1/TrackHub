@@ -73,12 +73,16 @@ function buildPlan(decision, state) {
   const oldAthlete = state.athletes.find(row => Number(row.athlete_id) === Number(decision.old_athlete_id));
   const targetAthlete = state.athletes.find(row => Number(row.athlete_id) === Number(decision.target_athlete_id));
   const expectedUrl = profileUrl(decision.athletic_net_profile_id);
+  const relayLegs = state.relayLegs || [];
+  const targetRelayLegs = state.targetRelayLegs || [];
+  const relayLegMappings = Array.isArray(decision.relay_leg_mappings) ? decision.relay_leg_mappings : [];
   const base = {
     old_athlete_id: Number(decision.old_athlete_id),
     target_athlete_id: Number(decision.target_athlete_id),
     source_athlete_key: String(decision.source_athlete_key).trim(),
     athletic_net_url: expectedUrl,
     evidence: decision.evidence,
+    relay_leg_moves: [],
   };
 
   if (!oldAthlete || !targetAthlete) return { ...base, action: 'hold', reason: 'athlete_not_found' };
@@ -96,8 +100,33 @@ function buildPlan(decision, state) {
   if (state.profileOwners.filter(row => Number(row.athlete_id) !== base.old_athlete_id).length) {
     return { ...base, action: 'hold', reason: 'profile_url_has_other_owner' };
   }
-  if (state.dependentCounts.some(row => Number(row.count) > 0)) {
-    return { ...base, action: 'hold', reason: 'old_athlete_has_unhandled_dependencies', dependencies: state.dependentCounts };
+  const unhandledDependencies = state.dependentCounts.filter(row => (
+    Number(row.count) > 0 && row.dependency !== 'relay_legs'
+  ));
+  if (unhandledDependencies.length) {
+    return { ...base, action: 'hold', reason: 'old_athlete_has_unhandled_dependencies', dependencies: unhandledDependencies };
+  }
+  if (relayLegs.length) {
+    const mappedIds = relayLegMappings.map(mapping => Number(mapping.old_relay_athlete_id));
+    const knownIds = relayLegs.map(row => Number(row.relay_athlete_id));
+    if (relayLegMappings.length !== relayLegs.length
+      || new Set(mappedIds).size !== mappedIds.length
+      || knownIds.some(id => !mappedIds.includes(id))
+      || relayLegMappings.some(mapping => mapping.action !== 'move')) {
+      return { ...base, action: 'hold', reason: 'relay_legs_require_explicit_mapping', relay_legs: relayLegs };
+    }
+    const targetConflict = relayLegs.find(oldLeg => targetRelayLegs.some(targetLeg => (
+      Number(targetLeg.relay_result_id) === Number(oldLeg.relay_result_id)
+      && Number(targetLeg.leg_order || 0) === Number(oldLeg.leg_order || 0)
+    )));
+    if (targetConflict) {
+      return { ...base, action: 'hold', reason: 'relay_leg_target_conflict', relay_leg: targetConflict };
+    }
+    base.relay_leg_moves = relayLegs.map(oldLeg => ({
+      old_relay_athlete_id: Number(oldLeg.relay_athlete_id),
+      relay_result_id: Number(oldLeg.relay_result_id),
+      leg_order: oldLeg.leg_order == null ? null : Number(oldLeg.leg_order),
+    }));
   }
   const oldById = new Map(state.results.map(row => [Number(row.result_id), row]));
   const targetById = new Map(state.targetResults.map(row => [Number(row.result_id), row]));
@@ -127,6 +156,8 @@ function buildPlan(decision, state) {
     duplicate_source_record_ids: sourceRecordIds,
     duplicate_source_links: duplicateSourceLinks,
     old_result_count: state.results.length,
+    target_tfrrs_athlete_id: targetAthlete.tfrrs_athlete_id || null,
+    target_athlete_name: targetAthlete.full_name,
   };
 }
 
@@ -134,9 +165,9 @@ async function loadState(pool, decision) {
   const oldId = Number(decision.old_athlete_id);
   const targetId = Number(decision.target_athlete_id);
   const profile = profileUrl(decision.athletic_net_profile_id);
-  const [athletes, results, targetResults, profileOwners, dependentCounts] = await Promise.all([
+  const [athletes, results, targetResults, profileOwners, dependentCounts, relayLegs, targetRelayLegs] = await Promise.all([
     pool.query(
-      `SELECT athlete_id, full_name, gender, school_id, athletic_net_url, is_active
+      `SELECT athlete_id, full_name, gender, school_id, athletic_net_url, tfrrs_athlete_id, is_active
          FROM public.athletes WHERE athlete_id = ANY($1::bigint[])`,
       [[oldId, targetId]]
     ),
@@ -159,6 +190,14 @@ async function loadState(pool, decision) {
        UNION ALL SELECT 'unprocessed_live_results', count(*)::int FROM public.unprocessed_live_results WHERE athlete_id=$1
        UNION ALL SELECT 'external_ids', count(*)::int FROM public.external_ids WHERE athlete_id=$1`, [oldId]
     ),
+    pool.query(
+      `SELECT relay_athlete_id, relay_result_id, athlete_id, tfrrs_athlete_id, athlete_name, leg_order
+         FROM public.relay_athletes WHERE athlete_id=$1 ORDER BY relay_athlete_id`, [oldId]
+    ),
+    pool.query(
+      `SELECT relay_athlete_id, relay_result_id, athlete_id, tfrrs_athlete_id, athlete_name, leg_order
+         FROM public.relay_athletes WHERE athlete_id=$1 ORDER BY relay_athlete_id`, [targetId]
+    ),
   ]);
   const sourceLinks = results.rows.length
     ? (await pool.query(
@@ -174,6 +213,8 @@ async function loadState(pool, decision) {
     profileOwners: profileOwners.rows,
     sourceLinks,
     dependentCounts: dependentCounts.rows,
+    relayLegs: relayLegs.rows,
+    targetRelayLegs: targetRelayLegs.rows,
   };
 }
 
@@ -209,6 +250,15 @@ async function commitPlan(pool, plan) {
       }
       await client.query('DELETE FROM public.results WHERE result_id = ANY($1::bigint[])', [plan.delete_result_ids]);
     }
+    for (const relayLeg of plan.relay_leg_moves || []) {
+      await client.query(
+        `UPDATE public.relay_athletes
+            SET athlete_id=$2, tfrrs_athlete_id=$3, athlete_name=$4
+          WHERE relay_athlete_id=$1 AND athlete_id=$5`,
+        [relayLeg.old_relay_athlete_id, plan.target_athlete_id, plan.target_tfrrs_athlete_id,
+          plan.target_athlete_name, plan.old_athlete_id]
+      );
+    }
     if (plan.move_result_ids.length) {
       await client.query(
         `UPDATE public.results SET athlete_id=$2 WHERE athlete_id=$1 AND result_id=ANY($3::bigint[])`,
@@ -242,13 +292,15 @@ async function commitPlan(pool, plan) {
     const verify = await client.query(
       `SELECT
          (SELECT count(*) FROM public.results WHERE athlete_id=$1)::int AS old_results,
+         (SELECT count(*) FROM public.relay_athletes WHERE athlete_id=$1)::int AS old_relay_legs,
          (SELECT is_active FROM public.athletes WHERE athlete_id=$1) AS old_active,
          (SELECT athletic_net_url FROM public.athletes WHERE athlete_id=$2) AS target_url,
          (SELECT count(*) FROM ingest.athlete_aliases WHERE source='athletic_net' AND source_athlete_key=$3 AND target_athlete_id=$2 AND status='active')::int AS alias_count`,
       [plan.old_athlete_id, plan.target_athlete_id, plan.source_athlete_key]
     );
     const row = verify.rows[0];
-    if (row.old_results !== 0 || row.old_active !== false || row.target_url !== plan.athletic_net_url || row.alias_count !== 1) {
+    if (row.old_results !== 0 || row.old_relay_legs !== 0 || row.old_active !== false
+      || row.target_url !== plan.athletic_net_url || row.alias_count !== 1) {
       throw new Error(`athlete merge verification failed: ${JSON.stringify(row)}`);
     }
     await client.query('COMMIT');

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 1,
+  "review_scope": "Grand Valley State Tune-Up 2026 Kirtland CC duplicate identity review",
+  "decisions": [
+    {
+      "old_athlete_id": 194263,
+      "target_athlete_id": 101407,
+      "source_athlete_key": "29402932",
+      "source_athlete_name": "Anthony Cole",
+      "athletic_net_profile_id": "29402932",
+      "duplicate_result_mappings": [
+        { "old_result_id": 8023636, "target_result_id": 8024249, "reason": "same mile performance; Athletic.net annotation only" },
+        { "old_result_id": 8023970, "target_result_id": 8024282, "reason": "same 4x400m relay-leg performance; source event label/annotation differs" }
+      ],
+      "relay_leg_mappings": [
+        { "old_relay_athlete_id": 506606, "action": "move" }
+      ],
+      "evidence": [
+        "TFRRS GVSU Tune-Up lists Anthony Cole for Kirtland CC at 4:49.25 and on the 3:50.67 4x400m relay: https://www.tfrrs.org/results/92961/m/GVSU_Tune-Up",
+        "Canonical athlete 101407 already owns TFRRS athlete 9283284 for Kirtland CC: https://www.tfrrs.org/athletes/9283284/Kirtland_CC/Anthony_Cole.html",
+        "Duplicate athlete 194263 uniquely owns the Athletic.net profile: https://www.athletic.net/athlete/29402932/track-and-field",
+        "The old and canonical rows share the same meet, performance, team, and relay squad; the explicit relay-leg mapping preserves the relay membership during merge."
+      ],
+      "notes": "Merge only after the transactional relay-leg guard passes; preserve the duplicate-result backup and transfer the old relay leg to canonical athlete 101407."
+    }
+  ]
+}
