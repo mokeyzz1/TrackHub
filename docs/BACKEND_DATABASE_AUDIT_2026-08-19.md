@@ -19,7 +19,9 @@ The audit findings were used to install the first safety boundary:
 - `meets_meet_id_seq` was reconciled to the live maximum (`94,959`), so the next default ID is
   `94,960`.
 - The scheduled TFRRS writer is fail-closed unless `INGEST_DATABASE_URL` is configured, and it now
-  invokes controlled mode. A dry run must be completed before enabling production commits.
+  invokes controlled mode. The private writers do not fall back to generic database environment
+  variables, preventing an accidental local-database target. A dry run must be completed before
+  enabling production commits.
 - The active TFRRS and athletic.net importer commit paths also fail closed unless `--control-plane`
   is supplied; the old direct path requires the explicit `--legacy-direct-write` escape hatch.
 

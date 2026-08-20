@@ -10,7 +10,9 @@ const { matchObservation } = require('./result_matcher');
 const { Pool } = require('pg');
 
 function connectionStringFromEnv(env = process.env) {
-  return env.INGEST_DATABASE_URL || env.DATABASE_URL || env.SUPABASE_DB_URL || null;
+  // Canonical fact writes require an explicit private ingestion connection. Never infer the
+  // target from a generic application DATABASE_URL.
+  return env.INGEST_DATABASE_URL || null;
 }
 
 function chunk(items, size = 500) {

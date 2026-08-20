@@ -50,9 +50,11 @@ The queue is resumable and intentionally separates `covered`, `queued`, and `blo
 generic timing-site URL is not treated as a supported result source unless its host verifies as
 TFRRS or athletic.net.
 
-The private writer requires a server-side PostgreSQL connection (`INGEST_DATABASE_URL`, or the
-existing `DATABASE_URL`/`SUPABASE_DB_URL` fallback). The public Supabase URL and anon key are not
-valid substitutes because the `ingest` schema is intentionally not exposed to the Data API.
+The private writer requires an explicit server-side PostgreSQL connection in
+`INGEST_DATABASE_URL`. It deliberately does not fall back to `DATABASE_URL` or
+`SUPABASE_DB_URL`, because a generic application URL can point at a developer database or another
+service. The public Supabase URL and anon key are not valid substitutes because the `ingest` schema
+is intentionally not exposed to the Data API.
 
 ## Contents
 
@@ -106,9 +108,8 @@ same mark with conflicting place or multiple history candidates is quarantined.
 
 ### `ingestion_store.js`
 
-Transactional PostgreSQL writer for the private `ingest` schema. It requires
-`INGEST_DATABASE_URL`, `DATABASE_URL`, or `SUPABASE_DB_URL`; it is intentionally not a client-side
-Supabase Data API utility.
+Transactional PostgreSQL writer for the private `ingest` schema. It requires the explicit
+`INGEST_DATABASE_URL` variable; it is intentionally not a client-side Supabase Data API utility.
 
 ### `sql/`
 

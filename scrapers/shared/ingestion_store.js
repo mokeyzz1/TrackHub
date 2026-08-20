@@ -11,7 +11,9 @@ const { Pool } = require('pg');
 const BATCH_SIZE = 500;
 
 function connectionStringFromEnv(env = process.env) {
-  return env.INGEST_DATABASE_URL || env.DATABASE_URL || env.SUPABASE_DB_URL || null;
+  // Controlled ingestion must opt into its private database explicitly. Falling back to a
+  // generic DATABASE_URL can silently target a developer's local database or another service.
+  return env.INGEST_DATABASE_URL || null;
 }
 
 function required(value, name) {

@@ -34,7 +34,8 @@ function parseArgs(argv) {
 }
 
 function connectionString(env = process.env) {
-  return env.INGEST_DATABASE_URL || env.DATABASE_URL || env.SUPABASE_DB_URL || null;
+  // Recovery inventory is production-facing state; require its private connection explicitly.
+  return env.INGEST_DATABASE_URL || null;
 }
 
 async function main() {
