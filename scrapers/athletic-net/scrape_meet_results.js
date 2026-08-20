@@ -12,9 +12,9 @@
  *   2. /TrackAndField/meet/{id}/results  -->  event links               [getEventLinks]
  *   3. each event page                   -->  div.result-row parsed     [scrapeEvent]
  *
- * Cloudflare: athletic.net is protected — plain HTTP gets a 403 challenge. We use
- * puppeteer-extra + StealthPlugin (already proven against athletic.net/USTFCCCA here).
- * Requires Node 20+ (undici/puppeteer).
+ * Cloudflare: athletic.net is protected and can still block automated IPs even through a
+ * browser. We use puppeteer-extra + StealthPlugin, but explicitly detect a block page and fail
+ * closed rather than treating it as a legitimate empty meet. Requires Node 20+.
  *
  * Usage:
  *   node scrape_meet_results.js https://www.athletic.net/TrackAndField/meet/631684/results
@@ -28,6 +28,43 @@ const fs = require('fs');
 puppeteer.use(StealthPlugin());
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
+
+function detectSourceBlock({ status = null, title = '', body = '' } = {}) {
+  if (Number(status) === 403) return `HTTP ${status}`;
+  const text = `${title}\n${body}`;
+  if (/sorry, you have been blocked|attention required!\s*\|\s*cloudflare|performance & security by\s*cloudflare/i.test(text)) {
+    return 'Cloudflare block page';
+  }
+  return null;
+}
+
+function normalizeEventResultLink(href, anchorText = '') {
+  try {
+    const parsed = new URL(href, 'https://www.athletic.net');
+    const m = parsed.pathname.match(/\/TrackAndField\/meet\/(\d+)\/results\/(m|f)\/([^/]+)\/([^/?#]+)/i);
+    if (!m) return null;
+    parsed.search = '';
+    parsed.hash = '';
+    return {
+      url: parsed.toString(),
+      gender: m[2].toLowerCase(),
+      divId: m[3],
+      eventCode: decodeURIComponent(m[4]),
+      divLabel: String(anchorText || '').trim(),
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
+class AthleticNetSourceBlockedError extends Error {
+  constructor({ status = null, reason }) {
+    super(`athletic.net source blocked (${reason}${status ? `, HTTP ${status}` : ''})`);
+    this.name = 'AthleticNetSourceBlockedError';
+    this.code = 'SOURCE_BLOCKED';
+    this.httpStatus = status;
+  }
+}
 
 class AthleticNetMeetScraper {
   constructor(opts = {}) {
@@ -52,8 +89,13 @@ class AthleticNetMeetScraper {
   }
 
   async _goto(url) {
-    await this.page.goto(url, { waitUntil: 'networkidle2', timeout: this.timeout });
+    const response = await this.page.goto(url, { waitUntil: 'networkidle2', timeout: this.timeout });
     await delay(this.settle);
+    const status = response?.status?.() || null;
+    const title = await this.page.title().catch(() => '');
+    const body = await this.page.evaluate(() => document.body?.innerText || '').catch(() => '');
+    const reason = detectSourceBlock({ status, title, body });
+    if (reason) throw new AthleticNetSourceBlockedError({ status, reason });
   }
 
   /** live.athletic.net/meets/{id} -> the permanent www.athletic.net meet id (via "View on AthleticNET"). */
@@ -70,20 +112,36 @@ class AthleticNetMeetScraper {
 
   /** All event-results links for a meet: /TrackAndField/meet/{id}/results/{m|f}/{divId}/{eventCode} */
   async getEventLinks(meetId) {
-    await this._goto(`https://www.athletic.net/TrackAndField/meet/${meetId}/results`);
-    return this.page.evaluate(() => {
+    const resultsUrl = `https://www.athletic.net/TrackAndField/meet/${meetId}/results`;
+    await this._goto(resultsUrl);
+
+    const extract = async () => {
+      const rawLinks = await this.page.evaluate(() => [...document.querySelectorAll('a[href]')]
+        .map(a => ({ href: a.getAttribute('href') || '', text: a.textContent || '' })));
       const seen = new Map();
-      document.querySelectorAll('a[href*="/results/"]').forEach(a => {
-        const href = a.getAttribute('href') || '';
-        const m = href.match(/\/meet\/(\d+)\/results\/(m|f)\/([^/]+)\/([^/?#]+)/i);
-        if (!m) return;
-        const url = href.startsWith('http') ? href : `https://www.athletic.net${href}`;
-        if (!seen.has(url)) {
-          seen.set(url, { url, gender: m[2], divId: m[3], eventCode: decodeURIComponent(m[4]), divLabel: a.textContent.trim() });
-        }
-      });
+      for (const link of rawLinks) {
+        const normalized = normalizeEventResultLink(link.href, link.text);
+        if (normalized && !seen.has(normalized.url)) seen.set(normalized.url, normalized);
+      }
       return [...seen.values()];
-    });
+    };
+
+    let events = await extract();
+    if (events.length === 0) {
+      // Current athletic.net pages put the event links behind “Show All Results”. Older pages
+      // exposed them directly on /results, so retain that path and follow the link only when the
+      // first page contains no event links.
+      const allResultsUrl = await this.page.evaluate(() => {
+        const link = [...document.querySelectorAll('a[href]')]
+          .find(a => /\/TrackAndField\/meet\/\d+\/results\/all(?:[?#]|$)/i.test(a.getAttribute('href') || ''));
+        return link ? new URL(link.getAttribute('href'), location.href).toString() : null;
+      });
+      if (allResultsUrl && allResultsUrl !== resultsUrl) {
+        await this._goto(allResultsUrl);
+        events = await extract();
+      }
+    }
+    return events;
   }
 
   /** Parse one event's results page (div.result-row layout). */
@@ -189,7 +247,12 @@ class AthleticNetMeetScraper {
   }
 }
 
-module.exports = { AthleticNetMeetScraper };
+module.exports = {
+  AthleticNetMeetScraper,
+  AthleticNetSourceBlockedError,
+  detectSourceBlock,
+  normalizeEventResultLink,
+};
 
 if (require.main === module) {
   const args = process.argv.slice(2);

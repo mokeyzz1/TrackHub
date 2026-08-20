@@ -29,6 +29,7 @@ class ControlledIngestion {
       scraped: records.length,
       normalized: 0,
       invalid: 0,
+      quarantined: 0,
       staged_source_records: 0,
       staged_observations: 0
     };
@@ -36,6 +37,10 @@ class ControlledIngestion {
     try {
       metrics.normalized = records.length;
       metrics.invalid = records.filter(r => r.observation?.validation_errors?.length).length;
+      // Dry runs do not invoke the canonical writer, so surface contract-level quarantines in
+      // the run metrics instead of reporting zero while the observation rows are already marked
+      // quarantine in the private control plane.
+      metrics.quarantined = records.filter(r => r.observation?.decision === 'quarantine').length;
       const staged = await this.store.persistObservations(runId, records);
       metrics.staged_source_records = staged.sourceRecords;
       metrics.staged_observations = staged.observations;

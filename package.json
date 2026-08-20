@@ -6,7 +6,7 @@
   "scripts": {
     "gen:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > types/database.ts && cp types/database.ts frontend/types/database.ts",
     "db:types": "npm run gen:types",
-    "test:ingestion": "node --test scrapers/shared/ingestion_contract.test.js scrapers/shared/source_observation_adapter.test.js scrapers/shared/canonical_fact_writer.test.js scrapers/shared/ingestion_store.test.js"
+    "test:ingestion": "node --test scrapers/shared/ingestion_contract.test.js scrapers/shared/source_observation_adapter.test.js scrapers/shared/canonical_fact_writer.test.js scrapers/shared/ingestion_store.test.js scrapers/shared/controlled_ingestion.test.js scrapers/athletic-net/scrape_meet_results.test.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.86.0",

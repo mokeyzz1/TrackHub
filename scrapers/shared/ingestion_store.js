@@ -128,30 +128,33 @@ class IngestionStore {
           [JSON.stringify(sourceRows)]
         );
 
-        const observationRows = batch.map(record => ({
-          source: record.observation.source,
-          source_record_key: record.observation.source_record_key,
-          entity_type: record.observation.entity_type,
-          target_meet_id: record.observation.target_meet_id,
-          target_athlete_id: record.observation.target_athlete_id,
-          target_team_id: record.observation.target_team_id,
-          event_type_id: record.observation.event_type_id,
-          raw_event_name: record.observation.raw_event_name,
-          measure: record.observation.measure,
-          mark_raw: record.observation.mark_raw,
-          mark_seconds: record.observation.mark_seconds,
-          mark_meters: record.observation.mark_meters,
-          points: record.observation.points,
-          place: record.observation.place,
-          round: record.observation.round,
-          result_date: record.observation.result_date,
-          performance_key: record.observation.performance_key,
-          canonical_key: record.observation.canonical_key,
-          decision: record.observation.decision,
-          decision_reason: record.observation.decision_reason || null,
-          confidence: record.observation.confidence ?? null,
-          validation_errors: json(record.observation.validation_errors, [])
-        }));
+        const observationRows = batch.map(record => {
+          const validationErrors = json(record.observation.validation_errors, []);
+          return {
+            source: record.observation.source,
+            source_record_key: record.observation.source_record_key,
+            entity_type: record.observation.entity_type,
+            target_meet_id: record.observation.target_meet_id,
+            target_athlete_id: record.observation.target_athlete_id,
+            target_team_id: record.observation.target_team_id,
+            event_type_id: record.observation.event_type_id,
+            raw_event_name: record.observation.raw_event_name,
+            measure: record.observation.measure,
+            mark_raw: record.observation.mark_raw,
+            mark_seconds: record.observation.mark_seconds,
+            mark_meters: record.observation.mark_meters,
+            points: record.observation.points,
+            place: record.observation.place,
+            round: record.observation.round,
+            result_date: record.observation.result_date,
+            performance_key: record.observation.performance_key,
+            canonical_key: record.observation.canonical_key,
+            decision: record.observation.decision,
+            decision_reason: record.observation.decision_reason || validationErrors[0]?.code || null,
+            confidence: record.observation.confidence ?? null,
+            validation_errors: validationErrors
+          };
+        });
 
         await client.query(
           `WITH incoming AS (
