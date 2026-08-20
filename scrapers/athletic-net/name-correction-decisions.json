@@ -1,0 +1,21 @@
+{
+  "manifest_version": 1,
+  "decisions": [
+    {
+      "source_athlete_key": "49173263",
+      "source_athlete_name": "Aaron Dickhart",
+      "source_gender": "M",
+      "target_athlete_id": 75313,
+      "target_tfrrs_athlete_id": "9250900",
+      "expected_current_name": "Aaron Dickart",
+      "expected_school_id": 1556,
+      "expected_athletic_net_profile_id": "30057910",
+      "evidence": [
+        "Official TFRRS profile: https://www.tfrrs.org/athletes/9250900/Westminster_PA/Aaron_Dickart.html",
+        "Official Westminster 2025-26 roster: Aaron Dickhart, Sprints, freshman, Aliquippa/ Hopewell",
+        "Mount Union Last Chance TFRRS results identify Aaron Dickhart for Westminster (Pa.)"
+      ],
+      "notes": "Correct the existing database spelling from Dickart to Dickhart. Preserve all existing results, relay legs, PRs, and external IDs; add the exact AthleticLIVE source alias."
+    }
+  ]
+}
