@@ -22,6 +22,7 @@ node_modules/
 !package-lock.json
 !athletic-net/verified-identity-decisions.json
 !athletic-net/new-identity-decisions.json
+!athletic-net/split-identity-decisions.json
 
 # Python
 __pycache__/
