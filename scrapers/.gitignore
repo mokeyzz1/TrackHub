@@ -31,6 +31,7 @@ node_modules/
 !athletic-net/directathletics-identity-decisions-batch-3.json
 !athletic-net/name-correction-decisions-batch-2.json
 !athletic-net/directathletics-history-identity-decisions-batch-1.json
+!athletic-net/tfrrs-identity-decisions-batch-1.json
 
 # Python
 __pycache__/
