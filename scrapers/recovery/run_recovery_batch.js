@@ -47,6 +47,13 @@ function positiveInteger(value, name, fallback) {
   return parsed;
 }
 
+function nonNegativeInteger(value, name, fallback) {
+  if (value == null) return fallback;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0) throw new Error(`${name} must be a non-negative integer`);
+  return parsed;
+}
+
 function parseArgs(argv) {
   if (argv.includes('--commit')) {
     throw new Error('recovery batch runner is dry-run only; reviewed commits must be run explicitly per meet');
@@ -64,7 +71,7 @@ function parseArgs(argv) {
   const meetId = meetValue == null ? null : positiveInteger(meetValue, '--meet');
   const limit = positiveInteger(valueAfter(argv, '--limit'), '--limit', 1);
   const timeoutMs = positiveInteger(valueAfter(argv, '--timeout-ms'), '--timeout-ms', 15 * 60 * 1000);
-  const delayMs = positiveInteger(valueAfter(argv, '--delay-ms'), '--delay-ms', 1500);
+  const delayMs = nonNegativeInteger(valueAfter(argv, '--delay-ms'), '--delay-ms', 1500);
   const staleMinutes = positiveInteger(valueAfter(argv, '--stale-minutes'), '--stale-minutes', 30);
 
   return { scope: scope.trim(), source, meetId, limit, timeoutMs, delayMs, staleMinutes };

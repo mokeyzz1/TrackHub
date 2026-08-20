@@ -24,6 +24,10 @@ test('recovery runner defaults to a bounded dry run', () => {
   });
 });
 
+test('recovery runner accepts zero delay for controlled single-meet checks', () => {
+  assert.equal(parseArgs(['--scope', '2025-26', '--delay-ms', '0']).delayMs, 0);
+});
+
 test('recovery runner rejects public-fact commit mode', () => {
   assert.throws(
     () => parseArgs(['--scope', '2025-26', '--commit']),
