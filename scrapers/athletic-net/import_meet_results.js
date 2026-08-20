@@ -140,7 +140,9 @@ async function loadFingerprints(athleteIds, from, to) {
  * event's gender. Falls back to a normalized school-name match.
  */
 async function importRelays(meet, relayEvents, events, resolveAthlete, { commit, controlled = false }) {
-  if (!relayEvents.length) return { relays: 0, inserted: 0, legs: 0, dupSkipped: 0, noTeam: 0 };
+  if (!relayEvents.length) {
+    return { relays: 0, inserted: 0, legs: 0, dupSkipped: 0, noTeam: 0, controlledRows: [] };
+  }
 
   // school lookup for the name fallback
   const { data: schoolRows } = await supabase.from('schools').select('school_id, official_name, short_name');
