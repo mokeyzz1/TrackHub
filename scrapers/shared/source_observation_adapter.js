@@ -6,6 +6,7 @@
 const { normalizeObservation } = require('./ingestion_contract');
 
 function sourceAthleteKey(source, row) {
+  if (row.source_athlete_key) return row.source_athlete_key;
   if (source === 'tfrrs') return row.tfrrs_athlete_id || row.athlete_id || row.athlete_name;
   if (source === 'athletic_net') return row.athletic_net_athlete_id || row.athlete_id || row.athlete_name;
   return row.source_athlete_key || row.athlete_id || row.athlete_name;
@@ -34,10 +35,32 @@ function resolveTeam(source, row, teamResolver) {
   });
 }
 
+function resolveAthlete(source, row, athleteResolver) {
+  if (row.athlete_id) {
+    return { athlete_id: row.athlete_id, match_field: 'row_athlete_id', match_method: 'source_resolved' };
+  }
+  if (!athleteResolver || typeof athleteResolver.resolve !== 'function') return null;
+
+  return athleteResolver.resolve({
+    source,
+    sourceAthleteKey: sourceAthleteKey(source, row),
+    sourceAthleteName: row.athlete_name || row.name,
+    sourceGender: row.team_gender || row.gender
+  });
+}
+
 function commonInput(source, row, events, entityType, overrides = {}, options = {}) {
   const eventTypeId = row.event_type_id || events.resolve(row.event_name || row.event_code);
   const eventType = eventTypeId ? events.detailsById(eventTypeId) : null;
   const teamResolution = resolveTeam(source, row, options.teamResolver);
+  const athleteResolution = resolveAthlete(source, row, options.athleteResolver);
+  const derivedPayload = { ...row };
+  if (teamResolution && teamResolution.match_field !== 'row_team_id') {
+    derivedPayload.ingestion_team_resolution = teamResolution;
+  }
+  if (athleteResolution && athleteResolution.match_field !== 'row_athlete_id') {
+    derivedPayload.ingestion_athlete_resolution = athleteResolution;
+  }
   return {
     source,
     entity_type: entityType,
@@ -47,7 +70,7 @@ function commonInput(source, row, events, entityType, overrides = {}, options = 
     source_team_key: sourceTeamKey(source, row),
     source_url: row.source_url || row.meet_url || row.event_url || null,
     target_meet_id: row.meet_id,
-    target_athlete_id: row.athlete_id,
+    target_athlete_id: athleteResolution?.athlete_id || null,
     target_team_id: teamResolution?.team_id || null,
     event_type_id: eventTypeId,
     event_type: eventType,
@@ -59,8 +82,9 @@ function commonInput(source, row, events, entityType, overrides = {}, options = 
     place: row.place,
     round: row.round,
     date: row.date,
-    payload: teamResolution && teamResolution.match_field !== 'row_team_id'
-      ? { ...row, ingestion_team_resolution: teamResolution }
+    payload: (teamResolution && teamResolution.match_field !== 'row_team_id') ||
+      (athleteResolution && athleteResolution.match_field !== 'row_athlete_id')
+      ? derivedPayload
       : row,
     ...overrides
   };

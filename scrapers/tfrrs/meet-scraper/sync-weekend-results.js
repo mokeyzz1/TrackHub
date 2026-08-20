@@ -27,6 +27,8 @@ const { fingerprint, fetchAll, normaliseMarkKey } = require('../../shared/result
 const { ControlledIngestion } = require('../../shared/controlled_ingestion');
 const { normalizeSourceRows } = require('../../shared/source_observation_adapter');
 const { TeamAliasResolver } = require('../../shared/team_alias_resolver');
+const { AthleteAliasResolver } = require('../../shared/athlete_alias_resolver');
+const { parseTfrrsTeamInfo } = require('../../shared/tfrrs_team_identity');
 const { requireControlledCommit } = require('../../shared/write_mode_guard');
 
 // Resolves raw event names -> canonical event_type_id via event_aliases (loaded in importResults).
@@ -254,19 +256,6 @@ function storedTfrrsUrl(meet) {
 function parseEventId(url) {
   const match = url.match(/\/results\/\d+\/(\d+)/);
   return match ? parseInt(match[1]) : null;
-}
-
-// Parse team info from URL
-function parseTeamInfo(url) {
-  const match = url.match(/\/teams\/tf\/([A-Z]{2})_college_([mf])_(.+)\.html/);
-  if (match) {
-    return {
-      state: match[1],
-      gender: match[2] === 'm' ? 'M' : 'F',
-      teamSlug: match[3]
-    };
-  }
-  return null;
 }
 
 // Get gender from event name
@@ -687,7 +676,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
 
       if ($teamLink.length) {
         schoolName = $teamLink.text().trim();
-        teamInfo = parseTeamInfo($teamLink.attr('href'));
+        teamInfo = parseTfrrsTeamInfo($teamLink.attr('href'));
       }
 
       // For relays, collect all athlete IDs
@@ -1216,13 +1205,18 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
     const sourceRows = relaysOnly ? dbRelayResults : [...dbResults, ...dbRelayResults];
     const controlled = new ControlledIngestion();
     let teamAliases;
+    let athleteAliases;
     try {
       teamAliases = await TeamAliasResolver.load(controlled.store.pool, 'tfrrs');
+      athleteAliases = await AthleteAliasResolver.load(controlled.store.pool, 'tfrrs');
     } catch (error) {
       if (controlled.ownsStore) await controlled.store.close();
       throw error;
     }
-    const records = normalizeSourceRows('tfrrs', sourceRows, events, { teamResolver: teamAliases });
+    const records = normalizeSourceRows('tfrrs', sourceRows, events, {
+      teamResolver: teamAliases,
+      athleteResolver: athleteAliases
+    });
     const outcome = await controlled.run({
       source: 'tfrrs',
       scope: { meet_ids: [...new Set(sourceRows.map(row => row.meet_id).filter(Boolean))], relays_only: relaysOnly },

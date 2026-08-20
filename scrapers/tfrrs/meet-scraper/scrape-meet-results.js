@@ -10,6 +10,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { collapseDuplicateRounds } = require('../../shared/collapse_duplicate_rounds');
+const { parseTfrrsTeamInfo } = require('../../shared/tfrrs_team_identity');
 const { parseMarkSeconds, parseMarkMeters } = require('../../shared/mark_parser');
 const fs = require('fs');
 const path = require('path');
@@ -85,20 +86,6 @@ function parseMeetId(url) {
 function parseEventId(url) {
   const match = url.match(/\/results\/\d+\/(\d+)/);
   return match ? parseInt(match[1]) : null;
-}
-
-// Parse team info from URL like /teams/tf/MA_college_m_Springfield.html
-function parseTeamInfo(url) {
-  // Format: /teams/tf/STATE_college_GENDER_NAME.html
-  const match = url.match(/\/teams\/tf\/([A-Z]{2})_college_([mf])_(.+)\.html/);
-  if (match) {
-    return {
-      state: match[1],
-      gender: match[2] === 'm' ? 'M' : 'F',
-      teamSlug: match[3]
-    };
-  }
-  return null;
 }
 
 // Get gender from event name (e.g., "Men's 200 Meters" -> "M", "Women's 60 Meters" -> "F")
@@ -315,7 +302,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
 
       if ($teamLink.length) {
         schoolName = $teamLink.text().trim();
-        teamInfo = parseTeamInfo($teamLink.attr('href'));
+        teamInfo = parseTfrrsTeamInfo($teamLink.attr('href'));
       }
 
       // For relays: multiple athletes per row, store as team result
