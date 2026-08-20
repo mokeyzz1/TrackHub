@@ -50,6 +50,22 @@ The queue is resumable and intentionally separates `covered`, `queued`, and `blo
 generic timing-site URL is not treated as a supported result source unless its host verifies as
 TFRRS or athletic.net.
 
+Run a bounded recovery dry run after refreshing the queue. It only selects validated TFRRS or
+athletic.net candidates, claims one queue row at a time, persists the controlled observations, and
+returns the row to `queued` for review. It never commits public facts:
+
+```sh
+INGEST_DATABASE_URL='postgresql://...' node recovery/run_recovery_batch.js \
+  --scope 2025-26 --limit 3
+```
+
+Rows with unsupported timing-site URLs remain queued for a dedicated adapter. Use `--meet <id>`
+to inspect one meet and `--source tfrrs` or `--source athletic_net` only when the queue has that
+validated source candidate. The runner rejects `--commit` by design; reviewed writes remain an
+explicit per-meet operation until all source-specific athlete creation paths are behind the
+canonical writer. Abandoned `in_progress` leases older than 30 minutes are returned to `queued`
+automatically; adjust that recovery window with `--stale-minutes`.
+
 The private writer requires an explicit server-side PostgreSQL connection in
 `INGEST_DATABASE_URL`. It deliberately does not fall back to `DATABASE_URL` or
 `SUPABASE_DB_URL`, because a generic application URL can point at a developer database or another

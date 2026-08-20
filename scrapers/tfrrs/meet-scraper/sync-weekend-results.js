@@ -1163,6 +1163,11 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
     });
 
     dbRelayResults.push({
+      // Keep the source shape explicit. The shared adapter uses this marker to create a
+      // relay_result parent plus separately attributable relay_leg observations. Without it,
+      // control-plane dry runs treated the team row as an individual result with no athlete and
+      // quarantined every relay even when all legs were matched.
+      is_relay: true,
       team_id: teamId,
       event_name: r.event_name,
       mark_raw: r.mark_raw,

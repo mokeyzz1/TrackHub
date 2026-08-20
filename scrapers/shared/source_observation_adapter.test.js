@@ -72,6 +72,7 @@ test('emits a parent relay observation and separately attributable leg observati
 
   assert.equal(rows.length, 3);
   assert.equal(rows[0].observation.entity_type, 'relay_result');
+  assert.equal(rows[0].observation.target_team_id, 8);
   assert.equal(rows[1].observation.entity_type, 'relay_leg');
   assert.equal(rows[2].observation.entity_type, 'relay_leg');
   assert.notEqual(rows[1].sourceRecord.source_record_key, rows[2].sourceRecord.source_record_key);

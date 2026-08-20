@@ -1,0 +1,76 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+
+const {
+  buildImporterCommand,
+  chooseSource,
+  connectionString,
+  extractRunId,
+  parseArgs,
+  validCandidate,
+} = require('./run_recovery_batch');
+
+test('recovery runner defaults to a bounded dry run', () => {
+  assert.deepEqual(parseArgs(['--scope', '2025-26']), {
+    scope: '2025-26',
+    source: 'auto',
+    meetId: null,
+    limit: 1,
+    timeoutMs: 900000,
+    delayMs: 1500,
+    staleMinutes: 30,
+  });
+});
+
+test('recovery runner rejects public-fact commit mode', () => {
+  assert.throws(
+    () => parseArgs(['--scope', '2025-26', '--commit']),
+    /dry-run only/
+  );
+});
+
+test('source validation accepts only importer-supported URLs', () => {
+  assert.equal(validCandidate('tfrrs', 'https://www.tfrrs.org/results/12345/meet.html'), true);
+  assert.equal(validCandidate('athletic_net', 'https://www.athletic.net/TrackAndField/meet/634818/results'), true);
+  assert.equal(validCandidate('athletic_net', 'https://milesplit.live/meets/723064'), false);
+  assert.equal(validCandidate('tfrrs', 'https://example.com/results/12345'), false);
+});
+
+test('auto selection prefers TFRRS and derives relay-only mode', () => {
+  const choice = chooseSource({
+    needs_individual: false,
+    needs_relays: true,
+    source_candidates: {
+      tfrrs_url: 'https://www.tfrrs.org/results/12345/meet.html',
+      athletic_net_results_url: 'https://www.athletic.net/TrackAndField/meet/634818/results',
+    },
+  });
+  assert.deepEqual(choice, {
+    source: 'tfrrs',
+    url: 'https://www.tfrrs.org/results/12345/meet.html',
+    relaysOnly: true,
+  });
+});
+
+test('athletic.net command uses the controlled relay-only path when needed', () => {
+  const command = buildImporterCommand(
+    { meet_id: 11579 },
+    { source: 'athletic_net', relaysOnly: true }
+  );
+  assert.equal(command.command, process.execPath);
+  assert.match(command.script, /athletic-net[\\/]import_meet_results\.js$/);
+  assert.deepEqual(command.args, ['11579', '--control-plane', '--relays-only']);
+});
+
+test('run ids are extracted from importer output without exposing credentials', () => {
+  assert.equal(
+    extractRunId('CONTROL PLANE RUN bb04f4ed-397d-4ad9-ad8b-a5d7cb7f55f1'),
+    'bb04f4ed-397d-4ad9-ad8b-a5d7cb7f55f1'
+  );
+  assert.equal(extractRunId('no run id'), null);
+});
+
+test('controlled recovery requires the explicit database URL', () => {
+  assert.equal(connectionString({ DATABASE_URL: 'postgresql://local' }), null);
+  assert.equal(connectionString({ INGEST_DATABASE_URL: 'postgresql://private' }), 'postgresql://private');
+});
