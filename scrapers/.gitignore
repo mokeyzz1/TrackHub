@@ -25,6 +25,7 @@ node_modules/
 !athletic-net/split-identity-decisions.json
 !athletic-net/profile-identity-decisions.json
 !athletic-net/name-correction-decisions.json
+!athletic-net/verified-identity-decisions-batch-2.json
 
 # Python
 __pycache__/
