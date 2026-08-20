@@ -28,6 +28,7 @@ node_modules/
 !athletic-net/verified-identity-decisions-batch-2.json
 !athletic-net/directathletics-identity-decisions-batch-1.json
 !athletic-net/directathletics-identity-decisions-batch-2.json
+!athletic-net/directathletics-identity-decisions-batch-3.json
 
 # Python
 __pycache__/
