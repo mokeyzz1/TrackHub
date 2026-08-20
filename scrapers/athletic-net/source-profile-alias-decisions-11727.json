@@ -544,6 +544,21 @@
         "The existing athlete 65520 uniquely owns https://www.athletic.net/athlete/29704216/track-and-field with matching name and gender."
       ],
       "notes": "Reviewed as a source-profile identity; Unattached is not used as school evidence, but exact profile ownership, name, and gender match."
+    },
+    {
+      "source_athlete_key": "44332904",
+      "source_athlete_name": "Aaron Stone",
+      "source_gender": "M",
+      "target_athlete_id": 194246,
+      "athletic_net_profile_id": "29402928",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 57b6a29e-020c-4b86-ad6c-bb8052d1b424 source identity 44332904: Aaron Stone, M, Kirtland (Mich.) CC.",
+        "TFRRS GVSU Tune-Up lists Aaron Stone for Kirtland CC at 23.90 in the 200m and 53.80 in the 400m: https://www.tfrrs.org/results/92961/m/GVSU_Tune-Up.",
+        "The existing athlete 194246 uniquely owns the exact Athletic.net profile URL https://www.athletic.net/athlete/29402928/track-and-field and already contains the same meet performances.",
+        "Milesplit identifies Aaron Stone as Kirtland CC: https://mi.milesplit.com/athletes/17356170-aaron-stone"
+      ],
+      "notes": "Private source-key alias only; preserves the existing public row and its current school field."
     }
   ]
 }

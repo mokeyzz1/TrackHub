@@ -1,0 +1,40 @@
+{
+  "manifest_version": 1,
+  "review_scope": "Grand Valley State Tune-Up 2026 / verified new Grand Valley State identities",
+  "review_notes": "Kilian Whalen was moved to the existing verified-alias queue because athlete_id 45397 already owns TFRRS identity 9170522. Magnus Herschbach was held because athlete_id 67704 already owns TFRRS identity 8609656 under Iowa Western CC; his transfer/team-season handling requires separate review and must not overwrite historical school identity.",
+  "source": "athletic_net",
+  "decisions": [
+    {
+      "source_athlete_key": "44333247",
+      "source_athlete_name": "Kamryn Lauinger",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9170550",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9170550/Grand_Valley_St/Kamryn_Lauinger.html",
+      "expected_school": "Grand Valley State",
+      "athletic_net_profile_id": "31347508",
+      "evidence": [
+        "https://gvsulakers.com/sports/track-and-field/roster",
+        "https://www.tfrrs.org/teams/8842",
+        "https://www.tfrrs.org/athletes/9170550/Grand_Valley_St/Kamryn_Lauinger.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender; official GVSU roster and TFRRS team/profile identity confirm affiliation. Source was listed UNAT at this meet."
+    },
+    {
+      "source_athlete_key": "44332990",
+      "source_athlete_name": "Rece Grezak",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9170529",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/9170529/Grand_Valley_St/Rece_Grezak.html",
+      "expected_school": "Grand Valley State",
+      "athletic_net_profile_id": "31347553",
+      "evidence": [
+        "https://gvsulakers.com/sports/track-and-field/roster",
+        "https://www.tfrrs.org/teams/8841",
+        "https://www.tfrrs.org/athletes/9170529/Grand_Valley_St/Rece_Grezak.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender; official GVSU roster and TFRRS profile identity confirm affiliation. Source was listed UNAT at this meet."
+    }
+  ]
+}
