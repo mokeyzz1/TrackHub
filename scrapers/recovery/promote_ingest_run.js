@@ -95,77 +95,67 @@ async function syncRecoveryQueueAfterPromotion(pool, runId, meetIds) {
   if (!runId || !meetIds.length) return [];
 
   const { rows } = await pool.query(
-    `WITH open_quarantines AS (
+    `WITH individual_facts AS (
+       SELECT meet_id, count(*)::bigint AS count
+         FROM public.results
+        WHERE meet_id = ANY($2::integer[])
+        GROUP BY meet_id
+     ), relay_facts AS (
+       SELECT meet_id, count(*)::bigint AS count
+         FROM public.relay_results
+        WHERE meet_id = ANY($2::integer[])
+        GROUP BY meet_id
+     ), open_quarantines AS (
        SELECT o.target_meet_id AS meet_id, count(*)::int AS count
          FROM ingest.observations o
          JOIN ingest.quarantine q ON q.observation_id = o.observation_id
         WHERE o.target_meet_id = ANY($2::integer[])
           AND q.status = 'open'
         GROUP BY o.target_meet_id
+     ), coverage AS (
+       SELECT rq.queue_id,
+              COALESCE(i.count, 0)::bigint AS individual_fact_count,
+              COALESCE(r.count, 0)::bigint AS relay_fact_count,
+              COALESCE(oq.count, 0)::int AS quarantined_observation_count
+         FROM ingest.recovery_queue rq
+         LEFT JOIN individual_facts i ON i.meet_id = rq.meet_id
+         LEFT JOIN relay_facts r ON r.meet_id = rq.meet_id
+         LEFT JOIN open_quarantines oq ON oq.meet_id = rq.meet_id
+        WHERE rq.meet_id = ANY($2::integer[])
      )
      UPDATE ingest.recovery_queue rq
-        SET quarantined_observation_count = COALESCE(oq.count, 0),
+        SET coverage_status = CASE
+              WHEN c.individual_fact_count = 0 AND c.relay_fact_count = 0 THEN 'empty'
+              WHEN c.individual_fact_count = 0 THEN 'relay_only'
+              WHEN c.relay_fact_count = 0 THEN 'individual_only'
+              ELSE 'covered'
+            END,
+            needs_individual = c.individual_fact_count = 0,
+            needs_relays = c.relay_fact_count = 0 AND rq.relay_coverage_status <> 'absent',
+            individual_fact_count = c.individual_fact_count,
+            relay_fact_count = c.relay_fact_count,
+            quarantined_observation_count = c.quarantined_observation_count,
             status = CASE
-              WHEN COALESCE(oq.count, 0) > 0 THEN 'partial'
-              WHEN NOT rq.needs_individual AND NOT rq.needs_relays THEN 'complete'
-              WHEN rq.status IN ('in_progress', 'partial') THEN 'queued'
-              ELSE rq.status
+              WHEN c.quarantined_observation_count > 0 THEN 'partial'
+              WHEN c.individual_fact_count > 0
+               AND (c.relay_fact_count > 0 OR rq.relay_coverage_status = 'absent') THEN 'complete'
+              WHEN rq.status IN ('blocked', 'exhausted') THEN rq.status
+              ELSE 'queued'
             END,
             last_run_id = $1,
             last_error = CASE
-              WHEN COALESCE(oq.count, 0) > 0
-                THEN 'source_observations_quarantined=' || COALESCE(oq.count, 0)::text
+              WHEN c.quarantined_observation_count > 0
+                THEN 'source_observations_quarantined=' || c.quarantined_observation_count::text
               ELSE NULL
             END,
             updated_at = now()
-       FROM open_quarantines oq
-      WHERE rq.meet_id = oq.meet_id
+       FROM coverage c
+      WHERE rq.queue_id = c.queue_id
       RETURNING rq.queue_id, rq.meet_id, rq.status, rq.quarantined_observation_count`,
     [runId, meetIds]
   );
 
-  // The first UPDATE returns only meets that still have an open quarantine. This second pass
-  // clears stale partial state for a promotion that leaves no unresolved observations.
-  const cleared = await pool.query(
-    `UPDATE ingest.recovery_queue rq
-        SET quarantined_observation_count = 0,
-            status = CASE
-              WHEN NOT rq.needs_individual AND NOT rq.needs_relays THEN 'complete'
-              WHEN rq.status IN ('in_progress', 'partial') THEN 'queued'
-              ELSE rq.status
-            END,
-            last_run_id = $1,
-            last_error = NULL,
-            updated_at = now()
-      WHERE rq.meet_id = ANY($2::integer[])
-        AND rq.quarantined_observation_count > 0
-        AND NOT EXISTS (
-          SELECT 1
-            FROM ingest.observations o
-            JOIN ingest.quarantine q ON q.observation_id = o.observation_id
-           WHERE o.target_meet_id = rq.meet_id
-             AND q.status = 'open'
-        )
-      RETURNING rq.queue_id, rq.meet_id, rq.status, rq.quarantined_observation_count`,
-    [runId, meetIds]
-  );
-
-  const relayCoverage = await pool.query(
-    `UPDATE ingest.recovery_queue rq
-        SET relay_coverage_status = 'present',
-            updated_at = now()
-      WHERE rq.meet_id = ANY($2::integer[])
-        AND rq.relay_coverage_status <> 'present'
-        AND EXISTS (
-          SELECT 1
-            FROM public.relay_results rr
-           WHERE rr.meet_id = rq.meet_id
-        )
-      RETURNING rq.queue_id, rq.meet_id, rq.status, rq.quarantined_observation_count`,
-    [runId, meetIds]
-  );
-
-  return [...rows, ...cleared.rows, ...relayCoverage.rows];
+  return rows;
 }
 
 async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = false, env = process.env } = {}) {
@@ -187,16 +177,18 @@ async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = fa
     console.log(`Promoting ${runId}: ${review.run.source} | meets=${scope.meetIds.join(',')} | decisions=${JSON.stringify(review.decisions)}`);
 
     const writer = new CanonicalFactWriter({ pool, env });
+    let committedStats = null;
+    let committedStatus = null;
     try {
-      const stats = await writer.commitRun(runId);
-      const status = stats.quarantined || stats.errors ? 'partial' : 'succeeded';
+      committedStats = await writer.commitRun(runId);
+      committedStatus = committedStats.quarantined || committedStats.errors ? 'partial' : 'succeeded';
       const queueRows = await syncRecoveryQueueAfterPromotion(pool, runId, scope.meetIds);
       const metrics = {
         ...(review.run.metrics || {}),
         promotion: {
           promoted_from_dry_run: true,
           promoted_at: new Date().toISOString(),
-          stats,
+          stats: committedStats,
           recovery_queue_rows: queueRows.length,
         },
       };
@@ -204,17 +196,29 @@ async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = fa
         `UPDATE ingest.runs
             SET mode = 'commit', status = $2, metrics = $3::jsonb, finished_at = now(), error_message = $4
           WHERE run_id = $1 AND mode = 'dry_run' AND status = 'succeeded'`,
-        [runId, status, JSON.stringify(metrics), stats.errors ? `writer_errors=${stats.errors}` : null]
+        [runId, committedStatus, JSON.stringify(metrics), committedStats.errors ? `writer_errors=${committedStats.errors}` : null]
       );
-      console.log(`PROMOTION ${status}: ${JSON.stringify(stats)}`);
-      return { runId, status, stats };
+      console.log(`PROMOTION ${committedStatus}: ${JSON.stringify(committedStats)}`);
+      return { runId, status: committedStatus, stats: committedStats };
     } catch (error) {
-      await pool.query(
-        `UPDATE ingest.runs
-            SET status = 'failed', error_message = $2, finished_at = now()
-          WHERE run_id = $1 AND mode = 'dry_run'`,
-        [runId, String(error.message || error).slice(0, 1000)]
-      );
+      if (committedStats) {
+        // The canonical writer commits its transaction before queue reconciliation. Never
+        // relabel a completed public fact write as failed if only the bookkeeping pass failed.
+        await pool.query(
+          `UPDATE ingest.runs
+              SET mode = 'commit', status = $2, finished_at = now(),
+                  error_message = $3
+            WHERE run_id = $1 AND mode = 'dry_run'`,
+          [runId, committedStatus, `post_commit_reconciliation_failed=${String(error.message || error).slice(0, 900)}`]
+        );
+      } else {
+        await pool.query(
+          `UPDATE ingest.runs
+              SET status = 'failed', error_message = $2, finished_at = now()
+            WHERE run_id = $1 AND mode = 'dry_run'`,
+          [runId, String(error.message || error).slice(0, 1000)]
+        );
+      }
       throw error;
     }
   } finally {

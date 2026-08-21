@@ -54,18 +54,15 @@ test('queue promotion sync preserves open quarantines and checks relay coverage'
   const pool = {
     async query(text, values) {
       queries.push({ text, values });
-      if (queries.length === 1) {
-        return { rows: [{ queue_id: 1959, status: 'partial', quarantined_observation_count: 1 }] };
-      }
-      if (queries.length === 2) return { rows: [] };
       return { rows: [{ queue_id: 1959, status: 'partial', quarantined_observation_count: 1 }] };
     },
   };
 
   const rows = await syncRecoveryQueueAfterPromotion(pool, 'run-1', [13096]);
-  assert.equal(rows.length, 2);
+  assert.equal(rows.length, 1);
+  assert.match(queries[0].text, /individual_facts/);
+  assert.match(queries[0].text, /relay_facts/);
   assert.match(queries[0].text, /open_quarantines/);
-  assert.match(queries[1].text, /NOT EXISTS/);
-  assert.match(queries[2].text, /relay_coverage_status = 'present'/);
+  assert.match(queries[0].text, /needs_relays/);
   assert.deepEqual(queries[0].values, ['run-1', [13096]]);
 });
