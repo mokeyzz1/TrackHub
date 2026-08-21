@@ -235,6 +235,7 @@ class AthleticNetMeetScraper {
     this.headless = opts.headless !== false;
     this.timeout = opts.timeout || 60000;
     this.settle = opts.settle || 3500; // Angular render time
+    this.eventConcurrency = Math.max(1, Math.min(Number(opts.eventConcurrency) || 3, 4));
     this.browser = null;
     this.page = null;
   }
@@ -252,13 +253,13 @@ class AthleticNetMeetScraper {
     if (this.browser) { await this.browser.close(); this.browser = null; this.page = null; }
   }
 
-  async _goto(url) {
-    const response = await this.page.goto(url, { waitUntil: 'networkidle2', timeout: this.timeout });
+  async _goto(url, page = this.page) {
+    const response = await page.goto(url, { waitUntil: 'networkidle2', timeout: this.timeout });
     await delay(this.settle);
     const status = response?.status?.() || null;
     const headers = response?.headers?.() || {};
-    const title = await this.page.title().catch(() => '');
-    const body = await this.page.evaluate(() => document.body?.innerText || '').catch(() => '');
+    const title = await page.title().catch(() => '');
+    const body = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
     const reason = detectSourceBlock({ status, title, body, headers });
     if (reason) throw new AthleticNetSourceBlockedError({ status, reason });
   }
@@ -352,10 +353,10 @@ class AthleticNetMeetScraper {
   }
 
   /** Fetch the public AthleticLIVE JSON backing one event page. */
-  async scrapeAthleticLiveEvent(event) {
+  async scrapeAthleticLiveEvent(event, page = this.page) {
     const collection = event.liveEventType === 'relay' ? 'rel_res_list' : 'ind_res_list';
     const apiUrl = `https://athleticlive.blob.core.windows.net/$web/${collection}/_doc/${event.liveEventId}`;
-    const payload = await this.page.evaluate(async url => {
+    const payload = await page.evaluate(async url => {
       const response = await fetch(url, { headers: { accept: 'application/json' } });
       const body = await response.text();
       if (!response.ok) throw new Error(`AthleticLIVE event API HTTP ${response.status}`);
@@ -366,9 +367,9 @@ class AthleticNetMeetScraper {
   }
 
   /** Parse one event's results page (div.result-row layout). */
-  async scrapeEvent(ev) {
-    await this._goto(ev.url);
-    const parsed = await this.page.evaluate(() => {
+  async scrapeEvent(ev, page = this.page) {
+    await this._goto(ev.url, page);
+    const parsed = await page.evaluate(() => {
       const txt = el => (el ? el.innerText.replace(/\s+/g, ' ').trim() : null);
       const rows = Array.from(document.querySelectorAll('.result-row'));
       return {
@@ -431,6 +432,43 @@ class AthleticNetMeetScraper {
     return { ...ev, page_title: parsed.pageTitle, result_count: parsed.results.length, results: parsed.results };
   }
 
+  async scrapeEventBatch(events, worker, delayMs = 0) {
+    if (!events.length) return [];
+    if (events.length === 1 || this.eventConcurrency === 1) {
+      const results = [];
+      for (let index = 0; index < events.length; index++) {
+        results.push(await worker(events[index], this.page, index));
+        if (delayMs && index < events.length - 1) await delay(delayMs);
+      }
+      return results;
+    }
+
+    const pageCount = Math.min(this.eventConcurrency, events.length);
+    const pages = await Promise.all(Array.from({ length: pageCount }, async () => {
+      const page = await this.browser.newPage();
+      await page.setViewport({ width: 1400, height: 1000 });
+      return page;
+    }));
+    const results = new Array(events.length);
+    let nextIndex = 0;
+
+    const consume = async page => {
+      while (true) {
+        const index = nextIndex++;
+        if (index >= events.length) return;
+        results[index] = await worker(events[index], page, index);
+        if (delayMs) await delay(delayMs);
+      }
+    };
+
+    try {
+      await Promise.all(pages.map(consume));
+      return results;
+    } finally {
+      await Promise.all(pages.map(page => page.close().catch(() => {})));
+    }
+  }
+
   /** Scrape every event of a meet. Accepts a www URL/id or a live.athletic.net URL. */
   async scrapeMeet(target, { limit = 0 } = {}) {
     if (!this.browser) await this.init();
@@ -461,17 +499,16 @@ class AthleticNetMeetScraper {
         scraped_at: new Date().toISOString(),
         events: [],
       };
-      for (const ev of events) {
+      out.events = await this.scrapeEventBatch(events, async (ev, page) => {
         try {
-          const parsed = await this.scrapeAthleticLiveEvent(ev);
+          const parsed = await this.scrapeAthleticLiveEvent(ev, page);
           console.log(`  ${parsed.gender}/${parsed.eventCode}: ${parsed.results.length} results`);
-          out.events.push(parsed);
+          return parsed;
         } catch (e) {
           console.log(`  ${ev.liveEventId}: ERROR ${e.message}`);
-          out.events.push({ ...ev, error: e.message, results: [] });
+          return { ...ev, error: e.message, results: [] };
         }
-        await delay(150);
-      }
+      }, 150);
       out.total_results = out.events.reduce((sum, event) => sum + (event.results?.length || 0), 0);
       return out;
     }
@@ -498,17 +535,16 @@ class AthleticNetMeetScraper {
       scraped_at: new Date().toISOString(),
       events: []
     };
-    for (const ev of events) {
+    out.events = await this.scrapeEventBatch(events, async (ev, page) => {
       try {
-        const r = await this.scrapeEvent(ev);
+        const r = await this.scrapeEvent(ev, page);
         console.log(`  ${r.gender}/${r.divId}/${r.eventCode}: ${r.result_count} results`);
-        out.events.push(r);
+        return r;
       } catch (e) {
         console.log(`  ${ev.eventCode}: ERROR ${e.message}`);
-        out.events.push({ ...ev, error: e.message, results: [] });
+        return { ...ev, error: e.message, results: [] };
       }
-      await delay(400); // be polite
-    }
+    }, 400);
     out.total_results = out.events.reduce((s, e) => s + (e.results?.length || 0), 0);
     return out;
   }
@@ -531,16 +567,18 @@ if (require.main === module) {
   const target = args[0];
   const outIdx = args.indexOf('--out');
   const limIdx = args.indexOf('--limit');
+  const concIdx = args.indexOf('--event-concurrency');
   const outFile = outIdx >= 0 ? args[outIdx + 1] : null;
   const limit = limIdx >= 0 ? parseInt(args[limIdx + 1], 10) : 0;
+  const eventConcurrency = concIdx >= 0 ? parseInt(args[concIdx + 1], 10) : 3;
 
   if (!target) {
-    console.log('Usage: node scrape_meet_results.js <meetId | www meet url | live.athletic.net url> [--limit N] [--out file.json]');
+    console.log('Usage: node scrape_meet_results.js <meetId | www meet url | live.athletic.net url> [--limit N] [--event-concurrency N] [--out file.json]');
     process.exit(1);
   }
 
   (async () => {
-    const s = new AthleticNetMeetScraper();
+    const s = new AthleticNetMeetScraper({ eventConcurrency });
     try {
       const data = await s.scrapeMeet(target, { limit });
       console.log('\n' + '='.repeat(60));

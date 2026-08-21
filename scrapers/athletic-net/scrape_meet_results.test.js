@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
+  AthleticNetMeetScraper,
   AthleticNetSourceBlockedError,
   athleticLiveResultAvailable,
   detectSourceBlock,
@@ -206,5 +207,53 @@ test('maps AthleticLIVE relay payloads with ordered source keys', () => {
   assert.deepEqual(result.results[0].legs, [
     { leg_order: 1, athlete_name: 'Josiah Hunter', source_athlete_key: '49173513', athletic_live_athlete_id: '49173513' },
     { leg_order: 2, athlete_name: 'Donovan Geiger', source_athlete_key: '49174069', athletic_live_athlete_id: '49174069' },
+  ]);
+});
+
+test('scrapeEventBatch keeps output order while using bounded page concurrency', async () => {
+  const scraper = new AthleticNetMeetScraper({ eventConcurrency: 2 });
+  let active = 0;
+  let peak = 0;
+  let closed = 0;
+  scraper.page = { id: 'primary' };
+  scraper.browser = {
+    async newPage() {
+      return {
+        async setViewport() {},
+        async close() { closed++; },
+      };
+    },
+  };
+
+  const output = await scraper.scrapeEventBatch([1, 2, 3, 4], async (event, page) => {
+    assert.notEqual(page.id, 'primary');
+    active++;
+    peak = Math.max(peak, active);
+    await new Promise(resolve => setTimeout(resolve, 5));
+    active--;
+    return event * 10;
+  });
+
+  assert.deepEqual(output, [10, 20, 30, 40]);
+  assert.equal(peak, 2);
+  assert.equal(closed, 2);
+});
+
+test('scrapeEventBatch preserves the serial fallback for every event', async () => {
+  const scraper = new AthleticNetMeetScraper({ eventConcurrency: 1 });
+  const primaryPage = { id: 'primary' };
+  const seen = [];
+  scraper.page = primaryPage;
+
+  const output = await scraper.scrapeEventBatch(['a', 'b', 'c'], async (event, page, index) => {
+    seen.push({ event, page, index });
+    return event.toUpperCase();
+  });
+
+  assert.deepEqual(output, ['A', 'B', 'C']);
+  assert.deepEqual(seen, [
+    { event: 'a', page: primaryPage, index: 0 },
+    { event: 'b', page: primaryPage, index: 1 },
+    { event: 'c', page: primaryPage, index: 2 },
   ]);
 });
