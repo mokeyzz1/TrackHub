@@ -5,6 +5,7 @@ const {
   connectionString,
   parseArgs,
   scopeMeetIds,
+  syncRecoveryQueueAfterPromotion,
   validateReview,
 } = require('./promote_ingest_run');
 
@@ -46,4 +47,25 @@ test('promotion rejects quarantines unless explicitly allowed', () => {
 
 test('controlled promotion requires the private database URL', () => {
   assert.equal(connectionString({ DATABASE_URL: 'postgresql://local' }), null);
+});
+
+test('queue promotion sync preserves open quarantines and checks relay coverage', async () => {
+  const queries = [];
+  const pool = {
+    async query(text, values) {
+      queries.push({ text, values });
+      if (queries.length === 1) {
+        return { rows: [{ queue_id: 1959, status: 'partial', quarantined_observation_count: 1 }] };
+      }
+      if (queries.length === 2) return { rows: [] };
+      return { rows: [{ queue_id: 1959, status: 'partial', quarantined_observation_count: 1 }] };
+    },
+  };
+
+  const rows = await syncRecoveryQueueAfterPromotion(pool, 'run-1', [13096]);
+  assert.equal(rows.length, 2);
+  assert.match(queries[0].text, /open_quarantines/);
+  assert.match(queries[1].text, /NOT EXISTS/);
+  assert.match(queries[2].text, /relay_coverage_status = 'present'/);
+  assert.deepEqual(queries[0].values, ['run-1', [13096]]);
 });

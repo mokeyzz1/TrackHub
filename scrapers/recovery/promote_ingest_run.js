@@ -91,6 +91,83 @@ function validateReview({ run, decisions }, { allowQuarantines, allowMultiMeet }
   return { meetIds };
 }
 
+async function syncRecoveryQueueAfterPromotion(pool, runId, meetIds) {
+  if (!runId || !meetIds.length) return [];
+
+  const { rows } = await pool.query(
+    `WITH open_quarantines AS (
+       SELECT o.target_meet_id AS meet_id, count(*)::int AS count
+         FROM ingest.observations o
+         JOIN ingest.quarantine q ON q.observation_id = o.observation_id
+        WHERE o.target_meet_id = ANY($2::integer[])
+          AND q.status = 'open'
+        GROUP BY o.target_meet_id
+     )
+     UPDATE ingest.recovery_queue rq
+        SET quarantined_observation_count = COALESCE(oq.count, 0),
+            status = CASE
+              WHEN COALESCE(oq.count, 0) > 0 THEN 'partial'
+              WHEN NOT rq.needs_individual AND NOT rq.needs_relays THEN 'complete'
+              WHEN rq.status IN ('in_progress', 'partial') THEN 'queued'
+              ELSE rq.status
+            END,
+            last_run_id = $1,
+            last_error = CASE
+              WHEN COALESCE(oq.count, 0) > 0
+                THEN 'source_observations_quarantined=' || COALESCE(oq.count, 0)::text
+              ELSE NULL
+            END,
+            updated_at = now()
+       FROM open_quarantines oq
+      WHERE rq.meet_id = oq.meet_id
+      RETURNING rq.queue_id, rq.meet_id, rq.status, rq.quarantined_observation_count`,
+    [runId, meetIds]
+  );
+
+  // The first UPDATE returns only meets that still have an open quarantine. This second pass
+  // clears stale partial state for a promotion that leaves no unresolved observations.
+  const cleared = await pool.query(
+    `UPDATE ingest.recovery_queue rq
+        SET quarantined_observation_count = 0,
+            status = CASE
+              WHEN NOT rq.needs_individual AND NOT rq.needs_relays THEN 'complete'
+              WHEN rq.status IN ('in_progress', 'partial') THEN 'queued'
+              ELSE rq.status
+            END,
+            last_run_id = $1,
+            last_error = NULL,
+            updated_at = now()
+      WHERE rq.meet_id = ANY($2::integer[])
+        AND rq.quarantined_observation_count > 0
+        AND NOT EXISTS (
+          SELECT 1
+            FROM ingest.observations o
+            JOIN ingest.quarantine q ON q.observation_id = o.observation_id
+           WHERE o.target_meet_id = rq.meet_id
+             AND q.status = 'open'
+        )
+      RETURNING rq.queue_id, rq.meet_id, rq.status, rq.quarantined_observation_count`,
+    [runId, meetIds]
+  );
+
+  const relayCoverage = await pool.query(
+    `UPDATE ingest.recovery_queue rq
+        SET relay_coverage_status = 'present',
+            updated_at = now()
+      WHERE rq.meet_id = ANY($2::integer[])
+        AND rq.relay_coverage_status <> 'present'
+        AND EXISTS (
+          SELECT 1
+            FROM public.relay_results rr
+           WHERE rr.meet_id = rq.meet_id
+        )
+      RETURNING rq.queue_id, rq.meet_id, rq.status, rq.quarantined_observation_count`,
+    [runId, meetIds]
+  );
+
+  return [...rows, ...cleared.rows, ...relayCoverage.rows];
+}
+
 async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = false, env = process.env } = {}) {
   const url = connectionString(env);
   if (!url) throw new Error('INGEST_DATABASE_URL is required for run promotion');
@@ -113,12 +190,14 @@ async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = fa
     try {
       const stats = await writer.commitRun(runId);
       const status = stats.quarantined || stats.errors ? 'partial' : 'succeeded';
+      const queueRows = await syncRecoveryQueueAfterPromotion(pool, runId, scope.meetIds);
       const metrics = {
         ...(review.run.metrics || {}),
         promotion: {
           promoted_from_dry_run: true,
           promoted_at: new Date().toISOString(),
           stats,
+          recovery_queue_rows: queueRows.length,
         },
       };
       await pool.query(
@@ -156,6 +235,7 @@ module.exports = {
   parseArgs,
   promoteRun,
   scopeMeetIds,
+  syncRecoveryQueueAfterPromotion,
   summarizeDecisions,
   validateReview,
 };
