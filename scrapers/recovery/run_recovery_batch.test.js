@@ -23,7 +23,15 @@ test('recovery runner defaults to a bounded dry run', () => {
     delayMs: 1500,
     staleMinutes: 30,
     concurrency: 2,
+    retryAttempted: false,
   });
+});
+
+test('recovery runner can explicitly replay attempted rows', () => {
+  assert.equal(
+    parseArgs(['--scope', '2025-26', '--retry-attempted']).retryAttempted,
+    true
+  );
 });
 
 test('recovery runner accepts zero delay for controlled single-meet checks', () => {

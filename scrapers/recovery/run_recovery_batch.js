@@ -5,7 +5,8 @@
  * This runner deliberately does not commit public facts. It claims one queued row at a time,
  * invokes the source-specific importer with --control-plane, records the private run id, and
  * returns the queue row to `queued` for review. A later reviewed commit can promote the same
- * source observations through the canonical writer.
+ * source observations through the canonical writer. Normal batch runs consume only rows that
+ * have never been attempted; use --retry-attempted for an intentional replay.
  *
  *   INGEST_DATABASE_URL='postgresql://...' node run_recovery_batch.js \
  *     --scope 2025-26 --limit 3 --concurrency 2
@@ -74,8 +75,19 @@ function parseArgs(argv) {
   const delayMs = nonNegativeInteger(valueAfter(argv, '--delay-ms'), '--delay-ms', 1500);
   const staleMinutes = positiveInteger(valueAfter(argv, '--stale-minutes'), '--stale-minutes', 30);
   const concurrency = positiveInteger(valueAfter(argv, '--concurrency'), '--concurrency', 2);
+  const retryAttempted = argv.includes('--retry-attempted');
 
-  return { scope: scope.trim(), source, meetId, limit, timeoutMs, delayMs, staleMinutes, concurrency };
+  return {
+    scope: scope.trim(),
+    source,
+    meetId,
+    limit,
+    timeoutMs,
+    delayMs,
+    staleMinutes,
+    concurrency,
+    retryAttempted,
+  };
 }
 
 function connectionString(env = process.env) {
@@ -166,18 +178,20 @@ function runImporter({ command, args, env = process.env, timeoutMs = 15 * 60 * 1
   });
 }
 
-async function loadQueueRows(pool, { scope, meetId }) {
+async function loadQueueRows(pool, { scope, meetId, retryAttempted }) {
   const values = [scope];
-  const meetClause = meetId == null ? '' : ' AND q.meet_id = $2';
-  if (meetId != null) values.push(meetId);
+  const clauses = ['q.scope_key = $1', "q.status = 'queued'"];
+  if (!retryAttempted) clauses.push('q.attempts = 0');
+  if (meetId != null) {
+    values.push(meetId);
+    clauses.push(`q.meet_id = $${values.length}`);
+  }
   const { rows } = await pool.query(
     `SELECT q.queue_id, q.meet_id, q.coverage_status, q.needs_individual, q.needs_relays,
             q.status, q.attempts, q.source_candidates, m.name, m.date
        FROM ingest.recovery_queue q
        JOIN public.meets m ON m.meet_id = q.meet_id
-      WHERE q.scope_key = $1
-        AND q.status = 'queued'
-        ${meetClause}
+      WHERE ${clauses.join(' AND ')}
       ORDER BY q.attempts, q.priority, q.queue_id`,
     values
   );
@@ -352,6 +366,7 @@ async function main() {
     summary.selected = rows.length;
     summary.skipped_unsupported = selection.unsupported;
     console.log(`Recovery dry-run: ${args.scope} | selected ${rows.length} supported queued meet(s)`);
+    if (args.retryAttempted) console.log('  retry_attempted=true');
     if (selection.unsupported) {
       console.log(`  left queued for future adapters: ${selection.unsupported}`);
     }
