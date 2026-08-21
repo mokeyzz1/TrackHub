@@ -82,7 +82,9 @@ function validateReview({ run, decisions }, { allowQuarantines, allowMultiMeet }
   if (meetIds.length > 1 && !allowMultiMeet) {
     throw new Error('run contains multiple meets; pass --allow-multi-meet after review');
   }
-  if (!decisions.pending) throw new Error('run has no pending observations to promote');
+  if (!decisions.pending && !(allowQuarantines && decisions.quarantine)) {
+    throw new Error('run has no pending observations to promote');
+  }
   const disallowed = Object.keys(decisions).filter(key => !['pending', 'quarantine'].includes(key));
   if (disallowed.length) throw new Error(`run contains already-decided observations: ${disallowed.join(', ')}`);
   if (decisions.quarantine && !allowQuarantines) {

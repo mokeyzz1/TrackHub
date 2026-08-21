@@ -45,6 +45,21 @@ test('promotion rejects quarantines unless explicitly allowed', () => {
   assert.deepEqual(validateReview(review, { allowQuarantines: true, allowMultiMeet: false }), { meetIds: [1] });
 });
 
+test('explicit quarantine-only promotion is allowed for review-only runs', () => {
+  const review = {
+    run: { mode: 'dry_run', status: 'succeeded', source: 'athletic_net', scope: { meet_id: 12061 } },
+    decisions: { quarantine: 5 },
+  };
+  assert.throws(
+    () => validateReview(review, { allowQuarantines: false, allowMultiMeet: false }),
+    /no pending observations/
+  );
+  assert.deepEqual(
+    validateReview(review, { allowQuarantines: true, allowMultiMeet: false }),
+    { meetIds: [12061] }
+  );
+});
+
 test('controlled promotion requires the private database URL', () => {
   assert.equal(connectionString({ DATABASE_URL: 'postgresql://local' }), null);
 });
