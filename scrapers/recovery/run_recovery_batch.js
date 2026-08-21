@@ -235,6 +235,15 @@ async function releaseQueueRow(pool, queueId, { runId = null, error = null } = {
   );
 }
 
+async function reconcileRelayProbe(pool, runId) {
+  if (!runId) return 0;
+  const { rows } = await pool.query(
+    'SELECT ingest.reconcile_recovery_queue_relay_probe($1) AS rows_reconciled',
+    [runId]
+  );
+  return Number(rows[0]?.rows_reconciled || 0);
+}
+
 function dryRunError(result) {
   if (result.code === 0) {
     const output = String(result.output || '');
@@ -310,6 +319,10 @@ async function main() {
         summary.ran++;
         const message = dryRunError(result);
         await releaseQueueRow(pool, row.queue_id, { runId: result.runId, error: message });
+        if (result.code === 0 && result.runId) {
+          const reconciled = await reconcileRelayProbe(pool, result.runId);
+          if (reconciled) console.log(`  relay_probe_reconciled=${reconciled}`);
+        }
         if (result.code === 0) summary.succeeded++;
         else summary.failed++;
         console.log(`  importer_exit=${result.code ?? 'unknown'} run_id=${result.runId || 'none'}`);
@@ -343,6 +356,7 @@ module.exports = {
   connectionString,
   dryRunError,
   extractRunId,
+  reconcileRelayProbe,
   parseArgs,
   validCandidate,
   selectSupportedRows,

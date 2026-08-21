@@ -606,7 +606,13 @@ async function run(meetDbId, {
     const outcome = await controlled.run({
       source: 'athletic_net',
       mode: commitMode ? 'commit' : 'dry_run',
-      scope: { meet_id: meet.meet_id, source_url: target, relays_only: relaysOnly },
+      scope: {
+        meet_id: meet.meet_id,
+        source_url: target,
+        relays_only: relaysOnly,
+        source_observation_count: countScrapedObservations(scraped, relayStats),
+        source_relay_observation_count: relayStats.relays || 0,
+      },
       parserVersion: 'athletic-net-html-v1',
       records,
       commit: commitMode

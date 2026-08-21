@@ -1219,7 +1219,15 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
     });
     const outcome = await controlled.run({
       source: 'tfrrs',
-      scope: { meet_ids: [...new Set(sourceRows.map(row => row.meet_id).filter(Boolean))], relays_only: relaysOnly },
+      scope: {
+        // Use the full scrape for scope identity. In relay-only mode sourceRows can be empty
+        // when the source legitimately publishes no relay events, but the meet must still be
+        // attributable for queue coverage reconciliation.
+        meet_ids: [...new Set(results.map(row => row.meet_id).filter(Boolean))],
+        relays_only: relaysOnly,
+        source_observation_count: results.length,
+        source_relay_observation_count: relayResults.length,
+      },
       parserVersion: 'tfrrs-html-v2',
       records,
       commit: commitMode
