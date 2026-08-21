@@ -89,6 +89,10 @@ test('run ids are extracted from importer output without exposing credentials', 
 test('classifies a successful empty-source dry run separately from pending review', () => {
   assert.equal(dryRunError({
     code: 0,
+    output: 'AthleticLIVE meet 67404: found 0 completed event links\n  SOURCE STATUS: EMPTY\nCONTROL PLANE RUN abc'
+  }), 'source_no_results_published');
+  assert.equal(dryRunError({
+    code: 0,
     output: 'Meet 667160: found 0 event-result links\nCONTROL PLANE RUN abc\n  staged=0 inserted=0 claimed=0 skipped=0 quarantined=0'
   }), 'source_returned_no_observations');
   assert.equal(dryRunError({

@@ -609,11 +609,12 @@ async function run(meetDbId, {
       scope: {
         meet_id: meet.meet_id,
         source_url: target,
+        source_status: scraped.source_status || (countScrapedObservations(scraped, relayStats) ? 'results_available' : 'empty'),
         relays_only: relaysOnly,
         source_observation_count: countScrapedObservations(scraped, relayStats),
         source_relay_observation_count: relayStats.relays || 0,
       },
-      parserVersion: 'athletic-net-html-v1',
+      parserVersion: 'athletic-net-html-v2',
       records,
       commit: commitMode
     });

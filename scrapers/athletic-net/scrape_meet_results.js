@@ -78,11 +78,19 @@ function parseAthleticLiveEventLink(href, rowText = '', baseUrl = 'https://live.
       liveEventType: match[2].toLowerCase(),
       liveEventId: match[3],
       rowText: text,
-      resultAvailable: /\bResults\b/i.test(text) && !/\bScheduled\b/i.test(text),
+      resultAvailable: athleticLiveResultAvailable(text),
     };
   } catch (_) {
     return null;
   }
+}
+
+function athleticLiveResultAvailable(rowText = '') {
+  const text = String(rowText || '').replace(/\s+/g, ' ').trim();
+  if (/\b(?:scheduled|entries?|pending|not started|cancelled?|canceled)\b/i.test(text)) {
+    return false;
+  }
+  return /\b(?:results?|official|final(?:s)?|completed?)\b/i.test(text);
 }
 
 function athleticLiveEventCode(source = {}) {
@@ -444,6 +452,7 @@ class AthleticNetMeetScraper {
 
       console.log(`AthleticLIVE meet ${live.meetId}: found ${live.events.length} completed event links`);
       if (live.canceled) console.log('  SOURCE STATUS: CANCELED');
+      else if (!live.events.length) console.log('  SOURCE STATUS: EMPTY');
 
       const out = {
         meet_id_athletic_live: live.meetId,
@@ -480,9 +489,15 @@ class AthleticNetMeetScraper {
 
     let events = await this.getEventLinks(meetId);
     console.log(`Meet ${meetId}: found ${events.length} event-result links`);
+    if (!events.length) console.log('  SOURCE STATUS: EMPTY');
     if (limit) events = events.slice(0, limit);
 
-    const out = { meet_id_athletic_net: meetId, scraped_at: new Date().toISOString(), events: [] };
+    const out = {
+      meet_id_athletic_net: meetId,
+      source_status: events.length ? 'results_available' : 'empty',
+      scraped_at: new Date().toISOString(),
+      events: []
+    };
     for (const ev of events) {
       try {
         const r = await this.scrapeEvent(ev);
@@ -502,6 +517,7 @@ class AthleticNetMeetScraper {
 module.exports = {
   AthleticNetMeetScraper,
   AthleticNetSourceBlockedError,
+  athleticLiveResultAvailable,
   detectSourceBlock,
   normalizeEventResultLink,
   parseAthleticLiveEventLink,

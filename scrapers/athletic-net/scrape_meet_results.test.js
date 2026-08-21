@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 
 const {
   AthleticNetSourceBlockedError,
+  athleticLiveResultAvailable,
   detectSourceBlock,
   normalizeEventResultLink,
   parseAthleticLiveEventLink,
@@ -87,6 +88,8 @@ test('parses AthleticLIVE result links and excludes scheduled rows', () => {
     rowText: 'Results Men 4x100mR',
     resultAvailable: true,
   });
+  assert.equal(athleticLiveResultAvailable('Official Women 1500m Prelims Fri 3:00 PM'), true);
+  assert.equal(athleticLiveResultAvailable('Completed Men 100m Finals'), true);
   assert.equal(
     parseAthleticLiveEventLink(
       '/meets/73399/events/relay/489746',
@@ -95,6 +98,7 @@ test('parses AthleticLIVE result links and excludes scheduled rows', () => {
     ).resultAvailable,
     false
   );
+  assert.equal(athleticLiveResultAvailable('Entries Women 100m Scheduled'), false);
 });
 
 test('normalizes AthleticLIVE event abbreviations and gender', () => {
