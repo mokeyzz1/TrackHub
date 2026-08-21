@@ -8,6 +8,7 @@ const {
   dryRunError,
   extractRunId,
   parseArgs,
+  runWithConcurrency,
   selectSupportedRows,
   validCandidate,
 } = require('./run_recovery_batch');
@@ -21,11 +22,20 @@ test('recovery runner defaults to a bounded dry run', () => {
     timeoutMs: 900000,
     delayMs: 1500,
     staleMinutes: 30,
+    concurrency: 2,
   });
 });
 
 test('recovery runner accepts zero delay for controlled single-meet checks', () => {
   assert.equal(parseArgs(['--scope', '2025-26', '--delay-ms', '0']).delayMs, 0);
+});
+
+test('recovery runner accepts bounded concurrency', () => {
+  assert.equal(parseArgs(['--scope', '2025-26', '--concurrency', '3']).concurrency, 3);
+  assert.throws(
+    () => parseArgs(['--scope', '2025-26', '--concurrency', '0']),
+    /--concurrency must be a positive integer/
+  );
 });
 
 test('recovery runner rejects public-fact commit mode', () => {
@@ -104,4 +114,19 @@ test('classifies a successful empty-source dry run separately from pending revie
 test('controlled recovery requires the explicit database URL', () => {
   assert.equal(connectionString({ DATABASE_URL: 'postgresql://local' }), null);
   assert.equal(connectionString({ INGEST_DATABASE_URL: 'postgresql://private' }), 'postgresql://private');
+});
+
+test('bounded worker pool never exceeds configured concurrency', async () => {
+  let active = 0;
+  let peak = 0;
+  const seen = [];
+  await runWithConcurrency([1, 2, 3, 4, 5], 2, async (item) => {
+    active++;
+    peak = Math.max(peak, active);
+    await new Promise(resolve => setTimeout(resolve, 5));
+    seen.push(item);
+    active--;
+  });
+  assert.equal(peak, 2);
+  assert.deepEqual(seen.sort((a, b) => a - b), [1, 2, 3, 4, 5]);
 });

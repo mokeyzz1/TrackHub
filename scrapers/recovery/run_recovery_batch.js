@@ -8,7 +8,7 @@
  * source observations through the canonical writer.
  *
  *   INGEST_DATABASE_URL='postgresql://...' node run_recovery_batch.js \
- *     --scope 2025-26 --limit 3
+ *     --scope 2025-26 --limit 3 --concurrency 2
  *   INGEST_DATABASE_URL='postgresql://...' node run_recovery_batch.js \
  *     --scope 2025-26 --meet 11579
  */
@@ -73,8 +73,9 @@ function parseArgs(argv) {
   const timeoutMs = positiveInteger(valueAfter(argv, '--timeout-ms'), '--timeout-ms', 15 * 60 * 1000);
   const delayMs = nonNegativeInteger(valueAfter(argv, '--delay-ms'), '--delay-ms', 1500);
   const staleMinutes = positiveInteger(valueAfter(argv, '--stale-minutes'), '--stale-minutes', 30);
+  const concurrency = positiveInteger(valueAfter(argv, '--concurrency'), '--concurrency', 2);
 
-  return { scope: scope.trim(), source, meetId, limit, timeoutMs, delayMs, staleMinutes };
+  return { scope: scope.trim(), source, meetId, limit, timeoutMs, delayMs, staleMinutes, concurrency };
 }
 
 function connectionString(env = process.env) {
@@ -261,6 +262,70 @@ function dryRunError(result) {
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+async function runWithConcurrency(items, concurrency, worker) {
+  const list = Array.isArray(items) ? items : [];
+  const workerCount = Math.max(1, Math.min(Number(concurrency) || 1, list.length || 1));
+  let nextIndex = 0;
+
+  async function consume() {
+    while (true) {
+      const index = nextIndex++;
+      if (index >= list.length) return;
+      await worker(list[index], index);
+    }
+  }
+
+  await Promise.all(Array.from({ length: workerCount }, () => consume()));
+}
+
+async function processQueueRow(pool, row, index, total, args, summary) {
+  let selection;
+  try {
+    selection = chooseSource(row, args.source);
+  } catch (error) {
+    summary.skipped_unsupported++;
+    console.log('\n[skip] meet ' + row.meet_id + ' "' + row.name + '": ' + error.message);
+    return;
+  }
+
+  const claimed = await claimQueueRow(pool, row.queue_id);
+  if (!claimed) {
+    console.log('\n[skip] queue ' + row.queue_id + ' was claimed by another worker');
+    return;
+  }
+  summary.claimed++;
+
+  const command = buildImporterCommand(row, selection);
+  console.log('\n[' + (index + 1) + '/' + total + '] meet ' + row.meet_id + ' "' + row.name + '"');
+  console.log('  source=' + selection.source + ' mode=dry_run relays_only=' + selection.relaysOnly);
+  console.log('  url=' + selection.url);
+
+  try {
+    const result = await runImporter({
+      command: process.execPath,
+      args: [command.script, ...command.args],
+      timeoutMs: args.timeoutMs,
+    });
+    summary.ran++;
+    const message = dryRunError(result);
+    await releaseQueueRow(pool, row.queue_id, { runId: result.runId, error: message });
+    if (result.code === 0 && result.runId) {
+      const reconciled = await reconcileRelayProbe(pool, result.runId);
+      if (reconciled) console.log('  relay_probe_reconciled=' + reconciled);
+    }
+    if (result.code === 0) summary.succeeded++;
+    else summary.failed++;
+    console.log('  importer_exit=' + (result.code ?? 'unknown') + ' run_id=' + (result.runId || 'none'));
+  } catch (error) {
+    summary.ran++;
+    summary.failed++;
+    await releaseQueueRow(pool, row.queue_id, { error: error.message });
+    console.log('  FAILED: ' + error.message);
+  }
+
+  if (args.delayMs) await sleep(args.delayMs);
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const url = connectionString();
@@ -291,52 +356,12 @@ async function main() {
       console.log(`  left queued for future adapters: ${selection.unsupported}`);
     }
 
-    for (const row of rows) {
-      let selection;
-      try {
-        selection = chooseSource(row, args.source);
-      } catch (error) {
-        summary.skipped_unsupported++;
-        console.log(`\n[skip] meet ${row.meet_id} "${row.name}": ${error.message}`);
-        continue;
-      }
-
-      const claimed = await claimQueueRow(pool, row.queue_id);
-      if (!claimed) {
-        console.log(`\n[skip] queue ${row.queue_id} was claimed by another worker`);
-        continue;
-      }
-      summary.claimed++;
-
-      const command = buildImporterCommand(row, selection);
-      console.log(`\n[${summary.claimed}/${rows.length}] meet ${row.meet_id} "${row.name}"`);
-      console.log(`  source=${selection.source} mode=dry_run relays_only=${selection.relaysOnly}`);
-      console.log(`  url=${selection.url}`);
-
-      try {
-        const result = await runImporter({
-          command: process.execPath,
-          args: [command.script, ...command.args],
-          timeoutMs: args.timeoutMs,
-        });
-        summary.ran++;
-        const message = dryRunError(result);
-        await releaseQueueRow(pool, row.queue_id, { runId: result.runId, error: message });
-        if (result.code === 0 && result.runId) {
-          const reconciled = await reconcileRelayProbe(pool, result.runId);
-          if (reconciled) console.log(`  relay_probe_reconciled=${reconciled}`);
-        }
-        if (result.code === 0) summary.succeeded++;
-        else summary.failed++;
-        console.log(`  importer_exit=${result.code ?? 'unknown'} run_id=${result.runId || 'none'}`);
-      } catch (error) {
-        summary.ran++;
-        summary.failed++;
-        await releaseQueueRow(pool, row.queue_id, { error: error.message });
-        console.log(`  FAILED: ${error.message}`);
-      }
-      if (args.delayMs) await sleep(args.delayMs);
-    }
+    console.log('  concurrency=' + args.concurrency);
+    await runWithConcurrency(
+      rows,
+      args.concurrency,
+      (row, index) => processQueueRow(pool, row, index, rows.length, args, summary)
+    );
 
     console.log(`\nRECOVERY DRY-RUN DONE: ${JSON.stringify(summary)}`);
     return summary;
@@ -361,6 +386,8 @@ module.exports = {
   extractRunId,
   reconcileRelayProbe,
   parseArgs,
+  processQueueRow,
+  runWithConcurrency,
   validCandidate,
   selectSupportedRows,
 };
