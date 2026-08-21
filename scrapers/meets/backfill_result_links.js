@@ -5,6 +5,7 @@
  * Dry run:
  *   node backfill_result_links.js --source ustfccca --limit 20
  *   node backfill_result_links.js --source tfrrs --since 2026-04-01 --until 2026-05-09 --limit 20
+ *   node backfill_result_links.js --source tfrrs --queue-only --queue-scope 2025-26
  *
  * Apply:
  *   node backfill_result_links.js --source all --since 2026-04-01 --until 2026-05-24 --commit
@@ -16,9 +17,12 @@ const cheerio = require('cheerio');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const { createClient } = require('@supabase/supabase-js');
+const { Pool } = require('pg');
 
 puppeteer.use(StealthPlugin());
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
+
+const SOURCE_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -38,7 +42,9 @@ function parseArgs() {
     source: valueAfter('--source', 'all'),
     since: valueAfter('--since', '2026-04-01'),
     until: valueAfter('--until', new Date().toISOString().split('T')[0]),
-    limit: Number(valueAfter('--limit', '0')) || 0
+    limit: Number(valueAfter('--limit', '0')) || 0,
+    queueOnly: args.includes('--queue-only'),
+    queueScope: valueAfter('--queue-scope', '2025-26')
   };
 }
 
@@ -203,6 +209,53 @@ function findDbMatch(dbMeets, sourceMeet) {
 }
 
 async function fetchMissingMeets(options) {
+  if (options.queueOnly) {
+    const connectionString = process.env.INGEST_DATABASE_URL;
+    if (!connectionString) {
+      throw new Error('INGEST_DATABASE_URL is required for --queue-only');
+    }
+
+    const pool = new Pool({
+      connectionString,
+      max: 2,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      application_name: 'trackhub-tfrrs-link-audit',
+      ssl: process.env.INGEST_DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false }
+    });
+
+    let queueRows;
+    try {
+      ({ rows: queueRows } = await pool.query(
+        `SELECT meet_id
+           FROM ingest.recovery_queue
+          WHERE scope_key = $1
+            AND status = 'queued'
+            AND last_error IN ('source_no_results_published', 'source_returned_no_observations')
+          ORDER BY meet_id`,
+        [options.queueScope]
+      ));
+    } finally {
+      await pool.end();
+    }
+
+    const meetIds = [...new Set(queueRows.map(row => Number(row.meet_id)).filter(Number.isInteger))];
+    if (!meetIds.length) return [];
+
+    const pageSize = 1000;
+    const rows = [];
+    for (let from = 0; from < meetIds.length; from += pageSize) {
+      const { data, error } = await supabase
+        .from('meets')
+        .select('meet_id,name,date,end_date,location,meet_url,timing_platform,tfrrs_url,athletic_net_results_url,wa_results_url,results_status')
+        .in('meet_id', meetIds.slice(from, from + pageSize));
+
+      if (error) throw error;
+      rows.push(...(data || []));
+    }
+    return rows.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  }
+
   const rows = [];
   const pageSize = 1000;
 
@@ -306,7 +359,7 @@ async function fetchTfrrsMeets(options) {
 
   while (!foundEarlier && page <= 100) {
     const response = await axios.get(`https://www.tfrrs.org/results_search.html?page=${page}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36' },
+      headers: { 'User-Agent': SOURCE_USER_AGENT },
       timeout: 30000
     });
     const $ = cheerio.load(response.data);
@@ -352,6 +405,66 @@ async function fetchTfrrsMeets(options) {
   return all;
 }
 
+function expectedDateParts(date) {
+  const value = new Date(`${date}T00:00:00Z`);
+  return {
+    month: value.toLocaleString('en-US', { month: 'long', timeZone: 'UTC' }),
+    monthShort: value.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }),
+    day: value.getUTCDate(),
+    year: value.getUTCFullYear()
+  };
+}
+
+function pageDateMatchesMeet(pageDateText, dbMeet) {
+  const text = String(pageDateText || '').replace(/\s+/g, ' ').trim();
+  if (!text) return false;
+
+  return [dbMeet.date, rangeEnd(dbMeet)].some(date => {
+    const parts = expectedDateParts(date);
+    const month = `(?:${parts.month}|${parts.monthShort})\\.?`;
+    return String(parts.year) === text.match(/(?:19|20)\d{2}/)?.[0]
+      && new RegExp(`${month}\\s+0?${parts.day}\\b`, 'i').test(text);
+  });
+}
+
+function pageTitleMatchesMeet(pageTitle, dbMeet, sourceMeet) {
+  const pageName = String(pageTitle || '')
+    .replace(/^TFRRS\s*\|\s*/i, '')
+    .replace(/\s*-\s*Meet Results.*$/i, '')
+    .trim();
+  const dbOverlap = tokenOverlap(nameTokens(dbMeet.name), nameTokens(pageName));
+  const sourceOverlap = tokenOverlap(nameTokens(sourceMeet.name), nameTokens(pageName));
+  return [dbOverlap, sourceOverlap].every(overlap =>
+    overlap.smallLen >= 4 && (overlap.equal || overlap.subset || overlap.jaccard >= 0.6)
+  );
+}
+
+async function verifyTfrrsCandidate(dbMeet, sourceMeet) {
+  if (!sourceMeet.tfrrsUrl) return { verified: false, reason: 'missing_tfrrs_url' };
+
+  try {
+    const response = await axios.get(sourceMeet.tfrrsUrl, {
+      headers: { 'User-Agent': SOURCE_USER_AGENT },
+      timeout: 30000
+    });
+    const $ = cheerio.load(response.data);
+    const pageTitle = $('title').text().trim();
+    const headings = $('.panel-heading-normal-text').map((_, el) => $(el).text().trim()).get();
+    const pageDateText = headings.find(text => /(?:19|20)\d{2}/.test(text)) || '';
+
+    if (!pageTitleMatchesMeet(pageTitle, dbMeet, sourceMeet)) {
+      return { verified: false, reason: 'page_title_mismatch', pageTitle, pageDateText };
+    }
+    if (!pageDateMatchesMeet(pageDateText, dbMeet)) {
+      return { verified: false, reason: 'page_date_mismatch', pageTitle, pageDateText };
+    }
+
+    return { verified: true, pageTitle, pageDateText };
+  } catch (error) {
+    return { verified: false, reason: `page_fetch_failed:${error.message}` };
+  }
+}
+
 function buildUpdates(dbMeet, sourceMeet) {
   const updates = {};
   if (sourceMeet.timingUrl && !dbMeet.meet_url) updates.meet_url = sourceMeet.timingUrl;
@@ -370,9 +483,14 @@ function buildUpdates(dbMeet, sourceMeet) {
 }
 
 async function applyUpdates(meetId, updates) {
-  if (Object.keys(updates).length === 0) return;
-  const { error } = await supabase.from('meets').update(updates).eq('meet_id', meetId);
+  if (Object.keys(updates).length === 0) return false;
+  let query = supabase.from('meets').update(updates, { count: 'exact' }).eq('meet_id', meetId);
+  if (Object.prototype.hasOwnProperty.call(updates, 'tfrrs_url')) {
+    query = query.is('tfrrs_url', null);
+  }
+  const { error, count } = await query;
   if (error) throw error;
+  return count === 1;
 }
 
 async function main() {
@@ -402,6 +520,7 @@ async function main() {
   let updatesFound = 0;
   let updated = 0;
   const unmatched = [];
+  const verificationByUrl = new Map();
 
   for (let i = 0; i < sourceMeets.length; i++) {
     const sourceMeet = sourceMeets[i];
@@ -409,6 +528,19 @@ async function main() {
     if (!match) continue;
 
     matched++;
+    if (sourceMeet.source === 'tfrrs') {
+      let verification = verificationByUrl.get(sourceMeet.tfrrsUrl);
+      if (!verification) {
+        verification = await verifyTfrrsCandidate(match.meet, sourceMeet);
+        verificationByUrl.set(sourceMeet.tfrrsUrl, verification);
+      }
+      if (!verification.verified) {
+        console.log(`[SKIP] ${match.meet.meet_id} ${match.meet.name} <= ${sourceMeet.source} ${sourceMeet.name} reason=${verification.reason}`);
+        continue;
+      }
+      console.log(`[VERIFIED] ${match.meet.meet_id} ${verification.pageDateText} ${verification.pageTitle}`);
+    }
+
     const updates = buildUpdates(match.meet, sourceMeet);
     if (Object.keys(updates).length === 0) continue;
 
@@ -417,8 +549,7 @@ async function main() {
     console.log(`  ${JSON.stringify(updates)}`);
 
     if (options.commit) {
-      await applyUpdates(match.meet.meet_id, updates);
-      updated++;
+      if (await applyUpdates(match.meet.meet_id, updates)) updated++;
     }
 
     if ((i + 1) % 25 === 0) {

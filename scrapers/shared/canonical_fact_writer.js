@@ -213,6 +213,9 @@ class CanonicalFactWriter {
         if (row.linked_result_id || row.linked_relay_result_id) {
           const resultId = row.linked_result_id || null;
           const relayId = row.linked_relay_result_id || null;
+          if (observation.entity_type === 'relay_leg') {
+            await this.reconcileRelayLeg(client, row);
+          }
           await this.markObservation(client, row.observation_id, 'skip_duplicate',
             'source_record_already_linked', 1, resultId, relayId);
           stats.skipped++;
@@ -254,6 +257,9 @@ class CanonicalFactWriter {
             stats.skipped++;
           }
 
+          if (observation.entity_type === 'relay_leg') {
+            await this.reconcileRelayLeg(client, row);
+          }
           await this.linkSource(client, row, target.resultId, target.relayResultId);
           await this.markObservation(client, row.observation_id, match.action, match.reason,
             match.confidence, target.resultId, target.relayResultId);
@@ -302,6 +308,9 @@ class CanonicalFactWriter {
         }
 
         await this.linkSource(client, row, resultId, null);
+        if (observation.entity_type === 'relay_leg') {
+          await this.reconcileRelayLeg(client, row);
+        }
         await this.markObservation(client, row.observation_id, 'insert',
           observation.entity_type === 'relay_leg' ? 'new_relay_leg_result' : 'new_canonical_result',
           1, resultId, null);
@@ -421,6 +430,36 @@ class CanonicalFactWriter {
         ]
       );
     }
+  }
+
+  async reconcileRelayLeg(client, row) {
+    const payload = sourcePayload(row);
+    const parentSourceRecordKey = payload.relay_parent_source_record_key;
+    const legOrder = nullableInteger(payload.leg?.leg_order);
+    const sourceAthleteKey = payload.leg?.tfrrs_athlete_id || payload.leg?.athletic_net_athlete_id || null;
+    if (!parentSourceRecordKey || !legOrder || !row.target_athlete_id) return 0;
+
+    const { rows: parentRows } = await client.query(
+      `SELECT sl.relay_result_id
+         FROM ingest.source_links sl
+         JOIN ingest.source_records sr ON sr.source_record_id = sl.source_record_id
+        WHERE sr.source = $1
+          AND sr.source_record_key = $2
+          AND sl.relay_result_id IS NOT NULL`,
+      [row.source, parentSourceRecordKey]
+    );
+    if (parentRows.length !== 1) return 0;
+
+    const { rowCount } = await client.query(
+      `UPDATE public.relay_athletes
+          SET athlete_id = $1
+        WHERE relay_result_id = $2
+          AND leg_order = $3
+          AND athlete_id IS NULL
+          AND ($4::text IS NULL OR tfrrs_athlete_id = $4)`,
+      [row.target_athlete_id, parentRows[0].relay_result_id, legOrder, sourceAthleteKey]
+    );
+    return rowCount;
   }
 
   async linkSource(client, row, resultId, relayResultId) {

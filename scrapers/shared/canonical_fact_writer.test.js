@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { linkedTarget, nullableInteger } = require('./canonical_fact_writer');
+const { CanonicalFactWriter, linkedTarget, nullableInteger } = require('./canonical_fact_writer');
 
 test('does not put source-specific string event codes into integer legacy event_id columns', () => {
   assert.equal(nullableInteger('4x100m'), null);
@@ -15,4 +15,28 @@ test('only accepts one valid canonical source-link target', () => {
   assert.deepEqual(linkedTarget(null, 456), { resultId: null, relayResultId: 456 });
   assert.equal(linkedTarget(null, null), null);
   assert.equal(linkedTarget(123, 456), null);
+});
+
+test('reconciles a resolved relay leg onto its existing parent relay', async () => {
+  const calls = [];
+  const client = {
+    query: async (text, params) => {
+      calls.push({ text, params });
+      if (text.includes('SELECT sl.relay_result_id')) return { rows: [{ relay_result_id: 242867 }] };
+      return { rowCount: 1 };
+    }
+  };
+  const writer = new CanonicalFactWriter({ pool: {}, env: { INGEST_DATABASE_URL: 'postgresql://test' } });
+
+  const updated = await writer.reconcileRelayLeg(client, {
+    source: 'tfrrs',
+    target_athlete_id: 61772,
+    payload: {
+      relay_parent_source_record_key: 'parent-record',
+      leg: { leg_order: 4, tfrrs_athlete_id: '9166975' }
+    }
+  });
+
+  assert.equal(updated, 1);
+  assert.deepEqual(calls[1].params, [61772, 242867, 4, '9166975']);
 });
