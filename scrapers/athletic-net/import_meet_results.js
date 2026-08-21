@@ -62,6 +62,12 @@ function environmentFor(season) {
 
 const chunk = (arr, n) => { const out = []; for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; };
 
+function eventsForImportMode(events, relaysOnly) {
+  const sourceEvents = Array.isArray(events) ? events : [];
+  if (!relaysOnly) return sourceEvents;
+  return sourceEvents.filter(event => (event.results || []).some(result => result.is_relay));
+}
+
 /**
  * Build athlete lookups scoped to THIS meet's athletes (fast + avoids re-creating dupes):
  *   byAnet:  athletic.net id -> athlete_id           (exact identity match)
@@ -82,7 +88,29 @@ async function loadExisting(anetIds, names) {
       if (id) byAnet.set(id, { id: a.athlete_id, school_id: a.school_id }); });
   }
   // 2. name matches (for the fallback) — carry the school name for team corroboration
-  for (const c of chunk([...new Set(names)], 50)) {
+  const uniqueNames = [...new Set(names.map(name => String(name || '').trim()).filter(Boolean))];
+  const exactNameKeys = new Set();
+  // Most source names preserve the database casing. Use the indexed equality lookup first;
+  // the old all-ILIKE batches were expensive on large meets and could hit statement_timeout.
+  for (const c of chunk(uniqueNames, 200)) {
+    const { data, error } = await supabase.from('athletes')
+      .select('athlete_id, full_name, gender, school_id, schools(official_name, short_name)')
+      .in('full_name', c);
+    if (error) throw new Error(`athlete lookup failed: ${error.message}`);
+    data?.forEach(a => {
+      exactNameKeys.add(String(a.full_name || '').toLowerCase());
+      add(byName, `${(a.full_name || '').toLowerCase()}|${a.gender || ''}`, {
+        id: a.athlete_id,
+        school_id: a.school_id,
+        school: a.schools ? `${a.schools.official_name || ''} ${a.schools.short_name || ''}` : '',
+      });
+    });
+  }
+
+  // A small case-insensitive fallback preserves matching for source casing differences without
+  // constructing a large OR predicate over hundreds of names.
+  const caseInsensitiveNames = uniqueNames.filter(name => !exactNameKeys.has(name.toLowerCase()));
+  for (const c of chunk(caseInsensitiveNames, 10)) {
     const filter = athleteNameFilter(c);
     if (!filter) continue;
     const { data, error } = await supabase.from('athletes')
@@ -407,10 +435,15 @@ async function run(meetDbId, {
     try { scraped = await s.scrapeMeet(target, { limit }); } finally { await s.close(); }
   }
 
+  // Relay-only recovery must not preload or resolve the meet's individual athletes. Apart from
+  // wasting work, doing so made large relay candidates hit the database statement timeout before
+  // the relay rows were even translated.
+  const importEvents = eventsForImportMode(scraped.events, relaysOnly);
+
   // 3. preload translators + athlete lookups scoped to this meet
   const events = new EventResolver(); await events.load(supabase);
   const scrapedIds = [], scrapedNames = [];
-  for (const ev of scraped.events) for (const r of (ev.results || [])) {
+  for (const ev of importEvents) for (const r of (ev.results || [])) {
     if (r.athletic_net_athlete_id) scrapedIds.push(r.athletic_net_athlete_id);
     if (r.athlete_name && r.athlete_name.trim()) scrapedNames.push(r.athlete_name);
     for (const leg of (r.legs || [])) {           // relay legs are athletes too
@@ -425,13 +458,13 @@ async function run(meetDbId, {
   // 4. translate
   const env = environmentFor(meet.season);
   const rows = [];
-  const stats = { events: scraped.events.length, results: 0, evResolved: 0, evMissed: {},
+  const stats = { events: importEvents.length, results: 0, evResolved: 0, evMissed: {},
     matchAnet: 0, matchName: 0, athNew: 0, teamMatched: 0, teamUnresolved: 0,
     markParsed: 0, skippedBlank: 0 };
   const newAthletes = new Map();  // key -> athlete payload (created on commit)
   const backfillAnet = new Map(); // athlete_id -> athletic_net_url (link existing on name-match)
 
-  for (const ev of scraped.events) {
+  for (const ev of importEvents) {
     const etid = events.resolve(ev.eventCode);
     if (etid) stats.evResolved++; else stats.evMissed[ev.eventCode] = (stats.evMissed[ev.eventCode] || 0) + 1;
     const gender = ev.gender === 'f' ? 'F' : ev.gender === 'm' ? 'M' : null;
@@ -536,7 +569,7 @@ async function run(meetDbId, {
     if (resolved.athleteId) return { athleteId: resolved.athleteId, schoolId: resolved.schoolId };
     return { athleteId: null, schoolId: null };     // ambiguous/new — leg keeps its name only
   };
-  const relayEvents = scraped.events.filter(ev => (ev.results || []).some(r => r.is_relay));
+  const relayEvents = importEvents.filter(ev => (ev.results || []).some(r => r.is_relay));
   const relayStats = await importRelays(meet, relayEvents, events, resolveAthlete, {
     commit,
     controlled: controlPlane
@@ -697,6 +730,7 @@ async function run(meetDbId, {
 
 module.exports = {
   countScrapedObservations,
+  eventsForImportMode,
   resolveExistingAthlete,
   run,
   resolveIndividualTeam,

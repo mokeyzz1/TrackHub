@@ -3,9 +3,21 @@ const assert = require('node:assert/strict');
 
 const {
   countScrapedObservations,
+  eventsForImportMode,
   resolveExistingAthlete,
   resolveIndividualTeam
 } = require('./import_meet_results');
+
+test('relay-only mode excludes individual events before athlete lookup', () => {
+  const events = [
+    { eventCode: '100m', results: [{ athlete_name: 'Runner', is_relay: false }] },
+    { eventCode: '4x100m', results: [{ team_name: 'Relay Team', is_relay: true }] },
+    { eventCode: 'empty', results: [] },
+  ];
+
+  assert.deepEqual(eventsForImportMode(events, true), [events[1]]);
+  assert.deepEqual(eventsForImportMode(events, false), events);
+});
 
 test('counts published observations independently of new inserts', () => {
   assert.equal(
