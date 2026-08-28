@@ -29,10 +29,17 @@ const SOURCE_CONFIG = {
   },
   athletic_net: {
     key: 'athletic_net_results_url',
+    candidateKeys: ['athletic_live_url', 'athletic_net_results_url', 'meet_url'],
     script: path.join(__dirname, '../athletic-net/import_meet_results.js'),
     hosts: host => host === 'athletic.net' || host.endsWith('.athletic.net') ||
       host === 'anet.live' || host.endsWith('.anet.live'),
     path: pathname => /\/TrackAndField\/meet\/\d+/i.test(pathname) || /\/meets\/\d+/i.test(pathname),
+  },
+  trackscoreboard: {
+    key: 'trackscoreboard_url',
+    script: path.join(__dirname, '../trackscoreboard/import_meet_results.js'),
+    hosts: host => host === 'trackscoreboard.com' || host.endsWith('.trackscoreboard.com'),
+    path: pathname => /\/meets\/\d+/.test(pathname),
   },
 };
 
@@ -64,8 +71,8 @@ function parseArgs(argv) {
   if (!scope || !scope.trim()) throw new Error('--scope is required');
 
   const source = valueAfter(argv, '--source') || 'auto';
-  if (!['auto', 'tfrrs', 'athletic_net'].includes(source)) {
-    throw new Error('--source must be auto, tfrrs, or athletic_net');
+  if (!['auto', 'tfrrs', 'athletic_net', 'trackscoreboard'].includes(source)) {
+    throw new Error('--source must be auto, tfrrs, athletic_net, or trackscoreboard');
   }
 
   const meetValue = valueAfter(argv, '--meet');
@@ -106,14 +113,16 @@ function validCandidate(source, value) {
 }
 
 function sourceCandidate(row, source) {
-  return row?.source_candidates?.[SOURCE_CONFIG[source]?.key] || null;
+  const config = SOURCE_CONFIG[source];
+  const keys = config?.candidateKeys || (config?.key ? [config.key] : []);
+  return keys.map(key => row?.source_candidates?.[key]).find(value => value) || null;
 }
 
 function chooseSource(row, requested = 'auto') {
-  const order = requested === 'auto' ? ['tfrrs', 'athletic_net'] : [requested];
+  const order = requested === 'auto' ? ['tfrrs', 'trackscoreboard', 'athletic_net'] : [requested];
   const source = order.find(candidate => validCandidate(candidate, sourceCandidate(row, candidate)));
   if (!source) {
-    throw new Error(`no supported ${requested === 'auto' ? 'TFRRS or athletic.net' : requested} source candidate`);
+    throw new Error(`no supported ${requested === 'auto' ? 'TFRRS, TrackScoreboard, or athletic.net' : requested} source candidate`);
   }
 
   return {
@@ -125,9 +134,12 @@ function chooseSource(row, requested = 'auto') {
 
 function buildImporterCommand(row, selection) {
   const meetId = String(row.meet_id);
-  const args = selection.source === 'tfrrs'
-    ? ['--meet', meetId, '--scrape', '--control-plane']
-    : [meetId, '--control-plane'];
+  const args = selection.source === 'athletic_net'
+    ? [meetId, '--control-plane']
+    : ['--meet', meetId, ...(selection.source === 'tfrrs' ? ['--scrape'] : []), '--control-plane'];
+  if (selection.source === 'athletic_net' && selection.url) {
+    args.push('--source-url', selection.url);
+  }
   if (selection.relaysOnly) args.push('--relays-only');
   return { command: process.execPath, args, script: SOURCE_CONFIG[selection.source].script };
 }

@@ -408,7 +408,8 @@ async function run(meetDbId, {
   limit = 0,
   relaysOnly = false,
   controlPlane = false,
-  legacyDirectWrite = false
+  legacyDirectWrite = false,
+  sourceUrl = null,
 } = {}) {
   requireControlledCommit({
     commit,
@@ -422,7 +423,7 @@ async function run(meetDbId, {
     .from('meets').select('meet_id, name, date, end_date, season, athletic_net_results_url, meet_url')
     .eq('meet_id', meetDbId).single();
   if (me || !meet) throw new Error(`meet ${meetDbId} not found: ${me?.message}`);
-  const target = meet.athletic_net_results_url || meet.meet_url;
+  const target = sourceUrl || meet.athletic_net_results_url || meet.meet_url;
   if (!target) throw new Error(`meet ${meetDbId} has no athletic.net / meet_url to scrape`);
   console.log(`Meet ${meet.meet_id} "${meet.name}" (${meet.date}, ${meet.season})`);
   console.log(`Source: ${target}\n`);
@@ -751,8 +752,9 @@ if (require.main === module) {
   const relaysOnly = args.includes('--relays-only');
   const controlPlane = args.includes('--control-plane');
   const legacyDirectWrite = args.includes('--legacy-direct-write');
+  const sIdx = args.indexOf('--source-url'); const sourceUrl = sIdx >= 0 ? args[sIdx + 1] : null;
   const jIdx = args.indexOf('--json'); const jsonFile = jIdx >= 0 ? args[jIdx + 1] : null;
   const lIdx = args.indexOf('--limit'); const limit = lIdx >= 0 ? parseInt(args[lIdx + 1], 10) : 0;
-  if (!meetDbId) { console.log('Usage: node import_meet_results.js <db_meet_id> [--commit --control-plane] [--legacy-direct-write] [--json f] [--limit N]'); process.exit(1); }
-  run(meetDbId, { commit, relaysOnly, controlPlane, legacyDirectWrite, jsonFile, limit }).catch(e => { console.error('ERROR', e.message); process.exit(1); });
+  if (!meetDbId) { console.log('Usage: node import_meet_results.js <db_meet_id> [--commit --control-plane] [--legacy-direct-write] [--source-url URL] [--json f] [--limit N]'); process.exit(1); }
+  run(meetDbId, { commit, relaysOnly, controlPlane, legacyDirectWrite, sourceUrl, jsonFile, limit }).catch(e => { console.error('ERROR', e.message); process.exit(1); });
 }

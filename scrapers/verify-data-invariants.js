@@ -38,7 +38,16 @@ const CHECKS = [
          'the ones worth investigating; start with mass+texas.\n' +
          '         DO NOT tune this to zero -- three earlier versions were wrong from ' +
          'over-fitting a detector to data that was not understood yet.',
-    tolerate: 2860,   // 2026-08-18: +65 from 197 newly-filled meets adding legitimate athlete-days
+    // 2026-08-18: +65 from 197 newly-filled meets adding legitimate athlete-days.
+    // 2026-08-19: 2,854 -> 2,866 (+12) from importing 14 recovered meets. Each of the 12 was
+    // inspected rather than waved through: 8 are adjacent-state and ordinary (ariz+utah 4,
+    // colo+utah 4 — a squad split across two meets on one weekend, Robison Invitational at BYU
+    // against Desert Heat Classic / Western Slope). The other 4 are DISTANT and are the ones to
+    // look at if this is ever investigated: ky+pa 2 (130th Penn Relays vs Jim Freeman/Clark
+    // Wood), iowa+ky 1 (116th Drake Relays), mich+ky 1. Note Penn and Drake are both MULTI-DAY
+    // meets whose rows all carry one date, which is a documented cause of false hits here — so
+    // these are suspicious, not proven.
+    tolerate: 2866,
     sql: `WITH st AS (
             SELECT meet_id,
               CASE

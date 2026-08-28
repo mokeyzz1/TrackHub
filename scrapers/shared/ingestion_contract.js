@@ -10,7 +10,7 @@ const crypto = require('crypto');
 const { parseMark } = require('./mark_parser');
 const { normaliseMarkKey } = require('./result_fingerprint');
 
-const SOURCES = Object.freeze(['tfrrs', 'athletic_net', 'ustfccca', 'manual']);
+const SOURCES = Object.freeze(['tfrrs', 'athletic_net', 'ustfccca', 'trackscoreboard', 'manual']);
 const ENTITY_TYPES = Object.freeze(['individual_result', 'relay_result', 'relay_leg']);
 const MEASURES = Object.freeze(['time', 'distance', 'points', 'unknown']);
 

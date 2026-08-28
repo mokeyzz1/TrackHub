@@ -56,6 +56,7 @@ test('recovery runner rejects public-fact commit mode', () => {
 test('source validation accepts only importer-supported URLs', () => {
   assert.equal(validCandidate('tfrrs', 'https://www.tfrrs.org/results/12345/meet.html'), true);
   assert.equal(validCandidate('athletic_net', 'https://www.athletic.net/TrackAndField/meet/634818/results'), true);
+  assert.equal(validCandidate('athletic_net', 'https://live.athletic.net/meets/68768'), true);
   assert.equal(validCandidate('athletic_net', 'https://milesplit.live/meets/723064'), false);
   assert.equal(validCandidate('tfrrs', 'https://example.com/results/12345'), false);
 });
@@ -84,6 +85,31 @@ test('athletic.net command uses the controlled relay-only path when needed', () 
   assert.equal(command.command, process.execPath);
   assert.match(command.script, /athletic-net[\\/]import_meet_results\.js$/);
   assert.deepEqual(command.args, ['11579', '--control-plane', '--relays-only']);
+});
+
+test('athletic.net command can use a verified alternate AthleticLIVE source URL', () => {
+  const command = buildImporterCommand(
+    { meet_id: 12759 },
+    { source: 'athletic_net', url: 'https://live.athletic.net/meets/68768', relaysOnly: false }
+  );
+  assert.deepEqual(command.args, [
+    '12759',
+    '--control-plane',
+    '--source-url',
+    'https://live.athletic.net/meets/68768',
+  ]);
+});
+
+test('athletic.net source selection prefers an explicit AthleticLIVE candidate', () => {
+  const choice = chooseSource({
+    needs_individual: true,
+    needs_relays: false,
+    source_candidates: {
+      athletic_live_url: 'https://live.athletic.net/meets/68768',
+      athletic_net_results_url: 'https://www.athletic.net/TrackAndField/meet/658210/results',
+    },
+  }, 'athletic_net');
+  assert.equal(choice.url, 'https://live.athletic.net/meets/68768');
 });
 
 test('batch limits count supported candidates instead of generic timing URLs', () => {

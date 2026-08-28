@@ -74,7 +74,7 @@ function validateReview({ run, decisions }, { allowQuarantines, allowMultiMeet }
   if (run.mode !== 'dry_run' || run.status !== 'succeeded') {
     throw new Error(`run must be a succeeded dry_run; found mode=${run.mode}, status=${run.status}`);
   }
-  if (!['tfrrs', 'athletic_net'].includes(run.source)) {
+  if (!['tfrrs', 'athletic_net', 'trackscoreboard'].includes(run.source)) {
     throw new Error(`source ${run.source} is not eligible for single-run promotion`);
   }
   const meetIds = scopeMeetIds(run.scope);

@@ -86,8 +86,8 @@ class AthleticNetSearchClient {
     this.lastRequestAt = 0;
   }
 
-  cacheKey(query, sport) {
-    return `${String(sport || 'tf').trim().toLowerCase()}|${String(query || '').trim().toLowerCase()}`;
+  cacheKey(query, sport, start, rows) {
+    return `${String(sport || 'tf').trim().toLowerCase()}|${String(query || '').trim().toLowerCase()}|${start}|${rows}`;
   }
 
   async waitForRequestSlot() {
@@ -153,14 +153,16 @@ class AthleticNetSearchClient {
     }
   }
 
-  async search(query, { sport = 'tf' } = {}) {
+  async search(query, { sport = 'tf', start = 0, rows = 50 } = {}) {
     const normalizedQuery = String(query || '').trim();
     if (!normalizedQuery) return { response: { docs: [] } };
 
-    const key = this.cacheKey(normalizedQuery, sport);
+    const pageStart = Math.max(0, Number(start) || 0);
+    const pageRows = Math.min(50, Math.max(10, Number(rows) || 50));
+    const key = this.cacheKey(normalizedQuery, sport, pageStart, pageRows);
     if (this.cache.has(key)) return this.cache.get(key);
 
-    const url = `${this.endpoint}?q=${encodeURIComponent(normalizedQuery)}&sport=${encodeURIComponent(sport)}`;
+    const url = `${this.endpoint}?q=${encodeURIComponent(normalizedQuery)}&start=${pageStart}&rows=${pageRows}&sport=${encodeURIComponent(sport)}`;
     let lastError = null;
     for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
       try {
