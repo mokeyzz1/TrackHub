@@ -26,16 +26,25 @@ class AthleteAliasResolver {
     return new AthleteAliasResolver(rows);
   }
 
-  resolve({ source, sourceAthleteKey } = {}) {
-    const key = `${String(source || '').trim()}|${String(sourceAthleteKey || '').trim()}`;
-    const matches = this.bySourceKey.get(key);
-    if (!matches || matches.size !== 1) return null;
-    const row = [...matches.values()][0];
-    return {
-      athlete_id: Number(row.target_athlete_id),
-      athlete_alias_id: Number(row.athlete_alias_id),
-      match_method: row.match_method
-    };
+  resolve({ source, sourceAthleteKey, sourceAthleteScopeKey } = {}) {
+    // A scoped key is preferred for name-only observations. It prevents a global name alias
+    // from crossing teams or meets while preserving the existing unscoped path for stable
+    // external IDs such as a linked TFRRS profile ID.
+    const keys = [sourceAthleteScopeKey, sourceAthleteKey]
+      .map(value => String(value || '').trim())
+      .filter((value, index, values) => value && values.indexOf(value) === index);
+    for (const sourceKey of keys) {
+      const matches = this.bySourceKey.get(`${String(source || '').trim()}|${sourceKey}`);
+      if (!matches) continue;
+      if (matches.size !== 1) return null;
+      const row = [...matches.values()][0];
+      return {
+        athlete_id: Number(row.target_athlete_id),
+        athlete_alias_id: Number(row.athlete_alias_id),
+        match_method: row.match_method
+      };
+    }
+    return null;
   }
 }
 

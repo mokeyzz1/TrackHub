@@ -23,6 +23,28 @@ function sourceEventKey(row) {
   return row.source_event_key || row.event_id || row.event_code || row.event_name;
 }
 
+function normalizeAthleteIdentityName(value) {
+  return String(value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// TFRRS result tables can omit athlete IDs for junior-college rows. A name by itself is not a
+// stable identity, so aliases for those rows use the meet + canonical team + gender scope.
+function scopedSourceAthleteKey(source, row, teamResolution = null) {
+  if (source !== 'tfrrs' || row.tfrrs_athlete_id || row.athlete_id) return null;
+  const sourceMeet = row.source_meet_key || row.sourceMeetKey || row.meet_id;
+  const teamId = teamResolution?.team_id || row.team_id || null;
+  const gender = row.team_gender || row.gender;
+  const name = normalizeAthleteIdentityName(row.athlete_name || row.name);
+  if (!sourceMeet || !teamId || !gender || !name) return null;
+  return `tfrrs:meet=${String(sourceMeet).trim()}|team=${String(teamId).trim()}|gender=${String(gender).trim()}|name=${name}`;
+}
+
 function resolveTeam(source, row, teamResolver) {
   if (row.team_id) return { team_id: row.team_id, match_field: 'row_team_id', match_method: 'source_resolved' };
   if (!teamResolver || typeof teamResolver.resolve !== 'function') return null;
@@ -35,7 +57,7 @@ function resolveTeam(source, row, teamResolver) {
   });
 }
 
-function resolveAthlete(source, row, athleteResolver) {
+function resolveAthlete(source, row, athleteResolver, teamResolution = null) {
   if (row.athlete_id) {
     return { athlete_id: row.athlete_id, match_field: 'row_athlete_id', match_method: 'source_resolved' };
   }
@@ -44,6 +66,7 @@ function resolveAthlete(source, row, athleteResolver) {
   return athleteResolver.resolve({
     source,
     sourceAthleteKey: sourceAthleteKey(source, row),
+    sourceAthleteScopeKey: scopedSourceAthleteKey(source, row, teamResolution),
     sourceAthleteName: row.athlete_name || row.name,
     sourceGender: row.team_gender || row.gender
   });
@@ -53,7 +76,7 @@ function commonInput(source, row, events, entityType, overrides = {}, options = 
   const eventTypeId = row.event_type_id || events.resolve(row.event_name || row.event_code);
   const eventType = eventTypeId ? events.detailsById(eventTypeId) : null;
   const teamResolution = resolveTeam(source, row, options.teamResolver);
-  const athleteResolution = resolveAthlete(source, row, options.athleteResolver);
+  const athleteResolution = resolveAthlete(source, row, options.athleteResolver, teamResolution);
   const derivedPayload = { ...row };
   if (teamResolution && teamResolution.match_field !== 'row_team_id') {
     derivedPayload.ingestion_team_resolution = teamResolution;
@@ -137,6 +160,7 @@ module.exports = {
   normalizeSourceRow,
   normalizeSourceRows,
   sourceAthleteKey,
+  scopedSourceAthleteKey,
   sourceTeamKey,
   sourceEventKey
 };
