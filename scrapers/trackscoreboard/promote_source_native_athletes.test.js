@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 
 const {
   buildPlan,
+  namesCompatible,
   normalizeName,
   summarizePlan,
 } = require('./promote_source_native_athletes');
@@ -25,6 +26,7 @@ const team = { team_id: 200, school_id: 300, official_name: 'P.R.-Ponce', short_
 
 test('normalizes source-native names consistently', () => {
   assert.equal(normalizeName('José  Rivera Jr.'), 'jose rivera');
+  assert.equal(namesCompatible('LE Legna Echevarria', 'Legna Echevarria'), true);
 });
 
 test('creates only a unique source-native identity with a verified team', () => {
@@ -66,6 +68,27 @@ test('holds a source-native identity when the name already exists anywhere', () 
   });
   assert.equal(row.action, 'hold');
   assert.equal(row.reason, 'same_name_gender_exists');
+});
+
+test('holds a source-native identity when an existing display-prefix row is compatible', () => {
+  const [row] = buildPlan(groups, {
+    teams: [team],
+    existingAthletes: [{ athlete_id: 44, full_name: 'LE Ana Rivera', gender: 'F', school_id: 999 }],
+    existingAliases: [],
+  });
+  assert.equal(row.action, 'hold');
+  assert.equal(row.reason, 'same_name_gender_exists');
+});
+
+test('links one compatible existing athlete at the verified school', () => {
+  const [row] = buildPlan(groups, {
+    teams: [team],
+    existingAthletes: [{ athlete_id: 44, full_name: 'Ana Rivera', gender: 'F', school_id: 300 }],
+    existingAliases: [],
+  });
+  assert.equal(row.action, 'link_existing');
+  assert.equal(row.reason, 'unique_same_school_existing_athlete');
+  assert.equal(row.target_athlete.athlete_id, 44);
 });
 
 test('holds duplicate source identities in one batch', () => {

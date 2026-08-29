@@ -171,6 +171,15 @@ function buildPlan(groups, {
       athlete.gender === group.source_gender
       && namesCompatible(athlete.full_name, group.source_athlete_name)
     ));
+    const sameSchool = existing.filter(athlete => Number(athlete.school_id) === Number(team.school_id));
+    if (sameSchool.length === 1) {
+      return {
+        ...base,
+        action: 'link_existing',
+        reason: 'unique_same_school_existing_athlete',
+        target_athlete: sameSchool[0],
+      };
+    }
     if (existing.length) return { ...base, action: 'hold', reason: 'same_name_gender_exists', existing_athletes: existing };
     if (plannedByName.has(nameKey)) {
       return { ...base, action: 'hold', reason: 'same_name_gender_in_batch', conflicting_source_key: plannedByName.get(nameKey) };
@@ -295,48 +304,57 @@ async function loadState(pool, runId) {
 async function commitPlan(pool, plan) {
   const holds = plan.filter(row => row.action === 'hold');
   const creates = plan.filter(row => row.action === 'create_and_alias');
-  if (!creates.length) return { athletes_created: 0, aliases_created: 0, held: holds.length };
+  const links = plan.filter(row => row.action === 'link_existing');
+  if (!creates.length && !links.length) return { athletes_created: 0, aliases_created: 0, held: holds.length };
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    for (const row of creates) {
+    for (const row of [...creates, ...links]) {
       await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [
         `trackscoreboard|${row.source_athlete_key}`,
       ]);
-      const inserted = await client.query(
-        `INSERT INTO public.athletes
-           (school_id, full_name, first_name, last_name, gender,
-            tfrrs_athlete_id, tfrrs_profile_url, athletic_net_url, is_active)
-         SELECT $1, $2, $3, $4, $5, NULL, NULL, NULL, true
-          WHERE NOT EXISTS (
-            SELECT 1
-              FROM public.athletes
-             WHERE gender = $5
-               AND trim(regexp_replace(translate(lower(full_name),
-                 'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
-                 'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
-                   = trim(regexp_replace(translate(lower($2),
-                 'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
-                 'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
-                 OR trim(regexp_replace(translate(lower(full_name),
-                 'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
-                 'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
-                   LIKE '%' || ' ' || trim(regexp_replace(translate(lower($2),
-                 'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
-                 'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
-          )
-         RETURNING athlete_id`,
-        [
-          row.athlete.school_id,
-          row.athlete.full_name,
-          row.athlete.first_name || null,
-          row.athlete.last_name || null,
-          row.athlete.gender,
-        ]
-      );
-      if (inserted.rowCount !== 1) throw new Error(`source-native athlete guard failed for ${row.source_athlete_key}`);
-      row.created_athlete_id = Number(inserted.rows[0].athlete_id);
+      let targetAthleteId;
+      if (row.action === 'create_and_alias') {
+        const inserted = await client.query(
+          `INSERT INTO public.athletes
+             (school_id, full_name, first_name, last_name, gender,
+              tfrrs_athlete_id, tfrrs_profile_url, athletic_net_url, is_active)
+           SELECT $1, $2, $3, $4, $5, NULL, NULL, NULL, true
+            WHERE NOT EXISTS (
+              SELECT 1
+                FROM public.athletes
+               WHERE gender = $5
+                 AND (
+                   trim(regexp_replace(translate(lower(full_name),
+                   'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
+                   'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
+                     = trim(regexp_replace(translate(lower($2),
+                   'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
+                   'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
+                   OR trim(regexp_replace(translate(lower(full_name),
+                   'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
+                   'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
+                     LIKE '%' || ' ' || trim(regexp_replace(translate(lower($2),
+                   'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
+                   'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
+                 )
+            )
+           RETURNING athlete_id`,
+          [
+            row.athlete.school_id,
+            row.athlete.full_name,
+            row.athlete.first_name || null,
+            row.athlete.last_name || null,
+            row.athlete.gender,
+          ]
+        );
+        if (inserted.rowCount !== 1) throw new Error(`source-native athlete guard failed for ${row.source_athlete_key}`);
+        targetAthleteId = Number(inserted.rows[0].athlete_id);
+        row.created_athlete_id = targetAthleteId;
+      } else {
+        targetAthleteId = Number(row.target_athlete.athlete_id);
+      }
       await client.query(
         `INSERT INTO ingest.athlete_aliases
            (source, source_athlete_key, source_athlete_name, source_gender,
@@ -347,8 +365,10 @@ async function commitPlan(pool, plan) {
           row.source_athlete_key,
           row.source_athlete_name,
           row.source_gender,
-          row.created_athlete_id,
-          'Exact tenant-scoped TrackScoreboard identity; no existing normalized name/gender collision; team alias verified from the 2026 LAI relay source.',
+          targetAthleteId,
+          row.action === 'link_existing'
+            ? 'Exact tenant-scoped TrackScoreboard identity; one compatible existing athlete at the verified canonical school; team alias verified from the 2026 LAI relay source.'
+            : 'Exact tenant-scoped TrackScoreboard identity; no existing normalized name/gender collision; team alias verified from the 2026 LAI relay source.',
         ]
       );
     }
@@ -357,17 +377,20 @@ async function commitPlan(pool, plan) {
          FROM ingest.athlete_aliases
         WHERE source = 'trackscoreboard'
           AND source_athlete_key = ANY($1::text[])`,
-      [creates.map(row => row.source_athlete_key)]
+      [[...creates, ...links].map(row => row.source_athlete_key)]
     );
     const byKey = new Map(verify.rows.map(row => [row.source_athlete_key, row]));
-    for (const row of creates) {
+    for (const row of [...creates, ...links]) {
       const alias = byKey.get(row.source_athlete_key);
-      if (!alias || alias.status !== 'active' || Number(alias.target_athlete_id) !== row.created_athlete_id) {
+      const expectedAthleteId = row.action === 'link_existing'
+        ? Number(row.target_athlete.athlete_id)
+        : row.created_athlete_id;
+      if (!alias || alias.status !== 'active' || Number(alias.target_athlete_id) !== expectedAthleteId) {
         throw new Error(`source-native alias verification failed for ${row.source_athlete_key}`);
       }
     }
     await client.query('COMMIT');
-    return { athletes_created: creates.length, aliases_created: creates.length, held: holds.length };
+    return { athletes_created: creates.length, aliases_created: creates.length + links.length, held: holds.length };
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;
@@ -428,6 +451,7 @@ if (require.main === module) {
 
 module.exports = {
   buildPlan,
+  namesCompatible,
   groupCandidates,
   normalizeName,
   parseArgs,
