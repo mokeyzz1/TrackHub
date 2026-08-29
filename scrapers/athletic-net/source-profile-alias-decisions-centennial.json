@@ -1,0 +1,21 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "Centennial Indoor Championships 2026 / exact AthleticLIVE source-profile match",
+  "decisions": [
+    {
+      "source_athlete_key": "44525839",
+      "source_athlete_name": "Georgia Hodgson",
+      "source_gender": "F",
+      "target_athlete_id": 2466,
+      "athletic_net_profile_id": "23970528",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59188",
+        "https://www.athletic.net/athlete/23970528/track-and-field",
+        "https://www.tfrrs.org/athletes/8627937/Franklin__Marshall/Georgia_Hodgson.html"
+      ],
+      "notes": "Centennial source key has exact Georgia Hodgson identity, source team Franklin & Marshall, and the unique existing athlete owns the exact Athletic.net profile and matching Franklin & Marshall TFRRS identity."
+    }
+  ]
+}
