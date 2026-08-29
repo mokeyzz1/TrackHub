@@ -12,8 +12,10 @@
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
+const { ensureIngestDatabaseUrl } = require('../shared/private_database_url');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const DEFAULT_MANIFEST = path.join(__dirname, 'source-profile-alias-decisions-11727.json');
 
@@ -214,15 +216,16 @@ async function commitPlan(pool, plan) {
 async function run({ manifestPath = DEFAULT_MANIFEST, commit = false, env = process.env, pool = null } = {}) {
   const manifest = readManifest(manifestPath);
   const ownsPool = !pool;
+  const url = ensureIngestDatabaseUrl(env);
+  if (!url && !pool) throw new Error('INGEST_DATABASE_URL is required');
   const db = pool || new Pool({
-    connectionString: env.INGEST_DATABASE_URL,
+    connectionString: url,
     max: 2,
     connectionTimeoutMillis: 10000,
     application_name: 'trackhub-reviewed-source-profile-alias',
     ssl: env.INGEST_DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false },
   });
   try {
-    if (!env.INGEST_DATABASE_URL && !pool) throw new Error('INGEST_DATABASE_URL is required');
     const plan = buildPlan(manifest.decisions, await loadState(db, manifest));
     const outcome = commit ? await commitPlan(db, plan) : { aliases_created: 0 };
     return { mode: commit ? 'commit' : 'dry_run', ...outcome, plan };

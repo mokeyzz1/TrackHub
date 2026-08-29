@@ -16,8 +16,10 @@ const { Pool } = require('pg');
 const config = require('./config');
 const { AthleticNetSearchClient } = require('./athletic_net_api');
 const { findBestMatch } = require('./map-athletes');
+const { ensureIngestDatabaseUrl } = require('../shared/private_database_url');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 function valueAfter(argv, flag) {
   const index = argv.indexOf(flag);
@@ -167,7 +169,7 @@ async function loadRows(pool, runId) {
 }
 
 async function buildReport({ runId, output = null, env = process.env, client = null } = {}) {
-  const url = env.INGEST_DATABASE_URL;
+  const url = ensureIngestDatabaseUrl(env);
   if (!url) throw new Error('INGEST_DATABASE_URL is required');
 
   const pool = new Pool({
