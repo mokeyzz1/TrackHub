@@ -24,6 +24,7 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const LAI_EVIDENCE_URL = 'https://laipr.org/la-uagm-regresa-al-reinado-de-los-campeonatos-de-relevos-de-la-lai/';
+const UNATTACHED_SCHOOL_ID = 1835;
 
 function valueAfter(argv, flag) {
   const index = argv.indexOf(flag);
@@ -180,6 +181,14 @@ function buildPlan(groups, {
         target_athlete: sameSchool[0],
       };
     }
+    if (existing.length === 1 && Number(existing[0].school_id) === UNATTACHED_SCHOOL_ID) {
+      return {
+        ...base,
+        action: 'link_existing_unattached',
+        reason: 'unique_unattached_existing_athlete',
+        target_athlete: existing[0],
+      };
+    }
     if (existing.length) return { ...base, action: 'hold', reason: 'same_name_gender_exists', existing_athletes: existing };
     if (plannedByName.has(nameKey)) {
       return { ...base, action: 'hold', reason: 'same_name_gender_in_batch', conflicting_source_key: plannedByName.get(nameKey) };
@@ -304,7 +313,7 @@ async function loadState(pool, runId) {
 async function commitPlan(pool, plan) {
   const holds = plan.filter(row => row.action === 'hold');
   const creates = plan.filter(row => row.action === 'create_and_alias');
-  const links = plan.filter(row => row.action === 'link_existing');
+  const links = plan.filter(row => ['link_existing', 'link_existing_unattached'].includes(row.action));
   if (!creates.length && !links.length) return { athletes_created: 0, aliases_created: 0, held: holds.length };
 
   const client = await pool.connect();
@@ -368,6 +377,8 @@ async function commitPlan(pool, plan) {
           targetAthleteId,
           row.action === 'link_existing'
             ? 'Exact tenant-scoped TrackScoreboard identity; one compatible existing athlete at the verified canonical school; team alias verified from the 2026 LAI relay source.'
+            : row.action === 'link_existing_unattached'
+              ? 'Exact tenant-scoped TrackScoreboard identity; one compatible existing Unattached athlete; public affiliation and history intentionally preserved pending review; team alias verified from the 2026 LAI relay source.'
             : 'Exact tenant-scoped TrackScoreboard identity; no existing normalized name/gender collision; team alias verified from the 2026 LAI relay source.',
         ]
       );
@@ -382,7 +393,7 @@ async function commitPlan(pool, plan) {
     const byKey = new Map(verify.rows.map(row => [row.source_athlete_key, row]));
     for (const row of [...creates, ...links]) {
       const alias = byKey.get(row.source_athlete_key);
-      const expectedAthleteId = row.action === 'link_existing'
+      const expectedAthleteId = ['link_existing', 'link_existing_unattached'].includes(row.action)
         ? Number(row.target_athlete.athlete_id)
         : row.created_athlete_id;
       if (!alias || alias.status !== 'active' || Number(alias.target_athlete_id) !== expectedAthleteId) {

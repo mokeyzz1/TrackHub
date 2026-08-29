@@ -91,6 +91,17 @@ test('links one compatible existing athlete at the verified school', () => {
   assert.equal(row.target_athlete.athlete_id, 44);
 });
 
+test('links one compatible Unattached athlete without changing public history', () => {
+  const [row] = buildPlan(groups, {
+    teams: [team],
+    existingAthletes: [{ athlete_id: 45, full_name: 'Ana Rivera', gender: 'F', school_id: 1835 }],
+    existingAliases: [],
+  });
+  assert.equal(row.action, 'link_existing_unattached');
+  assert.equal(row.reason, 'unique_unattached_existing_athlete');
+  assert.equal(row.target_athlete.athlete_id, 45);
+});
+
 test('holds duplicate source identities in one batch', () => {
   const duplicate = { ...groups[0], source_athlete_key: 'tiempodellegada|124', observation_ids: [2] };
   const plan = buildPlan([...groups, duplicate], { teams: [team], existingAthletes: [], existingAliases: [] });
