@@ -280,6 +280,9 @@ async function reconcileRelayProbe(pool, runId) {
 function dryRunError(result) {
   if (result.code === 0) {
     const output = String(result.output || '');
+    if (/SOURCE STATUS:\s*NOT_FOUND/i.test(output)) {
+      return 'source_not_found';
+    }
     if (/SOURCE STATUS:\s*EMPTY/i.test(output)) {
       return 'source_no_results_published';
     }

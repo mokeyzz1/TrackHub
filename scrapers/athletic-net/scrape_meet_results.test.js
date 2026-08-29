@@ -11,6 +11,7 @@ const {
   athleticLiveEventCode,
   athleticLiveGender,
   parseAthleticLivePayload,
+  sourceStatus,
 } = require('./scrape_meet_results');
 const { isAthleticLiveHost, isAthleticLiveUrl } = require('./athletic_live_host');
 
@@ -58,6 +59,12 @@ test('does not classify a normal empty results page as blocked', () => {
     detectSourceBlock({ status: 200, title: 'Jim Barber Invitational', body: 'No results posted' }),
     null
   );
+});
+
+test('preserves dead source pages as not_found instead of ordinary empty', () => {
+  assert.equal(sourceStatus({ status: 404, hasEvents: false }), 'not_found');
+  assert.equal(sourceStatus({ status: 200, hasEvents: false }), 'empty');
+  assert.equal(sourceStatus({ status: 200, hasEvents: true }), 'results_available');
 });
 
 test('canonicalizes all-results links and removes split-query duplicates', () => {

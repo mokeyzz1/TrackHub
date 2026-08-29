@@ -94,6 +94,11 @@ function athleticLiveResultAvailable(rowText = '') {
   return /\b(?:results?|official|final(?:s)?|completed?)\b/i.test(text);
 }
 
+function sourceStatus({ status = null, hasEvents = false } = {}) {
+  if (Number(status) === 404) return 'not_found';
+  return hasEvents ? 'results_available' : 'empty';
+}
+
 function athleticLiveEventCode(source = {}) {
   let code = source.n || source.sn || source.ab || '';
   code = String(code).replace(/\s+/g, ' ').trim()
@@ -239,6 +244,7 @@ class AthleticNetMeetScraper {
     this.eventConcurrency = Math.max(1, Math.min(Number(opts.eventConcurrency) || 3, 4));
     this.browser = null;
     this.page = null;
+    this.lastSourceStatus = null;
   }
 
   async init() {
@@ -263,6 +269,7 @@ class AthleticNetMeetScraper {
     const body = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
     const reason = detectSourceBlock({ status, title, body, headers });
     if (reason) throw new AthleticNetSourceBlockedError({ status, reason });
+    return { status, title, body, headers };
   }
 
   /** live.athletic.net/meets/{id} -> the permanent www.athletic.net meet id (via "View on AthleticNET"). */
@@ -280,7 +287,11 @@ class AthleticNetMeetScraper {
   /** All event-results links for a meet: /TrackAndField/meet/{id}/results/{m|f}/{divId}/{eventCode} */
   async getEventLinks(meetId) {
     const resultsUrl = `https://www.athletic.net/TrackAndField/meet/${meetId}/results`;
-    await this._goto(resultsUrl);
+    const response = await this._goto(resultsUrl);
+    if (Number(response?.status) === 404) {
+      this.lastSourceStatus = 'not_found';
+      return [];
+    }
 
     const extract = async () => {
       const rawLinks = await this.page.evaluate(() => [...document.querySelectorAll('a[href]')]
@@ -304,7 +315,11 @@ class AthleticNetMeetScraper {
         return link ? new URL(link.getAttribute('href'), location.href).toString() : null;
       });
       if (allResultsUrl && allResultsUrl !== resultsUrl) {
-        await this._goto(allResultsUrl);
+        const allResultsResponse = await this._goto(allResultsUrl);
+        if (Number(allResultsResponse?.status) === 404) {
+          this.lastSourceStatus = 'not_found';
+          return [];
+        }
         events = await extract();
       }
     }
@@ -321,7 +336,16 @@ class AthleticNetMeetScraper {
     const meetMatch = parsedTarget.pathname.match(/\/meets\/(\d+)/i);
     if (!meetMatch) throw new Error(`Could not parse AthleticLIVE meet id from ${target}`);
     const meetUrl = `${parsedTarget.origin}/meets/${meetMatch[1]}`;
-    await this._goto(meetUrl);
+    const response = await this._goto(meetUrl);
+    if (Number(response?.status) === 404) {
+      return {
+        meetId: meetMatch[1],
+        athleticNetMeetId: null,
+        canceled: false,
+        sourceStatus: 'not_found',
+        events: [],
+      };
+    }
 
     const pageState = await this.page.evaluate(() => ({
       title: document.title,
@@ -349,6 +373,7 @@ class AthleticNetMeetScraper {
       meetId: meetMatch[1],
       athleticNetMeetId: netIdMatch ? netIdMatch[1] : null,
       canceled: /\bcancelled?\b/i.test(`${pageState.title}\n${pageState.body}`),
+      sourceStatus: sourceStatus({ hasEvents: seen.size > 0 }),
       events: [...seen.values()],
     };
   }
@@ -484,12 +509,13 @@ class AthleticNetMeetScraper {
 
       console.log(`AthleticLIVE meet ${live.meetId}: found ${live.events.length} completed event links`);
       if (live.canceled) console.log('  SOURCE STATUS: CANCELED');
+      else if (live.sourceStatus === 'not_found') console.log('  SOURCE STATUS: NOT_FOUND');
       else if (!live.events.length) console.log('  SOURCE STATUS: EMPTY');
 
       const out = {
         meet_id_athletic_live: live.meetId,
         meet_id_athletic_net: live.athleticNetMeetId,
-        source_status: live.canceled ? 'canceled' : (live.events.length ? 'results_available' : 'empty'),
+        source_status: live.canceled ? 'canceled' : (live.sourceStatus || sourceStatus({ hasEvents: live.events.length > 0 })),
         scraped_at: new Date().toISOString(),
         events: [],
       };
@@ -520,12 +546,13 @@ class AthleticNetMeetScraper {
 
     let events = await this.getEventLinks(meetId);
     console.log(`Meet ${meetId}: found ${events.length} event-result links`);
-    if (!events.length) console.log('  SOURCE STATUS: EMPTY');
+    if (this.lastSourceStatus === 'not_found') console.log('  SOURCE STATUS: NOT_FOUND');
+    else if (!events.length) console.log('  SOURCE STATUS: EMPTY');
     if (limit) events = events.slice(0, limit);
 
     const out = {
       meet_id_athletic_net: meetId,
-      source_status: events.length ? 'results_available' : 'empty',
+      source_status: this.lastSourceStatus || sourceStatus({ hasEvents: events.length > 0 }),
       scraped_at: new Date().toISOString(),
       events: []
     };
@@ -548,6 +575,7 @@ module.exports = {
   AthleticNetMeetScraper,
   AthleticNetSourceBlockedError,
   athleticLiveResultAvailable,
+  sourceStatus,
   detectSourceBlock,
   normalizeEventResultLink,
   parseAthleticLiveEventLink,
