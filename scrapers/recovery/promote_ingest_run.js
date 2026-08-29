@@ -141,16 +141,24 @@ async function syncRecoveryQueueAfterPromotion(pool, runId, meetIds) {
         WHERE o.target_meet_id = ANY($2::integer[])
           AND q.status = 'open'
         GROUP BY o.target_meet_id
-     ), coverage AS (
+     ), queue_scope AS (
        SELECT rq.queue_id,
+              CASE
+                WHEN rq.meet_id = ANY($2::integer[]) THEN rq.meet_id
+                ELSE rq.canonical_meet_id
+              END AS target_meet_id
+         FROM ingest.recovery_queue rq
+        WHERE rq.meet_id = ANY($2::integer[])
+           OR rq.canonical_meet_id = ANY($2::integer[])
+     ), coverage AS (
+       SELECT qs.queue_id,
               COALESCE(i.count, 0)::bigint AS individual_fact_count,
               COALESCE(r.count, 0)::bigint AS relay_fact_count,
               COALESCE(oq.count, 0)::int AS quarantined_observation_count
-         FROM ingest.recovery_queue rq
-         LEFT JOIN individual_facts i ON i.meet_id = COALESCE(rq.canonical_meet_id, rq.meet_id)
-         LEFT JOIN relay_facts r ON r.meet_id = COALESCE(rq.canonical_meet_id, rq.meet_id)
-         LEFT JOIN open_quarantines oq ON oq.meet_id = COALESCE(rq.canonical_meet_id, rq.meet_id)
-        WHERE COALESCE(rq.canonical_meet_id, rq.meet_id) = ANY($2::integer[])
+         FROM queue_scope qs
+         LEFT JOIN individual_facts i ON i.meet_id = qs.target_meet_id
+         LEFT JOIN relay_facts r ON r.meet_id = qs.target_meet_id
+         LEFT JOIN open_quarantines oq ON oq.meet_id = qs.target_meet_id
      )
      UPDATE ingest.recovery_queue rq
         SET coverage_status = CASE

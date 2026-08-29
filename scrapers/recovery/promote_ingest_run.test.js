@@ -94,6 +94,9 @@ test('queue promotion sync preserves open quarantines and checks relay coverage'
   assert.match(queries[0].text, /individual_facts/);
   assert.match(queries[0].text, /relay_facts/);
   assert.match(queries[0].text, /open_quarantines/);
+  assert.match(queries[0].text, /queue_scope/);
+  assert.match(queries[0].text, /rq\.meet_id = ANY\(\$2::integer\[\]\)/);
+  assert.match(queries[0].text, /rq\.canonical_meet_id = ANY\(\$2::integer\[\]\)/);
   assert.match(queries[0].text, /needs_relays/);
   assert.deepEqual(queries[0].values, ['run-1', [13096]]);
 });
