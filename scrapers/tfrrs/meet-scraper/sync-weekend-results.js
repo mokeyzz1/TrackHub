@@ -351,6 +351,26 @@ function getGenderFromEventUrl(eventUrl) {
   return null;
 }
 
+function isMultiEventName(eventName) {
+  return /\b(?:decathlon|heptathlon|pentathlon)\b/i.test(String(eventName || ''));
+}
+
+// TFRRS's normal HTML multi-event page mixes the aggregate table with every component table.
+// Its official API host exposes the same event with a stable summary table whose first POINTS
+// column is the aggregate score. Keep the original URL for provenance and use the API host only
+// for fetching the aggregate.
+function tfrrsApiEventUrl(eventUrl) {
+  try {
+    const parsed = new URL(eventUrl);
+    if (parsed.hostname === 'tfrrs.org' || parsed.hostname.endsWith('.tfrrs.org')) {
+      parsed.hostname = 'api.tfrrs.org';
+    }
+    return parsed.toString();
+  } catch (_) {
+    return eventUrl;
+  }
+}
+
 // Parse date from meet page
 function parseDate(dateStr) {
   if (!dateStr) return null;
@@ -407,6 +427,70 @@ function findTeamIdBySourceName(teamByName, sourceName, gender) {
   }
 
   return candidates.size === 1 ? [...candidates][0] : null;
+}
+
+function parseMultiEventSummary($, {
+  eventUrl,
+  fetchUrl = eventUrl,
+  meetId,
+  meetName,
+  meetDate,
+  eventName,
+  dbMeetId,
+  dbMeetName,
+  eventGender = null,
+} = {}) {
+  const $table = $('table').first();
+  if (!$table.length) return [];
+
+  const headers = $table.find('thead tr').last().find('th');
+  let pointsIndex = -1;
+  for (let index = 0; index < headers.length; index++) {
+    if (/^points$/i.test(cellText($, headers, index))) {
+      pointsIndex = index;
+      break;
+    }
+  }
+  if (pointsIndex < 0) return [];
+
+  const resultGender = eventGender || getGenderFromEventUrl(eventUrl) || getGenderFromEventName(eventName);
+  const eventId = parseEventId(eventUrl);
+  const results = [];
+
+  $table.find('tbody tr').each((_, row) => {
+    const $row = $(row);
+    const cells = $row.find('td');
+    const score = cellText($, cells, pointsIndex);
+    if (!/^\d+(?:\.\d+)?$/.test(score)) return;
+
+    const identity = extractTfrrsRowIdentity($, $row, { isRelay: false });
+    if (!identity.athleteName) return;
+
+    results.push({
+      athlete_id: identity.athleteId,
+      athlete_name: identity.athleteName,
+      event_name: normalizeEventName(eventName),
+      event_id: eventId,
+      mark_raw: score,
+      mark_seconds: null,
+      mark_meters: null,
+      points: Number(score),
+      place: parseInt(cellText($, cells, 0), 10) || null,
+      school_name: identity.schoolName,
+      source_team_key: identity.teamInfo?.teamSlug || identity.schoolName || null,
+      team_gender: resultGender || identity.teamInfo?.gender || null,
+      meet_id: dbMeetId,
+      source_meet_key: meetId ? String(meetId) : null,
+      meet_name: dbMeetName || meetName,
+      date: meetDate,
+      round: 'Finals',
+      source_url: eventUrl,
+      source_fetch_url: fetchUrl,
+      multi_event_summary: true,
+    });
+  });
+
+  return results;
 }
 
 // Fetch meets from database that need results
@@ -734,8 +818,10 @@ async function fetchMeetEvents(meetUrl) {
 async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName, dbMeetId, dbMeetName, eventGender = null) {
   try {
     const eventId = parseEventId(eventUrl);
+    const multiEvent = isMultiEventName(eventName);
+    const fetchUrl = multiEvent ? tfrrsApiEventUrl(eventUrl) : eventUrl;
 
-    const response = await axios.get(eventUrl, {
+    const response = await axios.get(fetchUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
       }
@@ -746,6 +832,20 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
 
     const pageEventName = eventName;
     const resultGender = eventGender || getGenderFromEventUrl(eventUrl) || getGenderFromEventName(pageEventName);
+
+    if (multiEvent) {
+      return parseMultiEventSummary($, {
+        eventUrl,
+        fetchUrl,
+        meetId,
+        meetName,
+        meetDate,
+        eventName: pageEventName,
+        dbMeetId,
+        dbMeetName,
+        eventGender: resultGender,
+      });
+    }
 
     // Parse CSS to find hidden columns
     const hiddenClasses = new Set();
@@ -1194,6 +1294,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,
       mark_meters: r.mark_meters,
+      points: r.points ?? null,
       place: r.place,
       meet_name: r.meet_name,
       meet_id: r.meet_id,
@@ -1205,7 +1306,9 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       school_name: r.school_name || null,
       source_team_key: r.source_team_key || r.school_name || null,
       team_gender: r.team_gender || null,
-      source_url: r.source_url || r.event_url || null
+      source_url: r.source_url || r.event_url || null,
+      source_fetch_url: r.source_fetch_url || null,
+      multi_event_summary: r.multi_event_summary || false
     });
   }
 
@@ -1842,9 +1945,11 @@ module.exports = {
   getGenderFromEventUrl,
   getMeetsNeedingResults,
   main,
+  parseMultiEventSummary,
   parseArgs,
   parseMeetId,
   parseRelayAthleteNames,
   scrapeMeet,
   storedTfrrsUrl,
+  tfrrsApiEventUrl,
 };

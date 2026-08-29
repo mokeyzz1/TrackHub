@@ -6,7 +6,9 @@ const {
   extractTfrrsRowIdentity,
   findTeamIdBySourceName,
   getGenderFromEventUrl,
+  parseMultiEventSummary,
   parseRelayAthleteNames,
+  tfrrsApiEventUrl,
 } = require('./sync-weekend-results');
 
 test('resolves a unique school-name variant but leaves ambiguous labels unresolved', () => {
@@ -33,6 +35,36 @@ test('derives gender from the TFRRS event URL when display text is gender-neutra
     'F'
   );
   assert.equal(getGenderFromEventUrl('https://www.tfrrs.org/results/96740/5992121/2025_3C2A/100-Meters'), null);
+});
+
+test('uses the official TFRRS API summary POINTS column for aggregate multi-events', () => {
+  const eventUrl = 'https://www.tfrrs.org/results/96740/5992116/2025_3C2A/Mens-Decathlon';
+  const $ = cheerio.load(`
+    <table><thead><tr><th>PL</th><th>NAME</th><th>YEAR</th><th>TEAM</th>
+      <th>POINTS</th><th>POINTS</th><th>POINTS</th><th>POINTS</th><th>SC</th>
+    </tr></thead><tbody><tr>
+      <td>1</td><td>Taiyo Ishiguro</td><td>Fr</td><td>Mt. SAC</td>
+      <td>6668</td><td>7201</td><td>5667</td><td>8468</td><td>10</td>
+    </tr></tbody></table>
+  `);
+
+  const [row] = parseMultiEventSummary($, {
+    eventUrl,
+    fetchUrl: tfrrsApiEventUrl(eventUrl),
+    meetId: 96740,
+    meetName: '3C2A',
+    meetDate: '2026-05-09',
+    eventName: 'Decathlon',
+    dbMeetId: 12952,
+    dbMeetName: '3C2A',
+  });
+
+  assert.equal(tfrrsApiEventUrl(eventUrl).startsWith('https://api.tfrrs.org/'), true);
+  assert.equal(row.points, 6668);
+  assert.equal(row.mark_raw, '6668');
+  assert.equal(row.mark_seconds, null);
+  assert.equal(row.team_gender, 'M');
+  assert.equal(row.multi_event_summary, true);
 });
 
 test('extracts current plain-cell TFRRS individual identities', () => {
