@@ -341,7 +341,7 @@ async function commitPlan(pool, plan) {
         `INSERT INTO ingest.athlete_aliases
            (source, source_athlete_key, source_athlete_name, source_gender,
             target_athlete_id, match_method, status, notes, verified_at, updated_at)
-         VALUES ('trackscoreboard', $1, $2, $3, $4, 'source_native_verified', 'active', $5, now(), now())
+         VALUES ('trackscoreboard', $1, $2, $3, $4, 'verified_alias', 'active', $5, now(), now())
          ON CONFLICT (source, source_athlete_key) DO NOTHING`,
         [
           row.source_athlete_key,
