@@ -403,9 +403,31 @@ function normalizeSchoolName(name) {
 // Resolve common source/database school-name variants only when the source label is a strict
 // prefix of exactly one canonical name for the requested gender. This handles "Riverside City"
 // vs "Riverside City College" without incorrectly mapping "San Diego Mesa" to "San Diego".
-function findTeamIdBySourceName(teamByName, sourceName, gender) {
+function findTeamIdBySourceName(teamByName, sourceName, gender, {
+  teamBySourceKey = null,
+  sourceTeamKey = null,
+  sourceTeamState = null,
+} = {}) {
   const normalizedSource = normalizeSchoolName(sourceName);
-  if (!normalizedSource || !gender) return null;
+  if (!gender) return null;
+
+  if (teamBySourceKey && sourceTeamKey) {
+    const normalizedKey = String(sourceTeamKey).trim();
+    const sourceCandidates = [];
+    if (sourceTeamState) sourceCandidates.push(`${String(sourceTeamState).toUpperCase()}|${normalizedKey}|${gender}`);
+    sourceCandidates.push(`${normalizedKey}|${gender}`);
+
+    for (const key of sourceCandidates) {
+      const candidateTeamIds = teamBySourceKey.get(key);
+      if (!candidateTeamIds) continue;
+      const uniqueTeamIds = candidateTeamIds instanceof Set
+        ? candidateTeamIds
+        : new Set([candidateTeamIds]);
+      if (uniqueTeamIds.size === 1) return [...uniqueTeamIds][0];
+    }
+  }
+
+  if (!normalizedSource) return null;
 
   const exactKeys = [
     `${String(sourceName).toLowerCase()}|${gender}`,
@@ -478,6 +500,7 @@ function parseMultiEventSummary($, {
       place: parseInt(cellText($, cells, 0), 10) || null,
       school_name: identity.schoolName,
       source_team_key: identity.teamInfo?.teamSlug || identity.schoolName || null,
+      source_team_state: identity.teamInfo?.state || null,
       team_gender: resultGender || identity.teamInfo?.gender || null,
       meet_id: dbMeetId,
       source_meet_key: meetId ? String(meetId) : null,
@@ -961,6 +984,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
             place,
             school_name: schoolName,
             source_team_key: teamInfo?.teamSlug || schoolName || null,
+            source_team_state: teamInfo?.state || null,
             team_gender: resultGender || teamInfo?.gender || null,
             meet_id: dbMeetId,
             source_meet_key: meetId ? String(meetId) : null,
@@ -1049,6 +1073,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
         place,
         school_name: schoolName,
         source_team_key: teamInfo?.teamSlug || schoolName || null,
+        source_team_state: teamInfo?.state || null,
         team_gender: resultGender || teamInfo?.gender || null,
         year,
         meet_id: dbMeetId,
@@ -1135,7 +1160,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
   while (true) {
     const { data: batch, error } = await supabase
       .from('teams')
-      .select('team_id, gender, school_id, schools(short_name, official_name)')
+      .select('team_id, gender, school_id, tfrrs_team_url, schools(short_name, official_name)')
       .range(offset, offset + pageSize - 1);
 
     if (error) {
@@ -1153,12 +1178,23 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
 
   // Build team lookup
   const teamByName = new Map();
+  const teamBySourceKey = new Map();
   const teamToSchool = new Map();
   for (const team of allTeams) {
     const shortName = team.schools?.short_name;
     const officialName = team.schools?.official_name;
 
     teamToSchool.set(team.team_id, team.school_id);
+
+    const teamInfo = parseTfrrsTeamInfo(team.tfrrs_team_url);
+    if (teamInfo) {
+      const addSourceKey = key => {
+        if (!teamBySourceKey.has(key)) teamBySourceKey.set(key, new Set());
+        teamBySourceKey.get(key).add(team.team_id);
+      };
+      addSourceKey(`${teamInfo.state}|${teamInfo.teamSlug}|${teamInfo.gender}`);
+      addSourceKey(`${teamInfo.teamSlug}|${teamInfo.gender}`);
+    }
 
     if (shortName) {
       const exactKey = `${shortName.toLowerCase()}|${team.gender}`;
@@ -1234,7 +1270,11 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
     let teamId = null;
     if (r.school_name) {
       const gender = r.team_gender || 'M';
-      teamId = findTeamIdBySourceName(teamByName, r.school_name, gender);
+      teamId = findTeamIdBySourceName(teamByName, r.school_name, gender, {
+        teamBySourceKey,
+        sourceTeamKey: r.source_team_key,
+        sourceTeamState: r.source_team_state,
+      });
     }
 
     if (teamId) {
@@ -1305,6 +1345,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       round: r.round,
       school_name: r.school_name || null,
       source_team_key: r.source_team_key || r.school_name || null,
+      source_team_state: r.source_team_state || null,
       team_gender: r.team_gender || null,
       source_url: r.source_url || r.event_url || null,
       source_fetch_url: r.source_fetch_url || null,
@@ -1318,7 +1359,11 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
     let teamId = null;
     if (r.school_name) {
       const gender = r.team_gender || 'M';
-      teamId = findTeamIdBySourceName(teamByName, r.school_name, gender);
+      teamId = findTeamIdBySourceName(teamByName, r.school_name, gender, {
+        teamBySourceKey,
+        sourceTeamKey: r.source_team_key,
+        sourceTeamState: r.source_team_state,
+      });
     }
 
     // Map relay athletes
@@ -1353,6 +1398,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       team_id: teamId,
       school_name: r.school_name,
       source_team_key: r.source_team_key || r.school_name || null,
+      source_team_state: r.source_team_state || null,
       team_gender: r.team_gender || null,
       event_name: r.event_name,
       mark_raw: r.mark_raw,

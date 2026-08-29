@@ -25,6 +25,30 @@ test('resolves a unique school-name variant but leaves ambiguous labels unresolv
   assert.equal(findTeamIdBySourceName(new Map([['san diego|M', 301]]), 'San Diego Mesa', 'M'), null);
 });
 
+test('resolves a verified TFRRS team identity before falling back to display names', () => {
+  const sourceTeams = new Map([
+    ['CA|Mt_SAC|M', new Set([3627])],
+    ['Mt_SAC|M', new Set([3627])],
+    ['City|M', new Set([11, 12])],
+  ]);
+  const displayTeams = new Map();
+
+  assert.equal(findTeamIdBySourceName(displayTeams, 'Mount San Antonio College', 'M', {
+    teamBySourceKey: sourceTeams,
+    sourceTeamKey: 'Mt_SAC',
+    sourceTeamState: 'CA',
+  }), 3627);
+  assert.equal(findTeamIdBySourceName(displayTeams, null, 'M', {
+    teamBySourceKey: sourceTeams,
+    sourceTeamKey: 'Mt_SAC',
+    sourceTeamState: 'CA',
+  }), 3627);
+  assert.equal(findTeamIdBySourceName(displayTeams, 'City', 'M', {
+    teamBySourceKey: sourceTeams,
+    sourceTeamKey: 'City',
+  }), null);
+});
+
 test('derives gender from the TFRRS event URL when display text is gender-neutral', () => {
   assert.equal(
     getGenderFromEventUrl('https://www.tfrrs.org/results/96740/5992121/2025_3C2A/Mens-100-Meters'),
