@@ -100,6 +100,19 @@ test('athletic.net command can use a verified alternate AthleticLIVE source URL'
   ]);
 });
 
+test('recovery command targets the verified canonical meet instead of an alternate shell', () => {
+  const command = buildImporterCommand(
+    { meet_id: 12759, canonical_meet_id: 12763, target_meet_id: 12763 },
+    { source: 'athletic_net', url: 'https://live.athletic.net/meets/68768', relaysOnly: false }
+  );
+  assert.deepEqual(command.args, [
+    '12763',
+    '--control-plane',
+    '--source-url',
+    'https://live.athletic.net/meets/68768',
+  ]);
+});
+
 test('athletic.net source selection prefers an explicit AthleticLIVE candidate', () => {
   const choice = chooseSource({
     needs_individual: true,

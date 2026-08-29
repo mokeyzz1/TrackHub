@@ -52,6 +52,31 @@ function schoolMatches(expected, actual) {
   return Boolean(left && right && (left === right || left.includes(right) || right.includes(left)));
 }
 
+function explicitNameVariantCompatible(sourceName, targetName) {
+  const source = normalizeName(sourceName).split(' ').filter(Boolean);
+  const target = normalizeName(targetName).split(' ').filter(Boolean);
+  if (!source.length || !target.length || source[source.length - 1] !== target[target.length - 1]) return false;
+
+  // A reviewed variant may be a first-name/nickname change, or one inserted/removed
+  // single-letter middle initial. Never permit a changed surname or a free-form fuzzy match.
+  if (source.length === target.length) {
+    const differences = source.slice(0, -1).reduce((count, token, index) => (
+      count + (token === target[index] ? 0 : 1)
+    ), 0);
+    return differences === 1;
+  }
+
+  const longer = source.length > target.length ? source : target;
+  const shorter = source.length > target.length ? target : source;
+  if (longer.length !== shorter.length + 1) return false;
+  for (let index = 0; index < longer.length - 1; index++) {
+    if (longer[index].length !== 1) continue;
+    const withoutInitial = longer.slice(0, index).concat(longer.slice(index + 1));
+    if (withoutInitial.join(' ') === shorter.join(' ')) return true;
+  }
+  return false;
+}
+
 function readManifest(filePath) {
   const manifest = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   if (!manifest || manifest.manifest_version !== 1 || !Array.isArray(manifest.decisions)) {
@@ -72,6 +97,14 @@ function readManifest(filePath) {
     }
     if (!Array.isArray(decision.evidence) || decision.evidence.length < 2) {
       throw new Error(`at least two evidence items are required: ${decision.source_athlete_key}`);
+    }
+    if (decision.allow_name_variant === true) {
+      if (!String(decision.name_variant_reason || '').trim()) {
+        throw new Error(`name_variant_reason is required for ${decision.source_athlete_key}`);
+      }
+      if (decision.evidence.length < 3) {
+        throw new Error(`at least three evidence items are required for a name variant: ${decision.source_athlete_key}`);
+      }
     }
     const key = `athletic_net|${String(decision.source_athlete_key).trim()}`;
     if (seenKeys.has(key)) throw new Error(`duplicate source identity in manifest: ${key}`);
@@ -107,6 +140,8 @@ function buildPlan(decisions, { targets = [], aliases = [] } = {}) {
       expected_school: decision.expected_school,
       evidence: decision.evidence,
       notes: decision.notes || null,
+      allow_name_variant: decision.allow_name_variant === true,
+      name_variant_reason: decision.name_variant_reason || null,
       existing_alias: existingAlias,
     };
 
@@ -115,7 +150,8 @@ function buildPlan(decisions, { targets = [], aliases = [] } = {}) {
     }
 
     const target = matches[0];
-    if (normalizeName(target.full_name) !== normalizeName(decision.source_athlete_name)) {
+    const exactNameMatch = normalizeName(target.full_name) === normalizeName(decision.source_athlete_name);
+    if (!exactNameMatch && !(base.allow_name_variant && explicitNameVariantCompatible(decision.source_athlete_name, target.full_name))) {
       return { ...base, action: 'hold', reason: 'target_name_mismatch', target };
     }
     if (target.gender !== decision.source_gender) {
@@ -181,7 +217,7 @@ async function insertPlan(pool, plan) {
           row.source_athlete_name,
           row.source_gender,
           row.target.athlete_id,
-          row.notes,
+          [row.notes, row.name_variant_reason].filter(Boolean).join(' ') || null,
         ]
       );
     }
@@ -249,6 +285,7 @@ if (require.main === module) {
 
 module.exports = {
   buildPlan,
+  explicitNameVariantCompatible,
   normalizeName,
   normalizeSchool,
   parseArgs,

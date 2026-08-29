@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 
 const {
   buildPlan,
+  explicitNameVariantCompatible,
   normalizeName,
   schoolMatches,
 } = require('./promote_athlete_aliases');
@@ -62,4 +63,24 @@ test('is idempotent when the existing alias already points at the verified targe
     aliases: [{ source: 'athletic_net', source_athlete_key: '49173327', target_athlete_id: 45625, status: 'active' }],
   });
   assert.equal(row.action, 'already_active');
+});
+
+test('allows only an explicit, audited first-name or middle-initial variant', () => {
+  assert.equal(explicitNameVariantCompatible('Joseph Yadon', 'Joey Yadon'), true);
+  assert.equal(explicitNameVariantCompatible('Gabby d. Domenici', 'Gabby Domenici'), true);
+  assert.equal(explicitNameVariantCompatible('Joseph Yadon', 'Joseph Yadonn'), false);
+
+  const [row] = buildPlan([{
+    ...decision,
+    source_athlete_name: 'Joseph Yadon',
+    target_tfrrs_athlete_id: '9260873',
+    expected_school: 'Dickinson St',
+    allow_name_variant: true,
+    name_variant_reason: 'Official TFRRS and Athletic.net identify the same Dickinson St athlete as Joey Yadon; source marks and placements match the canonical meet.',
+    evidence: ['source', 'tfrrs', 'athletic_net'],
+  }], {
+    targets: [{ ...target, full_name: 'Joey Yadon', tfrrs_athlete_id: '9260873', school_name: 'Dickinson St' }],
+    aliases: [],
+  });
+  assert.equal(row.action, 'insert');
 });

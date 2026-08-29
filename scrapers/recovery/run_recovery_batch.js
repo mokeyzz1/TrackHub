@@ -133,7 +133,10 @@ function chooseSource(row, requested = 'auto') {
 }
 
 function buildImporterCommand(row, selection) {
-  const meetId = String(row.meet_id);
+  // A discovered source shell may be mapped to a different, verified public meet. The
+  // queue row remains the audit identity, while the importer must write to the canonical
+  // destination to prevent a second public meet from being created.
+  const meetId = String(row.target_meet_id || row.canonical_meet_id || row.meet_id);
   const args = selection.source === 'athletic_net'
     ? [meetId, '--control-plane']
     : ['--meet', meetId, ...(selection.source === 'tfrrs' ? ['--scrape'] : []), '--control-plane'];
@@ -199,7 +202,9 @@ async function loadQueueRows(pool, { scope, meetId, retryAttempted }) {
     clauses.push(`q.meet_id = $${values.length}`);
   }
   const { rows } = await pool.query(
-    `SELECT q.queue_id, q.meet_id, q.coverage_status, q.needs_individual, q.needs_relays,
+    `SELECT q.queue_id, q.meet_id, q.canonical_meet_id,
+            COALESCE(q.canonical_meet_id, q.meet_id) AS target_meet_id,
+            q.coverage_status, q.needs_individual, q.needs_relays,
             q.status, q.attempts, q.source_candidates, m.name, m.date
        FROM ingest.recovery_queue q
        JOIN public.meets m ON m.meet_id = q.meet_id
@@ -322,7 +327,10 @@ async function processQueueRow(pool, row, index, total, args, summary) {
   summary.claimed++;
 
   const command = buildImporterCommand(row, selection);
-  console.log('\n[' + (index + 1) + '/' + total + '] meet ' + row.meet_id + ' "' + row.name + '"');
+  const targetLabel = row.target_meet_id && String(row.target_meet_id) !== String(row.meet_id)
+    ? ' -> canonical meet ' + row.target_meet_id
+    : '';
+  console.log('\n[' + (index + 1) + '/' + total + '] meet ' + row.meet_id + targetLabel + ' "' + row.name + '"');
   console.log('  source=' + selection.source + ' mode=dry_run relays_only=' + selection.relaysOnly);
   console.log('  url=' + selection.url);
 

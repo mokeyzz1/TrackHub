@@ -53,6 +53,40 @@ function knownRoundsAreDistinct(left, right) {
   return Boolean(leftRound && rightRound && leftRound !== rightRound);
 }
 
+function normalizeRelayAthleteName(value) {
+  return String(value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function relayLineupKey(legs) {
+  if (!Array.isArray(legs) || !legs.length) return null;
+  const values = legs
+    .slice()
+    .sort((left, right) => Number(left?.leg_order || 0) - Number(right?.leg_order || 0))
+    .map(leg => normalizeRelayAthleteName(leg?.athlete_name || leg?.name) || String(leg?.athlete_id || ''));
+  return values.every(Boolean) ? values.join('|') : null;
+}
+
+function sameRelayLineup(observation, existing) {
+  if (observation.entity_type !== 'relay_result') return false;
+  const sourceKey = relayLineupKey(observation.relay_athletes);
+  const existingKey = relayLineupKey(existing.relay_athletes);
+  return Boolean(sourceKey && existingKey && sourceKey === existingKey);
+}
+
+function statusIdentityMatches(observation, existing) {
+  if (!['individual_result', 'relay_leg'].includes(observation.entity_type)) return false;
+  if (!isStatusCode(observation.mark_raw) || !isStatusCode(existing.mark_raw)) return false;
+  if (Number(existing.meet_id) !== Number(observation.target_meet_id)) return false;
+  if (dateDistanceDays(observation.result_date, existing.date) !== 0) return false;
+  if (knownRoundsAreDistinct(observation, existing)) return false;
+  return (observation.place ?? null) === (existing.place ?? null);
+}
+
 /**
  * @param {object} observation normalized observation from normalizeObservation().observation
  * @param {Array<object>} existingRows rows already loaded for this meet/identity scope
@@ -90,6 +124,23 @@ function matchObservation(observation, existingRows = [], options = {}) {
     const comparable = asComparableRow(observation, existing);
     const existingPerformanceKey = makePerformanceKey(comparable);
     const existingCanonicalKey = makeCanonicalKey(comparable);
+    if (observation.entity_type === 'relay_result'
+        && isStatusCode(observation.mark_raw)
+        && isStatusCode(existing.mark_raw)
+        && sameRelayLineup(observation, existing)) {
+      candidates.push({ existing, comparable, kind: 'same_relay_lineup_status' });
+      continue;
+    }
+    if (statusIdentityMatches(observation, existing)) {
+      const sameCode = String(observation.mark_raw).toLowerCase()
+        === String(existing.mark_raw).toLowerCase();
+      candidates.push({
+        existing,
+        comparable,
+        kind: sameCode ? 'same_status_code' : 'conflicting_status_codes'
+      });
+      continue;
+    }
     if (canonicalKey && existingCanonicalKey === canonicalKey) {
       candidates.push({ existing, comparable, kind: 'exact_performance' });
       continue;
@@ -105,6 +156,15 @@ function matchObservation(observation, existingRows = [], options = {}) {
 
   if (candidates.length === 1) {
     const candidate = candidates[0];
+    if (candidate.kind === 'same_relay_lineup_status') {
+      return {
+        action: 'skip_duplicate',
+        reason: 'same_relay_lineup_status',
+        confidence: 0.99,
+        matched: candidate.existing,
+        candidates: [candidate.existing]
+      };
+    }
     if (candidate.kind === 'exact_performance') {
       return {
         action: candidate.existing.meet_id == null ? 'claim' : 'skip_duplicate',
@@ -112,6 +172,26 @@ function matchObservation(observation, existingRows = [], options = {}) {
           ? 'existing_history_row_claimed'
           : 'same_performance_same_place',
         confidence: 1,
+        matched: candidate.existing,
+        candidates: [candidate.existing]
+      };
+    }
+
+    if (candidate.kind === 'same_status_code') {
+      return {
+        action: 'skip_duplicate',
+        reason: 'same_status_code_same_performance',
+        confidence: 0.99,
+        matched: candidate.existing,
+        candidates: [candidate.existing]
+      };
+    }
+
+    if (candidate.kind === 'conflicting_status_codes') {
+      return {
+        action: 'quarantine',
+        reason: 'conflicting_status_codes',
+        confidence: 0.8,
         matched: candidate.existing,
         candidates: [candidate.existing]
       };
@@ -186,4 +266,12 @@ function matchObservation(observation, existingRows = [], options = {}) {
   };
 }
 
-module.exports = { matchObservation, historyKey, dateDistanceDays, knownRoundsAreDistinct };
+module.exports = {
+  matchObservation,
+  historyKey,
+  dateDistanceDays,
+  knownRoundsAreDistinct,
+  relayLineupKey,
+  sameRelayLineup,
+  statusIdentityMatches,
+};

@@ -120,10 +120,10 @@ async function syncRecoveryQueueAfterPromotion(pool, runId, meetIds) {
               COALESCE(r.count, 0)::bigint AS relay_fact_count,
               COALESCE(oq.count, 0)::int AS quarantined_observation_count
          FROM ingest.recovery_queue rq
-         LEFT JOIN individual_facts i ON i.meet_id = rq.meet_id
-         LEFT JOIN relay_facts r ON r.meet_id = rq.meet_id
-         LEFT JOIN open_quarantines oq ON oq.meet_id = rq.meet_id
-        WHERE rq.meet_id = ANY($2::integer[])
+         LEFT JOIN individual_facts i ON i.meet_id = COALESCE(rq.canonical_meet_id, rq.meet_id)
+         LEFT JOIN relay_facts r ON r.meet_id = COALESCE(rq.canonical_meet_id, rq.meet_id)
+         LEFT JOIN open_quarantines oq ON oq.meet_id = COALESCE(rq.canonical_meet_id, rq.meet_id)
+        WHERE COALESCE(rq.canonical_meet_id, rq.meet_id) = ANY($2::integer[])
      )
      UPDATE ingest.recovery_queue rq
         SET coverage_status = CASE

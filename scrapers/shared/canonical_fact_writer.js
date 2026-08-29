@@ -80,6 +80,7 @@ function asObservation(row) {
     result_date: row.result_date,
     performance_key: row.performance_key,
     canonical_key: row.canonical_key,
+    relay_athletes: sourcePayload(row).relay_athletes || [],
     validation_errors: row.validation_errors || []
   };
 }
@@ -177,6 +178,25 @@ class CanonicalFactWriter {
           [eventTypeIds, teamIds.map(Number), meetIds]
         )
       ]);
+
+      // Load lineup identity only for the relay candidates above. The lookup is used solely for
+      // duplicate matching; it never authorizes a new write.
+      if (relays.rows.length) {
+        const { rows: lineupRows } = await client.query(
+          `SELECT relay_result_id, athlete_id, tfrrs_athlete_id, athlete_name, leg_order
+             FROM public.relay_athletes
+            WHERE relay_result_id = ANY($1::integer[])`,
+          [relays.rows.map(row => Number(row.relay_result_id))]
+        );
+        const lineups = new Map();
+        for (const leg of lineupRows) {
+          if (!lineups.has(leg.relay_result_id)) lineups.set(leg.relay_result_id, []);
+          lineups.get(leg.relay_result_id).push(leg);
+        }
+        for (const relay of relays.rows) {
+          relay.relay_athletes = lineups.get(relay.relay_result_id) || [];
+        }
+      }
 
       const candidates = new Map();
       for (const row of individuals.rows) {
