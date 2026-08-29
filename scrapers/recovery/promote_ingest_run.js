@@ -37,6 +37,20 @@ function connectionString(env = process.env) {
   return env.INGEST_DATABASE_URL || null;
 }
 
+function withDerivedIngestDatabaseUrl(env = process.env) {
+  if (env.INGEST_DATABASE_URL || !env.DB_PASSWORD) return env;
+  const host = env.INGEST_DATABASE_HOST
+    || env.SUPABASE_DB_HOST
+    || 'db.hunbahsnaeeztmzqpnrl.supabase.co';
+  const port = env.INGEST_DATABASE_PORT || '5432';
+  const database = env.INGEST_DATABASE_NAME || 'postgres';
+  const user = env.INGEST_DATABASE_USER || 'postgres';
+  return {
+    ...env,
+    INGEST_DATABASE_URL: `postgresql://${user}:${encodeURIComponent(env.DB_PASSWORD)}@${host}:${port}/${database}`,
+  };
+}
+
 function scopeMeetIds(scope = {}) {
   const values = scope.meet_ids || (scope.meet_id == null ? [] : [scope.meet_id]);
   return [...new Set(values.map(Number).filter(Number.isInteger))];
@@ -261,6 +275,9 @@ async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = fa
 }
 
 if (require.main === module) {
+  require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+  require('dotenv').config({ path: path.join(__dirname, '../.env') });
+  Object.assign(process.env, withDerivedIngestDatabaseUrl(process.env));
   const args = parseArgs(process.argv.slice(2));
   promoteRun({ ...args }).catch(error => {
     console.error(`Run promotion failed: ${error.message}`);
@@ -270,6 +287,7 @@ if (require.main === module) {
 
 module.exports = {
   connectionString,
+  withDerivedIngestDatabaseUrl,
   parseArgs,
   promoteRun,
   scopeMeetIds,

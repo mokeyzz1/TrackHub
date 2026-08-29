@@ -8,7 +8,16 @@ const {
   scopeMeetIds,
   syncRecoveryQueueAfterPromotion,
   validateReview,
+  withDerivedIngestDatabaseUrl,
 } = require('./promote_ingest_run');
+
+test('derives the private database URL from the root password when needed', () => {
+  const env = withDerivedIngestDatabaseUrl({ DB_PASSWORD: 'p@ss word' });
+  assert.equal(
+    env.INGEST_DATABASE_URL,
+    'postgresql://postgres:p%40ss%20word@db.hunbahsnaeeztmzqpnrl.supabase.co:5432/postgres'
+  );
+});
 
 test('promotion requires an explicit run and commit flag', () => {
   assert.throws(() => parseArgs([]), /--run-id is required/);

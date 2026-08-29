@@ -229,7 +229,7 @@ function buildCrossSeasonCandidates(rows, rosterCandidates, publicNameTargets, l
   for (const identity of identities.values()) {
     const rosterKey = `${identity.sourceGender}|${identity.teamKey}|${normalizeName(identity.sourceAthleteName)}`;
     const currentProfiles = rosterCandidates.get(rosterKey);
-    if (!currentProfiles || currentProfiles.size !== 1) continue;
+    if (currentProfiles && currentProfiles.size !== 1) continue;
 
     const targetRows = publicNameTargets.filter(target => (
       normalizeName(target.full_name) === normalizeName(identity.sourceAthleteName)
@@ -260,10 +260,12 @@ function buildCrossSeasonCandidates(rows, rosterCandidates, publicNameTargets, l
         id: String(target.tfrrs_athlete_id),
         name: identity.sourceAthleteName,
         profileUrl: legacy.profileUrl,
-        evidenceType: 'tfrrs_cross_season_profile_pair',
+        evidenceType: currentProfiles
+          ? 'tfrrs_cross_season_profile_pair'
+          : 'tfrrs_legacy_profile_team_match',
         evidenceTeamKey: identity.teamKey,
         evidenceTeamUrl: `${TFRRS_TEAM_URL}/${identity.teamKey}.html`,
-        currentProfileUrl: [...currentProfiles.values()][0].profileUrl,
+        currentProfileUrl: currentProfiles ? [...currentProfiles.values()][0].profileUrl : null,
       });
     }
     if (profiles.size) candidates.set(rosterKey, profiles);

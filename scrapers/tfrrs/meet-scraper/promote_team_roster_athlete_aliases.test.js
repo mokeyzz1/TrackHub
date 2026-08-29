@@ -120,6 +120,34 @@ test('does not accept a legacy profile from a different team', () => {
   assert.equal(result.stats.legacy_team_mismatch_hits, 1);
 });
 
+test('accepts a unique existing TFRRS identity even when the current roster omits the athlete', () => {
+  const row = {
+    entity_type: 'individual_result',
+    target_team_id: 8,
+    target_school_id: 22,
+    source_meet_key: 'tfrrs-42',
+    tfrrs_team_url: 'https://www.tfrrs.org/teams/tf/CA_jcollege_m_San_Bernardino_Valley.html',
+    payload: { team_gender: 'M', athlete_name: 'Adam Acuna' },
+  };
+  const result = buildCrossSeasonCandidates(
+    [row],
+    new Map(),
+    [{ athlete_id: 77, full_name: 'Adam Acuna', gender: null, tfrrs_athlete_id: '9000001', school_id: 1835 }],
+    new Map([['9000001', {
+      id: '9000001',
+      name: 'Adam Acuna',
+      profileUrl: 'legacy',
+      teamKeys: new Set(['ca_jcollege_m_san_bernardino_valley']),
+    }]])
+  );
+
+  const profile = result.candidates
+    .get('M|ca_jcollege_m_san_bernardino_valley|adam acuna')
+    .get('9000001');
+  assert.equal(profile.evidenceType, 'tfrrs_legacy_profile_team_match');
+  assert.equal(profile.currentProfileUrl, null);
+});
+
 test('extracts the exact athlete name from a TFRRS profile title', () => {
   assert.equal(parseProfileTitleName('<title>TFRRS | Aaron McCarthy – Track and Field Results & Statistics</title>'), 'Aaron McCarthy');
 });
