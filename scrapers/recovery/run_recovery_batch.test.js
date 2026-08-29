@@ -57,6 +57,7 @@ test('source validation accepts only importer-supported URLs', () => {
   assert.equal(validCandidate('tfrrs', 'https://www.tfrrs.org/results/12345/meet.html'), true);
   assert.equal(validCandidate('athletic_net', 'https://www.athletic.net/TrackAndField/meet/634818/results'), true);
   assert.equal(validCandidate('athletic_net', 'https://live.athletic.net/meets/68768'), true);
+  assert.equal(validCandidate('athletic_net', 'https://live.mastiming.net/meets/69709'), true);
   assert.equal(validCandidate('athletic_net', 'https://milesplit.live/meets/723064'), false);
   assert.equal(validCandidate('tfrrs', 'https://example.com/results/12345'), false);
 });
@@ -123,6 +124,21 @@ test('athletic.net source selection prefers an explicit AthleticLIVE candidate',
     },
   }, 'athletic_net');
   assert.equal(choice.url, 'https://live.athletic.net/meets/68768');
+});
+
+test('trackscoreboard source selection accepts a supported generic meet URL', () => {
+  const choice = chooseSource({
+    needs_individual: true,
+    needs_relays: false,
+    source_candidates: {
+      meet_url: 'https://finishtiming.trackscoreboard.com/meets/691151/events',
+    },
+  }, 'trackscoreboard');
+  assert.deepEqual(choice, {
+    source: 'trackscoreboard',
+    url: 'https://finishtiming.trackscoreboard.com/meets/691151/events',
+    relaysOnly: false,
+  });
 });
 
 test('batch limits count supported candidates instead of generic timing URLs', () => {

@@ -12,6 +12,7 @@ const {
   athleticLiveGender,
   parseAthleticLivePayload,
 } = require('./scrape_meet_results');
+const { isAthleticLiveHost, isAthleticLiveUrl } = require('./athletic_live_host');
 
 test('detects an athletic.net Cloudflare block response', () => {
   const reason = detectSourceBlock({
@@ -100,6 +101,14 @@ test('parses AthleticLIVE result links and excludes scheduled rows', () => {
     false
   );
   assert.equal(athleticLiveResultAvailable('Entries Women 100m Scheduled'), false);
+});
+
+test('recognizes verified AthleticLIVE tenant hosts without accepting arbitrary live domains', () => {
+  assert.equal(isAthleticLiveHost('live.mastiming.net'), true);
+  assert.equal(isAthleticLiveHost('live.mountaintiming.com'), true);
+  assert.equal(isAthleticLiveHost('tenant.anet.live'), true);
+  assert.equal(isAthleticLiveUrl('https://live.mastiming.net/meets/69709'), true);
+  assert.equal(isAthleticLiveUrl('https://example.com/meets/69709'), false);
 });
 
 test('normalizes AthleticLIVE event abbreviations and gender', () => {

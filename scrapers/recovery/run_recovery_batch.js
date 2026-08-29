@@ -17,6 +17,7 @@
 const path = require('path');
 const { spawn } = require('child_process');
 const { Pool } = require('pg');
+const { isAthleticLiveHost } = require('../athletic-net/athletic_live_host');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
@@ -31,12 +32,12 @@ const SOURCE_CONFIG = {
     key: 'athletic_net_results_url',
     candidateKeys: ['athletic_live_url', 'athletic_net_results_url', 'meet_url'],
     script: path.join(__dirname, '../athletic-net/import_meet_results.js'),
-    hosts: host => host === 'athletic.net' || host.endsWith('.athletic.net') ||
-      host === 'anet.live' || host.endsWith('.anet.live'),
+    hosts: host => host === 'athletic.net' || host.endsWith('.athletic.net') || isAthleticLiveHost(host),
     path: pathname => /\/TrackAndField\/meet\/\d+/i.test(pathname) || /\/meets\/\d+/i.test(pathname),
   },
   trackscoreboard: {
     key: 'trackscoreboard_url',
+    candidateKeys: ['trackscoreboard_url', 'meet_url'],
     script: path.join(__dirname, '../trackscoreboard/import_meet_results.js'),
     hosts: host => host === 'trackscoreboard.com' || host.endsWith('.trackscoreboard.com'),
     path: pathname => /\/meets\/\d+/.test(pathname),

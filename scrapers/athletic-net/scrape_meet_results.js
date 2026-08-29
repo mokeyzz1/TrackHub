@@ -24,6 +24,7 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const fs = require('fs');
+const { isAthleticLiveUrl } = require('./athletic_live_host');
 
 puppeteer.use(StealthPlugin());
 
@@ -474,14 +475,7 @@ class AthleticNetMeetScraper {
     if (!this.browser) await this.init();
     let meetId = null;
 
-    const isAthleticLive = (() => {
-      try {
-        const parsed = new URL(target);
-        const host = parsed.hostname.toLowerCase();
-        return (host === 'live.athletic.net' || host === 'anet.live' || host.endsWith('.anet.live')) &&
-          /\/meets\/\d+/i.test(parsed.pathname);
-      } catch (_) { return false; }
-    })();
+    const isAthleticLive = isAthleticLiveUrl(target);
 
     if (isAthleticLive) {
       const live = await this.getAthleticLiveEventLinks(target);
@@ -515,9 +509,9 @@ class AthleticNetMeetScraper {
 
     if (/^\d+$/.test(String(target))) meetId = String(target);
     else if (/athletic\.net\/TrackAndField\/meet\/(\d+)/i.test(target)) meetId = target.match(/\/meet\/(\d+)/)[1];
-    // Any AthleticLIVE live page (live.athletic.net, *.anet.live, live.herostiming.com, etc.) uses
+    // Any supported AthleticLIVE live page (live.athletic.net, *.anet.live, live.herostiming.com, etc.) uses
     // the /meets/{id} path — resolve it to the permanent www meet id via "View on AthleticNET".
-    else if (/\/meets\/\d+/i.test(target) || /anet\.live|live\.athletic\.net/i.test(target)) {
+    else if (/\/meets\/\d+/i.test(target) || isAthleticLiveUrl(target)) {
       console.log(`Resolving live URL -> www meet id: ${target}`);
       meetId = await this.resolveWwwMeetId(target);
       if (!meetId) throw new Error(`Could not resolve a www.athletic.net meet id from ${target}`);
