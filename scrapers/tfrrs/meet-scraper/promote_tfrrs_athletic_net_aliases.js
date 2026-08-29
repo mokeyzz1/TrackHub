@@ -59,6 +59,16 @@ function schoolMatches(expected, actual) {
   return Boolean(left && right && (left === right || left.includes(right) || right.includes(left)));
 }
 
+function namesCompatible(sourceName, targetName) {
+  const source = normalizeName(sourceName);
+  const target = normalizeName(targetName);
+  return Boolean(source && target && (
+    source === target
+    || source.endsWith(' ' + target)
+    || target.endsWith(' ' + source)
+  ));
+}
+
 function collegiateDoc(doc) {
   return String(doc && doc.subtext || '').toLowerCase().includes('collegiate');
 }
@@ -148,7 +158,7 @@ function buildPlan(identities, candidateRows, targets, aliases) {
     }
 
     const target = owners[0];
-    if (normalizeName(target.full_name) !== normalizeName(identity.sourceAthleteName)) {
+    if (!namesCompatible(identity.sourceAthleteName, target.full_name)) {
       return { ...base, target, action: 'hold', reason: 'target_name_mismatch' };
     }
     if (target.gender != null && target.gender !== identity.sourceGender) {
@@ -398,6 +408,7 @@ module.exports = {
   loadPublicTargetsByProfiles,
   loadSchoolNames,
   normalizeSchool,
+  namesCompatible,
   parseArgs,
   profileUrl,
   schoolMatches,

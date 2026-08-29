@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 
 const {
   buildPlan,
+  namesCompatible,
   schoolMatches,
   strictApiCandidate,
 } = require('./promote_tfrrs_athletic_net_aliases');
@@ -25,6 +26,12 @@ test('school comparison accepts collegiate API suffixes', () => {
     schoolMatches('San Diego Mesa', 'Bakersfield (Collegiate)||Bakersfield, CA'),
     false
   );
+});
+
+test('name comparison permits only a harmless public display prefix', () => {
+  assert.equal(namesCompatible('Charly Leak', 'CL Charly Leak'), true);
+  assert.equal(namesCompatible('Theodore Shniderman', 'Theo Shniderman'), false);
+  assert.equal(namesCompatible('Ryan Mann', 'Ryan Manner'), false);
 });
 
 test('API candidate requires one exact name and school match', () => {

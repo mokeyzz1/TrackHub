@@ -238,4 +238,4 @@ if (require.main === module) {
     .catch(error => { console.error(`ERROR ${error.message}`); process.exit(1); });
 }
 
-module.exports = { buildPlan, namesCompatible, normalizeName, parseArgs, readManifest, run };
+module.exports = { buildPlan, commitPlan, namesCompatible, normalizeName, parseArgs, readManifest, run };
