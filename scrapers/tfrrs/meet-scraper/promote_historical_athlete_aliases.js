@@ -275,7 +275,9 @@ function buildPlan(rows, historicalCandidates, publicTargets, existingAliases, p
       target,
       targetMatch,
       action: 'insert',
-      reason: profile.evidenceType === 'tfrrs_team_roster_profile_link'
+      reason: profile.evidenceType === 'tfrrs_cross_season_profile_pair'
+        ? 'verified_cross_season_profile_pair'
+        : profile.evidenceType === 'tfrrs_team_roster_profile_link'
         ? 'verified_team_roster_profile'
         : profile.evidenceType === 'tfrrs_public_profile_team_link'
         ? 'verified_public_search_profile'
@@ -315,7 +317,9 @@ async function commitPlan(pool, plan) {
           row.sourceAthleteName,
           row.sourceGender,
           row.target.athlete_id,
-          `${row.profile.evidenceType === 'tfrrs_team_roster_profile_link'
+          `${row.profile.evidenceType === 'tfrrs_cross_season_profile_pair'
+            ? 'Exact current roster profile plus exact-name official TFRRS legacy profile/team match'
+            : row.profile.evidenceType === 'tfrrs_team_roster_profile_link'
             ? 'Exact name match to official TFRRS team roster'
             : row.profile.evidenceType === 'tfrrs_public_profile_team_link'
               ? 'Exact name/team match to official TFRRS public profile'

@@ -152,6 +152,131 @@ function buildRosterCandidates(rows, rosters) {
   return { candidates, stats };
 }
 
+function parseProfileTitleName(html) {
+  const $ = cheerio.load(html);
+  const title = $("title").text().replace(/\s+/g, " ").trim();
+  const match = title.match(/^TFRRS\s*\|\s*(.*?)\s+(?:–|-)\s+Track/i);
+  return match ? match[1].trim() : null;
+}
+
+async function loadLegacyProfileEvidence(profileId, { http = axios } = {}) {
+  const profileUrl = `https://www.tfrrs.org/athletes/${profileId}`;
+  const response = await requestWithRetry(() => http.get(profileUrl, {
+    headers: { 'User-Agent': USER_AGENT },
+    timeout: 15000,
+  }));
+  if (response.status !== 200) throw new Error(`TFRRS legacy profile returned HTTP ${response.status}`);
+  const $ = cheerio.load(response.data);
+  return {
+    id: String(profileId),
+    profileUrl,
+    name: parseProfileTitleName(response.data),
+    teamKeys: new Set(
+      $('a').map((_, anchor) => String($(anchor).attr('href') || ''))
+        .get()
+        .map(href => {
+          const match = href.match(/\/teams\/tf\/([^/?#]+)/i);
+          return match ? match[1].replace(/\.html$/i, '').toLowerCase() : null;
+        })
+        .filter(Boolean)
+    ),
+  };
+}
+
+async function loadLegacyProfileEvidenceMap(profileIds, {
+  delayMs = DEFAULT_DELAY_MS,
+  concurrency = DEFAULT_CONCURRENCY,
+  http = axios,
+  onProgress = () => {},
+} = {}) {
+  const ids = [...new Set(profileIds.map(String).filter(Boolean))].sort();
+  const results = new Map();
+  let next = 0;
+  let completed = 0;
+
+  const worker = async () => {
+    while (true) {
+      const index = next++;
+      if (index >= ids.length) return;
+      if (index > 0 && delayMs > 0) await sleep(delayMs);
+      const id = ids[index];
+      try {
+        results.set(id, await loadLegacyProfileEvidence(id, { http }));
+      } catch (error) {
+        results.set(id, { id, profileUrl: `https://www.tfrrs.org/athletes/${id}`, teamKeys: new Set(), error: error.message });
+      }
+      completed += 1;
+      onProgress({ completed, total: ids.length, profileId: id, error: results.get(id).error || null });
+    }
+  };
+
+  const workerCount = Math.min(Math.max(1, Number(concurrency) || 1), Math.max(1, ids.length));
+  await Promise.all(Array.from({ length: workerCount }, worker));
+  return results;
+}
+
+function buildCrossSeasonCandidates(rows, rosterCandidates, publicNameTargets, legacyProfiles) {
+  const identities = identitiesFromRows(rows);
+  const candidates = new Map();
+  const stats = {
+    eligible_name_targets: 0,
+    legacy_profiles_checked: 0,
+    legacy_profile_errors: 0,
+    legacy_team_verified_hits: 0,
+    legacy_team_mismatch_hits: 0,
+  };
+
+  for (const identity of identities.values()) {
+    const rosterKey = `${identity.sourceGender}|${identity.teamKey}|${normalizeName(identity.sourceAthleteName)}`;
+    const currentProfiles = rosterCandidates.get(rosterKey);
+    if (!currentProfiles || currentProfiles.size !== 1) continue;
+
+    const targetRows = publicNameTargets.filter(target => (
+      normalizeName(target.full_name) === normalizeName(identity.sourceAthleteName)
+      && (Number(target.school_id) === identity.targetSchoolId || Number(target.school_id) === 1835)
+      && target.tfrrs_athlete_id != null
+      && (target.gender == null || target.gender === identity.sourceGender)
+    ));
+    stats.eligible_name_targets += targetRows.length;
+    const profiles = new Map();
+    for (const target of targetRows) {
+      const legacy = legacyProfiles.get(String(target.tfrrs_athlete_id));
+      if (!legacy) continue;
+      stats.legacy_profiles_checked += 1;
+      if (legacy.error) {
+        stats.legacy_profile_errors += 1;
+        continue;
+      }
+      if (normalizeName(legacy.name) !== normalizeName(identity.sourceAthleteName)) {
+        stats.legacy_team_mismatch_hits += 1;
+        continue;
+      }
+      if (!legacy.teamKeys.has(identity.teamKey)) {
+        stats.legacy_team_mismatch_hits += 1;
+        continue;
+      }
+      stats.legacy_team_verified_hits += 1;
+      profiles.set(String(target.tfrrs_athlete_id), {
+        id: String(target.tfrrs_athlete_id),
+        name: identity.sourceAthleteName,
+        profileUrl: legacy.profileUrl,
+        evidenceType: 'tfrrs_cross_season_profile_pair',
+        evidenceTeamKey: identity.teamKey,
+        evidenceTeamUrl: `${TFRRS_TEAM_URL}/${identity.teamKey}.html`,
+        currentProfileUrl: [...currentProfiles.values()][0].profileUrl,
+      });
+    }
+    if (profiles.size) candidates.set(rosterKey, profiles);
+  }
+  return { candidates, stats };
+}
+
+function preferCrossSeasonCandidates(rosterCandidates, crossSeasonCandidates) {
+  const merged = new Map(rosterCandidates);
+  for (const [key, profiles] of crossSeasonCandidates) merged.set(key, profiles);
+  return merged;
+}
+
 function selectRows(rows, identitiesLimit) {
   if (!Number.isFinite(identitiesLimit) || identitiesLimit <= 0) return rows;
   const identities = [...identitiesFromRows(rows).values()].slice(0, identitiesLimit);
@@ -193,16 +318,32 @@ async function run({
       onProgress: progress => onProgress({ phase: 'team', ...progress }),
     });
     const { candidates, stats } = buildRosterCandidates(rows, rosters);
-    const candidateIds = new Set();
-    for (const profiles of candidates.values()) {
-      for (const id of profiles.keys()) candidateIds.add(id);
-    }
-    const [publicTargets, publicNameTargets, existingAliases] = await Promise.all([
-      loadPublicTargets(db, [...candidateIds]),
+    const [publicNameTargets, existingAliases] = await Promise.all([
       loadPublicNameTargets(db, [...identities.values()].map(identity => identity.targetSchoolId)),
       loadExistingAliases(db, [...identities.keys()]),
     ]);
-    const plan = buildPlan(rows, candidates, publicTargets, existingAliases, publicNameTargets);
+    const eligibleLegacyIds = publicNameTargets
+      .filter(target => target.tfrrs_athlete_id != null)
+      .filter(target => [...identities.values()].some(identity => (
+        normalizeName(target.full_name) === normalizeName(identity.sourceAthleteName)
+        && (Number(target.school_id) === identity.targetSchoolId || Number(target.school_id) === 1835)
+        && (target.gender == null || target.gender === identity.sourceGender)
+      )))
+      .map(target => target.tfrrs_athlete_id);
+    const legacyProfiles = await loadLegacyProfileEvidenceMap(eligibleLegacyIds, {
+      delayMs,
+      concurrency,
+      http,
+      onProgress: progress => onProgress({ phase: 'legacy_profile', ...progress }),
+    });
+    const crossSeason = buildCrossSeasonCandidates(rows, candidates, publicNameTargets, legacyProfiles);
+    const mergedCandidates = preferCrossSeasonCandidates(candidates, crossSeason.candidates);
+    const candidateIds = new Set();
+    for (const profiles of mergedCandidates.values()) {
+      for (const id of profiles.keys()) candidateIds.add(id);
+    }
+    const publicTargets = await loadPublicTargets(db, [...candidateIds]);
+    const plan = buildPlan(rows, mergedCandidates, publicTargets, existingAliases, publicNameTargets);
     const outcome = commit ? await commitPlan(db, plan) : { inserted: 0 };
     return {
       mode: commit ? 'commit' : 'dry_run',
@@ -210,6 +351,7 @@ async function run({
       rows: rows.length,
       all_rows: allRows.length,
       ...stats,
+      ...crossSeason.stats,
       candidate_profiles: candidateIds.size,
       verified_inserts: plan.filter(row => row.action === 'insert').length,
       already_active: plan.filter(row => row.action === 'already_active').length,
@@ -260,11 +402,15 @@ if (require.main === module) {
 }
 
 module.exports = {
+  buildCrossSeasonCandidates,
   buildRosterCandidates,
   identitiesFromRows,
   loadTeamRosterProfiles,
   loadTeamRosters,
+  loadLegacyProfileEvidence,
+  loadLegacyProfileEvidenceMap,
   parseArgs,
+  parseProfileTitleName,
   parseTeamRosterProfiles,
   run,
   selectRows,
