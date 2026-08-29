@@ -30,8 +30,10 @@ const { normalizeSourceRows } = require('../shared/source_observation_adapter');
 const { TeamAliasResolver } = require('../shared/team_alias_resolver');
 const { AthleteAliasResolver } = require('../shared/athlete_alias_resolver');
 const { requireControlledCommit } = require('../shared/write_mode_guard');
+const { ensureIngestDatabaseUrl } = require('../shared/private_database_url');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const UNATTACHED = 1835;
 
@@ -411,6 +413,7 @@ async function run(meetDbId, {
   legacyDirectWrite = false,
   sourceUrl = null,
 } = {}) {
+  if (controlPlane) ensureIngestDatabaseUrl();
   requireControlledCommit({
     commit,
     controlPlane,

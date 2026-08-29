@@ -18,8 +18,10 @@ const { ControlledIngestion } = require('../shared/controlled_ingestion');
 const { normalizeSourceRows } = require('../shared/source_observation_adapter');
 const { TeamAliasResolver } = require('../shared/team_alias_resolver');
 const { parseMark } = require('../shared/mark_parser');
+const { ensureIngestDatabaseUrl } = require('../shared/private_database_url');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -229,6 +231,7 @@ function toRows({ sourceMeetId, sourceUrl, tenant, meet, events, eventPayloads, 
 }
 
 async function run({ meetId, commit = false, tenant = null, sourceUrl = null } = {}) {
+  ensureIngestDatabaseUrl();
   const { data: meet, error: meetError } = await supabase
     .from('meets')
     .select('meet_id,name,date,end_date,source_url')
