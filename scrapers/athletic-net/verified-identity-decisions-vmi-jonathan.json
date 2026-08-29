@@ -1,0 +1,20 @@
+{
+  "manifest_version": 1,
+  "review_scope": "VMI Winter Relays 2026 / Jonathan Hess exact existing TFRRS owner",
+  "decisions": [
+    {
+      "source_athlete_key": "44018602",
+      "source_athlete_name": "Jonathan Hess",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9187184",
+      "expected_school": "VCU",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/athletes/9187184/VCU/Jonathan_Hess.html",
+        "Official TFRRS profile confirms the VCU team identity for TFRRS athlete 9187184"
+      ],
+      "notes": "Exact AthleticLIVE name/gender/team and existing VCU athlete 44471 owning the same TFRRS identity; attach the source key without changing public facts."
+    }
+  ]
+}
