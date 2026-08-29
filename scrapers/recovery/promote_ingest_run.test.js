@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const {
   connectionString,
   parseArgs,
+  resolveSupersededQuarantines,
   scopeMeetIds,
   syncRecoveryQueueAfterPromotion,
   validateReview,
@@ -80,4 +81,20 @@ test('queue promotion sync preserves open quarantines and checks relay coverage'
   assert.match(queries[0].text, /open_quarantines/);
   assert.match(queries[0].text, /needs_relays/);
   assert.deepEqual(queries[0].values, ['run-1', [13096]]);
+});
+
+test('promotion resolves only older open quarantines superseded by a linked source record', async () => {
+  const queries = [];
+  const pool = {
+    async query(text, values) {
+      queries.push({ text, values });
+      return { rows: [{ resolved_count: 12 }] };
+    },
+  };
+
+  assert.equal(await resolveSupersededQuarantines(pool, 'run-2'), 12);
+  assert.match(queries[0].text, /current_links/);
+  assert.match(queries[0].text, /old\.run_id <> \$1/);
+  assert.match(queries[0].text, /old\.decision = 'quarantine'/);
+  assert.deepEqual(queries[0].values, ['run-2']);
 });

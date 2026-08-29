@@ -160,6 +160,36 @@ async function syncRecoveryQueueAfterPromotion(pool, runId, meetIds) {
   return rows;
 }
 
+async function resolveSupersededQuarantines(pool, runId) {
+  if (!runId) return 0;
+
+  const { rows } = await pool.query(
+    `WITH current_links AS (
+       SELECT DISTINCT o.source_record_id
+         FROM ingest.observations o
+         JOIN ingest.source_links sl ON sl.source_record_id = o.source_record_id
+        WHERE o.run_id = $1
+          AND o.decision IN ('insert', 'claim', 'skip_duplicate')
+          AND sl.link_status = 'linked'
+     ), resolved AS (
+       UPDATE ingest.quarantine q
+          SET status = 'resolved',
+              resolution_note = 'Superseded by a later canonical source link from run ' || $1::text,
+              resolved_at = now()
+         FROM ingest.observations old
+         JOIN current_links cl ON cl.source_record_id = old.source_record_id
+        WHERE q.observation_id = old.observation_id
+          AND q.status = 'open'
+          AND old.run_id <> $1
+          AND old.decision = 'quarantine'
+        RETURNING q.quarantine_id
+     )
+     SELECT count(*)::integer AS resolved_count FROM resolved`,
+    [runId]
+  );
+  return Number(rows[0]?.resolved_count || 0);
+}
+
 async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = false, env = process.env } = {}) {
   const url = connectionString(env);
   if (!url) throw new Error('INGEST_DATABASE_URL is required for run promotion');
@@ -184,6 +214,7 @@ async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = fa
     try {
       committedStats = await writer.commitRun(runId);
       committedStatus = committedStats.quarantined || committedStats.errors ? 'partial' : 'succeeded';
+      const supersededQuarantines = await resolveSupersededQuarantines(pool, runId);
       const queueRows = await syncRecoveryQueueAfterPromotion(pool, runId, scope.meetIds);
       const metrics = {
         ...(review.run.metrics || {}),
@@ -192,6 +223,7 @@ async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = fa
           promoted_at: new Date().toISOString(),
           stats: committedStats,
           recovery_queue_rows: queueRows.length,
+          superseded_quarantines: supersededQuarantines,
         },
       };
       await pool.query(
@@ -241,6 +273,7 @@ module.exports = {
   parseArgs,
   promoteRun,
   scopeMeetIds,
+  resolveSupersededQuarantines,
   syncRecoveryQueueAfterPromotion,
   summarizeDecisions,
   validateReview,
