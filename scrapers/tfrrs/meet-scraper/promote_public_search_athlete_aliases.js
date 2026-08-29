@@ -421,7 +421,9 @@ module.exports = {
   parseArgs,
   parseProfileTeamKeys,
   parseSearchProfiles,
+  requestWithRetry,
   run,
   searchSurname,
   surnameForSearch,
+  USER_AGENT,
 };

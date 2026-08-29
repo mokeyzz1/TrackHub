@@ -153,6 +153,21 @@ async function loadPublicTargets(pool, tfrrsIds) {
   return rows;
 }
 
+async function loadPublicNameTargets(pool, schoolIds) {
+  const ids = [...new Set(schoolIds.map(Number).filter(Number.isFinite))];
+  if (!ids.length) return [];
+  const { rows } = await pool.query(
+    `SELECT a.athlete_id, a.full_name, a.gender, a.tfrrs_athlete_id,
+            a.tfrrs_profile_url, a.school_id, s.official_name AS school_name
+       FROM public.athletes a
+       JOIN public.schools s ON s.school_id = a.school_id
+      WHERE a.school_id = ANY($1::bigint[])
+         OR a.school_id = $2::bigint`,
+    [ids, UNATTACHED_SCHOOL_ID]
+  );
+  return rows;
+}
+
 async function loadExistingAliases(pool, sourceKeys) {
   if (!sourceKeys.length) return [];
   const { rows } = await pool.query(
@@ -165,7 +180,7 @@ async function loadExistingAliases(pool, sourceKeys) {
   return rows;
 }
 
-function buildPlan(rows, historicalCandidates, publicTargets, existingAliases) {
+function buildPlan(rows, historicalCandidates, publicTargets, existingAliases, publicNameTargets = []) {
   const identities = new Map();
   for (const row of rows) {
     const identity = identityFromRow(row);
@@ -178,6 +193,19 @@ function buildPlan(rows, historicalCandidates, publicTargets, existingAliases) {
     const key = String(target.tfrrs_athlete_id);
     if (!targetsById.has(key)) targetsById.set(key, []);
     targetsById.get(key).push(target);
+  }
+  const nameTargetsBySchool = new Map();
+  const unattachedTargetsByName = new Map();
+  for (const target of publicNameTargets) {
+    const nameKey = normalizeName(target.full_name);
+    const exactKey = `${Number(target.school_id)}|${nameKey}`;
+    if (!nameTargetsBySchool.has(exactKey)) nameTargetsBySchool.set(exactKey, []);
+    nameTargetsBySchool.get(exactKey).push(target);
+    if (Number(target.school_id) === UNATTACHED_SCHOOL_ID) {
+      const genderKey = `${target.gender || ''}|${nameKey}`;
+      if (!unattachedTargetsByName.has(genderKey)) unattachedTargetsByName.set(genderKey, []);
+      unattachedTargetsByName.get(genderKey).push(target);
+    }
   }
   const aliasesByKey = new Map(existingAliases.map(row => [row.source_athlete_key, row]));
 
@@ -196,12 +224,35 @@ function buildPlan(rows, historicalCandidates, publicTargets, existingAliases) {
     }
 
     const profile = profiles[0];
-    const targets = targetsById.get(profile.id) || [];
+    const idTargets = targetsById.get(profile.id) || [];
+    let targets = idTargets;
+    let targetMatch = idTargets.length === 1 ? 'tfrrs_athlete_id' : null;
+    if (idTargets.length === 0 && publicNameTargets.length) {
+      const nameKey = normalizeName(identity.sourceAthleteName);
+      const schoolTargets = nameTargetsBySchool.get(`${identity.targetSchoolId}|${nameKey}`) || [];
+      const unattachedTargets = unattachedTargetsByName.get(`${identity.sourceGender}|${nameKey}`) || [];
+      targets = schoolTargets.length ? schoolTargets : unattachedTargets;
+      targetMatch = targets.length === 1 ? 'exact_name_school' : null;
+    }
     if (targets.length !== 1) {
-      return { ...base, profile, action: 'hold', reason: targets.length ? 'public_tfrrs_id_not_unique' : 'public_tfrrs_id_not_found' };
+      return {
+        ...base,
+        profile,
+        action: 'hold',
+        reason: targets.length
+          ? 'public_tfrrs_id_not_unique'
+          : idTargets.length
+            ? 'public_tfrrs_id_not_unique'
+            : (publicNameTargets.length ? 'public_name_school_not_found' : 'public_tfrrs_id_not_found'),
+      };
     }
 
     const target = targets[0];
+    if (targetMatch === 'exact_name_school'
+        && target.tfrrs_athlete_id != null
+        && String(target.tfrrs_athlete_id) !== String(profile.id)) {
+      return { ...base, profile, target, action: 'hold', reason: 'public_tfrrs_id_conflict' };
+    }
     if (normalizeName(target.full_name) !== normalizeName(identity.sourceAthleteName)) {
       return { ...base, profile, target, action: 'hold', reason: 'public_name_mismatch' };
     }
@@ -221,8 +272,11 @@ function buildPlan(rows, historicalCandidates, publicTargets, existingAliases) {
       ...base,
       profile,
       target,
+      targetMatch,
       action: 'insert',
-      reason: profile.evidenceType === 'tfrrs_public_profile_team_link'
+      reason: profile.evidenceType === 'tfrrs_team_roster_profile_link'
+        ? 'verified_team_roster_profile'
+        : profile.evidenceType === 'tfrrs_public_profile_team_link'
         ? 'verified_public_search_profile'
         : 'verified_historical_profile',
     };
@@ -260,9 +314,11 @@ async function commitPlan(pool, plan) {
           row.sourceAthleteName,
           row.sourceGender,
           row.target.athlete_id,
-          `${row.profile.evidenceType === 'tfrrs_public_profile_team_link'
-            ? 'Exact name/team match to official TFRRS public profile'
-            : 'Exact name/team match to linked TFRRS profile'} ${row.profile.profileUrl}; scoped to source meet ${row.sourceMeetKey} and canonical team ${row.targetTeamId}.`,
+          `${row.profile.evidenceType === 'tfrrs_team_roster_profile_link'
+            ? 'Exact name match to official TFRRS team roster'
+            : row.profile.evidenceType === 'tfrrs_public_profile_team_link'
+              ? 'Exact name/team match to official TFRRS public profile'
+              : 'Exact name/team match to linked TFRRS profile'} ${row.profile.profileUrl}; scoped to source meet ${row.sourceMeetKey} and canonical team ${row.targetTeamId}.`,
         ]
       );
     }
@@ -349,6 +405,7 @@ module.exports = {
   identityFromRow,
   loadHistoricalProfiles,
   loadExistingAliases,
+  loadPublicNameTargets,
   loadPublicTargets,
   loadSourceRows,
   normalizeName,

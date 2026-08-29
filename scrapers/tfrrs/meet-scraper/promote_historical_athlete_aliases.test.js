@@ -74,3 +74,33 @@ test('only promotes an exact profile that points to the same team school', () =>
   assert.equal(held.action, 'hold');
   assert.equal(held.reason, 'public_school_mismatch');
 });
+
+test('can reuse one exact same-school public athlete when the TFRRS ID is missing', () => {
+  const row = {
+    entity_type: 'individual_result',
+    target_team_id: 8,
+    target_school_id: 22,
+    source_meet_key: 'tfrrs-42',
+    tfrrs_team_url: 'https://www.tfrrs.org/teams/tf/CA_jcollege_m_San_Diego_Mesa.html',
+    payload: { team_gender: 'M', athlete_name: 'Ryan Mann' },
+  };
+  const key = 'M|ca_jcollege_m_san_diego_mesa|ryan mann';
+  const profiles = new Map([['9018581', {
+    id: '9018581',
+    name: 'Ryan Mann',
+    profileUrl: 'https://www.tfrrs.org/athletes/9018581/San_Diego_Mesa/Ryan_Mann.html',
+    evidenceType: 'tfrrs_team_roster_profile_link',
+  }]]);
+  const [safe] = buildPlan([row], new Map([[key, profiles]]), [], [], [{
+    athlete_id: 700,
+    full_name: 'Ryan Mann',
+    gender: 'M',
+    school_id: 22,
+    tfrrs_athlete_id: null,
+  }]);
+
+  assert.equal(safe.action, 'insert');
+  assert.equal(safe.target.athlete_id, 700);
+  assert.equal(safe.reason, 'verified_team_roster_profile');
+  assert.equal(safe.targetMatch, 'exact_name_school');
+});
