@@ -27,7 +27,12 @@ test('promotion requires an explicit run and commit flag', () => {
     runId: 'abc',
     allowQuarantines: false,
     allowMultiMeet: false,
+    statementTimeoutMs: 600000,
   });
+  assert.throws(
+    () => parseArgs(['--run-id', 'abc', '--commit', '--statement-timeout-ms', '999999999']),
+    /statement-timeout-ms must be an integer/
+  );
 });
 
 test('promotion extracts one or more meet IDs from importer scopes', () => {

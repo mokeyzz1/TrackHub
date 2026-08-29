@@ -15,9 +15,21 @@ const { CanonicalFactWriter } = require('../shared/canonical_fact_writer');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
+const DEFAULT_STATEMENT_TIMEOUT_MS = 10 * 60 * 1000;
+const MAX_STATEMENT_TIMEOUT_MS = 15 * 60 * 1000;
+
 function valueAfter(argv, flag) {
   const index = argv.indexOf(flag);
   return index >= 0 ? argv[index + 1] : null;
+}
+
+function statementTimeoutMs(value) {
+  if (value == null) return DEFAULT_STATEMENT_TIMEOUT_MS;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0 || parsed > MAX_STATEMENT_TIMEOUT_MS) {
+    throw new Error(`--statement-timeout-ms must be an integer between 1 and ${MAX_STATEMENT_TIMEOUT_MS}`);
+  }
+  return parsed;
 }
 
 function parseArgs(argv) {
@@ -30,6 +42,7 @@ function parseArgs(argv) {
     runId,
     allowQuarantines: argv.includes('--allow-quarantines'),
     allowMultiMeet: argv.includes('--allow-multi-meet'),
+    statementTimeoutMs: statementTimeoutMs(valueAfter(argv, '--statement-timeout-ms')),
   };
 }
 
@@ -232,7 +245,13 @@ async function resolveSupersededOpenQuarantines(pool, runId) {
   return Number(rows[0]?.resolved_count || 0);
 }
 
-async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = false, env = process.env } = {}) {
+async function promoteRun({
+  runId,
+  allowQuarantines = false,
+  allowMultiMeet = false,
+  statementTimeoutMs: promotionStatementTimeoutMs = DEFAULT_STATEMENT_TIMEOUT_MS,
+  env = process.env,
+} = {}) {
   const url = connectionString(env);
   if (!url) throw new Error('INGEST_DATABASE_URL is required for run promotion');
 
@@ -250,7 +269,11 @@ async function promoteRun({ runId, allowQuarantines = false, allowMultiMeet = fa
     const scope = validateReview(review, { allowQuarantines, allowMultiMeet });
     console.log(`Promoting ${runId}: ${review.run.source} | meets=${scope.meetIds.join(',')} | decisions=${JSON.stringify(review.decisions)}`);
 
-    const writer = new CanonicalFactWriter({ pool, env });
+    const writer = new CanonicalFactWriter({
+      pool,
+      env,
+      statementTimeoutMs: promotionStatementTimeoutMs,
+    });
     let committedStats = null;
     let committedStatus = null;
     try {

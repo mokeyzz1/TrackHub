@@ -90,7 +90,7 @@ function candidateKey(observation) {
 }
 
 class CanonicalFactWriter {
-  constructor({ pool, env = process.env, historyWindowDays = 7 } = {}) {
+  constructor({ pool, env = process.env, historyWindowDays = 7, statementTimeoutMs = null } = {}) {
     const connectionString = connectionStringFromEnv(env);
     if (!pool && !connectionString) {
       throw new Error('INGEST_DATABASE_URL is required for the canonical fact writer');
@@ -105,6 +105,10 @@ class CanonicalFactWriter {
     });
     this.ownsPool = !pool;
     this.historyWindowDays = historyWindowDays;
+    if (statementTimeoutMs != null && (!Number.isInteger(statementTimeoutMs) || statementTimeoutMs <= 0)) {
+      throw new Error('statementTimeoutMs must be a positive integer');
+    }
+    this.statementTimeoutMs = statementTimeoutMs;
   }
 
   /**
@@ -127,6 +131,11 @@ class CanonicalFactWriter {
 
     try {
       await client.query('BEGIN');
+      if (this.statementTimeoutMs != null) {
+        // The value is validated as an integer before interpolation. SET LOCAL keeps the
+        // longer budget scoped to this atomic promotion transaction only.
+        await client.query(`SET LOCAL statement_timeout = ${this.statementTimeoutMs}`);
+      }
 
       const { rows } = await client.query(
         `SELECT o.*, sr.source_record_id, sr.source_record_key, sr.payload,
