@@ -199,3 +199,44 @@ test('collapses identical current-meet round presentations before matching', () 
   assert.equal(match.reason, 'same_performance_same_place');
   assert.equal(match.matched.result_id, 704);
 });
+
+test('does not claim undated historical rows', () => {
+  const row = individualStatus({
+    target_meet_id: 11889,
+    target_athlete_id: 92302,
+    event_type_id: 51,
+    mark_raw: '1.82m',
+    mark_meters: 1.82,
+    measure: 'distance',
+    place: 1,
+    round: 'Finals',
+    result_date: '2026-03-01',
+  });
+  const match = matchObservation(row, [
+    {
+      result_id: 706,
+      meet_id: null,
+      athlete_id: 92302,
+      event_type_id: 51,
+      mark_raw: '1.82m',
+      mark_meters: 1.82,
+      place: 3,
+      round: null,
+      date: null,
+    },
+    {
+      result_id: 707,
+      meet_id: null,
+      athlete_id: 92302,
+      event_type_id: 51,
+      mark_raw: '1.82m',
+      mark_meters: 1.82,
+      place: 2,
+      round: null,
+      date: null,
+    },
+  ]);
+
+  assert.equal(match.action, 'insert');
+  assert.equal(match.reason, 'no_existing_match');
+});

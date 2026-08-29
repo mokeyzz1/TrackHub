@@ -264,8 +264,10 @@ function matchObservation(observation, existingRows = [], options = {}) {
   const historyCandidates = existingRows.filter(existing => {
     if (existing.meet_id != null) return false;
     const comparable = asComparableRow(observation, existing);
+    const distance = dateDistanceDays(observation.result_date, existing.date);
     return historyKey(comparable) === targetHistoryKey
-      && dateDistanceDays(observation.result_date, existing.date) <= historyWindowDays;
+      && distance !== null
+      && distance <= historyWindowDays;
   });
 
   if (historyCandidates.length === 1) {
