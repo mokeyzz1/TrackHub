@@ -1,0 +1,231 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "VMI Winter Relays 2026 / exact AthleticLIVE source-profile matches batch 2",
+  "decisions": [
+    {
+      "source_athlete_key": "44018564",
+      "source_athlete_name": "Kaylee Kraver",
+      "source_gender": "F",
+      "target_athlete_id": 66120,
+      "athletic_net_profile_id": "21294456",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/21294456/track-and-field",
+        "Exact existing Lees-McRae athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team Lees-McRae, high-confidence API match, and unique existing Lees-McRae athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018606",
+      "source_athlete_name": "Timothy Renquist",
+      "source_gender": "M",
+      "target_athlete_id": 17834,
+      "athletic_net_profile_id": "29559441",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/29559441/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018609",
+      "source_athlete_name": "Nicholas Russo",
+      "source_gender": "M",
+      "target_athlete_id": 17836,
+      "athletic_net_profile_id": "29559439",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/29559439/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018678",
+      "source_athlete_name": "Shea Hart",
+      "source_gender": "F",
+      "target_athlete_id": 16184,
+      "athletic_net_profile_id": "21637870",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/21637870/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018701",
+      "source_athlete_name": "Tatiana Burns",
+      "source_gender": "F",
+      "target_athlete_id": 79796,
+      "athletic_net_profile_id": "30171601",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/30171601/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018798",
+      "source_athlete_name": "Marcus Acheampong",
+      "source_gender": "M",
+      "target_athlete_id": 44482,
+      "athletic_net_profile_id": "19399817",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/19399817/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018801",
+      "source_athlete_name": "Presten Augustin",
+      "source_gender": "M",
+      "target_athlete_id": 91204,
+      "athletic_net_profile_id": "30193911",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/30193911/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018894",
+      "source_athlete_name": "Tori Lewis",
+      "source_gender": "F",
+      "target_athlete_id": 57928,
+      "athletic_net_profile_id": "27119628",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/27119628/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018895",
+      "source_athlete_name": "Taylah Walker",
+      "source_gender": "F",
+      "target_athlete_id": 80379,
+      "athletic_net_profile_id": "30171602",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/30171602/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018901",
+      "source_athlete_name": "Skylar Moody",
+      "source_gender": "F",
+      "target_athlete_id": 90162,
+      "athletic_net_profile_id": "30171599",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/30171599/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018904",
+      "source_athlete_name": "Mabel Alagbe",
+      "source_gender": "F",
+      "target_athlete_id": 57930,
+      "athletic_net_profile_id": "24240740",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/24240740/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018911",
+      "source_athlete_name": "Miracle Eric",
+      "source_gender": "F",
+      "target_athlete_id": 16192,
+      "athletic_net_profile_id": "26993906",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/26993906/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018912",
+      "source_athlete_name": "SeMore Green",
+      "source_gender": "F",
+      "target_athlete_id": 16195,
+      "athletic_net_profile_id": "21637869",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/21637869/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018947",
+      "source_athlete_name": "Taliyah Headman",
+      "source_gender": "F",
+      "target_athlete_id": 16185,
+      "athletic_net_profile_id": "30063550",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/30063550/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018980",
+      "source_athlete_name": "Naturale Faison",
+      "source_gender": "F",
+      "target_athlete_id": 16193,
+      "athletic_net_profile_id": "26993909",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/26993909/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44019082",
+      "source_athlete_name": "Kevin Koumondji",
+      "source_gender": "M",
+      "target_athlete_id": 17815,
+      "athletic_net_profile_id": "26993823",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/26993823/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    }
+  ]
+}
