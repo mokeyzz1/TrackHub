@@ -13,6 +13,7 @@ const { collapseDuplicateRounds } = require('../../shared/collapse_duplicate_rou
 const { parseTfrrsTeamInfo } = require('../../shared/tfrrs_team_identity');
 const { parseMarkSeconds, parseMarkMeters } = require('../../shared/mark_parser');
 const { isRelayEventName } = require('../../shared/event_kind');
+const { isRelayTimeMark } = require('../../shared/relay_time');
 const fs = require('fs');
 const path = require('path');
 
@@ -129,8 +130,8 @@ function parseDate(dateStr) {
 // The relay matcher used to accept only the colon form, so every sub-minute relay fell through
 // to the DNF/DQ fallback and only teams that actually DNF'd were kept — which is why 4x100
 // results were missing while 4x400 looked fine. The individual-result matcher below always had
-// the seconds-only pattern; the relay path just never got it.
-const RELAY_TIME = /^(\d{1,2}:\d{2}\.\d{2,3}|\d{2}\.\d{2,3})$/;
+// the seconds-only pattern; the relay path just never got it. Both TFRRS scraper paths now call
+// the same tested helper so they cannot drift apart again.
 
 async function fetchMeetList(startDate, endDate) {
   console.log(`Fetching meets from ${startDate} to ${endDate}...`);
@@ -329,7 +330,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
           const hasCheckmark = $cell.find('img[src*="ico-check"], img[src*="ico-plus"]').length > 0;
           if (hasCheckmark && !markRaw) {
             const text = $cell.text().trim();
-            if (text && RELAY_TIME.test(text)) {
+            if (text && isRelayTimeMark(text)) {
               markRaw = text;
             }
           }
@@ -345,7 +346,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
             if (isHidden) return;
 
             const text = $cell.text().trim();
-            if (RELAY_TIME.test(text)) {
+            if (isRelayTimeMark(text)) {
               markRaw = text;
             }
           });

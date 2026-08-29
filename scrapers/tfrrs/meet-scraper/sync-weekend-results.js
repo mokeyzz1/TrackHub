@@ -47,6 +47,7 @@ require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 // like "10.24  (2.0)". That is how 1.3M rows ended up with a text mark and no number.
 const { parseMarkSeconds, parseMarkMeters } = require("../../shared/mark_parser");
 const { isRelayEventName } = require('../../shared/event_kind');
+const { isRelayTimeMark } = require('../../shared/relay_time');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -943,7 +944,6 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
         // the teams that literally DNF'd. Effect: 4x100 was 14% usable vs 4x400 at 47%, and
         // meets appeared to have no 4x1 at all. Sub-minute relays now match too.
         // (Two digits before the decimal keeps this from grabbing points/wind-style values.)
-        const RELAY_TIME = /^(\d{1,2}:\d{2}\.\d{2,3}|\d{2}\.\d{2,3})$/;
         let markRaw = null;
 
         // Priority 1: Look for checkmark icon
@@ -952,7 +952,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
           const hasCheckmark = $cell.find('img[src*="ico-check"], img[src*="ico-plus"]').length > 0;
           if (hasCheckmark && !markRaw) {
             const text = $cell.text().trim();
-            if (text && RELAY_TIME.test(text)) {
+            if (text && isRelayTimeMark(text)) {
               markRaw = text;
             }
           }
@@ -968,7 +968,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
             if (isHidden) return;
 
             const text = $cell.text().trim();
-            if (RELAY_TIME.test(text)) {
+            if (isRelayTimeMark(text)) {
               markRaw = text;
             }
           });
