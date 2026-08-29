@@ -28,6 +28,7 @@ const { EventResolver } = require('../../shared/event_resolver');
 const { fingerprint, fetchAll, normaliseMarkKey } = require('../../shared/result_fingerprint');
 const { ControlledIngestion } = require('../../shared/controlled_ingestion');
 const { normalizeSourceRows } = require('../../shared/source_observation_adapter');
+const { isUnattachedTeamLabel } = require('../../shared/ingestion_contract');
 const { TeamAliasResolver } = require('../../shared/team_alias_resolver');
 const { AthleteAliasResolver } = require('../../shared/athlete_alias_resolver');
 const { parseTfrrsTeamInfo } = require('../../shared/tfrrs_team_identity');
@@ -1276,6 +1277,9 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
         sourceTeamState: r.source_team_state,
       });
     }
+    const sourceTeamName = r.school_name || r.team_name || null;
+    const sourceIsUnattached = isUnattachedTeamLabel(sourceTeamName);
+    const canCreateAthlete = Boolean(teamId) || sourceIsUnattached;
 
     if (teamId) {
       matched++;
@@ -1290,7 +1294,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       internalAthleteId = tfrrsToInternalId.get(r.athlete_id);
       if (!internalAthleteId) {
         noAthlete++;
-        if (!seenAthletes.has(r.athlete_id)) {
+        if (canCreateAthlete && !seenAthletes.has(r.athlete_id)) {
           seenAthletes.add(r.athlete_id);
           const schoolId = teamId ? teamToSchool.get(teamId) : UNATTACHED_SCHOOL_ID;
           newAthletes.push({
@@ -1305,14 +1309,15 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       }
     } else if (r.athlete_name) {
       // No TFRRS ID (unattached / post-collegiate). Reuse an existing record by name first —
-      // only create if never seen (in the DB or earlier this run).
-      const existingId = existingUnattachedByName.get(r.athlete_name);
+      // but only when the source explicitly says Unattached/Open/Independent. A named school
+      // needs a verified athlete identity; reusing an unattached name would create a false link.
+      const existingId = sourceIsUnattached ? existingUnattachedByName.get(r.athlete_name) : null;
       if (existingId) {
         internalAthleteId = existingId;
       } else {
         noAthlete++;
         const nameKey = `unattached:${r.athlete_name}`;
-        if (!seenAthletes.has(nameKey)) {
+        if (sourceIsUnattached && !seenAthletes.has(nameKey)) {
           seenAthletes.add(nameKey);
           newAthletes.push({
             tfrrs_athlete_id: null,
@@ -1365,11 +1370,14 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
         sourceTeamState: r.source_team_state,
       });
     }
+    const sourceTeamName = r.school_name || r.team_name || null;
+    const sourceIsUnattached = isUnattachedTeamLabel(sourceTeamName);
+    const canCreateAthlete = Boolean(teamId) || sourceIsUnattached;
 
     // Map relay athletes
     const relayAthletes = (r.relay_athletes || []).map((a, idx) => {
       let internalId = tfrrsToInternalId.get(a.athlete_id);
-      if (!internalId && a.athlete_id && !seenAthletes.has(a.athlete_id)) {
+      if (!internalId && a.athlete_id && canCreateAthlete && !seenAthletes.has(a.athlete_id)) {
         seenAthletes.add(a.athlete_id);
         const schoolId = teamId ? teamToSchool.get(teamId) : UNATTACHED_SCHOOL_ID;
         newAthletes.push({

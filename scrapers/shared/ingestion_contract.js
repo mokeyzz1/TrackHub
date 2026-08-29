@@ -296,5 +296,6 @@ module.exports = {
   makePerformanceKey,
   makeCanonicalKey,
   derivedSourceRecordKey,
+  isUnattachedTeamLabel,
   normalizeObservation
 };
