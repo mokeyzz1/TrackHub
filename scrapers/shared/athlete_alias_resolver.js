@@ -16,11 +16,13 @@ class AthleteAliasResolver {
   static async load(pool, source) {
     if (!pool || typeof pool.query !== 'function') throw new Error('a database pool is required');
     const { rows } = await pool.query(
-      `SELECT athlete_alias_id, source, source_athlete_key, source_athlete_name,
-              source_gender, target_athlete_id, match_method, status
-         FROM ingest.athlete_aliases
-        WHERE source = $1
-          AND status = 'active'`,
+      `SELECT aa.athlete_alias_id, aa.source, aa.source_athlete_key, aa.source_athlete_name,
+              aa.source_gender, aa.target_athlete_id, aa.match_method, aa.status,
+              a.school_id AS target_school_id
+         FROM ingest.athlete_aliases aa
+         LEFT JOIN public.athletes a ON a.athlete_id = aa.target_athlete_id
+        WHERE aa.source = $1
+          AND aa.status = 'active'`,
       [source]
     );
     return new AthleteAliasResolver(rows);
@@ -40,6 +42,7 @@ class AthleteAliasResolver {
       const row = [...matches.values()][0];
       return {
         athlete_id: Number(row.target_athlete_id),
+        school_id: row.target_school_id == null ? null : Number(row.target_school_id),
         athlete_alias_id: Number(row.athlete_alias_id),
         match_method: row.match_method
       };

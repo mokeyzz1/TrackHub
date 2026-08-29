@@ -17,6 +17,7 @@ const { EventResolver } = require('../shared/event_resolver');
 const { ControlledIngestion } = require('../shared/controlled_ingestion');
 const { normalizeSourceRows } = require('../shared/source_observation_adapter');
 const { TeamAliasResolver } = require('../shared/team_alias_resolver');
+const { AthleteAliasResolver } = require('../shared/athlete_alias_resolver');
 const { parseMark } = require('../shared/mark_parser');
 const { ensureIngestDatabaseUrl } = require('../shared/private_database_url');
 
@@ -158,7 +159,7 @@ async function loadTeamSchools(teamIds) {
   return new Map((data || []).map(row => [Number(row.team_id), Number(row.school_id)]));
 }
 
-function toRows({ sourceMeetId, sourceUrl, tenant, meet, events, eventPayloads, teamAliases, athleteByKey, teamSchools }) {
+function toRows({ sourceMeetId, sourceUrl, tenant, meet, events, eventPayloads, teamAliases, athleteAliases, athleteByKey, teamSchools }) {
   const rows = [];
   let teamMatched = 0;
   let athleteMatched = 0;
@@ -187,7 +188,15 @@ function toRows({ sourceMeetId, sourceUrl, tenant, meet, events, eventPayloads, 
         const candidates = (athleteByKey.get(key) || []).filter(candidate =>
           !schoolId || Number(candidate.school_id) === Number(schoolId)
         );
-        const athleteId = candidates.length === 1 ? Number(candidates[0].athlete_id) : null;
+        const alias = athleteAliases?.resolve({
+          source: 'trackscoreboard',
+          sourceAthleteKey,
+        });
+        const aliasMatchesSchool = alias?.athlete_id
+          && (!schoolId || Number(alias.school_id) === Number(schoolId));
+        const athleteId = aliasMatchesSchool
+          ? Number(alias.athlete_id)
+          : candidates.length === 1 ? Number(candidates[0].athlete_id) : null;
         if (athleteId) athleteMatched++;
         return {
           athlete_id: athleteId,
@@ -271,6 +280,7 @@ async function run({ meetId, commit = false, tenant = null, sourceUrl = null } =
   controlled.ownsStore = false;
   try {
     const teamAliases = await TeamAliasResolver.load(controlled.store.pool, 'trackscoreboard');
+    const athleteAliases = await AthleteAliasResolver.load(controlled.store.pool, 'trackscoreboard');
     const preRows = rawRows.map(row => ({
       team_name: row.teamName,
       source_team_key: row.teamsAbbr || row.teamName,
@@ -291,6 +301,7 @@ async function run({ meetId, commit = false, tenant = null, sourceUrl = null } =
       events,
       eventPayloads,
       teamAliases,
+      athleteAliases,
       athleteByKey,
       teamSchools,
     });
@@ -339,4 +350,5 @@ module.exports = {
   parseSourceUrl,
   run,
   sourceEventName,
+  toRows,
 };
