@@ -38,7 +38,13 @@ function parseArgs(argv) {
 }
 
 function normalizeName(value) {
-  return String(value || '')
+  let name = String(value || '').replace(/\s+/g, ' ').trim();
+  if (name.includes(',')) {
+    const [last, ...rest] = name.split(',');
+    const first = rest.join(',').trim();
+    if (last.trim() && first) name = `${first} ${last.trim()}`;
+  }
+  return name
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
@@ -53,11 +59,13 @@ function teamUrlKey(value) {
 }
 
 function profileFromHref(href, anchorText) {
-  const match = String(href || '').match(/\/athletes\/(\d+)\/[^/?#]+\/([^/?#]+?)(?:\.html)?$/i);
+  const match = String(href || '').match(/\/athletes\/(\d+)(?:\/[^/?#]+\/([^/?#]+?)(?:\.html)?)?$/i);
   if (!match) return null;
-  const slugName = decodeURIComponent(match[2]).replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+  const slugName = match[2]
+    ? decodeURIComponent(match[2]).replace(/_/g, ' ').replace(/\s+/g, ' ').trim()
+    : null;
   const visibleName = String(anchorText || '').replace(/\s+/g, ' ').trim();
-  const name = visibleName.split(' ').length >= 2 ? visibleName : slugName;
+  const name = slugName || visibleName;
   const profileUrl = String(href).startsWith('http')
     ? href
     : `https://www.tfrrs.org${href}`;
@@ -209,7 +217,15 @@ function buildPlan(rows, historicalCandidates, publicTargets, existingAliases) {
     if (base.existingAlias?.status === 'active') {
       return { ...base, profile, target, action: 'already_active', reason: 'existing_alias_matches' };
     }
-    return { ...base, profile, target, action: 'insert', reason: 'verified_historical_profile' };
+    return {
+      ...base,
+      profile,
+      target,
+      action: 'insert',
+      reason: profile.evidenceType === 'tfrrs_public_profile_team_link'
+        ? 'verified_public_search_profile'
+        : 'verified_historical_profile',
+    };
   });
 }
 
@@ -244,7 +260,9 @@ async function commitPlan(pool, plan) {
           row.sourceAthleteName,
           row.sourceGender,
           row.target.athlete_id,
-          `Exact name/team match to linked TFRRS profile ${row.profile.profileUrl}; scoped to source meet ${row.sourceMeetKey} and canonical team ${row.targetTeamId}.`,
+          `${row.profile.evidenceType === 'tfrrs_public_profile_team_link'
+            ? 'Exact name/team match to official TFRRS public profile'
+            : 'Exact name/team match to linked TFRRS profile'} ${row.profile.profileUrl}; scoped to source meet ${row.sourceMeetKey} and canonical team ${row.targetTeamId}.`,
         ]
       );
     }
@@ -327,8 +345,12 @@ if (require.main === module) {
 
 module.exports = {
   buildPlan,
+  commitPlan,
   identityFromRow,
   loadHistoricalProfiles,
+  loadExistingAliases,
+  loadPublicTargets,
+  loadSourceRows,
   normalizeName,
   parseArgs,
   profileFromHref,
