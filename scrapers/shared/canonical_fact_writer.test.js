@@ -40,3 +40,24 @@ test('reconciles a resolved relay leg onto its existing parent relay', async () 
   assert.equal(updated, 1);
   assert.deepEqual(calls[1].params, [61772, 242867, 4, '9166975']);
 });
+
+test('batches preclassified quarantine bookkeeping', async () => {
+  const calls = [];
+  const client = {
+    query: async (text, params) => {
+      calls.push({ text, params });
+      return { rows: [], rowCount: 1 };
+    },
+  };
+  const writer = new CanonicalFactWriter({ pool: {}, env: { INGEST_DATABASE_URL: 'postgresql://test' } });
+
+  const count = await writer.quarantineExistingRows(client, [
+    { observation_id: 101 },
+    { observation_id: 102 },
+  ]);
+
+  assert.equal(count, 2);
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].text, /validation_errors->0->>'code'/);
+  assert.deepEqual(calls[0].params, [[101, 102]]);
+});

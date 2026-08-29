@@ -153,6 +153,9 @@ class CanonicalFactWriter {
         return stats;
       }
 
+      const preclassifiedQuarantines = rows.filter(row => row.decision === 'quarantine');
+      stats.quarantined = await this.quarantineExistingRows(client, preclassifiedQuarantines);
+
       const meetIds = [...new Set(rows.map(r => r.target_meet_id).filter(Boolean))];
       const athleteIds = [...new Set(rows.map(r => r.target_athlete_id).filter(Boolean))];
       const teamIds = [...new Set(rows.map(r => r.target_team_id).filter(Boolean))];
@@ -222,9 +225,7 @@ class CanonicalFactWriter {
         const existing = candidates.get(candidateKey(observation)) || [];
 
         if (row.decision === 'quarantine') {
-          const firstError = Array.isArray(row.validation_errors) ? row.validation_errors[0] : null;
-          await this.quarantine(client, row.observation_id, firstError?.code || 'validation_failed', 0);
-          stats.quarantined++;
+          // Preclassified quarantine rows are persisted in one batch before this loop.
           continue;
         }
 
@@ -528,6 +529,25 @@ class CanonicalFactWriter {
              resolved_at = NULL`,
       [observationId, reason]
     );
+  }
+
+  async quarantineExistingRows(client, rows) {
+    if (!rows.length) return 0;
+    const observationIds = rows.map(row => row.observation_id);
+    await client.query(
+      `INSERT INTO ingest.quarantine (observation_id, reason_code, status)
+       SELECT observation_id,
+              COALESCE(validation_errors->0->>'code', 'validation_failed'),
+              'open'
+         FROM ingest.observations
+        WHERE observation_id = ANY($1::bigint[])
+       ON CONFLICT (observation_id) DO UPDATE
+         SET reason_code = EXCLUDED.reason_code,
+             status = 'open',
+             resolved_at = NULL`,
+      [observationIds]
+    );
+    return rows.length;
   }
 
   async close() {
