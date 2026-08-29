@@ -426,6 +426,7 @@ module.exports = {
   reconcileRelayProbe,
   parseArgs,
   processQueueRow,
+  runImporter,
   runWithConcurrency,
   validCandidate,
   selectSupportedRows,
