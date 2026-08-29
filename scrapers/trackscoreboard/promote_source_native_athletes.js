@@ -51,6 +51,14 @@ function normalizeName(value) {
     .trim();
 }
 
+function namesCompatible(left, right) {
+  const source = normalizeName(left);
+  const target = normalizeName(right);
+  return Boolean(source && target && (
+    source === target || source.endsWith(` ${target}`) || target.endsWith(` ${source}`)
+  ));
+}
+
 function sourceAthleteGender(payload, sourceAthleteKey, sourceName) {
   const rawAthletes = payload?.payload?.raw_result?.athletes;
   if (Array.isArray(rawAthletes)) {
@@ -124,12 +132,6 @@ function buildPlan(groups, {
 } = {}) {
   const teamsById = new Map(teams.map(row => [Number(row.team_id), row]));
   const aliasesByKey = new Map(existingAliases.map(row => [String(row.source_athlete_key).trim(), row]));
-  const athletesByName = new Map();
-  for (const athlete of existingAthletes) {
-    const key = `${normalizeName(athlete.full_name)}|${athlete.gender || ''}`;
-    if (!athletesByName.has(key)) athletesByName.set(key, []);
-    athletesByName.get(key).push(athlete);
-  }
 
   const plannedByName = new Map();
   const plan = groups.map(group => {
@@ -165,7 +167,10 @@ function buildPlan(groups, {
         ? { ...base, action: 'already_active', reason: 'source_alias_already_active', existing_alias: alias }
         : { ...base, action: 'hold', reason: 'source_alias_conflict', existing_alias: alias };
     }
-    const existing = athletesByName.get(nameKey) || [];
+    const existing = existingAthletes.filter(athlete => (
+      athlete.gender === group.source_gender
+      && namesCompatible(athlete.full_name, group.source_athlete_name)
+    ));
     if (existing.length) return { ...base, action: 'hold', reason: 'same_name_gender_exists', existing_athletes: existing };
     if (plannedByName.has(nameKey)) {
       return { ...base, action: 'hold', reason: 'same_name_gender_in_batch', conflicting_source_key: plannedByName.get(nameKey) };
@@ -268,16 +273,20 @@ async function loadState(pool, runId) {
       [sourceKeys]
     )).rows
     : [];
-  const normalizedExpression = `lower(regexp_replace(translate(full_name,
+  const normalizedExpression = `trim(regexp_replace(translate(lower(full_name),
     'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
     'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))`;
+  const suffixPatterns = names.map(name => `% ${name}`);
   const existingAthletes = names.length && genders.length
     ? (await pool.query(
       `SELECT athlete_id, full_name, gender, school_id
          FROM public.athletes
         WHERE gender = ANY($1::text[])
-          AND ${normalizedExpression} = ANY($2::text[])`,
-      [genders, names]
+          AND (
+            ${normalizedExpression} = ANY($2::text[])
+            OR ${normalizedExpression} LIKE ANY($3::text[])
+          )`,
+      [genders, names, suffixPatterns]
     )).rows
     : [];
   return { run, groups, teams, existingAliases, existingAthletes };
@@ -285,9 +294,8 @@ async function loadState(pool, runId) {
 
 async function commitPlan(pool, plan) {
   const holds = plan.filter(row => row.action === 'hold');
-  if (holds.length) throw new Error(`refusing source-native athlete commit: ${holds.length} plan rows are held`);
   const creates = plan.filter(row => row.action === 'create_and_alias');
-  if (!creates.length) return { athletes_created: 0, aliases_created: 0 };
+  if (!creates.length) return { athletes_created: 0, aliases_created: 0, held: holds.length };
 
   const client = await pool.connect();
   try {
@@ -305,10 +313,16 @@ async function commitPlan(pool, plan) {
             SELECT 1
               FROM public.athletes
              WHERE gender = $5
-               AND lower(regexp_replace(translate(full_name,
+               AND trim(regexp_replace(translate(lower(full_name),
                  'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
                  'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
-                   = lower(regexp_replace(translate($2,
+                   = trim(regexp_replace(translate(lower($2),
+                 'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
+                 'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
+                 OR trim(regexp_replace(translate(lower(full_name),
+                 'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
+                 'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
+                   LIKE '%' || ' ' || trim(regexp_replace(translate(lower($2),
                  'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ',
                  'aaaaaaeeeeiiiiooooouuuuncyy'), '[^a-z0-9]+', ' ', 'g'))
           )
@@ -353,7 +367,7 @@ async function commitPlan(pool, plan) {
       }
     }
     await client.query('COMMIT');
-    return { athletes_created: creates.length, aliases_created: creates.length };
+    return { athletes_created: creates.length, aliases_created: creates.length, held: holds.length };
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;
@@ -406,6 +420,7 @@ if (require.main === module) {
         summary: result.summary,
         athletes_created: result.athletes_created,
         aliases_created: result.aliases_created,
+        held: result.held,
       }, null, 2));
     })
     .catch(error => { console.error(`ERROR ${error.message}`); process.exit(1); });
