@@ -80,3 +80,33 @@ test('prefers a verified private athlete alias over exact public-name lookup', (
   assert.equal(result.athleteMatched, 1);
   assert.equal(result.rows[0].relay_athletes[0].athlete_id, 44);
 });
+
+test('allows a verified alias to preserve an explicit Unattached public affiliation', () => {
+  const result = toRows({
+    sourceMeetId: 734,
+    sourceUrl: 'https://tiempo.trackscoreboard.com/meets/734',
+    tenant: 'tiempodellegada',
+    meet: { meet_id: 11948, name: 'LAI', date: '2026-03-07' },
+    events: [{ id: 1, name: '4x100 Relay', gender: 'M' }],
+    eventPayloads: new Map([[1, {
+      results: [{
+        id: 10,
+        teamName: 'UPR Ponce',
+        teamsAbbr: 'UPRP',
+        mark: '40.00',
+        place: 1,
+        athletes: [{ id: 99, fname: 'Ana', lname: 'Rivera', gender: 'F', athlete_position: 1 }],
+      }],
+    }]]),
+    teamAliases: {
+      resolve: () => ({ team_id: 200 }),
+    },
+    athleteAliases: {
+      resolve: () => ({ athlete_id: 44, school_id: 1835 }),
+    },
+    athleteByKey: new Map(),
+    teamSchools: new Map([[200, 300]]),
+  });
+  assert.equal(result.athleteMatched, 1);
+  assert.equal(result.rows[0].relay_athletes[0].athlete_id, 44);
+});

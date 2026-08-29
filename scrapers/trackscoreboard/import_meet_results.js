@@ -28,6 +28,7 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+const UNATTACHED_SCHOOL_ID = 1835;
 
 function valueAfter(argv, flag) {
   const index = argv.indexOf(flag);
@@ -193,7 +194,9 @@ function toRows({ sourceMeetId, sourceUrl, tenant, meet, events, eventPayloads, 
           sourceAthleteKey,
         });
         const aliasMatchesSchool = alias?.athlete_id
-          && (!schoolId || Number(alias.school_id) === Number(schoolId));
+          && (!schoolId
+            || Number(alias.school_id) === Number(schoolId)
+            || Number(alias.school_id) === UNATTACHED_SCHOOL_ID);
         const athleteId = aliasMatchesSchool
           ? Number(alias.athlete_id)
           : candidates.length === 1 ? Number(candidates[0].athlete_id) : null;
