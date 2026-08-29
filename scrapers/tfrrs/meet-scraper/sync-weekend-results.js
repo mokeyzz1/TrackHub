@@ -401,6 +401,15 @@ function normalizeSchoolName(name) {
     .trim();
 }
 
+function normalizeAthleteName(name) {
+  return String(name || '')
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // Resolve common source/database school-name variants only when the source label is a strict
 // prefix of exactly one canonical name for the requested gender. This handles "Riverside City"
 // vs "Riverside City College" without incorrectly mapping "San Diego Mesa" to "San Diego".
@@ -1335,6 +1344,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       tfrrs_athlete_id: r.athlete_id,
       athlete_id: internalAthleteId || null,
       athlete_name: r.athlete_name,
+      source_athlete_key: r.athlete_id ? String(r.athlete_id) : r.athlete_name || null,
       event_name: r.event_name,
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,
@@ -1393,6 +1403,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
         tfrrs_athlete_id: a.athlete_id,
         athlete_id: internalId || null,
         athlete_name: a.name,
+        source_athlete_key: a.athlete_id ? String(a.athlete_id) : a.name || null,
         leg_order: idx + 1
       };
     });
@@ -1445,6 +1456,83 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       console.error('  Import refused. Add aliases, then re-run. No athletes or result rows were written.');
       return { imported: 0, errors: 1, skipped: 0, relaysImported: 0, relayErrors: 0 };
     }
+  }
+
+  // TFRRS currently renders many result tables without athlete profile links. If a row exactly
+  // matches one existing performance in this same meet by normalized name, canonical event, and
+  // normalized mark, reuse that one athlete identity. This is deliberately not a global name
+  // matcher: same-name athletes across schools/seasons remain unresolved, and source identity
+  // stays explicit in source_athlete_key.
+  const hydrateExistingMeetAthletes = async rows => {
+    const candidates = rows.filter(row =>
+      !row.athlete_id && row.athlete_name && row.meet_id && row.event_type_id && row.mark_raw
+    );
+    if (!candidates.length) return 0;
+
+    const existingByKey = new Map();
+    const athleteNames = new Map();
+    const meetIds = [...new Set(candidates.map(row => row.meet_id))];
+
+    for (const meetId of meetIds) {
+      let existing;
+      try {
+        existing = await fetchAll(() => supabase
+          .from('results')
+          .select('athlete_id, event_type_id, mark_raw, mark_seconds, mark_meters')
+          .eq('meet_id', meetId));
+      } catch (error) {
+        console.warn(`  Could not load existing athlete identities for meet ${meetId}: ${error.message}`);
+        continue;
+      }
+
+      const athleteIds = [...new Set(existing.map(row => row.athlete_id).filter(Boolean))];
+      for (let index = 0; index < athleteIds.length; index += 1000) {
+        const chunk = athleteIds.slice(index, index + 1000);
+        const { data, error } = await supabase
+          .from('athletes')
+          .select('athlete_id, full_name')
+          .in('athlete_id', chunk);
+        if (error) {
+          console.warn(`  Could not load athlete names for meet ${meetId}: ${error.message}`);
+          continue;
+        }
+        (data || []).forEach(athlete => athleteNames.set(Number(athlete.athlete_id), athlete.full_name));
+      }
+
+      for (const row of existing) {
+        const athleteName = athleteNames.get(Number(row.athlete_id));
+        if (!athleteName || !row.event_type_id || !row.mark_raw) continue;
+        const key = [
+          meetId,
+          normalizeAthleteName(athleteName),
+          row.event_type_id,
+          normaliseMarkKey(row.mark_raw),
+        ].join('|');
+        if (!existingByKey.has(key)) existingByKey.set(key, new Set());
+        existingByKey.get(key).add(Number(row.athlete_id));
+      }
+    }
+
+    let hydrated = 0;
+    for (const row of candidates) {
+      const key = [
+        row.meet_id,
+        normalizeAthleteName(row.athlete_name),
+        row.event_type_id,
+        normaliseMarkKey(row.mark_raw),
+      ].join('|');
+      const athleteIds = existingByKey.get(key);
+      if (!athleteIds || athleteIds.size !== 1) continue;
+      row.athlete_id = [...athleteIds][0];
+      row.athlete_resolution_method = 'existing_meet_performance';
+      hydrated++;
+    }
+    return hydrated;
+  };
+
+  const hydratedAthletes = await hydrateExistingMeetAthletes(dbResults);
+  if (hydratedAthletes) {
+    console.log(`  Reused ${hydratedAthletes.toLocaleString()} existing meet-scoped athlete identities`);
   }
 
   const stageControlPlane = async (commitMode) => {

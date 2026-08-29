@@ -51,6 +51,24 @@ test('normalizes TFRRS and athletic.net rows through the same field contract', (
   assert.notEqual(tfrrs.sourceRecord.source_record_key, anet.sourceRecord.source_record_key);
 });
 
+test('preserves a source athlete key when a target athlete was hydrated separately', () => {
+  const [record] = normalizeSourceRow('tfrrs', {
+    meet_id: 42,
+    source_meet_key: 'tfrrs-42',
+    event_id: 7,
+    event_name: '200 Meters',
+    athlete_id: 183844,
+    source_athlete_key: 'Ryan Mann',
+    mark_raw: '22.15',
+    mark_seconds: 22.15,
+    place: 1,
+    date: '2026-08-19'
+  }, events());
+
+  assert.equal(record.observation.target_athlete_id, 183844);
+  assert.equal(record.observation.source_athlete_key, 'Ryan Mann');
+});
+
 test('emits a parent relay observation and separately attributable leg observations', () => {
   const rows = normalizeSourceRow('tfrrs', {
     meet_id: 42,
