@@ -141,7 +141,7 @@ function buildImporterCommand(row, selection) {
   const args = selection.source === 'athletic_net'
     ? [meetId, '--control-plane']
     : ['--meet', meetId, ...(selection.source === 'tfrrs' ? ['--scrape'] : []), '--control-plane'];
-  if (selection.source === 'athletic_net' && selection.url) {
+  if (['athletic_net', 'trackscoreboard'].includes(selection.source) && selection.url) {
     args.push('--source-url', selection.url);
   }
   if (selection.relaysOnly) args.push('--relays-only');

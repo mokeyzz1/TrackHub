@@ -226,6 +226,25 @@ test('maps AthleticLIVE relay payloads with ordered source keys', () => {
   ]);
 });
 
+test('classifies a tenant relay from its normalized event code when relay metadata is absent', () => {
+  const result = parseAthleticLivePayload({
+    _source: {
+      ab: '4x100mR',
+      ec: 'Track',
+      rts: [{
+        p: 1,
+        m: '40.12',
+        t: { i: 77, n: 'Example University' },
+        rm: [{ to: 1, a: { i: 1, n: 'First Runner' } }],
+      }],
+    },
+  });
+  assert.equal(result.is_relay_event, true);
+  assert.equal(result.results.length, 1);
+  assert.equal(result.results[0].is_relay, true);
+  assert.equal(result.results[0].mark_raw, '40.12');
+});
+
 test('scrapeEventBatch keeps output order while using bounded page concurrency', async () => {
   const scraper = new AthleticNetMeetScraper({ eventConcurrency: 2 });
   let active = 0;

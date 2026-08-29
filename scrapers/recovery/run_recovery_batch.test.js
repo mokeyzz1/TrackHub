@@ -141,6 +141,21 @@ test('trackscoreboard source selection accepts a supported generic meet URL', ()
   });
 });
 
+test('trackscoreboard command receives the verified source URL', () => {
+  const command = buildImporterCommand(
+    { meet_id: 12417 },
+    { source: 'trackscoreboard', url: 'https://lancer.trackscoreboard.com/meets/476/events', relaysOnly: true }
+  );
+  assert.deepEqual(command.args, [
+    '--meet',
+    '12417',
+    '--control-plane',
+    '--source-url',
+    'https://lancer.trackscoreboard.com/meets/476/events',
+    '--relays-only',
+  ]);
+});
+
 test('batch limits count supported candidates instead of generic timing URLs', () => {
   const result = selectSupportedRows([
     { meet_id: 1, source_candidates: { meet_url: 'https://milesplit.live/meets/1' } },

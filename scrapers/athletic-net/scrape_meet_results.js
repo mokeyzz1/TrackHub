@@ -25,6 +25,7 @@ const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const fs = require('fs');
 const { isAthleticLiveUrl } = require('./athletic_live_host');
+const { isRelayEventName } = require('../shared/event_kind');
 
 puppeteer.use(StealthPlugin());
 
@@ -180,7 +181,10 @@ function parseAthleticLivePayload(payload, event = {}) {
     divLabel: source.n || source.sn || event.rowText || eventCode,
   };
 
-  if (event.liveEventType === 'relay' || source.ec === 'Relay') {
+  // AthleticLIVE tenants do not all populate `liveEventType` or `ec` consistently. The event
+  // abbreviation/name is already normalized above, so use the shared classifier as the final
+  // source-independent signal (for example Mountaintiming's `4x100mR`).
+  if (event.liveEventType === 'relay' || source.ec === 'Relay' || isRelayEventName(eventCode)) {
     return {
       ...common,
       is_relay_event: true,

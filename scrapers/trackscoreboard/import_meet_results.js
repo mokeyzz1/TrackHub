@@ -39,11 +39,16 @@ function parseArgs(argv) {
   const meetId = valueAfter(argv, '--meet');
   if (!meetId || !/^\d+$/.test(meetId)) throw new Error('--meet must be a numeric database meet_id');
   if (!argv.includes('--control-plane')) throw new Error('--control-plane is required');
+  const eventCode = valueAfter(argv, '--event-code') || null;
+  if (eventCode && eventCode !== '4x100m') {
+    throw new Error('--event-code currently supports only 4x100m');
+  }
   return {
     meetId: Number(meetId),
     commit: argv.includes('--commit'),
     tenant: valueAfter(argv, '--tenant') || null,
     sourceUrl: valueAfter(argv, '--source-url') || null,
+    eventCode,
   };
 }
 
@@ -134,9 +139,34 @@ function extractRelayRows(payload) {
   return rows;
 }
 
-async function loadExactAthletes(names) {
+async function loadExactAthletes(names, pool, meetId) {
   const byKey = new Map();
   const unique = [...new Set(names.map(name => String(name || '').trim()).filter(Boolean))];
+  if (pool) {
+    for (let i = 0; i < unique.length; i += 200) {
+      const batch = unique.slice(i, i + 200);
+      const normalizedBatch = [...new Set(batch.map(name => normalizeName(name).replace(/\s+/g, '')))].filter(Boolean);
+      const { rows } = await pool.query(
+        `SELECT a.athlete_id, a.full_name, a.gender, a.school_id,
+                EXISTS (
+                  SELECT 1 FROM public.results r
+                  WHERE r.athlete_id = a.athlete_id AND r.meet_id = $3
+                ) AS meet_participant
+         FROM public.athletes a
+         WHERE a.full_name = ANY($1::text[])
+            OR regexp_replace(lower(a.full_name), '[^a-z0-9]+', '', 'g') = ANY($2::text[])`,
+        [batch, normalizedBatch, meetId]
+      );
+      for (const athlete of rows) {
+        const key = `${normalizeName(athlete.full_name)}|${athlete.gender || ''}`;
+        if (!byKey.has(key)) byKey.set(key, []);
+        if (!byKey.get(key).some(candidate => Number(candidate.athlete_id) === Number(athlete.athlete_id))) {
+          byKey.get(key).push(athlete);
+        }
+      }
+    }
+    return byKey;
+  }
   for (let i = 0; i < unique.length; i += 200) {
     const batch = unique.slice(i, i + 200);
     const { data, error } = await supabase
@@ -153,14 +183,51 @@ async function loadExactAthletes(names) {
   return byKey;
 }
 
-async function loadTeamSchools(teamIds) {
-  if (!teamIds.length) return new Map();
-  const { data, error } = await supabase.from('teams').select('team_id, school_id').in('team_id', teamIds);
-  if (error) throw new Error(`team lookup failed: ${error.message}`);
-  return new Map((data || []).map(row => [Number(row.team_id), Number(row.school_id)]));
+function chooseAthlete({ alias, candidates, schoolId }) {
+  const aliasMatchesSchool = alias?.athlete_id
+    && (!schoolId
+      || Number(alias.school_id) === Number(schoolId)
+      || Number(alias.school_id) === UNATTACHED_SCHOOL_ID);
+  if (aliasMatchesSchool) {
+    return { athlete_id: Number(alias.athlete_id), school_id: Number(alias.school_id) || null };
+  }
+
+  const scoped = (candidates || []).filter(candidate =>
+    !schoolId || Number(candidate.school_id) === Number(schoolId)
+  );
+  if (scoped.length === 1) return scoped[0];
+
+  // Duplicate athlete rows are common in the legacy database. Existing participation in this
+  // exact meet is deterministic provenance; without one unique participant, keep the leg unresolved.
+  const meetParticipants = scoped.filter(candidate => candidate.meet_participant === true);
+  return meetParticipants.length === 1 ? meetParticipants[0] : null;
 }
 
-function toRows({ sourceMeetId, sourceUrl, tenant, meet, events, eventPayloads, teamAliases, athleteAliases, athleteByKey, teamSchools }) {
+async function loadTeamMaps() {
+  const { data, error } = await supabase.from('teams').select('team_id, school_id, gender');
+  if (error) throw new Error(`team lookup failed: ${error.message}`);
+  return {
+    teamSchools: new Map((data || []).map(row => [Number(row.team_id), Number(row.school_id)])),
+    teamBySchoolGender: new Map((data || []).map(row => [
+      `${Number(row.school_id)}|${row.gender}`,
+      Number(row.team_id),
+    ])),
+  };
+}
+
+function toRows({
+  sourceMeetId,
+  sourceUrl,
+  tenant,
+  meet,
+  events,
+  eventPayloads,
+  teamAliases,
+  athleteAliases,
+  athleteByKey,
+  teamSchools,
+  teamBySchoolGender = new Map(),
+}) {
   const rows = [];
   let teamMatched = 0;
   let athleteMatched = 0;
@@ -180,34 +247,61 @@ function toRows({ sourceMeetId, sourceUrl, tenant, meet, events, eventPayloads, 
         sourceTeamName: result.teamName,
         sourceGender: eventGender,
       });
-      if (teamResolution?.team_id) teamMatched++;
-      const schoolId = teamSchools.get(Number(teamResolution?.team_id));
+      let teamId = Number(teamResolution?.team_id) || null;
+      let schoolId = teamSchools.get(teamId) || null;
+      if (teamId) teamMatched++;
       const relayAthletes = (result.athletes || []).map((athlete, index) => {
         const fullName = `${athlete.fname || ''} ${athlete.lname || ''}`.replace(/\s+/g, ' ').trim();
         const sourceAthleteKey = `${tenant}|${athlete.id || normalizeName(fullName)}`;
         const key = `${normalizeName(fullName)}|${athlete.gender || eventGender || ''}`;
-        const candidates = (athleteByKey.get(key) || []).filter(candidate =>
-          !schoolId || Number(candidate.school_id) === Number(schoolId)
-        );
+        const candidates = athleteByKey.get(key) || [];
         const alias = athleteAliases?.resolve({
           source: 'trackscoreboard',
           sourceAthleteKey,
         });
-        const aliasMatchesSchool = alias?.athlete_id
-          && (!schoolId
-            || Number(alias.school_id) === Number(schoolId)
-            || Number(alias.school_id) === UNATTACHED_SCHOOL_ID);
-        const athleteId = aliasMatchesSchool
-          ? Number(alias.athlete_id)
-          : candidates.length === 1 ? Number(candidates[0].athlete_id) : null;
-        if (athleteId) athleteMatched++;
+        const chosen = chooseAthlete({ alias, candidates, schoolId });
+        const athleteId = chosen ? Number(chosen.athlete_id) : null;
         return {
           athlete_id: athleteId,
+          athlete_school_id: chosen?.school_id ? Number(chosen.school_id) : null,
           athlete_name: fullName || null,
           source_athlete_key: sourceAthleteKey,
           leg_order: Number(athlete.athlete_position) || index + 1,
+          _alias: alias,
+          _candidates: candidates,
         };
       });
+      if (!teamId) {
+        const matchedSchoolIds = relayAthletes
+          .filter(athlete => athlete.athlete_id
+            && athlete.athlete_school_id
+            && athlete.athlete_school_id !== UNATTACHED_SCHOOL_ID)
+          .map(athlete => athlete.athlete_school_id);
+        const canonicalSchools = [...new Set(matchedSchoolIds)];
+        // Two independently matched legs from one canonical school are stronger evidence than a
+        // display-name guess. Mixed schools, one-leg evidence, and Unattached remain unresolved.
+        if (matchedSchoolIds.length >= 2 && canonicalSchools.length === 1) {
+          schoolId = canonicalSchools[0];
+          teamId = teamBySchoolGender.get(`${schoolId}|${eventGender}`) || null;
+          if (teamId) teamMatched++;
+        }
+      }
+      if (schoolId) {
+        for (const athlete of relayAthletes) {
+          const chosen = chooseAthlete({
+            alias: athlete._alias,
+            candidates: athlete._candidates,
+            schoolId,
+          });
+          athlete.athlete_id = chosen ? Number(chosen.athlete_id) : null;
+          athlete.athlete_school_id = chosen?.school_id ? Number(chosen.school_id) : null;
+        }
+      }
+      for (const athlete of relayAthletes) {
+        if (athlete.athlete_id) athleteMatched++;
+        delete athlete._alias;
+        delete athlete._candidates;
+      }
       const markRaw = result.mark || result.status || null;
       const parsed = parseMark(markRaw);
       rows.push({
@@ -216,6 +310,7 @@ function toRows({ sourceMeetId, sourceUrl, tenant, meet, events, eventPayloads, 
         source_event_key: String(event.id),
         source_url: sourceUrl,
         source_team_key: sourceTeamKey,
+        team_id: teamId,
         team_name: result.teamName || sourceTeamKey,
         team_gender: eventGender,
         event_name: eventName,
@@ -242,7 +337,7 @@ function toRows({ sourceMeetId, sourceUrl, tenant, meet, events, eventPayloads, 
   return { rows, rawCount, teamMatched, athleteMatched };
 }
 
-async function run({ meetId, commit = false, tenant = null, sourceUrl = null } = {}) {
+async function run({ meetId, commit = false, tenant = null, sourceUrl = null, eventCode = null } = {}) {
   ensureIngestDatabaseUrl();
   const { data: meet, error: meetError } = await supabase
     .from('meets')
@@ -262,7 +357,12 @@ async function run({ meetId, commit = false, tenant = null, sourceUrl = null } =
   }
 
   const eventMap = await getJson(`${source.firebaseBase}/events.json`);
-  const events = Object.values(eventMap || {}).filter(Boolean);
+  const events = Object.values(eventMap || {}).filter(event => {
+    if (!event) return false;
+    if (!eventCode) return true;
+    const rawName = event.rounds?.Final?.name || event.name || null;
+    return eventCode === '4x100m' && sourceEventName(rawName) === '4 x 100 Relay';
+  });
   const eventPayloads = new Map();
   for (const event of events) {
     if (!event.id) continue;
@@ -284,18 +384,8 @@ async function run({ meetId, commit = false, tenant = null, sourceUrl = null } =
   try {
     const teamAliases = await TeamAliasResolver.load(controlled.store.pool, 'trackscoreboard');
     const athleteAliases = await AthleteAliasResolver.load(controlled.store.pool, 'trackscoreboard');
-    const preRows = rawRows.map(row => ({
-      team_name: row.teamName,
-      source_team_key: row.teamsAbbr || row.teamName,
-    }));
-    const teamIds = [...new Set(preRows.flatMap(row => ['M', 'F'].map(sourceGender => teamAliases.resolve({
-      source: 'trackscoreboard',
-      sourceTeamKey: row.source_team_key,
-      sourceTeamName: row.team_name,
-      sourceGender,
-    })?.team_id).filter(Boolean)))];
-    const teamSchools = await loadTeamSchools(teamIds);
-    const athleteByKey = await loadExactAthletes(names);
+    const { teamSchools, teamBySchoolGender } = await loadTeamMaps();
+    const athleteByKey = await loadExactAthletes(names, controlled.store.pool, meet.meet_id);
     const { rows, rawCount, teamMatched, athleteMatched } = toRows({
       sourceMeetId: source.sourceMeetId,
       sourceUrl: source.url,
@@ -307,6 +397,7 @@ async function run({ meetId, commit = false, tenant = null, sourceUrl = null } =
       athleteAliases,
       athleteByKey,
       teamSchools,
+      teamBySchoolGender,
     });
     // EventResolver must be loaded before resolving names; unmapped source phrases remain visible
     // as quarantines instead of being guessed into a nearby event.
@@ -321,6 +412,7 @@ async function run({ meetId, commit = false, tenant = null, sourceUrl = null } =
         source_meet_id: source.sourceMeetId,
         tenant: source.tenant,
         source_url: source.url,
+        event_code: eventCode,
         source_observation_count: rawCount,
         source_event_count: events.length,
       },
@@ -348,6 +440,7 @@ if (require.main === module) {
 
 module.exports = {
   extractRelayRows,
+  chooseAthlete,
   normalizeName,
   parseArgs,
   parseSourceUrl,
