@@ -1,0 +1,24 @@
+{
+  "manifest_version": 1,
+  "review_scope": "VMI Winter Relays 2026 / Shamar-Shemar exact TFRRS identity spelling review",
+  "decisions": [
+    {
+      "source_athlete_key": "44019089",
+      "source_athlete_name": "Shamar Fields",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9237351",
+      "expected_school": "UNC Pembroke",
+      "match_method": "verified_alias",
+      "allow_name_variant": true,
+      "allow_spelling_variant": true,
+      "name_variant_reason": "AthleticLIVE and the official UNC Pembroke TFRRS roster render Shamar Fields; the official TFRRS profile title renders Shemar Fields for the same TFRRS ID and team. Preserve the canonical profile spelling and treat the source spelling as an audited alias variant.",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/NC_college_m_UNC_Pembroke.html",
+        "https://www.tfrrs.org/athletes/9237351/UNC_Pembroke/Shemar_Fields",
+        "Existing canonical athlete 83390 owns TFRRS ID 9237351 and UNC Pembroke history in the production database"
+      ],
+      "notes": "Attach the AthleticLIVE source key to canonical athlete 83390. Do not rewrite the canonical public name because the official TFRRS profile title and roster display disagree; preserve both spellings in provenance."
+    }
+  ]
+}
