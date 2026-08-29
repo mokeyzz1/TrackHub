@@ -5,6 +5,7 @@ const {
   buildPlan,
   explicitNameVariantCompatible,
   normalizeName,
+  reviewedSpellingVariantCompatible,
   schoolMatches,
 } = require('./promote_athlete_aliases');
 
@@ -80,6 +81,27 @@ test('allows only an explicit, audited first-name or middle-initial variant', ()
     evidence: ['source', 'tfrrs', 'athletic_net'],
   }], {
     targets: [{ ...target, full_name: 'Joey Yadon', tfrrs_athlete_id: '9260873', school_name: 'Dickinson St' }],
+    aliases: [],
+  });
+  assert.equal(row.action, 'insert');
+});
+
+test('allows only an explicitly reviewed one-edit spelling variant', () => {
+  assert.equal(reviewedSpellingVariantCompatible('Shamar Fields', 'Shemar Fields'), true);
+  assert.equal(reviewedSpellingVariantCompatible('Shamar Fields', 'Shamirr Fields'), false);
+  assert.equal(reviewedSpellingVariantCompatible('Shamar Fields', 'Shamar Jones'), false);
+
+  const [row] = buildPlan([{
+    ...decision,
+    source_athlete_name: 'Shamar Fields',
+    target_tfrrs_athlete_id: '9237351',
+    expected_school: 'UNC Pembroke',
+    allow_name_variant: true,
+    allow_spelling_variant: true,
+    name_variant_reason: 'Official TFRRS roster and profile share the same ID/team; the roster/source spelling is Shamar while the profile title is Shemar.',
+    evidence: ['source', 'roster', 'profile'],
+  }], {
+    targets: [{ ...target, full_name: 'Shemar Fields', tfrrs_athlete_id: '9237351', school_name: 'UNC Pembroke' }],
     aliases: [],
   });
   assert.equal(row.action, 'insert');

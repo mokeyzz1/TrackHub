@@ -77,6 +77,36 @@ function explicitNameVariantCompatible(sourceName, targetName) {
   return false;
 }
 
+function editDistance(left, right) {
+  const previous = Array.from({ length: right.length + 1 }, (_, index) => index);
+  for (let row = 1; row <= left.length; row += 1) {
+    const current = [row];
+    for (let column = 1; column <= right.length; column += 1) {
+      current[column] = Math.min(
+        current[column - 1] + 1,
+        previous[column] + 1,
+        previous[column - 1] + (left[row - 1] === right[column - 1] ? 0 : 1),
+      );
+    }
+    for (let column = 0; column <= right.length; column += 1) previous[column] = current[column];
+  }
+  return previous[right.length];
+}
+
+function reviewedSpellingVariantCompatible(sourceName, targetName) {
+  const source = normalizeName(sourceName).split(' ').filter(Boolean);
+  const target = normalizeName(targetName).split(' ').filter(Boolean);
+  if (source.length !== target.length || source.length < 2) return false;
+  if (source[source.length - 1] !== target[target.length - 1]) return false;
+  let changedTokens = 0;
+  for (let index = 0; index < source.length - 1; index += 1) {
+    if (source[index] === target[index]) continue;
+    changedTokens += 1;
+    if (changedTokens > 1 || editDistance(source[index], target[index]) > 1) return false;
+  }
+  return changedTokens === 1;
+}
+
 function readManifest(filePath) {
   const manifest = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   if (!manifest || manifest.manifest_version !== 1 || !Array.isArray(manifest.decisions)) {
@@ -105,6 +135,9 @@ function readManifest(filePath) {
       if (decision.evidence.length < 3) {
         throw new Error(`at least three evidence items are required for a name variant: ${decision.source_athlete_key}`);
       }
+    }
+    if (decision.allow_spelling_variant === true && decision.allow_name_variant !== true) {
+      throw new Error(`allow_spelling_variant requires allow_name_variant for ${decision.source_athlete_key}`);
     }
     const key = `athletic_net|${String(decision.source_athlete_key).trim()}`;
     if (seenKeys.has(key)) throw new Error(`duplicate source identity in manifest: ${key}`);
@@ -141,6 +174,7 @@ function buildPlan(decisions, { targets = [], aliases = [] } = {}) {
       evidence: decision.evidence,
       notes: decision.notes || null,
       allow_name_variant: decision.allow_name_variant === true,
+      allow_spelling_variant: decision.allow_spelling_variant === true,
       name_variant_reason: decision.name_variant_reason || null,
       existing_alias: existingAlias,
     };
@@ -151,7 +185,11 @@ function buildPlan(decisions, { targets = [], aliases = [] } = {}) {
 
     const target = matches[0];
     const exactNameMatch = normalizeName(target.full_name) === normalizeName(decision.source_athlete_name);
-    if (!exactNameMatch && !(base.allow_name_variant && explicitNameVariantCompatible(decision.source_athlete_name, target.full_name))) {
+    const reviewedVariant = base.allow_name_variant && (
+      explicitNameVariantCompatible(decision.source_athlete_name, target.full_name)
+      || (base.allow_spelling_variant && reviewedSpellingVariantCompatible(decision.source_athlete_name, target.full_name))
+    );
+    if (!exactNameMatch && !reviewedVariant) {
       return { ...base, action: 'hold', reason: 'target_name_mismatch', target };
     }
     if (target.gender !== decision.source_gender) {
@@ -286,6 +324,7 @@ if (require.main === module) {
 module.exports = {
   buildPlan,
   explicitNameVariantCompatible,
+  reviewedSpellingVariantCompatible,
   normalizeName,
   normalizeSchool,
   parseArgs,
