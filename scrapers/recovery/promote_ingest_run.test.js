@@ -5,6 +5,7 @@ const {
   connectionString,
   parseArgs,
   resolveSupersededQuarantines,
+  resolveSupersededOpenQuarantines,
   scopeMeetIds,
   syncRecoveryQueueAfterPromotion,
   validateReview,
@@ -106,4 +107,20 @@ test('promotion resolves only older open quarantines superseded by a linked sour
   assert.match(queries[0].text, /old\.run_id <> \$1/);
   assert.match(queries[0].text, /old\.decision = 'quarantine'/);
   assert.deepEqual(queries[0].values, ['run-2']);
+});
+
+test('promotion resolves older duplicate open reviews for the same source record', async () => {
+  const queries = [];
+  const pool = {
+    async query(text, values) {
+      queries.push({ text, values });
+      return { rows: [{ resolved_count: 7 }] };
+    },
+  };
+
+  assert.equal(await resolveSupersededOpenQuarantines(pool, 'run-3'), 7);
+  assert.match(queries[0].text, /current_open/);
+  assert.match(queries[0].text, /old\.run_id <> \$1/);
+  assert.match(queries[0].text, /q\.status = 'open'/);
+  assert.deepEqual(queries[0].values, ['run-3']);
 });
