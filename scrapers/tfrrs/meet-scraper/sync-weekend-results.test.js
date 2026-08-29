@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const cheerio = require('cheerio');
 
 const {
+  ensureIngestDatabaseUrl,
   extractTfrrsRowIdentity,
   findTeamIdBySourceName,
   getGenderFromEventUrl,
@@ -10,6 +11,18 @@ const {
   parseRelayAthleteNames,
   tfrrsApiEventUrl,
 } = require('./sync-weekend-results');
+
+test('derives the private ingestion URL from DB_PASSWORD without replacing an explicit URL', () => {
+  const env = { DB_PASSWORD: 'p@ss word' };
+  assert.equal(
+    ensureIngestDatabaseUrl(env),
+    'postgresql://postgres:p%40ss%20word@db.hunbahsnaeeztmzqpnrl.supabase.co:5432/postgres'
+  );
+  assert.equal(
+    ensureIngestDatabaseUrl({ DB_PASSWORD: 'new', INGEST_DATABASE_URL: 'postgresql://private' }),
+    'postgresql://private'
+  );
+});
 
 test('resolves a unique school-name variant but leaves ambiguous labels unresolved', () => {
   const teams = new Map([

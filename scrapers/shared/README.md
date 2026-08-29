@@ -83,6 +83,19 @@ The private writer requires an explicit server-side PostgreSQL connection in
 service. The public Supabase URL and anon key are not valid substitutes because the `ingest` schema
 is intentionally not exposed to the Data API.
 
+For name-only TFRRS rows, the tfrrs/meet-scraper/promote_tfrrs_athletic_net_aliases.js script can
+use Athletic.net only as corroborating evidence. It requires an exact normalized name and school,
+one existing canonical athlete row owning the returned Athletic.net profile, compatible gender,
+and the TFRRS team-scoped identity. It is dry-run by default; --commit writes only private TFRRS
+aliases. Ambiguous, missing, or blocked candidates remain held:
+
+~~~sh
+node tfrrs/meet-scraper/promote_tfrrs_athletic_net_aliases.js \
+  --run <reviewed-tfrrs-run-id>
+node tfrrs/meet-scraper/promote_tfrrs_athletic_net_aliases.js \
+  --run <reviewed-tfrrs-run-id> --commit
+~~~
+
 ## Contents
 
 ### `athlete_matcher.js`

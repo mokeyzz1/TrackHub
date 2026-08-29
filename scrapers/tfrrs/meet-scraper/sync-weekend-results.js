@@ -37,7 +37,21 @@ const { requireControlledCommit } = require('../../shared/write_mode_guard');
 // Resolves raw event names -> canonical event_type_id via event_aliases (loaded in importResults).
 const events = new EventResolver();
 
+require('dotenv').config({ path: path.join(__dirname, '../../../.env') });
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+
+function ensureIngestDatabaseUrl(env = process.env) {
+  if (env.INGEST_DATABASE_URL || !env.DB_PASSWORD) {
+    return env.INGEST_DATABASE_URL || null;
+  }
+  const host = env.INGEST_DATABASE_HOST || env.SUPABASE_DB_HOST || 'db.hunbahsnaeeztmzqpnrl.supabase.co';
+  const port = env.INGEST_DATABASE_PORT || '5432';
+  const database = env.INGEST_DATABASE_NAME || 'postgres';
+  const user = env.INGEST_DATABASE_USER || 'postgres';
+  env.INGEST_DATABASE_URL = 'postgresql://' + user + ':'
+    + encodeURIComponent(env.DB_PASSWORD) + '@' + host + ':' + port + '/' + database;
+  return env.INGEST_DATABASE_URL;
+}
 
 // Mark parsing lives in scrapers/shared/mark_parser.js. Six near-identical copies of these two
 // functions existed across the importers and every one carried the same defects: the seconds regex
@@ -1886,6 +1900,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
 // Main function
 async function main() {
   const options = parseArgs();
+  ensureIngestDatabaseUrl();
 
   if (options.compare && !options.controlPlane) {
     throw new Error('--compare requires --control-plane so the second source stays private until reviewed');
@@ -2081,6 +2096,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  ensureIngestDatabaseUrl,
   extractTfrrsRowIdentity,
   fetchEventResults,
   fetchMeetEvents,
