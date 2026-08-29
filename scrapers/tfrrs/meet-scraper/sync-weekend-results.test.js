@@ -20,6 +20,7 @@ test('resolves a unique school-name variant but leaves ambiguous labels unresolv
   assert.equal(findTeamIdBySourceName(teams, 'Riverside City', 'M'), 101);
   assert.equal(findTeamIdBySourceName(teams, 'Southwestern', 'M'), null);
   assert.equal(findTeamIdBySourceName(teams, 'Riverside City College', 'F'), 102);
+  assert.equal(findTeamIdBySourceName(new Map([['san diego|M', 301]]), 'San Diego Mesa', 'M'), null);
 });
 
 test('derives gender from the TFRRS event URL when display text is gender-neutral', () => {

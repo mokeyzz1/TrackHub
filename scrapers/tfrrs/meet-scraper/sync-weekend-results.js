@@ -380,9 +380,9 @@ function normalizeSchoolName(name) {
     .trim();
 }
 
-// Resolve common source/database school-name variants only when the normalized prefix match is
-// one-to-one for the requested gender. This handles "Riverside City" vs "Riverside City
-// College" without guessing through ambiguous labels such as "Southwestern".
+// Resolve common source/database school-name variants only when the source label is a strict
+// prefix of exactly one canonical name for the requested gender. This handles "Riverside City"
+// vs "Riverside City College" without incorrectly mapping "San Diego Mesa" to "San Diego".
 function findTeamIdBySourceName(teamByName, sourceName, gender) {
   const normalizedSource = normalizeSchoolName(sourceName);
   if (!normalizedSource || !gender) return null;
@@ -401,8 +401,7 @@ function findTeamIdBySourceName(teamByName, sourceName, gender) {
     const separator = key.lastIndexOf('|');
     if (separator < 1 || key.slice(separator + 1) !== gender) continue;
     const normalizedDbName = key.slice(0, separator);
-    if (normalizedDbName.startsWith(`${normalizedSource} `) ||
-        normalizedSource.startsWith(`${normalizedDbName} `)) {
+    if (normalizedDbName.startsWith(`${normalizedSource} `)) {
       candidates.add(teamId);
     }
   }
