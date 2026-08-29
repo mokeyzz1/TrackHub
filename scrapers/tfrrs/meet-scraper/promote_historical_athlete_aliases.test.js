@@ -96,11 +96,21 @@ test('can reuse one exact same-school public athlete when the TFRRS ID is missin
     full_name: 'Ryan Mann',
     gender: 'M',
     school_id: 22,
-    tfrrs_athlete_id: null,
+    tfrrs_athlete_id: 'older-meet-id',
   }]);
 
   assert.equal(safe.action, 'insert');
   assert.equal(safe.target.athlete_id, 700);
   assert.equal(safe.reason, 'verified_team_roster_profile');
   assert.equal(safe.targetMatch, 'exact_name_school');
+
+  const [unattachedConflict] = buildPlan([row], new Map([[key, profiles]]), [], [], [{
+    athlete_id: 701,
+    full_name: 'Ryan Mann',
+    gender: 'M',
+    school_id: 1835,
+    tfrrs_athlete_id: 'older-meet-id',
+  }]);
+  assert.equal(unattachedConflict.action, 'hold');
+  assert.equal(unattachedConflict.reason, 'public_tfrrs_id_conflict');
 });

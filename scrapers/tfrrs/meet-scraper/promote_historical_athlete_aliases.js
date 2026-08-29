@@ -250,7 +250,8 @@ function buildPlan(rows, historicalCandidates, publicTargets, existingAliases, p
     const target = targets[0];
     if (targetMatch === 'exact_name_school'
         && target.tfrrs_athlete_id != null
-        && String(target.tfrrs_athlete_id) !== String(profile.id)) {
+        && String(target.tfrrs_athlete_id) !== String(profile.id)
+        && Number(target.school_id) !== identity.targetSchoolId) {
       return { ...base, profile, target, action: 'hold', reason: 'public_tfrrs_id_conflict' };
     }
     if (normalizeName(target.full_name) !== normalizeName(identity.sourceAthleteName)) {
