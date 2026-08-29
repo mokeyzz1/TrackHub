@@ -7,6 +7,7 @@ const {
   extractTfrrsRowIdentity,
   findTeamIdBySourceName,
   getGenderFromEventUrl,
+  isRelayEventName,
   parseMultiEventSummary,
   parseRelayAthleteNames,
   tfrrsApiEventUrl,
@@ -146,4 +147,12 @@ test('parses compact relay athlete cells without retaining presentation whitespa
     parseRelayAthleteNames(' Robertson,  Mann, Snook, Getz '),
     ['Robertson', 'Mann', 'Snook', 'Getz']
   );
+});
+
+test('classifies compact TFRRS relay names even when the page omits the word relay', () => {
+  assert.equal(isRelayEventName('4x100m'), true);
+  assert.equal(isRelayEventName('4 x 400 Meters'), true);
+  assert.equal(isRelayEventName('DMR'), true);
+  assert.equal(isRelayEventName('100 Meters'), false);
+  assert.equal(isRelayEventName('Long Jump'), false);
 });

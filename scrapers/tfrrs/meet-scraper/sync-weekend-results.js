@@ -46,6 +46,7 @@ require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 // demanded 2-3 decimals so "10.6" returned null, and none of them stripped a trailing wind reading
 // like "10.24  (2.0)". That is how 1.3M rows ended up with a text mark and no number.
 const { parseMarkSeconds, parseMarkMeters } = require("../../shared/mark_parser");
+const { isRelayEventName } = require('../../shared/event_kind');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -919,8 +920,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
 
       const place = parseInt($(cells[0]).text().trim()) || null;
 
-      const isRelay = pageEventName.toLowerCase().includes('relay') ||
-                      pageEventName.toLowerCase().includes('medley');
+      const isRelay = isRelayEventName(pageEventName);
 
       const identity = extractTfrrsRowIdentity($, $row, { isRelay });
       const schoolName = identity.schoolName;
@@ -2096,6 +2096,7 @@ module.exports = {
   parseArgs,
   parseMeetId,
   parseRelayAthleteNames,
+  isRelayEventName,
   scrapeMeet,
   storedTfrrsUrl,
   tfrrsApiEventUrl,

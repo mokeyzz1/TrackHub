@@ -12,6 +12,7 @@ const cheerio = require('cheerio');
 const { collapseDuplicateRounds } = require('../../shared/collapse_duplicate_rounds');
 const { parseTfrrsTeamInfo } = require('../../shared/tfrrs_team_identity');
 const { parseMarkSeconds, parseMarkMeters } = require('../../shared/mark_parser');
+const { isRelayEventName } = require('../../shared/event_kind');
 const fs = require('fs');
 const path = require('path');
 
@@ -289,8 +290,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
       const place = parseInt($(cells[0]).text().trim()) || null;
 
       // Check if this is a relay event
-      const isRelay = pageEventName.toLowerCase().includes('relay') ||
-                      pageEventName.toLowerCase().includes('medley');
+      const isRelay = isRelayEventName(pageEventName);
 
       // Parse athlete info
       const $athleteLinks = $row.find('a[href*="/athletes/"]');
