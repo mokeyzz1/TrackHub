@@ -150,6 +150,10 @@ function validationError(code, field, message) {
   return { code, field, message };
 }
 
+function isUnattachedTeamLabel(value) {
+  return /^(?:unattached(?:\s+(?:athlete|team))?|independent|unaffiliated|open|[-–—])$/i.test(text(value) || '');
+}
+
 /**
  * Normalize one source row. The result is safe to serialize into ingest.source_records and
  * ingest.observations. It is not yet permission to write a canonical result.
@@ -161,6 +165,8 @@ function normalizeObservation(input = {}) {
   const round = normalizeRound(input.round);
   const measure = normalizeMeasure(eventType, input.measure);
   const markRaw = text(input.mark_raw ?? input.markRaw);
+  const sourceTeamName = text(input.source_team_name ?? input.sourceTeamName);
+  const requireNamedTeam = Boolean(input.require_named_team ?? input.requireNamedTeam);
 
   const parsed = parseMark(markRaw);
   const markSeconds = number(input.mark_seconds ?? input.markSeconds ?? parsed.mark_seconds);
@@ -205,6 +211,9 @@ function normalizeObservation(input = {}) {
   }
   if (entityType === 'relay_result' && !row.target_team_id) {
     errors.push(validationError('missing_team', 'target_team_id', 'A relay without a resolved team cannot be deduplicated automatically.'));
+  }
+  if (entityType === 'individual_result' && requireNamedTeam && sourceTeamName && !row.target_team_id && !isUnattachedTeamLabel(sourceTeamName)) {
+    errors.push(validationError('missing_team', 'target_team_id', `Named source team "${sourceTeamName}" has no verified canonical team mapping.`));
   }
   if (!markRaw) errors.push(validationError('missing_mark', 'mark_raw', 'The source row has no mark or status code.'));
 

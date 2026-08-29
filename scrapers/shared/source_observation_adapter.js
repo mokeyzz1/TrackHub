@@ -68,6 +68,8 @@ function commonInput(source, row, events, entityType, overrides = {}, options = 
     source_event_key: sourceEventKey(row),
     source_athlete_key: sourceAthleteKey(source, row),
     source_team_key: sourceTeamKey(source, row),
+    source_team_name: row.school_name || row.team_name || null,
+    require_named_team: Boolean(options.requireNamedTeam),
     source_url: row.source_url || row.meet_url || row.event_url || null,
     target_meet_id: row.meet_id,
     target_athlete_id: athleteResolution?.athlete_id || null,

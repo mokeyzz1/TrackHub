@@ -1407,7 +1407,8 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
     }
     const records = normalizeSourceRows('tfrrs', sourceRows, events, {
       teamResolver: teamAliases,
-      athleteResolver: athleteAliases
+      athleteResolver: athleteAliases,
+      requireNamedTeam: true
     });
     const outcome = await controlled.run({
       source: 'tfrrs',

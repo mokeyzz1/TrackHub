@@ -70,6 +70,23 @@ test('parses aggregate multi-event points only when the catalog says points', ()
   assert.ok(component.validation_errors.some(error => error.code === 'multi_event_component_mark'));
 });
 
+test('quarantines a named source team without a verified canonical team mapping', () => {
+  const row = individual({
+    target_team_id: null,
+    source_team_name: 'Moorpark',
+    require_named_team: true,
+  });
+  assert.equal(row.decision, 'quarantine');
+  assert.ok(row.validation_errors.some(error => error.code === 'missing_team'));
+
+  const unattached = individual({
+    target_team_id: null,
+    source_team_name: 'Unattached',
+    require_named_team: true,
+  });
+  assert.equal(unattached.decision, 'pending');
+});
+
 test('rejects unmapped events before a writer can commit them', () => {
   const row = individual({ event_type_id: null });
   assert.equal(row.decision, 'quarantine');
