@@ -12,6 +12,8 @@
  *   node sync-weekend-results.js                    # Dry run - show matches
  *   node sync-weekend-results.js --scrape           # Find matches + scrape (no import)
  *   node sync-weekend-results.js --commit           # Full pipeline: find + scrape + import
+ *   node sync-weekend-results.js --compare --control-plane --meet <id>
+ *                                                   # Private second-source comparison
  *   node sync-weekend-results.js --days 3           # Look back 3 days instead of 7
  *   node sync-weekend-results.js --fuzzy            # Allow fallback TFRRS name search
  */
@@ -126,6 +128,7 @@ function parseArgs() {
     commit: args.includes('--commit'),
     fuzzy: args.includes('--fuzzy'),
     relaysOnly: args.includes('--relays-only'),
+    compare: args.includes('--compare'),
     controlPlane: args.includes('--control-plane'),
     legacyDirectWrite: args.includes('--legacy-direct-write'),
     days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7'),
@@ -233,6 +236,76 @@ function parseMeetId(url) {
   return match ? parseInt(match[1]) : null;
 }
 
+function cellText($, cells, index) {
+  return String($(cells[index]).text() || '').replace(/\s+/g, ' ').trim();
+}
+
+function parseRelayAthleteNames(value) {
+  return String(value || '').split(',')
+    .map(name => name.replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+}
+
+function headerCellIndex($, $row, pattern) {
+  const headers = $row.closest('table').find('thead tr').last().find('th');
+  for (let index = 0; index < headers.length; index++) {
+    if (pattern.test(cellText($, headers, index))) return index;
+  }
+  return -1;
+}
+
+/**
+ * TFRRS currently renders result identities as plain table cells rather than links. Keep the
+ * link-based path for older pages, but fall back to the stable current column layout:
+ * individual = place, athlete, year, team; relay = place, team, squad, athletes.
+ */
+function extractTfrrsRowIdentity($, $row, { isRelay = false } = {}) {
+  const cells = $row.find('td');
+  const athleteLinks = $row.find('a[href*="/athletes/"]');
+  const teamLink = $row.find('a[href*="/teams/"]').first();
+  const teamCellIndex = headerCellIndex($, $row, /\bteam\b/i);
+  const teamName = teamLink.length
+    ? teamLink.text().replace(/\s+/g, ' ').trim()
+    : cellText($, cells, teamCellIndex >= 0 ? teamCellIndex : (isRelay ? 1 : 3));
+
+  if (!isRelay) {
+    const athleteLink = athleteLinks.first();
+    const athleteCellIndex = headerCellIndex($, $row, /^(?:name|athlete)s?$/i);
+    return {
+      athleteId: athleteLink.length ? parseAthleteId(athleteLink.attr('href')) : null,
+      athleteName: athleteLink.length
+        ? athleteLink.text().replace(/\s+/g, ' ').trim()
+        : cellText($, cells, athleteCellIndex >= 0 ? athleteCellIndex : 1),
+      schoolName: teamName || null,
+      teamInfo: teamLink.length ? parseTfrrsTeamInfo(teamLink.attr('href')) : null,
+    };
+  }
+
+  const athleteHeaderIndex = headerCellIndex($, $row, /^athletes?$/i);
+  const squadCell = cellText($, cells, 2);
+  const athleteCellIndex = athleteHeaderIndex >= 0
+    ? athleteHeaderIndex
+    : (/^[A-Za-z0-9]$/.test(squadCell) ? 3 : 2);
+  const relayAthletes = [];
+  athleteLinks.each((_, link) => {
+    const athleteId = parseAthleteId($(link).attr('href'));
+    const athleteName = $(link).text().replace(/\s+/g, ' ').trim();
+    if (athleteName) relayAthletes.push({ athleteId, name: athleteName });
+  });
+  if (!relayAthletes.length) {
+    parseRelayAthleteNames(cellText($, cells, athleteCellIndex))
+      .forEach(name => relayAthletes.push({ athleteId: null, name }));
+  }
+
+  return {
+    athleteId: null,
+    athleteName: null,
+    schoolName: teamName || null,
+    teamInfo: teamLink.length ? parseTfrrsTeamInfo(teamLink.attr('href')) : null,
+    relayAthletes,
+  };
+}
+
 // Older meet rows often store the TFRRS result page in the generic meet_url column while the
 // newer tfrrs_url column is null. Treat that URL as a TFRRS source only after validating its host
 // and result-id shape; never guess from a name or accept an unrelated generic link.
@@ -267,6 +340,17 @@ function getGenderFromEventName(eventName) {
   return null;
 }
 
+// Current TFRRS event links carry the gender in the slug (for example, Mens-100-Meters),
+// while the visible link text is usually only "100 Meters". The URL is the authoritative
+// discriminator when both genders publish the same display name.
+function getGenderFromEventUrl(eventUrl) {
+  if (!eventUrl) return null;
+  const lower = decodeURIComponent(String(eventUrl)).toLowerCase();
+  if (/(?:^|\/)mens-/.test(lower)) return 'M';
+  if (/(?:^|\/)womens-/.test(lower)) return 'F';
+  return null;
+}
+
 // Parse date from meet page
 function parseDate(dateStr) {
   if (!dateStr) return null;
@@ -296,8 +380,38 @@ function normalizeSchoolName(name) {
     .trim();
 }
 
+// Resolve common source/database school-name variants only when the normalized prefix match is
+// one-to-one for the requested gender. This handles "Riverside City" vs "Riverside City
+// College" without guessing through ambiguous labels such as "Southwestern".
+function findTeamIdBySourceName(teamByName, sourceName, gender) {
+  const normalizedSource = normalizeSchoolName(sourceName);
+  if (!normalizedSource || !gender) return null;
+
+  const exactKeys = [
+    `${String(sourceName).toLowerCase()}|${gender}`,
+    `${normalizedSource}|${gender}`
+  ];
+  for (const key of exactKeys) {
+    const exact = teamByName.get(key);
+    if (exact) return exact;
+  }
+
+  const candidates = new Set();
+  for (const [key, teamId] of teamByName.entries()) {
+    const separator = key.lastIndexOf('|');
+    if (separator < 1 || key.slice(separator + 1) !== gender) continue;
+    const normalizedDbName = key.slice(0, separator);
+    if (normalizedDbName.startsWith(`${normalizedSource} `) ||
+        normalizedSource.startsWith(`${normalizedDbName} `)) {
+      candidates.add(teamId);
+    }
+  }
+
+  return candidates.size === 1 ? [...candidates][0] : null;
+}
+
 // Fetch meets from database that need results
-async function getMeetsNeedingResults(daysBack, meetId = null, relaysOnly = false) {
+async function getMeetsNeedingResults(daysBack, meetId = null, relaysOnly = false, compare = false) {
   // Single-meet mode: skip the date window entirely (used to verify before batching).
   if (meetId) {
     const { data, error } = await supabase
@@ -307,9 +421,12 @@ async function getMeetsNeedingResults(daysBack, meetId = null, relaysOnly = fals
     if (error) { console.error('Error fetching meet:', error.message); return []; }
     const { count } = await supabase.from('results')
       .select('*', { count: 'exact', head: true }).eq('meet_id', meetId);
-    if (count && !relaysOnly) {
+    if (count && !relaysOnly && !compare) {
       console.log(`Meet ${meetId} already has ${count} results — refusing to import a second source into a non-empty meet.`);
       return [];
+    }
+    if (count && compare) {
+      console.log(`Meet ${meetId} has ${count} results — COMPARE mode: the second source will be staged privately for review.`);
     }
     // RELAYS-ONLY escape hatch (added 2026-08-14 for the M1 timeless-4x100 repair).
     // The refusal above exists because importing a SECOND source into a populated meet is how
@@ -600,6 +717,7 @@ async function fetchMeetEvents(meetUrl) {
       events.push({
         eventName,
         eventUrl,
+        gender: getGenderFromEventUrl(eventUrl),
         meetName,
         meetDate
       });
@@ -614,7 +732,7 @@ async function fetchMeetEvents(meetUrl) {
 }
 
 // Fetch event results page and parse all results
-async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName, dbMeetId, dbMeetName) {
+async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName, dbMeetId, dbMeetName, eventGender = null) {
   try {
     const eventId = parseEventId(eventUrl);
 
@@ -628,6 +746,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
     const results = [];
 
     const pageEventName = eventName;
+    const resultGender = eventGender || getGenderFromEventUrl(eventUrl) || getGenderFromEventName(pageEventName);
 
     // Parse CSS to find hidden columns
     const hiddenClasses = new Set();
@@ -669,28 +788,18 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
       const isRelay = pageEventName.toLowerCase().includes('relay') ||
                       pageEventName.toLowerCase().includes('medley');
 
-      const $athleteLinks = $row.find('a[href*="/athletes/"]');
-      const $teamLink = $row.find('a[href*="/teams/"]').first();
-      let schoolName = null;
-      let teamInfo = null;
-
-      if ($teamLink.length) {
-        schoolName = $teamLink.text().trim();
-        teamInfo = parseTfrrsTeamInfo($teamLink.attr('href'));
-      }
+      const identity = extractTfrrsRowIdentity($, $row, { isRelay });
+      const schoolName = identity.schoolName;
+      const teamInfo = identity.teamInfo;
 
       // For relays, collect all athlete IDs
       if (isRelay) {
-        if (!$teamLink.length) return; // Relays need at least a team
-
         // Collect all athlete IDs for the relay
-        const relayAthletes = [];
-        $athleteLinks.each((_, link) => {
-          const url = $(link).attr('href');
-          const id = parseAthleteId(url);
-          let name = $(link).text().trim().replace(/\s+/g, ' ');
-          if (id) relayAthletes.push({ athlete_id: id, name });
-        });
+        if (!schoolName) return; // Relays need at least a team
+        const relayAthletes = identity.relayAthletes.map(athlete => ({
+          athlete_id: athlete.athleteId,
+          name: athlete.name,
+        }));
 
         // Find mark (time) for relay.
         //
@@ -753,32 +862,20 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
             place,
             school_name: schoolName,
             source_team_key: teamInfo?.teamSlug || schoolName || null,
-            team_gender: getGenderFromEventName(pageEventName) || teamInfo?.gender || null,
+            team_gender: resultGender || teamInfo?.gender || null,
             meet_id: dbMeetId,
             source_meet_key: meetId ? String(meetId) : null,
             meet_name: dbMeetName,
             date: meetDate,
-            round: roundName
+            round: roundName,
+            source_url: eventUrl
           });
         }
         return;
       }
 
-      const $athleteLink = $athleteLinks.first();
-
-      let athleteId = null;
-      let athleteName = null;
-
-      if ($athleteLink.length) {
-        const athleteUrl = $athleteLink.attr('href');
-        athleteId = parseAthleteId(athleteUrl);
-        athleteName = $athleteLink.text().trim();
-      } else {
-        const nameCell = $(cells[1]);
-        if (nameCell.length) {
-          athleteName = nameCell.text().trim().replace(/\s+/g, ' ');
-        }
-      }
+      const athleteId = identity.athleteId;
+      const athleteName = identity.athleteName;
 
       if (!athleteName) return;
 
@@ -852,13 +949,15 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
         mark_meters: parseMarkMeters(markRaw),
         place,
         school_name: schoolName,
-        team_gender: getGenderFromEventName(pageEventName) || teamInfo?.gender || null,
+        source_team_key: teamInfo?.teamSlug || schoolName || null,
+        team_gender: resultGender || teamInfo?.gender || null,
         year,
         meet_id: dbMeetId,
         source_meet_key: meetId ? String(meetId) : null,
         meet_name: dbMeetName,
         date: meetDate,
-        round: roundName
+        round: roundName,
+        source_url: eventUrl
       });
     });
 
@@ -899,7 +998,8 @@ async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate) {
       meetDate,
       event.eventName,
       dbMeetId,
-      dbMeetName
+      dbMeetName,
+      event.gender
     );
 
     if (results.length > 0) {
@@ -1035,20 +1135,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
     let teamId = null;
     if (r.school_name) {
       const gender = r.team_gender || 'M';
-
-      const exactKey = `${r.school_name.toLowerCase()}|${gender}`;
-      const normKey = `${normalizeSchoolName(r.school_name)}|${gender}`;
-      teamId = teamByName.get(exactKey) || teamByName.get(normKey);
-
-      if (!teamId) {
-        const normName = normalizeSchoolName(r.school_name);
-        for (const [k, v] of teamByName) {
-          if (k.startsWith(r.school_name.toLowerCase() + '|') || k.startsWith(normName + '|')) {
-            teamId = v;
-            break;
-          }
-        }
-      }
+      teamId = findTeamIdBySourceName(teamByName, r.school_name, gender);
     }
 
     if (teamId) {
@@ -1115,7 +1202,11 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       event_id: r.event_id,
       date: r.date,
       team_id: teamId,
-      round: r.round
+      round: r.round,
+      school_name: r.school_name || null,
+      source_team_key: r.source_team_key || r.school_name || null,
+      team_gender: r.team_gender || null,
+      source_url: r.source_url || r.event_url || null
     });
   }
 
@@ -1125,9 +1216,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
     let teamId = null;
     if (r.school_name) {
       const gender = r.team_gender || 'M';
-      const exactKey = `${r.school_name.toLowerCase()}|${gender}`;
-      const normKey = `${normalizeSchoolName(r.school_name)}|${gender}`;
-      teamId = teamByName.get(exactKey) || teamByName.get(normKey);
+      teamId = findTeamIdBySourceName(teamByName, r.school_name, gender);
     }
 
     // Map relay athletes
@@ -1173,6 +1262,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       event_id: r.event_id,
       date: r.date,
       round: r.round,
+      source_url: r.source_url || r.event_url || null,
       relay_athletes: relayAthletes
     });
   }
@@ -1552,6 +1642,10 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
 async function main() {
   const options = parseArgs();
 
+  if (options.compare && !options.controlPlane) {
+    throw new Error('--compare requires --control-plane so the second source stays private until reviewed');
+  }
+
   requireControlledCommit({
     commit: options.commit,
     controlPlane: options.controlPlane,
@@ -1570,7 +1664,12 @@ async function main() {
   console.log(`Fuzzy fallback: ${options.fuzzy ? 'enabled' : 'disabled'}`);
 
   // Step 1: Find meets that need results
-  const meetsNeedingResults = await getMeetsNeedingResults(options.days, options.meetId, options.relaysOnly);
+  const meetsNeedingResults = await getMeetsNeedingResults(
+    options.days,
+    options.meetId,
+    options.relaysOnly,
+    options.compare
+  );
 
   if (meetsNeedingResults.length === 0) {
     console.log('\nNo meets need results. All caught up!');
@@ -1725,11 +1824,28 @@ async function main() {
   console.log(`Errors: ${errors.toLocaleString()}`);
 }
 
-main()
-  .then(() => {
-    if (process.exitCode === 1) process.exit(1);
-  })
-  .catch(error => {
-    console.error('FATAL:', error?.stack || error);
-    process.exit(1);
-  });
+if (require.main === module) {
+  main()
+    .then(() => {
+      if (process.exitCode === 1) process.exit(1);
+    })
+    .catch(error => {
+      console.error('FATAL:', error?.stack || error);
+      process.exit(1);
+    });
+}
+
+module.exports = {
+  extractTfrrsRowIdentity,
+  fetchEventResults,
+  fetchMeetEvents,
+  findTeamIdBySourceName,
+  getGenderFromEventUrl,
+  getMeetsNeedingResults,
+  main,
+  parseArgs,
+  parseMeetId,
+  parseRelayAthleteNames,
+  scrapeMeet,
+  storedTfrrsUrl,
+};
