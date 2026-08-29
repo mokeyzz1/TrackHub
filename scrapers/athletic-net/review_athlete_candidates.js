@@ -35,8 +35,15 @@ function parseArgs(argv) {
   };
 }
 
+function athletePayload(payload = {}) {
+  return payload && payload.leg && typeof payload.leg === 'object'
+    ? payload.leg
+    : payload;
+}
+
 function sourceAthleteKey(payload = {}) {
-  return payload.source_athlete_key || payload.athletic_net_athlete_id || null;
+  const athlete = athletePayload(payload);
+  return athlete.source_athlete_key || athlete.athletic_net_athlete_id || null;
 }
 
 function isUnattached(teamName) {
@@ -47,17 +54,21 @@ function groupRows(rows) {
   const groups = new Map();
   for (const row of rows) {
     const payload = row.payload || {};
+    const athlete = athletePayload(payload);
+    const sourceName = athlete.athlete_name || null;
+    const sourceGender = payload.team_gender || athlete.gender || null;
+    const sourceTeam = payload.team_name || athlete.team_name || null;
     const key = [
       sourceAthleteKey(payload),
-      String(payload.athlete_name || '').trim().toLowerCase(),
-      String(payload.team_gender || '').trim().toUpperCase(),
+      String(sourceName || '').trim().toLowerCase(),
+      String(sourceGender || '').trim().toUpperCase(),
     ].join('|');
     if (!groups.has(key)) {
       groups.set(key, {
         source_athlete_key: sourceAthleteKey(payload),
-        source_name: payload.athlete_name || null,
-        source_gender: payload.team_gender || null,
-        source_team: payload.team_name || null,
+        source_name: sourceName,
+        source_gender: sourceGender,
+        source_team: sourceTeam,
         observations: [],
       });
     }
@@ -160,7 +171,7 @@ async function loadRows(pool, runId) {
        JOIN ingest.source_records sr ON sr.source_record_id = o.source_record_id
       WHERE o.run_id = $1
         AND o.decision = 'quarantine'
-        AND o.entity_type = 'individual_result'
+        AND o.entity_type IN ('individual_result', 'relay_leg')
         AND o.decision_reason = 'missing_athlete'
       ORDER BY o.observation_id`,
     [runId]

@@ -48,6 +48,35 @@ test('groups repeated quarantined observations by source athlete identity', () =
   assert.equal(groups[0].source_athlete_key, 'live-7');
 });
 
+test('groups nested relay-leg identities using the relay payload team and gender', () => {
+  const groups = groupRows([
+    {
+      observation_id: 3,
+      source_record_id: 13,
+      target_meet_id: 59361,
+      raw_event_name: '4000m Distance Medley',
+      mark_raw: '10:09.11',
+      place: 1,
+      round: 'Finals',
+      decision_reason: 'missing_athlete',
+      payload: {
+        team_name: 'USC Upstate',
+        team_gender: 'M',
+        leg: {
+          athlete_name: 'A Relay Runner',
+          source_athlete_key: 'live-relay-2',
+        },
+      },
+    },
+  ]);
+
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].source_athlete_key, 'live-relay-2');
+  assert.equal(groups[0].source_name, 'A Relay Runner');
+  assert.equal(groups[0].source_gender, 'M');
+  assert.equal(groups[0].source_team, 'USC Upstate');
+});
+
 test('candidate reports remain review-only even when API returns a strong match', () => {
   const record = buildCandidateRecord(
     {
