@@ -87,6 +87,18 @@ function statusIdentityMatches(observation, existing) {
   return (observation.place ?? null) === (existing.place ?? null);
 }
 
+function roundPreference(observation, existing) {
+  const wanted = normalizeRound(observation.round);
+  const candidate = normalizeRound(existing.round);
+  let score = 0;
+
+  if (wanted.canonical && candidate.canonical === wanted.canonical) score += 100;
+  if (wanted.raw && candidate.raw === wanted.raw) score += 10;
+  if (candidate.raw && candidate.raw === candidate.canonical) score += 2;
+  score += ({ Finals: 3, Preliminaries: 2, Semifinals: 1 }[candidate.canonical] || 0);
+  return score;
+}
+
 /**
  * @param {object} observation normalized observation from normalizeObservation().observation
  * @param {Array<object>} existingRows rows already loaded for this meet/identity scope
@@ -151,6 +163,34 @@ function matchObservation(observation, existingRows = [], options = {}) {
       // if either source omits the round, retain the conservative conflict quarantine.
       if (knownRoundsAreDistinct(observation, existing)) continue;
       candidates.push({ existing, comparable, kind: 'same_performance_place_conflict' });
+    }
+  }
+
+  // A legacy history row may have no meet_id while the exact fact for this canonical meet is
+  // already present. Once one current-meet candidate is available, the unlinked history row is
+  // not a competing fact for this import. Keep multiple current-meet candidates unresolved.
+  const currentMeetCandidates = candidates.filter(candidate =>
+    Number(candidate.existing.meet_id) === Number(observation.target_meet_id)
+  );
+  if (currentMeetCandidates.length > 0) {
+    const currentCanonicalKeys = new Set(currentMeetCandidates.map(candidate =>
+      makeCanonicalKey(candidate.comparable)
+    ));
+    if (currentCanonicalKeys.size === 1) {
+      // Older imports can contain Finals + Preliminaries + Heat rows for one identical source
+      // performance. They are one canonical fact; choose the row whose round best agrees with
+      // the incoming source and never touch the other existing rows.
+      const [preferred] = [...currentMeetCandidates].sort((left, right) => {
+        const scoreDifference = roundPreference(observation, right.existing)
+          - roundPreference(observation, left.existing);
+        if (scoreDifference) return scoreDifference;
+        return Number(left.existing.result_id || 0) - Number(right.existing.result_id || 0);
+      });
+      candidates.splice(0, candidates.length, preferred);
+    } else if (currentMeetCandidates.length === 1 && candidates.length > 1) {
+      // A current-meet fact outranks an unrelated unlinked legacy history row only when it is
+      // itself unambiguous.
+      candidates.splice(0, candidates.length, ...currentMeetCandidates);
     }
   }
 

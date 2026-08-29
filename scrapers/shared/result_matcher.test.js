@@ -112,3 +112,90 @@ test('skips an exact repeated individual status code', () => {
   assert.equal(match.action, 'skip_duplicate');
   assert.equal(match.reason, 'same_status_code_same_performance');
 });
+
+test('prefers one exact current-meet fact over an unlinked legacy history row', () => {
+  const row = individualStatus({
+    target_meet_id: 11880,
+    mark_raw: '8.32',
+    mark_seconds: 8.32,
+    place: 1,
+    round: 'Preliminaries',
+  });
+  const match = matchObservation(row, [
+    {
+      result_id: 701,
+      meet_id: 11880,
+      athlete_id: 42,
+      event_type_id: 7,
+      mark_raw: '8.32',
+      mark_seconds: 8.32,
+      place: 1,
+      round: 'Preliminaries',
+      date: '2026-02-28',
+    },
+    {
+      result_id: 702,
+      meet_id: null,
+      athlete_id: 42,
+      event_type_id: 7,
+      mark_raw: '8.32',
+      mark_seconds: 8.32,
+      place: 1,
+      round: null,
+      date: '2025-03-13',
+    },
+  ]);
+
+  assert.equal(match.action, 'skip_duplicate');
+  assert.equal(match.reason, 'same_performance_same_place');
+  assert.equal(match.matched.result_id, 701);
+});
+
+test('collapses identical current-meet round presentations before matching', () => {
+  const row = individualStatus({
+    target_meet_id: 11880,
+    mark_raw: '8.32',
+    mark_seconds: 8.32,
+    place: 1,
+    round: 'Preliminaries',
+  });
+  const match = matchObservation(row, [
+    {
+      result_id: 703,
+      meet_id: 11880,
+      athlete_id: 42,
+      event_type_id: 7,
+      mark_raw: '8.32',
+      mark_seconds: 8.32,
+      place: 1,
+      round: 'Finals',
+      date: '2026-02-28',
+    },
+    {
+      result_id: 704,
+      meet_id: 11880,
+      athlete_id: 42,
+      event_type_id: 7,
+      mark_raw: '8.32',
+      mark_seconds: 8.32,
+      place: 1,
+      round: 'Preliminaries',
+      date: '2026-02-28',
+    },
+    {
+      result_id: 705,
+      meet_id: 11880,
+      athlete_id: 42,
+      event_type_id: 7,
+      mark_raw: '8.32',
+      mark_seconds: 8.32,
+      place: 1,
+      round: 'Heat 1',
+      date: '2026-02-28',
+    },
+  ]);
+
+  assert.equal(match.action, 'skip_duplicate');
+  assert.equal(match.reason, 'same_performance_same_place');
+  assert.equal(match.matched.result_id, 704);
+});
