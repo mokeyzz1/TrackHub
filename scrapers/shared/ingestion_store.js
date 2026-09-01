@@ -9,6 +9,7 @@
 const { Pool } = require('pg');
 
 const BATCH_SIZE = 500;
+const DEFAULT_QUERY_TIMEOUT_MS = 30000;
 
 function connectionStringFromEnv(env = process.env) {
   // Controlled ingestion must opt into its private database explicitly. Falling back to a
@@ -19,6 +20,11 @@ function connectionStringFromEnv(env = process.env) {
 function required(value, name) {
   if (!value) throw new Error(`${name} is required for the ingestion control plane`);
   return value;
+}
+
+function queryTimeoutFromEnv(env = process.env) {
+  const configured = Number(env.INGEST_QUERY_TIMEOUT_MS || DEFAULT_QUERY_TIMEOUT_MS);
+  return Number.isInteger(configured) && configured > 0 ? configured : DEFAULT_QUERY_TIMEOUT_MS;
 }
 
 function chunk(items, size = BATCH_SIZE) {
@@ -39,6 +45,7 @@ class IngestionStore {
       max: 4,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
+      query_timeout: queryTimeoutFromEnv(env),
       application_name: 'trackhub-ingestion-worker',
       ssl: env.INGEST_DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false }
     });
@@ -224,7 +231,9 @@ class IngestionStore {
 }
 
 module.exports = {
+  DEFAULT_QUERY_TIMEOUT_MS,
   IngestionStore,
   connectionStringFromEnv,
-  chunk
+  chunk,
+  queryTimeoutFromEnv
 };

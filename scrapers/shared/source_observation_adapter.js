@@ -68,7 +68,10 @@ function resolveAthlete(source, row, athleteResolver, teamResolution = null) {
     sourceAthleteKey: sourceAthleteKey(source, row),
     sourceAthleteScopeKey: scopedSourceAthleteKey(source, row, teamResolution),
     sourceAthleteName: row.athlete_name || row.name,
-    sourceGender: row.team_gender || row.gender
+    sourceGender: row.team_gender || row.gender,
+    sourceTeamName: row.school_name || row.team_name,
+    sourceTeamId: teamResolution?.team_id || row.team_id || null,
+    sourceMeetId: row.target_meet_id || row.meet_id || null
   });
 }
 

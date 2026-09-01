@@ -8,10 +8,39 @@ const {
   findTeamIdBySourceName,
   getGenderFromEventUrl,
   isRelayEventName,
+  normalizeEventName,
   parseMultiEventSummary,
   parseRelayAthleteNames,
   tfrrsApiEventUrl,
+  shouldScrapeEvent,
+  parseArgs,
 } = require('./sync-weekend-results');
+
+test('accepts an explicit TFRRS source URL for a single-meet recovery', () => {
+  const original = process.argv;
+  process.argv = ['node', 'sync-weekend-results.js', '--meet', '13048', '--source-url', 'https://www.tfrrs.org/results/96496'];
+  try {
+    const args = parseArgs();
+    assert.equal(args.meetId, '13048');
+    assert.equal(args.sourceUrl, 'https://www.tfrrs.org/results/96496');
+  } finally {
+    process.argv = original;
+  }
+});
+
+test('selects only the canonical 4x100 event for scoped recovery', () => {
+  assert.equal(normalizeEventName("Women's 4 x 100 Relay"), '4x100m');
+  assert.equal(shouldScrapeEvent({ eventName: "Women's 4 x 100 Relay" }, '4x100m'), true);
+  assert.equal(normalizeEventName('4 x 100 Relay UCO'), '4x100m');
+  assert.equal(shouldScrapeEvent({ eventName: '4 x 100 Relay UCO' }, '4x100m'), true);
+  assert.equal(shouldScrapeEvent({ eventName: '4 x 100 Relay Univ/Coll' }, '4x100m'), true);
+  assert.equal(shouldScrapeEvent({ eventName: 'College 4x100 Championship of America (Heats)' }, '4x100m'), true);
+  assert.equal(shouldScrapeEvent({ eventName: 'College 4x100 Eastern' }, '4x100m'), true);
+  assert.equal(shouldScrapeEvent({ eventName: '4 x 100 Relay Class"A"' }, '4x100m'), false);
+  assert.equal(shouldScrapeEvent({ eventName: '4 x 100 Relay 9th Grade' }, '4x100m'), false);
+  assert.equal(shouldScrapeEvent({ eventName: "Men's 4 x 400 Relay" }, '4x100m'), false);
+  assert.equal(shouldScrapeEvent({ eventName: '4 x 100 Relay' }, null), true);
+});
 
 test('derives the private ingestion URL from DB_PASSWORD without replacing an explicit URL', () => {
   const env = { DB_PASSWORD: 'p@ss word' };

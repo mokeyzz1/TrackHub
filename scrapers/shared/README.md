@@ -20,7 +20,9 @@ The private PostgreSQL control plane is defined in
 `supabase/migrations/20260819204028_create_ingestion_control_plane.sql` and written through
 `ingestion_store.js`. It records runs, source records, observations, provenance links, and
 quarantine decisions. The migration has been applied to the live Supabase project; no fact rows
-are written by that migration.
+are written by that migration. Ingestion queries have a 30-second default deadline, configurable
+with `INGEST_QUERY_TIMEOUT_MS`, so a database outage becomes a reviewable failure instead of an
+indefinite worker hang.
 
 `canonical_fact_writer.js` is the only controlled-mode writer for `results`, `relay_results`,
 `relay_athletes`, and `ingest.source_links`. `controlled_ingestion.js` records the run lifecycle,
@@ -39,7 +41,7 @@ node tfrrs/meet-scraper/sync-weekend-results.js --meet <meet_id> --scrape --cont
 ## Recovery queue
 
 Before scraping a historical window, refresh the private queue. This measures individual and relay
-coverage plus supported TFRRS/athletic.net links; it does not scrape, claim, insert, or delete facts:
+coverage plus supported source links; it does not scrape, claim, insert, or delete facts:
 
 ```sh
 INGEST_DATABASE_URL='postgresql://...' node recovery/refresh_recovery_queue.js \
@@ -48,10 +50,11 @@ INGEST_DATABASE_URL='postgresql://...' node recovery/refresh_recovery_queue.js \
 
 The queue is resumable and intentionally separates `covered`, `queued`, and `blocked` meets. A
 generic timing-site URL is not treated as a supported result source unless its host verifies as
-TFRRS or athletic.net.
+TFRRS, athletic.net/AthleticLIVE, MileSplit Live, PT Timing, or Leone Timing. Blue Ridge Timing is
+an AthleticLIVE tenant and intentionally uses the existing AthleticLIVE adapter.
 
-Run a bounded recovery dry run after refreshing the queue. It only selects validated TFRRS or
-athletic.net candidates, claims one queue row at a time, persists the controlled observations, and
+Run a bounded recovery dry run after refreshing the queue. It only selects validated supported
+candidates, claims one queue row at a time, persists the controlled observations, and
 returns the row to `queued` for review. It never commits public facts:
 
 ```sh
@@ -75,6 +78,50 @@ explicit flag:
 ```sh
 INGEST_DATABASE_URL='postgresql://...' node recovery/promote_ingest_run.js \
   --run-id <reviewed-run-id> --commit
+```
+
+### Background 4x100 recovery
+
+For the historical 4x100 backfill, use the event-specific worker. It refreshes a separate private
+queue from every populated meet missing a numeric 4x100 parent, uses TFRRS first and
+athletic.net/AthleticLIVE second, and never selects TrackScoreboard. The source scrapers receive
+`--event-code 4x100m`, so only the two gender-specific 4x100 result pages are requested. A lease and
+the staged run ID survive a worker restart, preventing a second fetch for a run that already reached
+the control plane.
+
+The worker stages only:
+
+```sh
+INGEST_DATABASE_URL='postgresql://...' node recovery/run_4x100_background.js \
+  --scope all-4x100 --from 1900-01-01
+```
+
+To automatically promote only clean, single-meet runs through the canonical writer, add the explicit
+flag below. Quarantines, source conflicts, missing sources, and no-result pages remain in the queue
+as reviewable terminal states:
+
+```sh
+INGEST_DATABASE_URL='postgresql://...' node recovery/run_4x100_background.js \
+  --scope all-4x100 --from 1900-01-01 --auto-promote
+```
+
+The default is one worker with a three-second source gap. Increase `--concurrency` only after
+confirming the source host permits it; the per-source limiter still serializes requests to the same
+host. Use `--max-jobs N` for a bounded smoke test and `--retry-failed` only for jobs explicitly
+marked `not_found` or `exhausted`.
+
+The 4x100 worker supports these source adapters in priority order: TFRRS, AthleticLIVE, MileSplit
+Live, PT Timing, and Leone Timing. The adapters are implemented in
+`recovery/timing_adapters.js` and invoked through `recovery/import_timing_adapter.js`. They accept
+only 4x100 event variants, preserve the provider payload, retain the published relay parent, and
+keep only race legs 1–4; alternates and unresolved identities remain quarantined.
+
+For a controlled single-meet adapter dry run:
+
+```sh
+INGEST_DATABASE_URL='postgresql://...' node recovery/import_timing_adapter.js \
+  --provider milesplit --meet <meet_id> --source-url 'https://milesplit.live/meets/<source_id>' \
+  --control-plane --event-code 4x100m
 ```
 
 The private writer requires an explicit server-side PostgreSQL connection in

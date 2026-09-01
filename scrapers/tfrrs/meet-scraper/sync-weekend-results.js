@@ -34,6 +34,7 @@ const { AthleteAliasResolver } = require('../../shared/athlete_alias_resolver');
 const { parseTfrrsTeamInfo } = require('../../shared/tfrrs_team_identity');
 const { requireControlledCommit } = require('../../shared/write_mode_guard');
 const { ensureIngestDatabaseUrl } = require('../../shared/private_database_url');
+const { ResponseCache } = require('../../shared/response_cache');
 
 // Resolves raw event names -> canonical event_type_id via event_aliases (loaded in importResults).
 const events = new EventResolver();
@@ -56,9 +57,44 @@ const supabase = createClient(
 
 const DELAY_MS = 2000;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const tfrrsResponseCache = new ResponseCache();
+
+// These lookups are immutable for the lifetime of a historical recovery batch. Keeping them in
+// the module avoids reloading thousands of teams and unattached athletes for every meet.
+let importEventCatalogPromise = null;
+let importTeamLookupPromise = null;
+let importUnattachedLookupPromise = null;
+let importAthleteLookupPromise = Promise.resolve();
+const cachedTfrrsAthletes = new Map();
+const checkedTfrrsAthleteIds = new Set();
 
 // School ID for unattached athletes
 const UNATTACHED_SCHOOL_ID = 1835;
+
+function isCollegiate4x100EventName(name) {
+  const n = String(name || '')
+    .replace(/^(Men'?s?\s+|Women'?s?\s+)/i, '')
+    .replace(/\s*(?:\((?:heats?|finals?|qualifying|semifinals?)\)|-\s*(?:heats?|finals?|qualifying|semifinals?))\s*$/i, '')
+    .trim();
+  const collegiatePrefix = /^(?:college|collegiate|ncaa|naia|njcaa|njcaa|u\s*co)\s+/i;
+  const eventName = n.replace(collegiatePrefix, '').trim();
+  const match = eventName.match(/^4\s*x\s*100\s*(?:m|Meters?)?\s*(?:Relay)?(?:\s+(.+))?$/i);
+  if (!match) return false;
+
+  const suffix = String(match[1] || '').trim();
+  if (!suffix) return true;
+
+  // Mixed college/high-school TFRRS pages append division labels to the event name. Accept only
+  // explicit collegiate labels; importing Class A/B/C or grade divisions would contaminate a
+  // college meet with scholastic relay rows.
+  if (/class\s*["']?[a-z]|(?:7th|8th|9th|10th|11th|12th)\s*grade|high\s*school|middle\s*school|junior\s*high|\bhs\b/i.test(suffix)) {
+    return false;
+  }
+  // TFRRS uses meet-specific collegiate labels such as "Championship of America",
+  // "Eastern", and "College" after the distance. Once scholastic divisions are
+  // excluded, retain these legitimate variants instead of requiring one exact suffix.
+  return true;
+}
 
 // Normalize event names for consistent storage
 function normalizeEventName(name) {
@@ -110,7 +146,7 @@ function normalizeEventName(name) {
   if (/^(Weight\s*Throw|WT)$/i.test(n)) return 'Weight Throw';
 
   // Relays
-  if (/^4\s*x\s*100\s*(m|Meters?)?\s*(Relay)?$/i.test(n)) return '4x100m';
+  if (isCollegiate4x100EventName(n)) return '4x100m';
   if (/^4\s*x\s*200\s*(m|Meters?)?\s*(Relay)?$/i.test(n)) return '4x200m';
   if (/^4\s*x\s*400\s*(m|Meters?)?\s*(Relay)?$/i.test(n)) return '4x400m';
   if (/^4\s*x\s*800\s*(m|Meters?)?\s*(Relay)?$/i.test(n)) return '4x800m';
@@ -125,9 +161,19 @@ function normalizeEventName(name) {
   return n; // Return cleaned name if no specific match
 }
 
+function shouldScrapeEvent(event, eventCode = null) {
+  if (!eventCode) return true;
+  return normalizeEventName(event?.eventName) === eventCode;
+}
+
 // Parse command line args
 function parseArgs() {
   const args = process.argv.slice(2);
+  const eventCode = args.find((a, i) => args[i - 1] === '--event-code') || null;
+  const sourceUrl = args.find((a, i) => args[i - 1] === '--source-url') || null;
+  if (eventCode && eventCode !== '4x100m') {
+    throw new Error('--event-code currently supports only 4x100m');
+  }
   return {
     scrape: args.includes('--scrape') || args.includes('--commit'),
     commit: args.includes('--commit'),
@@ -136,6 +182,8 @@ function parseArgs() {
     compare: args.includes('--compare'),
     controlPlane: args.includes('--control-plane'),
     legacyDirectWrite: args.includes('--legacy-direct-write'),
+    eventCode,
+    sourceUrl,
     days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7'),
     // --meet <id>: run against ONE meet regardless of the date window. Use this to verify the
     // engine end-to-end before pointing it at a batch (it writes results).
@@ -531,7 +579,7 @@ function parseMultiEventSummary($, {
 }
 
 // Fetch meets from database that need results
-async function getMeetsNeedingResults(daysBack, meetId = null, relaysOnly = false, compare = false) {
+async function getMeetsNeedingResults(daysBack, meetId = null, relaysOnly = false, compare = false, sourceUrl = null) {
   // Single-meet mode: skip the date window entirely (used to verify before batching).
   if (meetId) {
     const { data, error } = await supabase
@@ -560,7 +608,7 @@ async function getMeetsNeedingResults(daysBack, meetId = null, relaysOnly = fals
     }
     const normalized = (data || []).map(meet => ({
       ...meet,
-      tfrrs_url: storedTfrrsUrl(meet)
+      tfrrs_url: sourceUrl || storedTfrrsUrl(meet)
     }));
     console.log(`Single-meet mode: ${normalized.length} meet selected (${count || 0} existing results)`);
     return normalized;
@@ -680,11 +728,11 @@ async function searchTfrrsForDate(targetDate) {
     const url = `https://www.tfrrs.org/results_search.html?page=${page}`;
 
     try {
-      const response = await axios.get(url, {
+      const response = await tfrrsResponseCache.get(url, () => axios.get(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
         }
-      });
+      }));
 
       const $ = cheerio.load(response.data);
       let meetsOnPage = 0;
@@ -803,11 +851,11 @@ async function findTfrrsMatch(dbMeet) {
 // Fetch meet page and get event links
 async function fetchMeetEvents(meetUrl) {
   try {
-    const response = await axios.get(meetUrl, {
+    const response = await tfrrsResponseCache.get(meetUrl, () => axios.get(meetUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
       }
-    });
+    }));
 
     const $ = cheerio.load(response.data);
     const events = [];
@@ -858,11 +906,11 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
     const multiEvent = isMultiEventName(eventName);
     const fetchUrl = multiEvent ? tfrrsApiEventUrl(eventUrl) : eventUrl;
 
-    const response = await axios.get(fetchUrl, {
+    const response = await tfrrsResponseCache.get(fetchUrl, () => axios.get(fetchUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
       }
-    });
+    }));
 
     const $ = cheerio.load(response.data);
     const results = [];
@@ -1112,7 +1160,7 @@ async function fetchEventResults(eventUrl, meetId, meetName, meetDate, eventName
 }
 
 // Scrape all results from a TFRRS meet
-async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate) {
+async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate, eventCode = null) {
   console.log(`  Scraping: ${meetUrl}`);
 
   const meetData = await fetchMeetEvents(meetUrl);
@@ -1122,11 +1170,12 @@ async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate) {
   }
 
   const meetDate = dbMeetDate || meetData.meetDate;
-  console.log(`  Found ${meetData.events.length} events`);
+  const eventsToScrape = meetData.events.filter(event => shouldScrapeEvent(event, eventCode));
+  console.log(`  Found ${meetData.events.length} events${eventCode ? `; selected ${eventsToScrape.length} for ${eventCode}` : ''}`);
 
   const allResults = [];
 
-  for (const event of meetData.events) {
+  for (const event of eventsToScrape) {
     const results = await fetchEventResults(
       event.eventUrl,
       meetData.meetId,
@@ -1142,17 +1191,163 @@ async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate) {
       allResults.push(...results);
     }
 
-    await sleep(DELAY_MS);
+    // The final request needs no cooldown. Waiting after the last 4x100 page added roughly two
+    // seconds to every historical recovery job without protecting the source from another call.
+    if (eventsToScrape.indexOf(event) < eventsToScrape.length - 1) {
+      await sleep(DELAY_MS);
+    }
   }
 
   console.log(`  Scraped ${allResults.length} results`);
   return allResults;
 }
 
+async function loadImportEventCatalog() {
+  if (!importEventCatalogPromise) {
+    importEventCatalogPromise = (async () => {
+      const aliasCount = await events.load(supabase);
+      return aliasCount;
+    })().catch(error => {
+      importEventCatalogPromise = null;
+      throw error;
+    });
+  }
+  // `unmapped` is per import, while the catalog itself is shared by the worker.
+  events.unmapped.clear();
+  return importEventCatalogPromise;
+}
+
+async function loadImportTeamLookup() {
+  if (!importTeamLookupPromise) {
+    importTeamLookupPromise = (async () => {
+      console.log('\nLoading teams from database (once for this worker)...');
+      let allTeams = [];
+      let offset = 0;
+      const pageSize = 1000;
+
+      while (true) {
+        const { data: batch, error } = await supabase
+          .from('teams')
+          .select('team_id, gender, school_id, tfrrs_team_url, schools(short_name, official_name)')
+          .range(offset, offset + pageSize - 1);
+
+        if (error) throw new Error(`Error loading teams: ${error.message}`);
+        if (!batch || batch.length === 0) break;
+        allTeams = allTeams.concat(batch);
+        offset += pageSize;
+        if (batch.length < pageSize) break;
+      }
+
+      console.log(`Loaded ${allTeams.length} teams; reusing this lookup for the batch`);
+
+      const teamByName = new Map();
+      const teamBySourceKey = new Map();
+      const teamToSchool = new Map();
+      for (const team of allTeams) {
+        const shortName = team.schools?.short_name;
+        const officialName = team.schools?.official_name;
+
+        teamToSchool.set(team.team_id, team.school_id);
+
+        const teamInfo = parseTfrrsTeamInfo(team.tfrrs_team_url);
+        if (teamInfo) {
+          const addSourceKey = key => {
+            if (!teamBySourceKey.has(key)) teamBySourceKey.set(key, new Set());
+            teamBySourceKey.get(key).add(team.team_id);
+          };
+          addSourceKey(`${teamInfo.state}|${teamInfo.teamSlug}|${teamInfo.gender}`);
+          addSourceKey(`${teamInfo.teamSlug}|${teamInfo.gender}`);
+        }
+
+        if (shortName) {
+          const exactKey = `${shortName.toLowerCase()}|${team.gender}`;
+          const normKey = `${normalizeSchoolName(shortName)}|${team.gender}`;
+          if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+          if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
+        }
+        if (officialName) {
+          const exactKey = `${officialName.toLowerCase()}|${team.gender}`;
+          const normKey = `${normalizeSchoolName(officialName)}|${team.gender}`;
+          if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+          if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
+        }
+      }
+
+      return { teamByName, teamBySourceKey, teamToSchool };
+    })().catch(error => {
+      importTeamLookupPromise = null;
+      throw error;
+    });
+  }
+  return importTeamLookupPromise;
+}
+
+async function loadImportUnattachedLookup() {
+  if (!importUnattachedLookupPromise) {
+    importUnattachedLookupPromise = (async () => {
+      const existingUnattachedByName = new Map();
+      for (let from = 0; ; from += 1000) {
+        const { data, error } = await supabase
+          .from('athletes')
+          .select('athlete_id, full_name')
+          .eq('school_id', UNATTACHED_SCHOOL_ID)
+          .is('tfrrs_athlete_id', null)
+          .range(from, from + 999);
+        if (error) throw new Error(`Error loading unattached athletes: ${error.message}`);
+        if (!data || data.length === 0) break;
+        data.forEach(a => {
+          if (!existingUnattachedByName.has(a.full_name)) {
+            existingUnattachedByName.set(a.full_name, a.athlete_id);
+          }
+        });
+        if (data.length < 1000) break;
+      }
+      console.log(`Found ${existingUnattachedByName.size} existing unattached athletes; reusing this lookup for the batch`);
+      return existingUnattachedByName;
+    })().catch(error => {
+      importUnattachedLookupPromise = null;
+      throw error;
+    });
+  }
+  return importUnattachedLookupPromise;
+}
+
+async function loadImportAthleteLookup(ids) {
+  const requested = [...new Set((ids || []).filter(value => value != null).map(String))];
+  const loadMissing = async () => {
+    const missing = requested.filter(id => !checkedTfrrsAthleteIds.has(id));
+    for (let i = 0; i < missing.length; i += 1000) {
+      const batch = missing.slice(i, i + 1000);
+      const { data, error } = await supabase
+        .from('athletes')
+        .select('athlete_id, tfrrs_athlete_id')
+        .in('tfrrs_athlete_id', batch);
+      if (error) throw new Error(`Error loading TFRRS athletes: ${error.message}`);
+      (data || []).forEach(a => cachedTfrrsAthletes.set(String(a.tfrrs_athlete_id), a.athlete_id));
+      batch.forEach(id => checkedTfrrsAthleteIds.add(id));
+    }
+  };
+
+  // Serialize cache fills so concurrent in-process meet workers do not issue duplicate lookup
+  // queries for the same athlete IDs.
+  const current = importAthleteLookupPromise.then(loadMissing, loadMissing);
+  importAthleteLookupPromise = current.catch(() => {});
+  await current;
+
+  const lookup = new Map();
+  for (const id of requested) {
+    const value = cachedTfrrsAthletes.get(id);
+    if (value == null) continue;
+    lookup.set(id, value);
+    lookup.set(Number(id), value);
+  }
+  return lookup;
+}
+
 // Import results to database
-async function importResults(results, commit, relaysOnly = false, controlPlane = false) {
+async function importResults(results, commit, relaysOnly = false, controlPlane = false, ingestPool = null) {
   // Load the canonical event catalog so new results/relays get a resolved event_type_id.
-  const aliasCount = await events.load(supabase);
+  const aliasCount = await loadImportEventCatalog();
   console.log(`Loaded ${aliasCount.toLocaleString()} event aliases for resolution.`);
 
   // Separate relays from individual results
@@ -1163,64 +1358,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
   console.log(`  Individual: ${individualResults.length}`);
   console.log(`  Relays: ${relayResults.length}`);
 
-  // Load all teams for matching
-  console.log('\nLoading teams from database...');
-  let allTeams = [];
-  let offset = 0;
-  const pageSize = 1000;
-
-  while (true) {
-    const { data: batch, error } = await supabase
-      .from('teams')
-      .select('team_id, gender, school_id, tfrrs_team_url, schools(short_name, official_name)')
-      .range(offset, offset + pageSize - 1);
-
-    if (error) {
-      console.error('Error loading teams:', error.message);
-      break;
-    }
-
-    if (!batch || batch.length === 0) break;
-    allTeams = allTeams.concat(batch);
-    offset += pageSize;
-    if (batch.length < pageSize) break;
-  }
-
-  console.log(`Loaded ${allTeams.length} teams`);
-
-  // Build team lookup
-  const teamByName = new Map();
-  const teamBySourceKey = new Map();
-  const teamToSchool = new Map();
-  for (const team of allTeams) {
-    const shortName = team.schools?.short_name;
-    const officialName = team.schools?.official_name;
-
-    teamToSchool.set(team.team_id, team.school_id);
-
-    const teamInfo = parseTfrrsTeamInfo(team.tfrrs_team_url);
-    if (teamInfo) {
-      const addSourceKey = key => {
-        if (!teamBySourceKey.has(key)) teamBySourceKey.set(key, new Set());
-        teamBySourceKey.get(key).add(team.team_id);
-      };
-      addSourceKey(`${teamInfo.state}|${teamInfo.teamSlug}|${teamInfo.gender}`);
-      addSourceKey(`${teamInfo.teamSlug}|${teamInfo.gender}`);
-    }
-
-    if (shortName) {
-      const exactKey = `${shortName.toLowerCase()}|${team.gender}`;
-      const normKey = `${normalizeSchoolName(shortName)}|${team.gender}`;
-      if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
-      if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
-    }
-    if (officialName) {
-      const exactKey = `${officialName.toLowerCase()}|${team.gender}`;
-      const normKey = `${normalizeSchoolName(officialName)}|${team.gender}`;
-      if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
-      if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
-    }
-  }
+  const { teamByName, teamBySourceKey, teamToSchool } = await loadImportTeamLookup();
 
   // Collect all TFRRS athlete IDs (from individual results AND relay athletes)
   const allTfrrsIds = new Set();
@@ -1233,40 +1371,14 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
     });
   });
 
-  // Load existing athletes
-  console.log('Loading existing athletes...');
-  const tfrrsToInternalId = new Map();
   const tfrrsIds = [...allTfrrsIds];
-
-  for (let i = 0; i < tfrrsIds.length; i += 1000) {
-    const chunk = tfrrsIds.slice(i, i + 1000).map(String);
-    const { data } = await supabase
-      .from('athletes')
-      .select('athlete_id, tfrrs_athlete_id')
-      .in('tfrrs_athlete_id', chunk);
-
-    if (data) {
-      data.forEach(a => tfrrsToInternalId.set(parseInt(a.tfrrs_athlete_id), a.athlete_id));
-    }
-  }
+  const tfrrsToInternalId = await loadImportAthleteLookup(tfrrsIds);
 
   console.log(`Found ${tfrrsToInternalId.size} existing athletes`);
 
   // Pre-load existing Unattached athletes (no TFRRS id) by name so weekly re-syncs REUSE them
   // instead of creating a fresh duplicate every weekend — the cause of ~34k orphan name-only rows.
-  const existingUnattachedByName = new Map(); // full_name -> athlete_id
-  for (let from = 0; ; from += 1000) {
-    const { data, error } = await supabase
-      .from('athletes')
-      .select('athlete_id, full_name')
-      .eq('school_id', UNATTACHED_SCHOOL_ID)
-      .is('tfrrs_athlete_id', null)
-      .range(from, from + 999);
-    if (error || !data || data.length === 0) break;
-    data.forEach(a => { if (!existingUnattachedByName.has(a.full_name)) existingUnattachedByName.set(a.full_name, a.athlete_id); });
-    if (data.length < 1000) break;
-  }
-  console.log(`Found ${existingUnattachedByName.size} existing unattached athletes`);
+  const existingUnattachedByName = await loadImportUnattachedLookup();
 
   // Process individual results
   let matched = 0;
@@ -1539,7 +1651,7 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
 
   const stageControlPlane = async (commitMode) => {
     const sourceRows = relaysOnly ? dbRelayResults : [...dbResults, ...dbRelayResults];
-    const controlled = new ControlledIngestion();
+    const controlled = new ControlledIngestion({ pool: ingestPool });
     let teamAliases;
     let athleteAliases;
     try {
@@ -1886,12 +1998,53 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
 }
 
 // Main function
+/**
+ * Run one relay-only recovery inside the current Node process.
+ *
+ * The normal CLI remains available for one-off imports. The background worker uses this entry
+ * point so the process can reuse its TFRRS response cache and the large canonical lookup maps.
+ */
+async function run4x100Recovery({ meetId, sourceUrl = null, ingestPool = null } = {}) {
+  if (!meetId) throw new Error('meetId is required for 4x100 recovery');
+  ensureIngestDatabaseUrl();
+
+  const meets = await getMeetsNeedingResults(0, String(meetId), true, false, sourceUrl);
+  if (!meets.length) {
+    return { code: 0, runId: null, output: 'SOURCE STATUS: EMPTY' };
+  }
+
+  const meet = meets[0];
+  const results = await scrapeMeet(
+    meet.tfrrs_url,
+    meet.meet_id,
+    meet.name,
+    meet.date,
+    '4x100m'
+  );
+  if (!results.length) {
+    return { code: 0, runId: null, output: 'SOURCE STATUS: EMPTY' };
+  }
+
+  const outcome = await importResults(results, false, true, true, ingestPool);
+  return {
+    code: 0,
+    runId: outcome.runId || null,
+    output: `CONTROL PLANE RUN ${outcome.runId}\n  staged=${outcome.staged_observations || 0} inserted=${outcome.inserted || 0} claimed=${outcome.claimed || 0} skipped=${outcome.skipped || 0} quarantined=${outcome.quarantined || 0}`,
+  };
+}
+
 async function main() {
   const options = parseArgs();
   ensureIngestDatabaseUrl();
 
   if (options.compare && !options.controlPlane) {
     throw new Error('--compare requires --control-plane so the second source stays private until reviewed');
+  }
+  if (options.sourceUrl && !options.meetId) {
+    throw new Error('--source-url requires --meet');
+  }
+  if (options.sourceUrl && !storedTfrrsUrl({ tfrrs_url: options.sourceUrl })) {
+    throw new Error('--source-url must be a valid TFRRS results URL');
   }
 
   requireControlledCommit({
@@ -1916,7 +2069,8 @@ async function main() {
     options.days,
     options.meetId,
     options.relaysOnly,
-    options.compare
+    options.compare,
+    options.sourceUrl
   );
 
   if (meetsNeedingResults.length === 0) {
@@ -2012,7 +2166,8 @@ async function main() {
       tfrrsMeet.url,
       dbMeet.meet_id,
       dbMeet.name,
-      dbMeet.date
+      dbMeet.date,
+      options.eventCode
     );
     allScrapedResults.push(...results);
   }
@@ -2093,11 +2248,14 @@ module.exports = {
   getMeetsNeedingResults,
   main,
   parseMultiEventSummary,
+  normalizeEventName,
   parseArgs,
   parseMeetId,
   parseRelayAthleteNames,
+  run4x100Recovery,
   isRelayEventName,
   scrapeMeet,
+  shouldScrapeEvent,
   storedTfrrsUrl,
   tfrrsApiEventUrl,
 };

@@ -10,8 +10,10 @@ function codeRevision(env = process.env) {
 }
 
 class ControlledIngestion {
-  constructor({ store, writer, env = process.env } = {}) {
-    this.store = store || new IngestionStore({ env });
+  constructor({ store, writer, pool = null, env = process.env } = {}) {
+    // A long-lived batch worker may provide its already-open pool. IngestionStore will not own
+    // that pool, so closing a run remains safe without creating one pool per meet.
+    this.store = store || new IngestionStore({ pool, env });
     this.writer = writer || new CanonicalFactWriter({ pool: this.store.pool, env });
     this.ownsStore = !store;
   }
