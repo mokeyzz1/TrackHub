@@ -258,7 +258,9 @@ async function syncRecoveryQueueAfterPromotion(pool, runId, meetIds) {
        LEFT JOIN run_4x100 r ON r.meet_id = qs.meet_id
        LEFT JOIN open_4x100_quarantines q ON q.meet_id = qs.meet_id
       WHERE ingest.event_recovery_queue.job_id = qs.job_id
-      RETURNING job_id, meet_id, status`,
+      RETURNING ingest.event_recovery_queue.job_id,
+                ingest.event_recovery_queue.meet_id,
+                ingest.event_recovery_queue.status`,
     [runId, meetIds]
   );
 

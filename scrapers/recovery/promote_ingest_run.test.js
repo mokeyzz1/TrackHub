@@ -108,6 +108,7 @@ test('queue promotion sync scopes review flags to numeric 4x100 source observati
   assert.match(queries[1].text, /promotion_incomplete:no_numeric_4x100/);
   assert.match(queries[1].text, /et\.code = '4x100m'/);
   assert.match(queries[1].text, /rr\.mark_seconds IS NOT NULL/);
+  assert.match(queries[1].text, /RETURNING ingest\.event_recovery_queue\.job_id/);
   assert.match(queries[1].text, /THEN 'not_found'/);
   assert.match(queries[1].text, /THEN 'needs_review'/);
   assert.deepEqual(queries[1].values, ['run-1', [13096]]);
