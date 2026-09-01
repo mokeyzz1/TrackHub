@@ -58,7 +58,9 @@ test('source validation accepts only importer-supported URLs', () => {
   assert.equal(validCandidate('athletic_net', 'https://www.athletic.net/TrackAndField/meet/634818/results'), true);
   assert.equal(validCandidate('athletic_net', 'https://live.athletic.net/meets/68768'), true);
   assert.equal(validCandidate('athletic_net', 'https://live.mastiming.net/meets/69709'), true);
-  assert.equal(validCandidate('athletic_net', 'https://milesplit.live/meets/723064'), false);
+  assert.equal(validCandidate('milesplit', 'https://milesplit.live/meets/723064'), true);
+  assert.equal(validCandidate('pt_timing', 'https://live.pttiming.com/?mid=8642'), true);
+  assert.equal(validCandidate('leonetiming', 'https://results.leonetiming.com/?mid=8920'), true);
   assert.equal(validCandidate('tfrrs', 'https://example.com/results/12345'), false);
 });
 
@@ -162,8 +164,8 @@ test('batch limits count supported candidates instead of generic timing URLs', (
     { meet_id: 2, source_candidates: { tfrrs_url: 'https://www.tfrrs.org/results/2/meet.html' } },
     { meet_id: 3, source_candidates: { athletic_net_results_url: 'https://www.athletic.net/TrackAndField/meet/3/results' } },
   ], { source: 'auto', limit: 2 });
-  assert.deepEqual(result.selected.map(row => row.meet_id), [2, 3]);
-  assert.equal(result.unsupported, 1);
+  assert.deepEqual(result.selected.map(row => row.meet_id), [1, 2]);
+  assert.equal(result.unsupported, 0);
 });
 
 test('run ids are extracted from importer output without exposing credentials', () => {

@@ -90,7 +90,7 @@ test('queue promotion sync preserves open quarantines and checks relay coverage'
   };
 
   const rows = await syncRecoveryQueueAfterPromotion(pool, 'run-1', [13096]);
-  assert.equal(rows.length, 1);
+  assert.equal(rows.length, 2);
   assert.match(queries[0].text, /individual_facts/);
   assert.match(queries[0].text, /relay_facts/);
   assert.match(queries[0].text, /open_quarantines/);
@@ -99,6 +99,14 @@ test('queue promotion sync preserves open quarantines and checks relay coverage'
   assert.match(queries[0].text, /rq\.canonical_meet_id = ANY\(\$2::integer\[\]\)/);
   assert.match(queries[0].text, /needs_relays/);
   assert.deepEqual(queries[0].values, ['run-1', [13096]]);
+  assert.match(queries[1].text, /UPDATE ingest\.event_recovery_queue/);
+  assert.match(queries[1].text, /last_run_id = \$1/);
+  assert.match(queries[1].text, /source_observations_quarantined/);
+  assert.match(queries[1].text, /promotion_incomplete:no_numeric_4x100/);
+  assert.match(queries[1].text, /et\.code = '4x100m'/);
+  assert.match(queries[1].text, /rr\.mark_seconds IS NOT NULL/);
+  assert.match(queries[1].text, /THEN 'needs_review'/);
+  assert.deepEqual(queries[1].values, ['run-1', [13096]]);
 });
 
 test('promotion resolves only older open quarantines superseded by a linked source record', async () => {

@@ -101,7 +101,7 @@ function validateReview({ run, decisions }, { allowQuarantines, allowMultiMeet }
   if (run.mode !== 'dry_run' || run.status !== 'succeeded') {
     throw new Error(`run must be a succeeded dry_run; found mode=${run.mode}, status=${run.status}`);
   }
-  if (!['tfrrs', 'athletic_net', 'trackscoreboard'].includes(run.source)) {
+  if (!['tfrrs', 'athletic_net', 'trackscoreboard', 'milesplit', 'pt_timing', 'leonetiming'].includes(run.source)) {
     throw new Error(`source ${run.source} is not eligible for single-run promotion`);
   }
   const meetIds = scopeMeetIds(run.scope);
@@ -192,7 +192,60 @@ async function syncRecoveryQueueAfterPromotion(pool, runId, meetIds) {
     [runId, meetIds]
   );
 
-  return rows;
+  const eventQueue = await pool.query(
+    `UPDATE ingest.event_recovery_queue
+        SET status = CASE
+              WHEN EXISTS (
+                SELECT 1
+                  FROM ingest.observations o
+                  JOIN ingest.quarantine q ON q.observation_id = o.observation_id
+                 WHERE o.target_meet_id = ingest.event_recovery_queue.meet_id
+                   AND q.status = 'open'
+              ) THEN 'needs_review'
+              WHEN NOT EXISTS (
+                SELECT 1
+                  FROM public.relay_results rr
+                  JOIN public.event_types et ON et.event_type_id = rr.event_type_id
+                 WHERE rr.meet_id = ingest.event_recovery_queue.meet_id
+                   AND et.code = '4x100m'
+                   AND rr.mark_seconds IS NOT NULL
+              ) THEN 'needs_review'
+              ELSE 'complete'
+            END,
+            last_error = CASE
+              WHEN EXISTS (
+                SELECT 1
+                  FROM ingest.observations o
+                  JOIN ingest.quarantine q ON q.observation_id = o.observation_id
+                 WHERE o.target_meet_id = ingest.event_recovery_queue.meet_id
+                   AND q.status = 'open'
+              ) THEN 'source_observations_quarantined=' || (
+                SELECT count(*)::text
+                  FROM ingest.observations o
+                  JOIN ingest.quarantine q ON q.observation_id = o.observation_id
+                 WHERE o.target_meet_id = ingest.event_recovery_queue.meet_id
+                   AND q.status = 'open'
+              )
+              WHEN NOT EXISTS (
+                SELECT 1
+                  FROM public.relay_results rr
+                  JOIN public.event_types et ON et.event_type_id = rr.event_type_id
+                 WHERE rr.meet_id = ingest.event_recovery_queue.meet_id
+                   AND et.code = '4x100m'
+                   AND rr.mark_seconds IS NOT NULL
+              ) THEN 'promotion_incomplete:no_numeric_4x100'
+              ELSE NULL
+            END,
+            updated_at = now()
+      WHERE meet_id = ANY($2::integer[])
+        AND event_code = '4x100m'
+        AND last_run_id = $1
+        AND status <> 'complete'
+      RETURNING job_id, meet_id, status`,
+    [runId, meetIds]
+  );
+
+  return [...rows, ...eventQueue.rows];
 }
 
 async function resolveSupersededQuarantines(pool, runId) {

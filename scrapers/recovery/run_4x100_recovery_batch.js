@@ -247,6 +247,9 @@ async function auditRun(pool, runId) {
             count(*) FILTER (
               WHERE o.entity_type = 'relay_result' AND o.event_type_id IS NULL AND o.raw_event_name ~* '4[[:space:]]*x[[:space:]]*100'
             )::integer AS unmapped_parent_rows,
+            count(*) FILTER (WHERE o.code IS DISTINCT FROM '4x100m')::integer AS non_target_event_rows,
+            count(DISTINCT o.target_meet_id)::integer AS target_meet_count,
+            min(o.target_meet_id)::integer AS target_meet_id,
             (SELECT count(*)::integer FROM source_comparison_teams) AS source_comparison_teams,
             (SELECT count(*)::integer FROM existing_comparison_teams) AS existing_comparison_teams,
             (SELECT count(*)::integer
@@ -390,6 +393,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  auditRun,
   auditOutcome,
   candidateClass,
   parseArgs,
