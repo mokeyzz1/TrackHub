@@ -2,6 +2,51 @@ const { Pool } = require('pg');
 const { TeamAliasResolver } = require('../../shared/team_alias_resolver');
 const { TeamCatalog, classifyMeet } = require('./domain');
 
+const QUEUE_TABLE = 'ingest.event_recovery_queue';
+const RECONCILIATION_KEY = 'reconciliation';
+
+function queueStatusForOutcome(status) {
+  if (status === 'matched' || status === 'not_contested') return 'complete';
+  if (status === 'blocked') return 'blocked';
+  if (status === 'failed') return 'needs_review';
+  return 'needs_review';
+}
+
+function reconciliationPayload({ scope, status, queueState, result = null, error = null, actions = [] }) {
+  if (!result) {
+    return {
+      scope_key: scope,
+      status,
+      queue_state: queueState,
+      source_event_status: 'unavailable',
+      error: error || null,
+    };
+  }
+  return {
+    scope_key: scope,
+    status: result.status,
+    queue_status: queueStatusForOutcome(result.status),
+    queue_state: queueState,
+    source: 'tfrrs',
+    source_url: result.source_snapshot?.source_url || null,
+    source_meet_key: result.source_snapshot?.source_meet_key || null,
+    relationship_kind: result.relationship?.kind || null,
+    canonical_meet_id: result.relationship?.canonical_meet_id || null,
+    source_event_status: result.source_event_status || 'unknown',
+    source_event_count: result.source_event_count || 0,
+    source_result_count: result.source_result_count || 0,
+    local_result_count: result.local_result_count || 0,
+    matched_result_count: result.matched_result_count || 0,
+    missing_result_count: result.missing_result_count || 0,
+    extra_result_count: result.extra_result_count || 0,
+    invalid_team_result_count: result.invalid_team_result_count || 0,
+    unresolved_source_team_count: result.unresolved_source_team_count || 0,
+    diff: result.diff || {},
+    actions,
+    reason: result.reason || null,
+  };
+}
+
 class ReconciliationDatabase {
   constructor({ pool = null, connectionString = process.env.INGEST_DATABASE_URL } = {}) {
     if (!pool && !connectionString) throw new Error('INGEST_DATABASE_URL is required');
@@ -113,36 +158,40 @@ class ReconciliationDatabase {
       await client.query('BEGIN');
       for (const meet of meets) {
         const relationship = classifyMeet(meet);
-        const status = meet.tfrrs_url ? 'queued' : 'blocked';
+        const queueStatus = meet.tfrrs_url ? 'queued' : 'blocked';
+        const reconciliationStatus = meet.tfrrs_url ? 'queued' : 'blocked';
+        const payload = reconciliationPayload({
+          scope,
+          status: reconciliationStatus,
+          queueState: queueStatus,
+        });
         await client.query(
-          `INSERT INTO ingest.relay_4x100_reconciliation_jobs AS job
-             (scope_key, meet_id, event_type_id, source, source_url, relationship_kind,
-              source_event_status, status, last_error, updated_at)
-           VALUES ($1, $2, $3, 'tfrrs', $4, $5, 'unknown', $6, $7, now())
+          `INSERT INTO ${QUEUE_TABLE} AS job
+             (scope_key, meet_id, event_type_id, event_code, status, source_candidates,
+              last_source, last_source_status, last_error, updated_at)
+           VALUES ($1, $2, $3, '4x100m', $4,
+                   jsonb_build_object('tfrrs_url', $5, '${RECONCILIATION_KEY}', $6::jsonb),
+                   'tfrrs', 'unknown', $7, now())
            ON CONFLICT (scope_key, meet_id, event_type_id) DO UPDATE
-             SET source_url = EXCLUDED.source_url,
-                 relationship_kind = CASE
-                   WHEN job.relationship_kind IN ('combined_child', 'duplicate')
-                     THEN job.relationship_kind
-                   ELSE EXCLUDED.relationship_kind
+             SET source_candidates = COALESCE(job.source_candidates, '{}'::jsonb)
+                                    || jsonb_build_object('${RECONCILIATION_KEY}',
+                                         COALESCE(job.source_candidates->'${RECONCILIATION_KEY}', EXCLUDED.source_candidates->'${RECONCILIATION_KEY}')),
+                 last_source = 'tfrrs',
+                 last_source_status = CASE
+                   WHEN job.source_candidates ? '${RECONCILIATION_KEY}' THEN job.last_source_status
+                   ELSE EXCLUDED.last_source_status
                  END,
-                 status = CASE
-                   WHEN job.status IN ('matched', 'not_contested', 'child') THEN job.status
-                   ELSE EXCLUDED.status
-                 END,
-                 last_error = CASE
-                   WHEN EXCLUDED.status = 'blocked' THEN EXCLUDED.last_error
-                   ELSE NULL
-                 END,
+                 last_error = CASE WHEN job.source_candidates ? '${RECONCILIATION_KEY}'
+                                   THEN job.last_error ELSE EXCLUDED.last_error END,
                  updated_at = now()`,
           [
             scope,
             meet.meet_id,
             eventTypeId,
+            queueStatus,
             meet.tfrrs_url || null,
-            relationship.kind,
-            status,
-            status === 'blocked' ? 'missing_tfrrs_url' : null,
+            JSON.stringify({ ...payload, relationship_kind: relationship.kind }),
+            queueStatus === 'blocked' ? 'missing_tfrrs_url' : null,
           ]
         );
       }
@@ -161,7 +210,7 @@ class ReconciliationDatabase {
     try {
       await client.query('BEGIN');
       await client.query(
-        `UPDATE ingest.relay_4x100_reconciliation_jobs
+        `UPDATE ${QUEUE_TABLE}
             SET status = 'queued', lease_token = NULL, leased_until = NULL,
                 last_error = COALESCE(last_error, 'recovered_expired_lease'), updated_at = now()
           WHERE scope_key = $1 AND status = 'in_progress' AND leased_until < now()`,
@@ -169,9 +218,10 @@ class ReconciliationDatabase {
       );
       const { rows } = await client.query(
         `SELECT job.*
-           FROM ingest.relay_4x100_reconciliation_jobs job
+           FROM ${QUEUE_TABLE} job
           WHERE job.scope_key = $1
-            AND (job.status = 'queued' OR ($2::boolean AND job.status = 'failed'))
+            AND (job.status = 'queued' OR ($2::boolean AND job.status = 'needs_review'
+                 AND job.source_candidates #>> '{${RECONCILIATION_KEY},queue_state}' = 'failed'))
             AND job.next_attempt_at <= now()
             AND ($3::integer IS NULL OR job.meet_id = $3)
           ORDER BY job.priority, job.meet_id
@@ -185,9 +235,11 @@ class ReconciliationDatabase {
       }
       const token = cryptoRandomUuid();
       const { rows: claimed } = await client.query(
-        `UPDATE ingest.relay_4x100_reconciliation_jobs
+        `UPDATE ${QUEUE_TABLE}
             SET status = 'in_progress', lease_token = $2,
                 leased_until = now() + ($3::integer * interval '1 minute'),
+                source_candidates = jsonb_set(COALESCE(source_candidates, '{}'::jsonb),
+                  '{${RECONCILIATION_KEY},queue_state}', '"in_progress"'::jsonb, true),
                 attempts = attempts + 1, updated_at = now()
           WHERE job_id = $1
           RETURNING *`,
@@ -207,77 +259,35 @@ class ReconciliationDatabase {
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
+      const queueStatus = queueStatusForOutcome(result.status);
+      const payload = reconciliationPayload({
+        scope: job.scope_key,
+        status: result.status,
+        queueState: 'finished',
+        result,
+        actions,
+      });
       const updated = await client.query(
-        `UPDATE ingest.relay_4x100_reconciliation_jobs
-            SET relationship_kind = $3,
-                source_event_status = $4,
-                status = $5,
-                source_event_count = $6,
-                source_result_count = $7,
-                local_result_count = $8,
-                matched_result_count = $9,
-                missing_result_count = $10,
-                extra_result_count = $11,
-                invalid_team_result_count = $12,
-                unresolved_source_team_count = $13,
-                diff = $14::jsonb,
-                last_error = CASE WHEN $5 IN ('failed', 'blocked') THEN $15 ELSE NULL END,
+        `UPDATE ${QUEUE_TABLE}
+            SET status = $3,
+                last_source = 'tfrrs',
+                last_source_status = $4,
+                source_candidates = jsonb_set(COALESCE(source_candidates, '{}'::jsonb),
+                  '{${RECONCILIATION_KEY}}', $5::jsonb, true),
+                last_error = NULL,
                 lease_token = NULL,
                 leased_until = NULL,
-                verified_at = CASE WHEN $5 IN ('matched', 'not_contested', 'child', 'repair_ready', 'needs_review') THEN now() ELSE verified_at END,
                 updated_at = now()
           WHERE job_id = $1 AND lease_token = $2`,
         [
           job.job_id,
           job.lease_token,
-          result.relationship.kind,
+          queueStatus,
           result.source_event_status,
-          result.status,
-          result.source_event_count,
-          result.source_result_count,
-          result.local_result_count,
-          result.matched_result_count,
-          result.missing_result_count,
-          result.extra_result_count,
-          result.invalid_team_result_count,
-          result.unresolved_source_team_count,
-          JSON.stringify(result.diff),
-          result.reason,
+          JSON.stringify(payload),
         ]
       );
       if (updated.rowCount !== 1) throw new Error(`job ${job.job_id} lost its lease before completion`);
-      await client.query(
-        `UPDATE ingest.relay_4x100_reconciliation_actions
-            SET status = 'rejected', reviewed_at = now()
-          WHERE job_id = $1 AND status = 'planned'`,
-        [job.job_id]
-      );
-      for (const action of actions) {
-        await client.query(
-          `INSERT INTO ingest.relay_4x100_reconciliation_actions
-             (job_id, action_type, source_record_key, local_relay_result_id,
-              source_payload, reason, confidence, status)
-           VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7, 'planned')
-           ON CONFLICT (
-             job_id, action_type, (COALESCE(source_record_key, '')),
-             (COALESCE(local_relay_result_id, 0))
-           ) DO UPDATE
-             SET source_payload = EXCLUDED.source_payload,
-                 reason = EXCLUDED.reason,
-                 confidence = EXCLUDED.confidence,
-                 status = 'planned',
-                 reviewed_at = NULL`,
-          [
-            job.job_id,
-            action.action_type,
-            action.source_record_key,
-            action.local_relay_result_id,
-            JSON.stringify(action.source_payload || {}),
-            action.reason,
-            action.confidence,
-          ]
-        );
-      }
       await client.query('COMMIT');
     } catch (error) {
       await client.query('ROLLBACK');
@@ -289,24 +299,38 @@ class ReconciliationDatabase {
 
   async failJob(job, error) {
     await this.pool.query(
-      `UPDATE ingest.relay_4x100_reconciliation_jobs
-          SET status = 'failed', last_error = $3, lease_token = NULL, leased_until = NULL,
+      `UPDATE ${QUEUE_TABLE}
+          SET status = 'needs_review', last_error = $3,
+              source_candidates = jsonb_set(COALESCE(source_candidates, '{}'::jsonb),
+                '{${RECONCILIATION_KEY}}', $4::jsonb, true),
+              lease_token = NULL, leased_until = NULL,
               next_attempt_at = now() + interval '10 minutes', updated_at = now()
         WHERE job_id = $1 AND lease_token = $2`,
-      [job.job_id, job.lease_token, error?.message || String(error)]
+      [
+        job.job_id,
+        job.lease_token,
+        error?.message || String(error),
+        JSON.stringify(reconciliationPayload({
+          scope: job.scope_key,
+          status: 'failed',
+          queueState: 'failed',
+          error: error?.message || String(error),
+        })),
+      ]
     );
   }
 
   async summary(scope) {
     const { rows } = await this.pool.query(
-      `SELECT status, count(*)::integer AS meets,
-              sum(source_result_count)::integer AS source_results,
-              sum(missing_result_count)::integer AS missing,
-              sum(extra_result_count)::integer AS extra,
-              sum(invalid_team_result_count)::integer AS invalid_team
-         FROM ingest.relay_4x100_reconciliation_jobs
+      `SELECT COALESCE(source_candidates #>> '{${RECONCILIATION_KEY},status}', status) AS status,
+              count(*)::integer AS meets,
+              sum(COALESCE((source_candidates #>> '{${RECONCILIATION_KEY},source_result_count}')::integer, 0))::integer AS source_results,
+              sum(COALESCE((source_candidates #>> '{${RECONCILIATION_KEY},missing_result_count}')::integer, 0))::integer AS missing,
+              sum(COALESCE((source_candidates #>> '{${RECONCILIATION_KEY},extra_result_count}')::integer, 0))::integer AS extra,
+              sum(COALESCE((source_candidates #>> '{${RECONCILIATION_KEY},invalid_team_result_count}')::integer, 0))::integer AS invalid_team
+         FROM ${QUEUE_TABLE}
         WHERE scope_key = $1
-        GROUP BY status
+        GROUP BY COALESCE(source_candidates #>> '{${RECONCILIATION_KEY},status}', status)
         ORDER BY status`,
       [scope]
     );

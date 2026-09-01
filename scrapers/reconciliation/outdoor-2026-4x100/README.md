@@ -4,6 +4,11 @@ This folder is the only supported workflow for auditing and planning repairs to 
 4x100 results from TFRRS. It does not call the legacy recovery worker, Athletic.net, timing-system
 adapters, or TrackScoreboard.
 
+The workflow uses the existing private `ingest.event_recovery_queue` for meet/event identity,
+leasing, retries, and scope isolation. Reconciliation-specific source-vs-local reports and
+planned actions are stored under that queue row's `source_candidates.reconciliation` object; it
+does not maintain a second job table.
+
 The workflow distinguishes:
 
 - a TFRRS event whose source and local facts match;

@@ -387,6 +387,7 @@ function outcome(status, meet, relationship, sourceSnapshot, sourceFacts, localF
     status,
     reason: details.reason || null,
     relationship,
+    source_snapshot: sourceSnapshot || null,
     source_event_status: sourceSnapshot?.status || 'unknown',
     source_event_count: Number(sourceSnapshot?.event_count || 0),
     source_result_count: sourceFacts.length,
