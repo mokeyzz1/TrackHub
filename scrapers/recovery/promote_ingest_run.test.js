@@ -80,7 +80,7 @@ test('controlled promotion requires the private database URL', () => {
   assert.equal(connectionString({ DATABASE_URL: 'postgresql://local' }), null);
 });
 
-test('queue promotion sync preserves open quarantines and checks relay coverage', async () => {
+test('queue promotion sync scopes review flags to numeric 4x100 source observations', async () => {
   const queries = [];
   const pool = {
     async query(text, values) {
@@ -101,10 +101,14 @@ test('queue promotion sync preserves open quarantines and checks relay coverage'
   assert.deepEqual(queries[0].values, ['run-1', [13096]]);
   assert.match(queries[1].text, /UPDATE ingest\.event_recovery_queue/);
   assert.match(queries[1].text, /last_run_id = \$1/);
-  assert.match(queries[1].text, /source_observations_quarantined/);
+  assert.match(queries[1].text, /run_4x100/);
+  assert.match(queries[1].text, /open_4x100_quarantines/);
+  assert.match(queries[1].text, /source_no_numeric_4x100/);
+  assert.match(queries[1].text, /source_4x100_observations_quarantined/);
   assert.match(queries[1].text, /promotion_incomplete:no_numeric_4x100/);
   assert.match(queries[1].text, /et\.code = '4x100m'/);
   assert.match(queries[1].text, /rr\.mark_seconds IS NOT NULL/);
+  assert.match(queries[1].text, /THEN 'not_found'/);
   assert.match(queries[1].text, /THEN 'needs_review'/);
   assert.deepEqual(queries[1].values, ['run-1', [13096]]);
 });

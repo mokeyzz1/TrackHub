@@ -193,54 +193,71 @@ async function syncRecoveryQueueAfterPromotion(pool, runId, meetIds) {
   );
 
   const eventQueue = await pool.query(
-    `UPDATE ingest.event_recovery_queue
+    `WITH queue_scope AS (
+       SELECT job_id, meet_id
+         FROM ingest.event_recovery_queue
+        WHERE meet_id = ANY($2::integer[])
+          AND event_code = '4x100m'
+          AND last_run_id = $1
+          AND status <> 'complete'
+     ), run_4x100 AS (
+       SELECT o.target_meet_id AS meet_id,
+              count(*) FILTER (
+                WHERE o.entity_type = 'relay_result'
+                  AND et.code = '4x100m'
+                  AND o.mark_seconds IS NOT NULL
+              )::int AS numeric_parent_count
+         FROM ingest.observations o
+         LEFT JOIN public.event_types et ON et.event_type_id = o.event_type_id
+        WHERE o.run_id = $1
+          AND o.target_meet_id = ANY($2::integer[])
+        GROUP BY o.target_meet_id
+     ), open_4x100_quarantines AS (
+       SELECT o.target_meet_id AS meet_id, count(*)::int AS count
+         FROM ingest.observations o
+         JOIN ingest.quarantine q ON q.observation_id = o.observation_id
+         LEFT JOIN public.event_types et ON et.event_type_id = o.event_type_id
+        WHERE o.target_meet_id = ANY($2::integer[])
+          AND q.status = 'open'
+          AND (
+            et.code = '4x100m'
+            OR o.raw_event_name ~* '4[[:space:]]*x[[:space:]]*100'
+          )
+        GROUP BY o.target_meet_id
+     )
+     UPDATE ingest.event_recovery_queue
         SET status = CASE
               WHEN EXISTS (
-                SELECT 1
-                  FROM ingest.observations o
-                  JOIN ingest.quarantine q ON q.observation_id = o.observation_id
-                 WHERE o.target_meet_id = ingest.event_recovery_queue.meet_id
-                   AND q.status = 'open'
-              ) THEN 'needs_review'
-              WHEN NOT EXISTS (
                 SELECT 1
                   FROM public.relay_results rr
                   JOIN public.event_types et ON et.event_type_id = rr.event_type_id
                  WHERE rr.meet_id = ingest.event_recovery_queue.meet_id
                    AND et.code = '4x100m'
                    AND rr.mark_seconds IS NOT NULL
-              ) THEN 'needs_review'
-              ELSE 'complete'
+              ) THEN 'complete'
+              WHEN COALESCE(r.numeric_parent_count, 0) = 0 THEN 'not_found'
+              WHEN COALESCE(q.count, 0) > 0 THEN 'needs_review'
+              ELSE 'needs_review'
             END,
             last_error = CASE
               WHEN EXISTS (
                 SELECT 1
-                  FROM ingest.observations o
-                  JOIN ingest.quarantine q ON q.observation_id = o.observation_id
-                 WHERE o.target_meet_id = ingest.event_recovery_queue.meet_id
-                   AND q.status = 'open'
-              ) THEN 'source_observations_quarantined=' || (
-                SELECT count(*)::text
-                  FROM ingest.observations o
-                  JOIN ingest.quarantine q ON q.observation_id = o.observation_id
-                 WHERE o.target_meet_id = ingest.event_recovery_queue.meet_id
-                   AND q.status = 'open'
-              )
-              WHEN NOT EXISTS (
-                SELECT 1
                   FROM public.relay_results rr
                   JOIN public.event_types et ON et.event_type_id = rr.event_type_id
                  WHERE rr.meet_id = ingest.event_recovery_queue.meet_id
                    AND et.code = '4x100m'
                    AND rr.mark_seconds IS NOT NULL
-              ) THEN 'promotion_incomplete:no_numeric_4x100'
-              ELSE NULL
+              ) THEN NULL
+              WHEN COALESCE(r.numeric_parent_count, 0) = 0 THEN 'source_no_numeric_4x100'
+              WHEN COALESCE(q.count, 0) > 0
+                THEN 'source_4x100_observations_quarantined=' || q.count::text
+              ELSE 'promotion_incomplete:no_numeric_4x100'
             END,
             updated_at = now()
-      WHERE meet_id = ANY($2::integer[])
-        AND event_code = '4x100m'
-        AND last_run_id = $1
-        AND status <> 'complete'
+       FROM queue_scope qs
+       LEFT JOIN run_4x100 r ON r.meet_id = qs.meet_id
+       LEFT JOIN open_4x100_quarantines q ON q.meet_id = qs.meet_id
+      WHERE ingest.event_recovery_queue.job_id = qs.job_id
       RETURNING job_id, meet_id, status`,
     [runId, meetIds]
   );
