@@ -170,7 +170,7 @@ class ReconciliationDatabase {
              (scope_key, meet_id, event_type_id, event_code, status, source_candidates,
               last_source, last_source_status, last_error, updated_at)
            VALUES ($1, $2, $3, '4x100m', $4,
-                   jsonb_build_object('tfrrs_url', $5, '${RECONCILIATION_KEY}', $6::jsonb),
+                   jsonb_build_object('tfrrs_url', $5::text, '${RECONCILIATION_KEY}', $6::jsonb),
                    'tfrrs', 'unknown', $7, now())
            ON CONFLICT (scope_key, meet_id, event_type_id) DO UPDATE
              SET source_candidates = COALESCE(job.source_candidates, '{}'::jsonb)
