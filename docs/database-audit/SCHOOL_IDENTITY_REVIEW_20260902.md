@@ -109,8 +109,12 @@ The duplicate batches came from two old one-off loaders:
   `Stjohnfisher` and `St. John Fisher` as different strings. It inserted unknown divisions as
   `Other`. Twelve punctuation/display variants share its 2026-02-05 14:34:18 EST timestamp.
 
-Both scripts require a prevention fix before they are ever used again: compact-name lookup must
-only identify candidates, and state/division/source identity must decide whether an insert is safe.
+Both scripts are now prevention-hardened. Their legacy `--commit` modes fail before reading the
+result file or contacting Supabase, and their read-only modes route normalized matches and
+insufficient identities to review. Even a new-looking name with state and TFRRS slug requires a
+curated mapping and guarded migration; the scripts no longer infer `NJCAA` or `Other` and contain no
+school/team insert path. The shared guard has focused tests for capitalization, punctuation,
+multiple possible institutions, insufficient source identity, and disabled commit mode.
 
 ## First guarded proposal and validation
 
