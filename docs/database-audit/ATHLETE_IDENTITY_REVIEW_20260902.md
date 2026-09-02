@@ -142,8 +142,19 @@ is authorized without source-by-source review:
 5. **Complete locally:** post-apply checks found zero orphaned athlete/result references, zero bad
    moves, all 2,921 archive rows present, and all 341 secondary source identities still resolving to
    canonical athletes. The exact rollback restored the original athlete, result, relay-leg, and PR
-   counts before a successful reapply.
+   counts before a successful reapply. A fresh compressed snapshot of production was then restored
+   into a disposable PostgreSQL 17 database; all four reviewed migrations passed there in order,
+   including replay, exact rollback, and reapply. The restored final state had 151,537 athletes,
+   3,419,178 results, 450,685 relay legs, and zero orphaned references.
 6. Only then consider applying the database migrations live.
+
+## Current production preflight
+
+The live database currently has 152,204 athletes, 3,507,218 results, 462,728 relay legs, and
+156,385 ingestion observations. It has 393 pre-cleanup high-confidence identity pairs because the
+three reviewed school/meet cleanup migrations have not yet been applied there; after those steps,
+the fresh production snapshot matched the reviewed 667-athlete consolidation fingerprints. The
+live database has no rows from the identity-preservation or athlete-consolidation operations.
 
 This order preserves every source identity and prevents the cleanup from immediately recreating the
 same duplicates.
