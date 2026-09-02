@@ -35,6 +35,7 @@ const { parseTfrrsTeamInfo } = require('../../shared/tfrrs_team_identity');
 const { requireControlledCommit } = require('../../shared/write_mode_guard');
 const { ensureIngestDatabaseUrl } = require('../../shared/private_database_url');
 const { ResponseCache } = require('../../shared/response_cache');
+const { loadSourceAthleteIdentityResolver } = require('../../shared/source_athlete_identity_resolver');
 
 // Resolves raw event names -> canonical event_type_id via event_aliases (loaded in importResults).
 const events = new EventResolver();
@@ -67,6 +68,7 @@ let importUnattachedLookupPromise = null;
 let importAthleteLookupPromise = Promise.resolve();
 const cachedTfrrsAthletes = new Map();
 const checkedTfrrsAthleteIds = new Set();
+const conflictedTfrrsAthleteIds = new Set();
 
 // School ID for unattached athletes
 const UNATTACHED_SCHOOL_ID = 1835;
@@ -1312,18 +1314,22 @@ async function loadImportUnattachedLookup() {
   return importUnattachedLookupPromise;
 }
 
-async function loadImportAthleteLookup(ids) {
+async function loadImportAthleteLookup(ids, ingestPool = null) {
   const requested = [...new Set((ids || []).filter(value => value != null).map(String))];
   const loadMissing = async () => {
     const missing = requested.filter(id => !checkedTfrrsAthleteIds.has(id));
     for (let i = 0; i < missing.length; i += 1000) {
       const batch = missing.slice(i, i + 1000);
-      const { data, error } = await supabase
-        .from('athletes')
-        .select('athlete_id, tfrrs_athlete_id')
-        .in('tfrrs_athlete_id', batch);
-      if (error) throw new Error(`Error loading TFRRS athletes: ${error.message}`);
-      (data || []).forEach(a => cachedTfrrsAthletes.set(String(a.tfrrs_athlete_id), a.athlete_id));
+      const resolver = await loadSourceAthleteIdentityResolver({
+        pool: ingestPool,
+        source: 'tfrrs',
+        sourceKeys: batch
+      });
+      for (const id of batch) {
+        const resolved = resolver.resolve(id);
+        if (resolved) cachedTfrrsAthletes.set(id, resolved.athlete_id);
+        else if (resolver.hasConflict(id)) conflictedTfrrsAthleteIds.add(id);
+      }
       batch.forEach(id => checkedTfrrsAthleteIds.add(id));
     }
   };
@@ -1341,7 +1347,7 @@ async function loadImportAthleteLookup(ids) {
     lookup.set(id, value);
     lookup.set(Number(id), value);
   }
-  return lookup;
+  return { lookup, conflicts: new Set(requested.filter(id => conflictedTfrrsAthleteIds.has(id))) };
 }
 
 // Import results to database
@@ -1372,7 +1378,10 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
   });
 
   const tfrrsIds = [...allTfrrsIds];
-  const tfrrsToInternalId = await loadImportAthleteLookup(tfrrsIds);
+  const {
+    lookup: tfrrsToInternalId,
+    conflicts: tfrrsIdentityConflicts
+  } = await loadImportAthleteLookup(tfrrsIds, ingestPool);
 
   console.log(`Found ${tfrrsToInternalId.size} existing athletes`);
 
@@ -1417,7 +1426,8 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
       internalAthleteId = tfrrsToInternalId.get(r.athlete_id);
       if (!internalAthleteId) {
         noAthlete++;
-        if (canCreateAthlete && !seenAthletes.has(r.athlete_id)) {
+        if (!tfrrsIdentityConflicts.has(String(r.athlete_id))
+            && canCreateAthlete && !seenAthletes.has(r.athlete_id)) {
           seenAthletes.add(r.athlete_id);
           const schoolId = teamId ? teamToSchool.get(teamId) : UNATTACHED_SCHOOL_ID;
           newAthletes.push({
@@ -1501,7 +1511,9 @@ async function importResults(results, commit, relaysOnly = false, controlPlane =
     // Map relay athletes
     const relayAthletes = (r.relay_athletes || []).map((a, idx) => {
       let internalId = tfrrsToInternalId.get(a.athlete_id);
-      if (!internalId && a.athlete_id && canCreateAthlete && !seenAthletes.has(a.athlete_id)) {
+      if (!internalId && a.athlete_id
+          && !tfrrsIdentityConflicts.has(String(a.athlete_id))
+          && canCreateAthlete && !seenAthletes.has(a.athlete_id)) {
         seenAthletes.add(a.athlete_id);
         const schoolId = teamId ? teamToSchool.get(teamId) : UNATTACHED_SCHOOL_ID;
         newAthletes.push({

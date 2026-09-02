@@ -31,13 +31,12 @@ const { TeamAliasResolver } = require('../shared/team_alias_resolver');
 const { AthleteAliasResolver } = require('../shared/athlete_alias_resolver');
 const { requireControlledCommit } = require('../shared/write_mode_guard');
 const { ensureIngestDatabaseUrl } = require('../shared/private_database_url');
+const { loadSourceAthleteIdentityResolver } = require('../shared/source_athlete_identity_resolver');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const UNATTACHED = 1835;
-
-const anetIdFromUrl = url => (String(url || '').match(/\/athlete\/(\d+)/) || [])[1] || null;
 
 // Mark parsing lives in scrapers/shared/mark_parser.js — see the header there.
 // The local copy that used to sit here did `const [mm, ss] = clean.split(':')`, which on
@@ -76,18 +75,25 @@ function eventsForImportMode(events, relaysOnly) {
  *   byName:  lower(full_name)|GENDER -> [athlete_id] (fallback for existing athletes that
  *            don't yet have an athletic_net_url stored — 45% of them don't)
  */
-async function loadExisting(anetIds, names) {
+async function loadExisting(anetIds, names, ingestPool = null) {
   const byAnet = new Map();
+  const blockedAnet = new Set();
   const byName = new Map();
   const add = (m, k, id) => { if (!m.has(k)) m.set(k, []); m.get(k).push(id); };
-  // 1. exact athletic.net-id matches (by full url). school_id comes along so relay team
-  //    resolution can derive the squad's school from its legs.
-  const urls = anetIds.map(id => `https://www.athletic.net/athlete/${id}/track-and-field`);
-  for (const c of chunk(urls, 200)) {
-    const { data } = await supabase.from('athletes')
-      .select('athlete_id, athletic_net_url, school_id').in('athletic_net_url', c);
-    data?.forEach(a => { const id = anetIdFromUrl(a.athletic_net_url);
-      if (id) byAnet.set(id, { id: a.athlete_id, school_id: a.school_id }); });
+  // 1. stable source identity. Reviewed aliases/external IDs take precedence over the legacy
+  //    single athletic_net_url column so a secondary profile keeps resolving after consolidation.
+  const sourceKeys = [...new Set(anetIds.map(id => String(id || '').trim()).filter(Boolean))];
+  for (const c of chunk(sourceKeys, 1000)) {
+    const resolver = await loadSourceAthleteIdentityResolver({
+      pool: ingestPool,
+      source: 'athletic_net',
+      sourceKeys: c
+    });
+    for (const id of c) {
+      const resolved = resolver.resolve(id);
+      if (resolved) byAnet.set(id, { id: resolved.athlete_id, school_id: resolved.school_id });
+      else if (resolver.hasConflict(id)) blockedAnet.add(id);
+    }
   }
   // 2. name matches (for the fallback) — carry the school name for team corroboration
   const uniqueNames = [...new Set(names.map(name => String(name || '').trim()).filter(Boolean))];
@@ -125,7 +131,7 @@ async function loadExisting(anetIds, names) {
       school: a.schools ? `${a.schools.official_name || ''} ${a.schools.short_name || ''}` : '',
     }));
   }
-  return { byAnet, byName };
+  return { byAnet, byName, blockedAnet };
 }
 
 async function loadTeamLookup() {
@@ -455,7 +461,7 @@ async function run(meetDbId, {
       if (leg.athlete_name) scrapedNames.push(leg.athlete_name);
     }
   }
-  const { byAnet, byName } = await loadExisting(scrapedIds, scrapedNames);
+  const { byAnet, byName, blockedAnet } = await loadExisting(scrapedIds, scrapedNames);
   const teamBySchoolGender = await loadTeamLookup();
   console.log(`Existing matches available: ${byAnet.size} by athletic.net id, ${byName.size} name/gender keys\n`);
 
@@ -484,7 +490,10 @@ async function run(meetDbId, {
       let athleteId = null, newKey = null, athleteSchoolId = null;
 
       // (a) exact athletic.net-id match
-      if (anetId && byAnet.has(anetId)) {
+      if (anetId && blockedAnet.has(anetId)) {
+        stats.identityConflict = (stats.identityConflict || 0) + 1;
+      }
+      else if (anetId && byAnet.has(anetId)) {
         const match = byAnet.get(anetId);
         athleteId = match.id;
         athleteSchoolId = match.school_id;
@@ -565,6 +574,9 @@ async function run(meetDbId, {
 
   // 4c. relays — same athlete-matching cascade, but the competitor is a team with ordered legs
   const resolveAthlete = ({ anetId, name, gender, scrapedTeam }) => {
+    if (anetId && blockedAnet.has(anetId)) {
+      return { athleteId: null, schoolId: null };
+    }
     if (anetId && byAnet.has(anetId)) {
       const hit = byAnet.get(anetId);
       return { athleteId: hit.id, schoolId: hit.school_id };
@@ -584,6 +596,7 @@ async function run(meetDbId, {
   console.log(`  events: ${stats.events} (event_type_id resolved: ${stats.evResolved}${Object.keys(stats.evMissed).length ? ', MISSED: ' + JSON.stringify(stats.evMissed) : ''})`);
   console.log(`  results: ${stats.results} | marks parsed: ${stats.markParsed} | blank rows skipped: ${stats.skippedBlank}`);
   console.log(`  athletes: matched by athletic.net id = ${stats.matchAnet} | matched by name+school = ${stats.matchName} | name-only REJECTED (no school corroboration) = ${stats.nameRejectedNoSchool || 0} | NEW = ${stats.athNew} (${newAthletes.size} distinct)`);
+  if (stats.identityConflict) console.log(`  athlete identity conflicts held without creation = ${stats.identityConflict}`);
   console.log(`  teams: matched by athlete school + scraped team corroboration = ${stats.teamMatched} | unresolved = ${stats.teamUnresolved}`);
   console.log(`  duplicate-result guard: ${claims.length} existing history rows will be CLAIMED (meet_id set, no new row) | ${dupSkips} exact dups skipped`);
   console.log(`  (${backfillAnet.size} existing athletes will get their athletic.net url linked)`);
