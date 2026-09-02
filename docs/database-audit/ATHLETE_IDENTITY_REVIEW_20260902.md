@@ -3,7 +3,7 @@
 Date: 2026-09-02
 
 Status: audit complete; importer hardening, secondary identity preservation, and guarded
-consolidation implemented and locally verified; live database unchanged
+consolidation implemented, locally verified, and applied to production on 2026-09-02
 
 ## Why this follows the meet repair
 
@@ -146,7 +146,11 @@ is authorized without source-by-source review:
    into a disposable PostgreSQL 17 database; all four reviewed migrations passed there in order,
    including replay, exact rollback, and reapply. The restored final state had 151,537 athletes,
    3,419,178 results, 450,685 relay legs, and zero orphaned references.
-6. Only then consider applying the database migrations live.
+6. **Complete:** after the fresh production snapshot passed, the four migrations were applied to
+   production in order. The identity and consolidation migrations initially hit the hosted
+   statement timeout during their broad contradiction scans; both were optimized with candidate
+   date/meet indexes, retested locally, and then completed successfully live. Final production
+   checks found zero duplicate references or orphaned facts.
 
 ## Current production preflight
 
@@ -154,7 +158,9 @@ The live database currently has 152,204 athletes, 3,507,218 results, 462,728 rel
 156,385 ingestion observations. It has 393 pre-cleanup high-confidence identity pairs because the
 three reviewed school/meet cleanup migrations have not yet been applied there; after those steps,
 the fresh production snapshot matched the reviewed 667-athlete consolidation fingerprints. The
-live database has no rows from the identity-preservation or athlete-consolidation operations.
+The live database now contains 341 verified secondary identities and 341 active aliases, plus the
+2,921-row athlete-consolidation archive. The final live state has 151,537 athletes, 3,419,178
+results, and 450,685 relay legs; all eight athlete rows in the four held pairs remain present.
 
 This order preserves every source identity and prevents the cleanup from immediately recreating the
 same duplicates.
