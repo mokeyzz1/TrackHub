@@ -12,12 +12,14 @@ The preservation-safe classification is:
 |---|---:|---|
 | Confirmed same institution, both rows carry data | 17 | Guarded proposal prepared and locally validated |
 | Confirmed distinct institutions | 2 | Keep both; improve identity keys later |
-| One substantive row and one low-evidence placeholder | 64 | Hold for source-by-source identity research |
+| Confirmed same institution, one row is empty or canonical is empty | 64 | Second guarded proposal prepared and locally validated |
 | **Total** | **83** | No live changes |
 
 The complete reproducible inventory is `school_identity_scan.sql`. It emits every column used for
-classification and every one of the 166 school rows, rather than hiding the unresolved rows behind
-a summary count.
+classification and every one of the 166 school rows, rather than hiding rows behind a summary
+count. Its normalization lowercases before removing non-alphanumeric characters. The earlier
+strip-before-lower expression was rejected because it erased uppercase initials and falsely
+collided institutions such as Jacksonville with FCC Jacksonville and Oakland with Oakland CC.
 
 ## Confirmed same-institution pairs
 
@@ -110,7 +112,7 @@ The duplicate batches came from two old one-off loaders:
 Both scripts require a prevention fix before they are ever used again: compact-name lookup must
 only identify candidates, and state/division/source identity must decide whether an insert is safe.
 
-## Guarded proposal and validation
+## First guarded proposal and validation
 
 `supabase/migrations/20260902120000_consolidate_reviewed_school_duplicates.sql` is a guarded,
 replay-safe proposal for only the 17 confirmed pairs. It has not been applied to the live database.
@@ -141,6 +143,39 @@ was enclosed in an outer transaction and rolled back:
 | Rollback replay | Safe no-op |
 | Final local totals after rollback | 1,867 schools; 3,677 teams; 152,204 athletes; 3,507,218 results; 203,826 relays; 156,385 observations |
 
-No action is proposed yet for the 64 low-evidence placeholders. They need authoritative source
-identity, especially for generic community-college names that can legitimately exist in multiple
-states.
+## Second guarded proposal: remaining 64 pairs
+
+The corrected detector and loader provenance resolved the remaining 64 pairs without relying on
+name equality alone:
+
+- Sixty-three duplicate rows are state-less shells created at exactly
+  `2026-02-05 14:18:54.764904-05` by `add-missing-schools.js`. Each has two empty teams and no
+  athlete, result, relay, observation, alias, external-ID, membership, live-result, or season
+  dependency. Its canonical counterpart predates the loader, has the state and governing division,
+  and owns the TFRRS team identity.
+- School 1818 `Ohio Christian` is the one data-bearing exception. It is the display-name variant of
+  canonical school 831 `OhioChristian`: the canonical men's and women's team rows own the exact
+  TFRRS `OH_college_*_OhioChristian` URLs, while the later row owns 9 athletes, 152 individual
+  results, and 1 relay. Official athletics and TFRRS both identify the current program as Ohio
+  Christian University.
+
+`supabase/migrations/20260902130000_remove_reviewed_empty_school_duplicates.sql` archives 355
+pre-change rows, removes the 63 empty shells, consolidates Ohio Christian into school 831, adopts
+the readable `Ohio Christian` display name, and retains every athlete and performance ID. Its
+companion `rollback_reviewed_empty_school_duplicates.sql` restores all 64 schools, 128 teams, 9
+athletes' school assignments, 152 result team assignments, and the relay team assignment.
+
+The two school migrations were tested both separately and together, in migration order, with
+rollbacks in reverse order. Replay tests for both proposals and both rollbacks passed. After both
+proposals, the corrected detector reports exactly two collision groups—the confirmed-distinct
+Lewis-Clark/Lewis & Clark and West Chester/Westchester pairs. Final restored row totals remain
+byte-for-byte at the reviewed counts after rollback.
+
+Ohio Christian exposes a separate affiliation-model issue that this identity cleanup deliberately
+does not guess at. The university announced a transition from NAIA to NCCAA beginning in fall 2024,
+while `public.divisions` has no NCCAA value. The canonical row's existing NAIA classification is
+preserved until governing-body history/current affiliation is modeled explicitly.
+
+Several Ohio Christian athlete rows also contain older results that deserve a separate
+athlete-history audit. This proposal changes only school/team identity references; it does not
+reinterpret or delete those performances.

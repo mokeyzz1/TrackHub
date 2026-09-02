@@ -6,7 +6,7 @@ SET statement_timeout = '15min';
 \echo '== Every normalized-name collision group and every school row =='
 WITH school_usage AS (
   SELECT s.school_id,
-         lower(regexp_replace(trim(s.official_name), '[^a-z0-9]+', '', 'g')) AS normalized_name,
+         regexp_replace(lower(trim(s.official_name)), '[^a-z0-9]+', '', 'g') AS normalized_name,
          (SELECT count(*) FROM public.athletes a WHERE a.school_id = s.school_id) AS athletes,
          (SELECT count(*) FROM public.results r JOIN public.teams t ON t.team_id = r.team_id
            WHERE t.school_id = s.school_id) AS results,
@@ -41,7 +41,7 @@ SELECT u.normalized_name, s.school_id, s.official_name, s.short_name, s.city, s.
 \echo '== Collision-group classification inputs =='
 WITH school_usage AS (
   SELECT s.school_id,
-         lower(regexp_replace(trim(s.official_name), '[^a-z0-9]+', '', 'g')) AS normalized_name,
+         regexp_replace(lower(trim(s.official_name)), '[^a-z0-9]+', '', 'g') AS normalized_name,
          ((SELECT count(*) FROM public.athletes a WHERE a.school_id = s.school_id)
         + (SELECT count(*) FROM public.results r JOIN public.teams t ON t.team_id = r.team_id
             WHERE t.school_id = s.school_id)
@@ -75,7 +75,7 @@ SELECT *,
 
 \echo '== Creation batches represented in collision rows =='
 WITH collisions AS (
-  SELECT lower(regexp_replace(trim(official_name), '[^a-z0-9]+', '', 'g')) AS normalized_name
+  SELECT regexp_replace(lower(trim(official_name)), '[^a-z0-9]+', '', 'g') AS normalized_name
     FROM public.schools
    WHERE official_name IS NOT NULL AND trim(official_name) <> ''
    GROUP BY 1 HAVING count(*) > 1
@@ -84,6 +84,6 @@ SELECT s.created_at, count(*) AS school_rows,
        min(s.school_id) AS first_school_id, max(s.school_id) AS last_school_id
   FROM public.schools s
   JOIN collisions c
-    ON c.normalized_name = lower(regexp_replace(trim(s.official_name), '[^a-z0-9]+', '', 'g'))
+    ON c.normalized_name = regexp_replace(lower(trim(s.official_name)), '[^a-z0-9]+', '', 'g')
  GROUP BY s.created_at
  ORDER BY s.created_at;

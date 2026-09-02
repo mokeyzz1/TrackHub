@@ -1,41 +1,30 @@
--- Consolidate only the 17 school pairs reviewed on 2026-09-02.
--- This migration is intentionally data-specific, guarded, replay-safe, and reversible through
--- docs/database-audit/rollback_reviewed_school_duplicates.sql.
--- It reuses the existing private cleanup archive and creates no persistent table or public API.
+-- Remove 63 empty state-less school shells and consolidate the reviewed Ohio Christian spelling
+-- variant. All 64 pairs were traced to the two defective 2026-02-05 school-loader batches.
+-- This migration creates no persistent table and reuses ingest.fact_cleanup_archive.
 
 DO $$
 DECLARE
-  operation constant text := '20260902_consolidate_reviewed_school_duplicates';
+  operation constant text := '20260902_remove_reviewed_empty_school_duplicates';
   duplicate_school_count integer;
   duplicate_team_count integer;
   archive_count integer;
-  relay_conflict_count integer;
 BEGIN
   DROP TABLE IF EXISTS _team_merge_map, _school_merge_map;
   CREATE TEMP TABLE _school_merge_map (
     canonical_school_id bigint PRIMARY KEY,
-    duplicate_school_id bigint UNIQUE NOT NULL,
-    preferred_name text NOT NULL
+    duplicate_school_id bigint UNIQUE NOT NULL
   ) ON COMMIT DROP;
 
   INSERT INTO _school_merge_map VALUES
-    (1178, 1775, 'Bethany (W.V.)'),
-    (973,  1589, 'Coffeyville CC'),
-    (726,  1782, 'Columbia Int''l'),
-    (727,  1726, 'Columbia (S.C.)'),
-    (1000, 1590, 'Fort Scott CC'),
-    (1315, 1780, 'Johnson & Wales (R.I.)'),
-    (1067, 1588, 'Neosho County CC'),
-    (1096, 1625, 'Richard Bland'),
-    (857,  1807, 'SCAD Atlanta'),
-    (1121, 1592, 'Southwestern CC'),
-    (1509, 1697, 'Stevens'),
-    (1496, 1707, 'St. John Fisher'),
-    (1500, 1728, 'St. Joseph''s (Me.)'),
-    (1503, 1744, 'St. Mary''s (Md.)'),
-    (897,  1777, 'The Master''s'),
-    (1532, 1753, 'Union (N.Y.)'),
-    (1585, 1822, 'York (N.Y.)');
+    (940,1648),(936,1693),(960,1672),(962,1601),(971,1612),(974,1646),(981,1594),(983,1671),
+    (988,1649),(743,1670),(989,1611),(990,1659),(994,1661),(999,1641),(1001,1613),(1005,1600),
+    (1008,1624),(1010,1599),(1011,1614),(1014,1666),(1016,1680),(1021,1632),(1022,1639),
+    (1025,1642),(1026,1622),(1027,1644),(1028,1655),(1030,1657),(1033,1690),(1042,1637),
+    (1043,1684),(1046,1686),(1049,1681),(1050,1603),(1055,1617),(1064,1689),(1066,1677),
+    (1068,1678),(1070,1676),(1073,1623),(1079,1679),(831,1818),(1080,1598),(1081,1593),
+    (1083,1605),(1084,1630),(1089,1604),(1090,1602),(1091,1643),(1093,1694),(1100,1633),
+    (1108,1660),(1111,1631),(1115,1647),(1117,1635),(1113,1675),(1130,1673),(1132,1658),
+    (1135,1696),(1134,1626),(1139,1638),(1140,1688),(1145,1664),(1146,1597);
 
   SELECT count(*) INTO duplicate_school_count
     FROM public.schools s JOIN _school_merge_map m ON m.duplicate_school_id = s.school_id;
@@ -46,11 +35,10 @@ BEGIN
 
   -- A completed migration is a safe replay no-op.
   IF duplicate_school_count = 0 AND duplicate_team_count = 0 THEN
-    IF archive_count = 11562
-       AND (SELECT count(*) FROM public.schools s JOIN _school_merge_map m
-              ON m.canonical_school_id = s.school_id
-             AND s.official_name = m.preferred_name
-             AND s.short_name = m.preferred_name) = 17 THEN
+    IF archive_count = 355
+       AND EXISTS (SELECT 1 FROM public.schools
+                    WHERE school_id = 831 AND official_name = 'Ohio Christian'
+                      AND short_name = 'Ohio Christian' AND is_active) THEN
       RETURN;
     END IF;
     RAISE EXCEPTION 'reviewed duplicate rows are absent but the completed state is not valid';
@@ -59,13 +47,13 @@ BEGIN
   IF archive_count <> 0 THEN
     RAISE EXCEPTION 'operation archive is partially populated (% rows)', archive_count;
   END IF;
-  IF duplicate_school_count <> 17 OR duplicate_team_count <> 33 THEN
-    RAISE EXCEPTION 'expected 17 duplicate schools and 33 duplicate teams, found % and %',
+  IF duplicate_school_count <> 64 OR duplicate_team_count <> 128 THEN
+    RAISE EXCEPTION 'expected 64 duplicate schools and 128 duplicate teams, found % and %',
       duplicate_school_count, duplicate_team_count;
   END IF;
   IF (SELECT count(*) FROM public.schools s JOIN _school_merge_map m
-        ON m.canonical_school_id = s.school_id) <> 17 THEN
-    RAISE EXCEPTION 'all 17 canonical schools must exist';
+        ON m.canonical_school_id = s.school_id) <> 64 THEN
+    RAISE EXCEPTION 'all 64 canonical schools must exist';
   END IF;
 
   CREATE TEMP TABLE _team_merge_map ON COMMIT DROP AS
@@ -76,23 +64,26 @@ BEGIN
     JOIN public.teams ct ON ct.school_id = m.canonical_school_id AND ct.gender = dt.gender;
   ALTER TABLE _team_merge_map ADD PRIMARY KEY (duplicate_team_id);
 
-  IF (SELECT count(*) FROM _team_merge_map) <> 33 THEN
+  IF (SELECT count(*) FROM _team_merge_map) <> 128 THEN
     RAISE EXCEPTION 'every duplicate team must have one same-gender canonical team';
   END IF;
-
   IF (SELECT count(*) FROM public.athletes a JOIN _school_merge_map m
-        ON m.duplicate_school_id = a.school_id) <> 677
+        ON m.duplicate_school_id = a.school_id) <> 9
      OR (SELECT count(*) FROM public.results r JOIN _team_merge_map m
-          ON m.duplicate_team_id = r.team_id) <> 9724
+          ON m.duplicate_team_id = r.team_id) <> 152
      OR (SELECT count(*) FROM public.relay_results r JOIN _team_merge_map m
-          ON m.duplicate_team_id = r.team_id) <> 441
-     OR (SELECT count(*) FROM ingest.observations o JOIN _team_merge_map m
-          ON m.duplicate_team_id = o.target_team_id) <> 653 THEN
+          ON m.duplicate_team_id = r.team_id) <> 1 THEN
     RAISE EXCEPTION 'reviewed dependent-row counts drifted; rerun the school identity audit';
   END IF;
+  IF (SELECT count(*) FROM public.athletes a JOIN _school_merge_map m
+        ON m.duplicate_school_id = a.school_id AND a.school_id <> 1818) <> 0 THEN
+    RAISE EXCEPTION 'a reviewed empty shell unexpectedly owns athletes';
+  END IF;
 
-  IF (SELECT count(*) FROM public.athlete_team_seasons a JOIN _team_merge_map m
-        ON m.duplicate_team_id = a.team_id) <> 0
+  IF (SELECT count(*) FROM ingest.observations o JOIN _team_merge_map m
+        ON m.duplicate_team_id = o.target_team_id) <> 0
+     OR (SELECT count(*) FROM public.athlete_team_seasons a JOIN _team_merge_map m
+          ON m.duplicate_team_id = a.team_id) <> 0
      OR (SELECT count(*) FROM public.live_results l JOIN _team_merge_map m
           ON m.duplicate_team_id = l.team_id) <> 0
      OR (SELECT count(*) FROM ingest.team_aliases a JOIN _team_merge_map m
@@ -106,24 +97,25 @@ BEGIN
     RAISE EXCEPTION 'an unreviewed dependency appeared; rerun the school identity audit';
   END IF;
 
-  SELECT count(*)::integer INTO relay_conflict_count
-    FROM public.relay_results duplicate_relay
-    JOIN _team_merge_map m ON m.duplicate_team_id = duplicate_relay.team_id
-    JOIN public.relay_results canonical_relay
-      ON canonical_relay.team_id = m.canonical_team_id
-     AND canonical_relay.meet_id IS NOT DISTINCT FROM duplicate_relay.meet_id
-     AND canonical_relay.event_type_id IS NOT DISTINCT FROM duplicate_relay.event_type_id
-     AND canonical_relay.place IS NOT DISTINCT FROM duplicate_relay.place
-     AND canonical_relay.round IS NOT DISTINCT FROM duplicate_relay.round
-     AND lower(regexp_replace(canonical_relay.mark_raw, '[ah]$', ''))
-         IS NOT DISTINCT FROM lower(regexp_replace(duplicate_relay.mark_raw, '[ah]$', ''));
-  IF relay_conflict_count <> 0 THEN
-    RAISE EXCEPTION 'team remap would create % relay uniqueness conflicts', relay_conflict_count;
+  IF EXISTS (
+    SELECT 1
+      FROM public.relay_results duplicate_relay
+      JOIN _team_merge_map m ON m.duplicate_team_id = duplicate_relay.team_id
+      JOIN public.relay_results canonical_relay
+        ON canonical_relay.team_id = m.canonical_team_id
+       AND canonical_relay.meet_id IS NOT DISTINCT FROM duplicate_relay.meet_id
+       AND canonical_relay.event_type_id IS NOT DISTINCT FROM duplicate_relay.event_type_id
+       AND canonical_relay.place IS NOT DISTINCT FROM duplicate_relay.place
+       AND canonical_relay.round IS NOT DISTINCT FROM duplicate_relay.round
+       AND lower(regexp_replace(canonical_relay.mark_raw, '[ah]$', ''))
+           IS NOT DISTINCT FROM lower(regexp_replace(duplicate_relay.mark_raw, '[ah]$', ''))
+  ) THEN
+    RAISE EXCEPTION 'team remap would create a relay uniqueness conflict';
   END IF;
 
   INSERT INTO ingest.fact_cleanup_archive (operation_key, source_table, source_pk, row_data)
   SELECT operation, 'public.schools.canonical', s.school_id::text, to_jsonb(s)
-    FROM public.schools s JOIN _school_merge_map m ON m.canonical_school_id = s.school_id;
+    FROM public.schools s WHERE s.school_id = 831;
   INSERT INTO ingest.fact_cleanup_archive (operation_key, source_table, source_pk, row_data)
   SELECT operation, 'public.schools.duplicate', s.school_id::text, to_jsonb(s)
     FROM public.schools s JOIN _school_merge_map m ON m.duplicate_school_id = s.school_id;
@@ -139,47 +131,35 @@ BEGIN
   INSERT INTO ingest.fact_cleanup_archive (operation_key, source_table, source_pk, row_data)
   SELECT operation, 'public.relay_results', r.relay_result_id::text, to_jsonb(r)
     FROM public.relay_results r JOIN _team_merge_map m ON m.duplicate_team_id = r.team_id;
-  INSERT INTO ingest.fact_cleanup_archive (operation_key, source_table, source_pk, row_data)
-  SELECT operation, 'ingest.observations', o.observation_id::text, to_jsonb(o)
-    FROM ingest.observations o JOIN _team_merge_map m ON m.duplicate_team_id = o.target_team_id;
 
-  IF (SELECT count(*) FROM ingest.fact_cleanup_archive WHERE operation_key = operation) <> 11562 THEN
-    RAISE EXCEPTION 'cleanup archive must contain exactly 11562 pre-change rows';
+  IF (SELECT count(*) FROM ingest.fact_cleanup_archive WHERE operation_key = operation) <> 355 THEN
+    RAISE EXCEPTION 'cleanup archive must contain exactly 355 pre-change rows';
   END IF;
 
-  UPDATE public.schools canonical
-     SET official_name = m.preferred_name,
-         short_name = m.preferred_name,
-         is_active = canonical.is_active OR duplicate.is_active,
-         updated_at = now()
-    FROM _school_merge_map m
-    JOIN public.schools duplicate ON duplicate.school_id = m.duplicate_school_id
-   WHERE canonical.school_id = m.canonical_school_id;
-
+  UPDATE public.schools
+     SET official_name = 'Ohio Christian', short_name = 'Ohio Christian',
+         is_active = true, updated_at = now()
+   WHERE school_id = 831;
   UPDATE public.athletes a SET school_id = m.canonical_school_id
     FROM _school_merge_map m WHERE a.school_id = m.duplicate_school_id;
   UPDATE public.results r SET team_id = m.canonical_team_id
     FROM _team_merge_map m WHERE r.team_id = m.duplicate_team_id;
   UPDATE public.relay_results r SET team_id = m.canonical_team_id
     FROM _team_merge_map m WHERE r.team_id = m.duplicate_team_id;
-  UPDATE ingest.observations o SET target_team_id = m.canonical_team_id
-    FROM _team_merge_map m WHERE o.target_team_id = m.duplicate_team_id;
 
   DELETE FROM public.teams t USING _team_merge_map m WHERE t.team_id = m.duplicate_team_id;
   DELETE FROM public.schools s USING _school_merge_map m WHERE s.school_id = m.duplicate_school_id;
 
-  IF (SELECT count(*) FROM public.schools s JOIN _school_merge_map m
-        ON m.duplicate_school_id = s.school_id) <> 0
-     OR (SELECT count(*) FROM public.teams t JOIN _team_merge_map m
-          ON m.duplicate_team_id = t.team_id) <> 0
-     OR (SELECT count(*) FROM public.athletes a JOIN _school_merge_map m
-          ON m.duplicate_school_id = a.school_id) <> 0
-     OR (SELECT count(*) FROM public.results r JOIN _team_merge_map m
-          ON m.duplicate_team_id = r.team_id) <> 0
-     OR (SELECT count(*) FROM public.relay_results r JOIN _team_merge_map m
-          ON m.duplicate_team_id = r.team_id) <> 0
-     OR (SELECT count(*) FROM ingest.observations o JOIN _team_merge_map m
-          ON m.duplicate_team_id = o.target_team_id) <> 0 THEN
+  IF EXISTS (SELECT 1 FROM public.schools s JOIN _school_merge_map m
+              ON m.duplicate_school_id = s.school_id)
+     OR EXISTS (SELECT 1 FROM public.teams t JOIN _team_merge_map m
+                 ON m.duplicate_team_id = t.team_id)
+     OR EXISTS (SELECT 1 FROM public.athletes a JOIN _school_merge_map m
+                 ON m.duplicate_school_id = a.school_id)
+     OR EXISTS (SELECT 1 FROM public.results r JOIN _team_merge_map m
+                 ON m.duplicate_team_id = r.team_id)
+     OR EXISTS (SELECT 1 FROM public.relay_results r JOIN _team_merge_map m
+                 ON m.duplicate_team_id = r.team_id) THEN
     RAISE EXCEPTION 'reviewed duplicate references remain after consolidation';
   END IF;
 END
