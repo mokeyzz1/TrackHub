@@ -24,7 +24,8 @@ BEGIN
     _reviewed_identity_facts,
     _reviewed_identity_pairs,
     _reviewed_athlete_merge_map,
-    _reviewed_source_identities;
+    _reviewed_source_identities,
+    _reviewed_identity_dates;
 
   CREATE TEMP TABLE _reviewed_identity_facts ON COMMIT DROP AS
   SELECT r.athlete_id, r.meet_id, r.date, r.event_type_id,
@@ -69,12 +70,26 @@ BEGIN
          = lower(regexp_replace(a.full_name, '[^a-z0-9]+', '', 'gi'))
    GROUP BY f1.athlete_id, f2.athlete_id;
 
+  -- Restrict the contradiction check to dates/meets belonging to candidate athletes. The full
+  -- facts table is millions of rows on production; probing it pair-by-pair can exceed the hosted
+  -- statement timeout even with the broad facts indexes.
+  CREATE TEMP TABLE _reviewed_identity_dates ON COMMIT DROP AS
+  SELECT DISTINCT f.athlete_id, f.date, f.meet_id
+    FROM _reviewed_identity_facts f
+    JOIN (
+      SELECT athlete_a AS athlete_id FROM _reviewed_identity_pairs
+      UNION
+      SELECT athlete_b FROM _reviewed_identity_pairs
+    ) c USING (athlete_id)
+   WHERE f.date IS NOT NULL;
+  CREATE INDEX ON _reviewed_identity_dates (athlete_id, date, meet_id);
+
   UPDATE _reviewed_identity_pairs p
      SET conflict = true
    WHERE EXISTS (
      SELECT 1
-       FROM _reviewed_identity_facts x
-       JOIN _reviewed_identity_facts y
+       FROM _reviewed_identity_dates x
+       JOIN _reviewed_identity_dates y
          ON y.athlete_id = p.athlete_b
         AND y.date = x.date
         AND y.meet_id <> x.meet_id
