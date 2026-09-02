@@ -10,19 +10,43 @@ and nobody has noticed yet.
 
 ---
 
-## Backups currently in the database (verified 2026-08-10)
+## Backups currently in the database (verified 2026-09-02)
 
 | backup table | rows | holds |
 |---|---|---|
-| `results_d2_backup` | **453,728** | DUP-2 round duplicates + DUP-5 athlete-history duplicates + 1 event-type collision |
+| `results_d2_backup` | **453,737** | DUP-2 round duplicates + DUP-5 athlete-history duplicates + 1 event-type collision + 9 M8 doubled-code collisions |
 | `results_d1_backup` | **23,766** | DUP-1 results deleted from meets that were copies of other meets |
-| `relay_results_d3_backup` | **674** | DUP-3 duplicate relay rows |
-| `relay_athletes_d3_backup` | **2,387** | the legs of those relays (saved BEFORE the parent, because of the cascade) |
+| `relay_results_d3_backup` | **40,935** | all DUP-3 passes + NCAA DII 4x100 rollback + 7 later duplicate relays; breakdown below |
+| `relay_athletes_d3_backup` | **89,085** | the legs of those relays (saved BEFORE the parent, because of the cascade) |
 | `athletes_empty_backup` | **12,518** | DUP-4 empty duplicate athlete records |
 | `results_accidental_import_20260819_backup` | **31** | rows the legacy `scrape-and-import.js` wrote into MAAC Indoor Championships by accident — see below |
+| `results_xsource_20260819_backup` | **1,252** | cross-source individual-result copies removed after field merge |
+| `relay_results_20260819_backup` | **1** | cross-source relay copy removed after event resolution |
+| `results_athlete_merge_backup` | **11** | duplicate result rows removed by reviewed athlete merges; merge-specific reversal evidence lives with each review plan |
 
 Per-run audit JSONs of the exact ids live in `scrapers/*.json` (16 files as of 2026-08-10), plus
 `scrapers/backfill-mark-seconds-2026-08-19T04-16-01-505Z.jsonl.gz` for M9 (below).
+
+### 2026-09-02 archive reconciliation
+
+Every backup table above was counted exactly. Each table has one unique archived primary-key value
+per row, and **zero archived IDs overlap the current canonical table**. All 89,085 archived relay
+legs resolve to one of the 40,935 archived relay parents.
+
+The relay archive is the sum of five reviewed operations, not the 674-row first pass alone:
+
+| operation | relay parents | relay legs | evidence |
+|---|---:|---:|---|
+| 2026-08-12 first lineup-keyed DUP-3 pass | 674 | 2,387 | `dedup-relay-results-2026-08-12T15-28-35-677Z.json` |
+| 2026-08-18 normalized-lineup pass | 13,716 | part of 86,499 | `dedup-relay-results-2026-08-18T04-41-50-697Z.json` |
+| 2026-08-18 real-mark pass | 26,494 | part of 86,499 | `dedup-relay-realmarks-2026-08-18T04-48-32-678Z.json` |
+| NCAA DII meet 13142 Athletic.net rollback | 44 | 172 | documented under M1 in `DATA_ISSUES_TRACKER.md`; TFRRS replacements retained |
+| later duplicate cleanup at meets 12756 and 12291 | 7 | 27 | all seven have a canonical same-meet/team/event/status survivor; no standalone audit JSON was retained |
+| **total** | **40,935** | **89,085** | live exact counts |
+
+The final seven rows are a documentation/audit-file gap, not missing recovery data: their complete
+parents and legs are present in the backup tables and their canonical survivors remain live. The
+read-only reconciliation is reproducible with `docs/database-audit/reconcile_backup_archives.js`.
 
 ## Rollback commands
 

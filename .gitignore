@@ -106,3 +106,6 @@ supabase/.temp
 
 # raw M9 audit (10MB); the .gz is committed instead
 scrapers/backfill-mark-seconds-*.jsonl
+
+# Local live-database baselines; keep out of source control.
+.db-baselines/
