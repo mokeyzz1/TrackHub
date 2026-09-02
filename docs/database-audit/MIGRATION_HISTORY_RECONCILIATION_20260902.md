@@ -91,6 +91,33 @@ projects 1,697 target rows: 555 `athletic_net`, 478 `tfrrs`, 130 `milesplit`, 46
 181 remaining `other`. This is a bounded repair candidate, but it requires a separate dry run and
 owner approval before changing the derived column or replacing the live function.
 
+## Timing-platform dry-run result
+
+The read-only companion scan is `docs/database-audit/timing_platform_repair_scan.sql`. It reproduces
+the local migration's CASE order and its exact eligibility predicate (`meet_url IS NOT NULL` plus a
+blank/`other`/`other_timing` stored value).
+
+The live scan confirmed:
+
+- 1,697 rows are eligible under that predicate;
+- 1,667 rows would actually change; and
+- 30 rows already match their projected fallback (`other` or `other_timing`).
+
+The 1,667 changing rows include 555 blank-to-`athletic_net` (plus one `other_timing`-
+to-`athletic_net`), 478 blank-to-`tfrrs`, 130 blank-to-`milesplit`, 46 blank-to-`pt_timing`,
+31 blank-to-`flashresults`, 29 blank-to-`leonetiming`, 19 blank-to-`finish_timing`, 14
+blank-to-`xpresstiming`, 11 blank-to-`herostiming`, 9 blank-to-`wayzatatiming`, 8
+blank-to-`lexicontiming`, and six each blank-to-`halfmiletiming` and blank-to-`deltatiming`.
+The eligible set also contains 181 rows projecting to `other` and 174 to `other_timing`; 18 and 12
+of those already match their stored fallback, leaving 163 and 162 actual fallback changes caused
+by URL classification.
+
+No rows were updated and the live function was not replaced. Before any repair, the fallback and
+unknown-host groups need an owner-reviewed policy: a detector label is not proof that the URL is
+the authoritative result provider, especially for generic timing hosts and TrackScoreboard-backed
+pages. Any eventual write should be a separate reversible migration with a before-image/archive,
+postcondition checks, and explicit approval.
+
 ## Cleanup migrations applied outside history
 
 These five migrations were applied directly to production after snapshot/rollback verification but
