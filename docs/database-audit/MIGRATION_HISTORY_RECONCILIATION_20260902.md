@@ -84,6 +84,13 @@ the current function against stored values found 1,698 mismatches (including 4 `
 `leonetiming`, and 13 `other_timing` rows). This is a live function/derived-data inconsistency that
 needs a separate reviewed repair; it is not safe to resolve through migration-history metadata.
 
+Emulating the local expanded detector against rows currently blank, `other`, or `other_timing`
+projects 1,697 target rows: 555 `athletic_net`, 478 `tfrrs`, 130 `milesplit`, 46 `pt_timing`, 19
+`finish_timing`, 31 `flashresults`, 29 `leonetiming`, 14 `xpresstiming`, 11 `herostiming`, 9
+`wayzatatiming`, 8 `lexicontiming`, 6 `halfmiletiming`, 6 `deltatiming`, 174 `other_timing`, and
+181 remaining `other`. This is a bounded repair candidate, but it requires a separate dry run and
+owner approval before changing the derived column or replacing the live function.
+
 ## Cleanup migrations applied outside history
 
 These five migrations were applied directly to production after snapshot/rollback verification but
