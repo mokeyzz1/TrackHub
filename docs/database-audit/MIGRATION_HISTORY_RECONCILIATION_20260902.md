@@ -31,8 +31,24 @@ Of the 62 matching names, 25 use different version prefixes. Representative mapp
 | `add_cccaa_and_missing_junior_college_teams` | `20260829090000` | `20260829031927` |
 | `add_glendale_ca_tfrrs_alias` | `20260829093000` | `20260829032324` |
 
-These are evidence of drift, not proof that the SQL is equivalent; each mapping still needs a
-statement or schema fingerprint before it can be treated as the same migration.
+These were initially evidence of drift, not proof that the SQL was equivalent; the fingerprint
+result below supplies that proof for all 25 mappings.
+
+## Fingerprint result
+
+A read-only comparison was run on all 25 timestamp-drifted names. Comments and whitespace were
+normalized, then SHA-256 fingerprints and token-set overlap were compared between each local file
+and the production `statements` array:
+
+- 25/25 normalized SQL fingerprints matched exactly;
+- 25/25 had token overlap of 1.0000; and
+- each production record contained one statement matching the local file.
+
+These 25 entries are confirmed version renames, not distinct schema changes. That does **not** mean
+we should run `migration repair` for the local timestamps: production already records the canonical
+production versions, and adding the local versions would create duplicate history entries. The safer
+next step is to align the local filenames to the canonical production versions (or establish an
+explicit baseline) after reviewing the remaining local-only files.
 
 ## Cleanup migrations applied outside history
 
