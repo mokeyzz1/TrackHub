@@ -50,6 +50,27 @@ production versions, and adding the local versions would create duplicate histor
 next step is to align the local filenames to the canonical production versions (or establish an
 explicit baseline) after reviewing the remaining local-only files.
 
+One additional cross-name fingerprint is exact: local `20260715_computed_athlete_prs.sql` is byte-
+equivalent after normalization to production `20260806182647_create_v_athlete_prs`.
+
+## Live-state checks for local-only files
+
+Read-only checks found the expected state for several local-only data/schema changes:
+
+- all 37 event-alias labels from the late-August local alias files exist in `public.event_aliases`;
+- all 31 reviewed team-alias mappings from the local-only TFRRS, Athletic.net, and TrackScoreboard
+  files exist as active `ingest.team_aliases` rows;
+- `push_tokens`, `v_athlete_prs`, `meets.end_date`, validated meet foreign keys, relay-table RLS,
+  relay-coverage columns, and the replacement results indexes exist; and
+- the retired `event_entries` and `meet_entries` tables are absent.
+
+These checks establish that the live state contains the intended objects/data, but they do not
+identify which migration supplied them. They are therefore classified as **state present,
+provenance unresolved**, not automatically marked applied.
+
+The invalid-history split remains **confirmed unapplied**: its archive operation and split-result
+postconditions are absent from production, and it must remain pending.
+
 ## Cleanup migrations applied outside history
 
 These five migrations were applied directly to production after snapshot/rollback verification but
