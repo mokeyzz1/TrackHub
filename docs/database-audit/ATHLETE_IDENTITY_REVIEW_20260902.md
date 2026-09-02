@@ -2,8 +2,8 @@
 
 Date: 2026-09-02
 
-Status: audit complete; importer hardening and secondary identity preservation implemented and
-locally verified; consolidation not yet implemented; live database unchanged
+Status: audit complete; importer hardening, secondary identity preservation, and guarded
+consolidation implemented and locally verified; live database unchanged
 
 ## Why this follows the meet repair
 
@@ -59,15 +59,16 @@ rows own:
 | `results` | delete confirmed duplicate facts | 1,255 |
 | `results` | move unique facts | 689 |
 | `relay_athletes` | move lineup references | 134 |
-| `athlete_prs` | review/consolidate | 9 |
+| `athlete_prs` | delete 4 exact tied copies; move 5 unique rows | 9 |
 | `athlete_team_seasons` | move (no conflict) | 1 |
 | `ingest.observations` | rewire | 151 |
 | `ingest.athlete_aliases` | rewire | 2 |
+| `ingest.source_links` | rewire from deleted fact to surviving fact | 9 |
 | `external_ids` | existing duplicate-owned rows | 0 |
 | `live_results` | existing duplicate-owned rows | 0 |
 
-Four PR keys contain two rows each. A migration must retain the actual better performance rather
-than selecting by athlete ID or deletion order. The ninth PR has no key conflict.
+Four PR keys contain two rows each. Each pair is an exact performance tie, so the older canonical
+row is retained. The other five duplicate-owned PR rows have no canonical key conflict and move.
 
 ### Source identities that must not be lost
 
@@ -127,8 +128,21 @@ is authorized without source-by-source review:
    identity mapping, and the four held pairs. Apply, replay, rollback, and reapply all passed on a
    disposable PostgreSQL 17 clone after migrations 1200, 1300, and 1400. An ordering test against
    the untouched pre-cleanup backup failed closed at the fingerprint gate and inserted zero rows.
-4. Prepare a guarded, archived migration for the 667 duplicate rows and every dependency above.
-5. Verify migration, replay, rollback, uniqueness, and the four PR selections on the isolated copy.
+4. **Complete locally:** migration
+   `20260902170615_consolidate_reviewed_athlete_duplicates.sql` consolidates the 667 duplicate
+   rows only after all reviewed counts and action fingerprints match. It archives 2,921 original
+   rows in the existing private `ingest.fact_cleanup_archive`, including 9 source links and 20
+   observation references that would otherwise have blocked deletion of redundant results. It
+   moves 689 unique results, removes 1,255 duplicate facts, moves 134 relay legs, consolidates 9
+   PR rows, and rewires all private provenance. Four canonical current-school/profile rows are
+   refreshed from the combined dated history while never promoting Unattached. Apply, replay,
+   exact rollback, and reapply passed on the disposable PostgreSQL 17 clone. The four contradictory
+   pairs remain untouched. A second clone without the identity-preservation migration failed closed
+   before archiving or changing any row. The live database is unchanged.
+5. **Complete locally:** post-apply checks found zero orphaned athlete/result references, zero bad
+   moves, all 2,921 archive rows present, and all 341 secondary source identities still resolving to
+   canonical athletes. The exact rollback restored the original athlete, result, relay-leg, and PR
+   counts before a successful reapply.
 6. Only then consider applying the database migrations live.
 
 This order preserves every source identity and prevents the cleanup from immediately recreating the
