@@ -100,7 +100,7 @@ BEGIN
   DROP TABLE IF EXISTS
     _merge_identity_facts, _merge_identity_pairs, _merge_athlete_map,
     _merge_result_plan, _merge_relay_plan, _merge_pr_plan,
-    _merge_profile_plan, _merge_source_identities;
+    _merge_profile_plan, _merge_source_identities, _merge_identity_dates;
 
   CREATE TEMP TABLE _merge_identity_facts ON COMMIT DROP AS
   SELECT r.athlete_id, r.meet_id, r.date, r.event_type_id,
@@ -144,11 +144,24 @@ BEGIN
          = lower(regexp_replace(a.full_name, '[^a-z0-9]+', '', 'gi'))
    GROUP BY f1.athlete_id, f2.athlete_id;
 
+  -- Restrict the contradiction check to candidate athletes' dates/meets. On production the full
+  -- facts table is millions of rows; probing it pair-by-pair can exceed the hosted timeout.
+  CREATE TEMP TABLE _merge_identity_dates ON COMMIT DROP AS
+  SELECT DISTINCT f.athlete_id, f.date, f.meet_id
+    FROM _merge_identity_facts f
+    JOIN (
+      SELECT athlete_a AS athlete_id FROM _merge_identity_pairs
+      UNION
+      SELECT athlete_b FROM _merge_identity_pairs
+    ) c USING (athlete_id)
+   WHERE f.date IS NOT NULL;
+  CREATE INDEX ON _merge_identity_dates (athlete_id, date, meet_id);
+
   UPDATE _merge_identity_pairs p SET conflict = true
    WHERE EXISTS (
      SELECT 1
-       FROM _merge_identity_facts x
-       JOIN _merge_identity_facts y
+       FROM _merge_identity_dates x
+       JOIN _merge_identity_dates y
          ON y.athlete_id = p.athlete_b
         AND y.date = x.date
         AND y.meet_id <> x.meet_id
