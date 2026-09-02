@@ -61,12 +61,13 @@ constraint is considered.
 imports, so it needs a source/roster-aware review. `relay_results` has 31,407 rows without a team
 and 22,865 without a meet; `relay_athletes` has 3,359 legs without an `athlete_id`.
 
-### 2. Ten result/meet date mismatches — high-confidence review candidates
+### 2. Thirty invalid history claims — reviewed split candidates
 
-Ten rows are dated more than seven days away from their linked meet date. Examples include
-2023/2024 performances attached to 2026 Lone Star Indoor Championships, 2024/2025 rows attached
-to 2026 Carpenter-Case and Olivet Nazarene meets, and a 2026-04-04 row attached to the 2026-02-20
-Grand Valley State Tune-Up. These are small enough for a manual, reversible review.
+The date detector exposed ten rows dated more than seven days away from their linked meet. A full
+provenance trace found 20 additional undated history rows claimed by the same pre-fix matcher bug.
+All 30 canonical rows combine an older historical performance with a different, newer source
+observation. The reviewed repair is a reversible 30-row split, not deletion or blind relinking;
+see `INVALID_HISTORY_CLAIM_REVIEW_20260902.md`.
 
 ### 3. Same-day/different-state signal is above baseline — investigate, do not auto-delete
 
@@ -133,7 +134,7 @@ athlete history together.
 ## Recommended next sequence (no mutation yet)
 
 1. Reconcile the stale recovery/archive documentation with live counts.
-2. Review the 10 date mismatches and the 83 school collision groups manually.
+2. Review the 30 invalid history claims and the 83 school collision groups manually.
 3. Partition unlinked `results`/relays by ingestion batch and source before proposing any backfill.
 4. Decide the lifecycle of `source_records.payload_hash`, `athlete_prs`, `live_results`, and empty
    `conference_memberships`/`events` using the existing retirement plan and target-schema blueprint.
