@@ -2,8 +2,8 @@
 
 Date: 2026-09-02
 
-Status: audit complete; importer identity hardening implemented and locally verified; consolidation
-not yet implemented; live database unchanged
+Status: audit complete; importer hardening and secondary identity preservation implemented and
+locally verified; consolidation not yet implemented; live database unchanged
 
 ## Why this follows the meet repair
 
@@ -119,7 +119,14 @@ is authorized without source-by-source review:
    athlete and is excluded from creation. A disposable PostgreSQL clone also verified Faith
    Yancey's IDs `8995421` and `9261451` both resolve to athlete `32807` after the reviewed mappings
    are present, while the old athlete row still exists.
-3. Populate the 341 secondary source identities for the reviewed components using existing tables.
+3. **Complete locally:** migration
+   `20260902144458_preserve_reviewed_secondary_athlete_identities.sql` inserts the 341 reviewed
+   source identities into both existing identity systems: 283 TFRRS and 58 Athletic.net rows in
+   `external_ids`, plus the same 341 active private aliases. It creates no table and does not move
+   or delete athletes or facts. Exact fingerprints pin the 667 duplicate mapping, the 341 source
+   identity mapping, and the four held pairs. Apply, replay, rollback, and reapply all passed on a
+   disposable PostgreSQL 17 clone after migrations 1200, 1300, and 1400. An ordering test against
+   the untouched pre-cleanup backup failed closed at the fingerprint gate and inserted zero rows.
 4. Prepare a guarded, archived migration for the 667 duplicate rows and every dependency above.
 5. Verify migration, replay, rollback, uniqueness, and the four PR selections on the isolated copy.
 6. Only then consider applying the database migrations live.
