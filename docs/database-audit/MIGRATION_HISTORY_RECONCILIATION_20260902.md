@@ -71,6 +71,19 @@ provenance unresolved**, not automatically marked applied.
 The invalid-history split remains **confirmed unapplied**: its archive operation and split-result
 postconditions are absent from production, and it must remain pending.
 
+## Function/data drift found
+
+The live `public.get_top_performances(...)` body matches the substantive logic of the latest local
+`20260223_wa_scoring_with_bounds.sql`; the earlier scoring files are therefore superseded.
+
+`public.detect_timing_platform(text)` is different. The live function recognizes only the core
+providers through `tfrrs`, while the local `20260527_expand_timing_platform_detection.sql` contains
+additional providers such as FlashResults, Roster Athletics, and multiple timing hosts. The stored
+`public.meets.timing_platform` values include those extended labels, but a read-only comparison of
+the current function against stored values found 1,698 mismatches (including 4 `flashresults`, 3
+`leonetiming`, and 13 `other_timing` rows). This is a live function/derived-data inconsistency that
+needs a separate reviewed repair; it is not safe to resolve through migration-history metadata.
+
 ## Cleanup migrations applied outside history
 
 These five migrations were applied directly to production after snapshot/rollback verification but
