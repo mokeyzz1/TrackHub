@@ -51,7 +51,7 @@ Dimension/auxiliary counts: `event_types` 67, `event_aliases` 1,329, `conference
 
 ### 1. Historical unlinked result population — high impact, legacy-shaped
 
-`results` has 422,741 rows with no `meet_id` (422,761 also have no date). The unlinked rows are
+`results` has 562,033 rows with no `meet_id` (422,761 have no date). The unlinked rows are
 heavily concentrated in old import batches created on 2025-11-26 (349,673), 2026-01-30
 (79,263), and 2026-02-03/04 (132,809 combined). This looks like a legacy ingestion/linkage gap,
 not a reason to delete rows. It should be repaired or explicitly classified before any NOT NULL
