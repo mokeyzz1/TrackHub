@@ -26,6 +26,7 @@ const { Client } = require('pg');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const idx = require('./tfrrs-meet-index.json');
+const { pageContainsMeetDate } = require('./tfrrs-date-verification');
 
 const APPLY = process.argv.includes('--apply');
 const li = process.argv.indexOf('--limit');
@@ -80,15 +81,7 @@ const tokens = s => new Set((norm(s).match(DISCRIMINATING) || []));
     try { page = (await axios.get(m.cand.url, { headers: { 'User-Agent': UA }, timeout: 25000 })).data; }
     catch (e) { console.log(`  ? #${m.meet_id} ${m.name.slice(0,34)} — fetch failed`); rejected++; await sleep(400); continue; }
     const text = cheerio.load(page)('body').text();
-    const d = new Date(m.date);
-    let dateOk = false;
-    for (let off = -3; off <= 3 && !dateOk; off++) {
-      const t = new Date(d); t.setDate(t.getDate() + off);
-      const mon = t.toLocaleString('en-US', { month: 'long' });
-      const mon3 = t.toLocaleString('en-US', { month: 'short' });
-      const day = t.getDate();
-      if (new RegExp(`(${mon}|${mon3})\\.?\\s+0?${day}\\b`, 'i').test(text)) dateOk = true;
-    }
+    const dateOk = pageContainsMeetDate(text, m.date, 3);
     if (dateOk) { ok.push(m); verified++; if (verified <= 12) console.log(`  OK   #${m.meet_id} ${m.date} ${m.name.slice(0,40)}  ->  ${m.cand.url}`); }
     else { rejected++; if (rejected <= 6) console.log(`  DATE #${m.meet_id} ${m.date} ${m.name.slice(0,40)} — page date does not match`); }
     await sleep(400);
