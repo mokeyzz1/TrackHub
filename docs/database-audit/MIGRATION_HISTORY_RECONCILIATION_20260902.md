@@ -18,6 +18,22 @@ The large name overlap with timestamp drift indicates that the repository and pr
 maintained from different migration histories (renamed or regenerated files), not that production
 has no migration tracking.
 
+Of the 62 matching names, 25 use different version prefixes. Representative mappings include:
+
+| Migration name | Local version | Production version |
+|---|---:|---:|
+| `create_event_types_and_aliases` | `20260714` | `20260710063357` |
+| `create_divisions_dimension` | `20260715` | `20260715201807` |
+| `add_results_source_tracking` | `20260716` | `20260716201815` |
+| `team_aliases` | `20260820054037` | `20260820054321` |
+| `athlete_aliases` | `20260820060951` | `20260820061042` |
+| `recovery_queue_canonical_meet_target` | `20260828233203` | `20260828233616` |
+| `add_cccaa_and_missing_junior_college_teams` | `20260829090000` | `20260829031927` |
+| `add_glendale_ca_tfrrs_alias` | `20260829093000` | `20260829032324` |
+
+These are evidence of drift, not proof that the SQL is equivalent; each mapping still needs a
+statement or schema fingerprint before it can be treated as the same migration.
+
 ## Cleanup migrations applied outside history
 
 These five migrations were applied directly to production after snapshot/rollback verification but
