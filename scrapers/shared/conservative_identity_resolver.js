@@ -44,9 +44,11 @@ class ExactTeamResolver {
     this.byId = new Map();
     for (const row of rows) {
       const g = gender(row.gender);
-      if (!g || !row.team_id || !row.school_id) continue;
+      // A reviewed non-collegiate affiliation may have no school_id. It is still resolvable when
+      // it has an explicit team_name; legacy school-backed teams continue to work unchanged.
+      if (!g || !row.team_id || (!row.school_id && !row.team_name)) continue;
       this.byId.set(Number(row.team_id), row);
-      for (const name of [row.official_name, row.short_name]) {
+      for (const name of [row.team_name, row.official_name, row.short_name]) {
         add(this.byNameGender, `${normalizeCanonicalTeamName(name)}|${g}`, row);
       }
     }
@@ -62,7 +64,9 @@ class ExactTeamResolver {
     const row = [...unique.values()][0];
     return {
       team_id: Number(row.team_id),
-      school_id: Number(row.school_id),
+      school_id: row.school_id == null ? null : Number(row.school_id),
+      team_name: row.team_name || row.official_name || row.short_name || null,
+      team_type: row.team_type || null,
       match_field: 'exact_canonical_team_name',
       match_method: 'exact_canonical_name'
     };
@@ -176,9 +180,10 @@ class CompositeAthleteResolver {
 
 async function loadExactTeamResolver(pool) {
   const { rows } = await pool.query(`
-    SELECT t.team_id, t.school_id, t.gender, s.official_name, s.short_name
+    SELECT t.team_id, t.school_id, t.gender, t.team_name, t.team_type,
+           s.official_name, s.short_name
       FROM public.teams t
-      JOIN public.schools s ON s.school_id = t.school_id
+      LEFT JOIN public.schools s ON s.school_id = t.school_id
   `);
   return new ExactTeamResolver(rows);
 }

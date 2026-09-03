@@ -1047,7 +1047,9 @@ export type Database = {
           gender: string
           is_active: boolean | null
           school_id: number
+          team_name: string | null
           team_id: number
+          team_type: string | null
           tfrrs_team_url: string | null
           updated_at: string | null
         }
@@ -1058,7 +1060,9 @@ export type Database = {
           gender: string
           is_active?: boolean | null
           school_id: number
+          team_name?: string | null
           team_id?: number
+          team_type?: string | null
           tfrrs_team_url?: string | null
           updated_at?: string | null
         }
@@ -1069,7 +1073,9 @@ export type Database = {
           gender?: string
           is_active?: boolean | null
           school_id?: number
+          team_name?: string | null
           team_id?: number
+          team_type?: string | null
           tfrrs_team_url?: string | null
           updated_at?: string | null
         }

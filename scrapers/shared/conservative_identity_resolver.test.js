@@ -23,6 +23,31 @@ test('exact team resolver requires a unique canonical school/gender match', () =
   assert.equal(resolver.resolve({ sourceTeamName: 'Example College', sourceGender: 'F' }), null);
 });
 
+test('exact team resolver can resolve a reviewed non-collegiate team without a school', () => {
+  const resolver = new ExactTeamResolver([
+    {
+      team_id: 44,
+      school_id: null,
+      team_name: 'Dawgs Track Club',
+      team_type: 'club',
+      gender: 'M',
+      official_name: null,
+      short_name: null,
+    },
+  ]);
+  assert.deepEqual(
+    resolver.resolve({ sourceTeamName: 'Dawgs Track Club', sourceGender: 'M' }),
+    {
+      team_id: 44,
+      school_id: null,
+      team_name: 'Dawgs Track Club',
+      team_type: 'club',
+      match_field: 'exact_canonical_team_name',
+      match_method: 'exact_canonical_name',
+    },
+  );
+});
+
 test('exact athlete resolver uses team school corroboration and rejects ambiguity', () => {
   const teams = new ExactTeamResolver([
     { team_id: 11, school_id: 101, gender: 'F', official_name: 'Example College', short_name: 'Example' },
