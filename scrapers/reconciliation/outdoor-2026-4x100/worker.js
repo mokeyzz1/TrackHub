@@ -34,10 +34,13 @@ class ReconciliationWorker {
   }
 
   async runQueue({ scope, maxJobs = 0, meetId = null, retryFailed = false, includeStaged = false, recheckStaged = false } = {}) {
+    if (recheckStaged && this.database.queueStagedForRecheck) {
+      await this.database.queueStagedForRecheck({ scope, meetId });
+    }
     let processed = 0;
     const counts = new Map();
     while (!maxJobs || processed < maxJobs) {
-      const job = await this.database.claimJob({ scope, meetId, retryFailed, includeStaged, recheckStaged });
+      const job = await this.database.claimJob({ scope, meetId, retryFailed, includeStaged });
       if (!job) break;
       try {
         const meet = this.database.getMeetForJob

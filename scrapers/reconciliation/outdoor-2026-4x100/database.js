@@ -216,7 +216,23 @@ class ReconciliationDatabase {
     }
   }
 
-  async claimJob({ scope, leaseMinutes = 30, retryFailed = false, includeStaged = false, recheckStaged = false, meetId = null } = {}) {
+  async queueStagedForRecheck({ scope, meetId = null } = {}) {
+    const { rowCount } = await this.pool.query(
+      `UPDATE ${QUEUE_TABLE}
+          SET status = 'queued', lease_token = NULL, leased_until = NULL,
+              source_candidates = jsonb_set(COALESCE(source_candidates, '{}'::jsonb),
+                '{${RECONCILIATION_KEY},queue_state}', '"queued"'::jsonb, true),
+              updated_at = now()
+        WHERE scope_key = $1
+          AND ($2::integer IS NULL OR meet_id = $2)
+          AND status IN ('complete', 'needs_review')
+          AND source_candidates #>> '{${RECONCILIATION_KEY},tfrrs_candidate,url}' IS NOT NULL`,
+      [scope, meetId]
+    );
+    return rowCount;
+  }
+
+  async claimJob({ scope, leaseMinutes = 30, retryFailed = false, includeStaged = false, meetId = null } = {}) {
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
@@ -237,16 +253,13 @@ class ReconciliationDatabase {
                   AND job.source_candidates #>> '{${RECONCILIATION_KEY},queue_state}' = 'failed')
               OR ($3::boolean AND job.status = 'blocked'
                   AND job.source_candidates #>> '{${RECONCILIATION_KEY},tfrrs_candidate,url}' IS NOT NULL)
-              OR ($4::boolean
-                  AND job.status IN ('complete', 'matched', 'needs_review', 'repair_ready')
-                  AND job.source_candidates #>> '{${RECONCILIATION_KEY},tfrrs_candidate,url}' IS NOT NULL)
             )
             AND job.next_attempt_at <= now()
-            AND ($5::integer IS NULL OR job.meet_id = $5)
+            AND ($4::integer IS NULL OR job.meet_id = $4)
           ORDER BY job.priority, job.meet_id
           FOR UPDATE SKIP LOCKED
           LIMIT 1`,
-        [scope, retryFailed, includeStaged, recheckStaged, meetId]
+        [scope, retryFailed, includeStaged, meetId]
       );
       if (!rows[0]) {
         await client.query('COMMIT');

@@ -91,3 +91,20 @@ test('staged candidates are passed to the source without changing the public mee
   assert.equal(claimedOptions.includeStaged, true);
   assert.equal(loadedMeet.tfrrs_url, 'https://www.tfrrs.org/results/3');
 });
+
+test('recheck mode queues staged candidates once before processing', async () => {
+  let queued = 0;
+  let claimed = 0;
+  const database = {
+    queueStagedForRecheck: async () => { queued++; return 1; },
+    claimJob: async () => (claimed++ === 0 ? { job_id: 4, meet_id: 4, lease_token: 'four' } : null),
+    getMeet: async () => ({ meet_id: 4, name: 'Recheck Meet', tfrrs_url: 'https://tfrrs/4' }),
+    getLocalFacts: async () => [],
+    getTeamCatalog: async () => ({}),
+    finishJob: async () => {},
+  };
+  const source = { load: async () => ({ snapshot: { status: 'not_contested', event_count: 0 }, facts: [] }) };
+  const worker = new ReconciliationWorker({ database, source, delayMs: 0 });
+  await worker.runQueue({ scope: 'test', recheckStaged: true, maxJobs: 1 });
+  assert.equal(queued, 1);
+});
