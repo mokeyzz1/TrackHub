@@ -6,7 +6,7 @@ can be approved. “Held” means no production mutation is authorized for that 
 
 | ID | Area | Current evidence | Decision / next gate | Status |
 | --- | --- | --- | --- | --- |
-| DB-01 | Person vs affiliation | `Unattached` school 1835 contains 48,124 athletes, 56,046 results, and 21 relay parents; `athlete_team_seasons` has zero linked rows. | Add explicit nullable/typed affiliation semantics in parallel; preserve placeholder until deterministic backfill and rollback pass. | Evidence captured; held |
+| DB-01 | Person vs affiliation | `Unattached` school 1835 contains 48,124 athletes, 56,046 results, and 21 relay parents; `athlete_team_seasons` has zero linked rows. | Add explicit nullable/typed affiliation semantics in parallel; preserve placeholder until deterministic backfill and rollback pass. | Foundation migration drafted/tested; application rollout held |
 | DB-02 | `Other` division | 129 schools / 245 teams / 5,654 athletes; examples include real colleges and universities. | Do not reinterpret `Other`; classify only source-reviewed cohorts. | Decided: no bulk remap |
 | DB-03 | School duplicate identity | 71 normalized-name groups / 115 extra rows; no automatic merge is safe from name alone. | Produce per-group source/state/URL evidence and reviewed merge maps. | Held |
 | DB-04 | Athlete identity | 6,549 normalized name+school groups / 9,884 extras; collisions are not proof of duplicate people. | Use source IDs, aliases, gender, dates, and provenance; keep ambiguous identities separate. | Held |
