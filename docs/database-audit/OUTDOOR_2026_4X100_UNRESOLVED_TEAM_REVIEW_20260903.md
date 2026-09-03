@@ -3,7 +3,7 @@
 Generated 2026-09-03 from the private reconciliation queue. This is a profiling report only; it
 does not create aliases or change public team/result rows.
 
-The queue contains 556 unresolved source-team actions across 78 meets and 314 distinct source
+The queue contains 536 unresolved source-team actions across 78 meets and 313 distinct source
 team names. An exact, gender-aware comparison against active canonical school names produced zero
 matches for the unresolved set. A read-only re-fetch of all 227 source event pages recovered three
 unique-prefix resolutions (`Highland` F → team 2003, `Hudson` M → team 2016, and `Marion` F → team
@@ -63,7 +63,7 @@ After the historical-team resolver recheck, the current leading unresolved names
 
 The next mapping pass should use the source result/team URL, state or conference context, and the
 existing `public.schools`/`public.teams` catalog together. Until that evidence is assembled, these
-556 actions remain `needs_review` and no alias migration should be proposed.
+536 actions remain `needs_review` and no alias migration should be proposed.
 
 See the [source-key review packet](</Users/mk/Projects/track-meet-tracker/docs/database-audit/OUTDOOR_2026_4X100_SOURCE_KEY_REVIEW_20260903.md>)
 for the three recovered candidates. They remain unapproved and unchanged.

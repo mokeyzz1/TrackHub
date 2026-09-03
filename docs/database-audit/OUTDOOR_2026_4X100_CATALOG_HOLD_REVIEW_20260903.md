@@ -5,8 +5,8 @@ it does not create teams, aliases, or public result changes.
 
 ## Finding
 
-The current unresolved set contains **556 source-team actions** across **78 meets**, represented by
-**441 source-name/gender pairs** and **314 distinct source names**. Each pair was compared against
+The current unresolved set contains **536 source-team actions** across **78 meets**, represented by
+**439 source-name/gender pairs** and **313 distinct source names**. Each pair was compared against
 all gendered canonical rows in `public.teams`, including inactive historical teams, using the same
 normalization as the private resolver.
 
@@ -15,7 +15,7 @@ normalization as the private resolver.
 | Active canonical match | 0 | 0 |
 | Inactive historical canonical match | 0 | 0 |
 | Ambiguous exact match | 0 | 0 |
-| No exact catalog row | 441 | 556 |
+| No exact catalog row | 439 | 536 |
 
 This means the earlier inactive-team holds (Catholic, Oswego State, Wisconsin affiliates, and
 similar identities) were resolved by the historical-team pass and are no longer part of the
@@ -29,7 +29,6 @@ catalog has no exact gendered identity for them.
 | Clackamas CC | M | 6 | 6 |
 | Clackamas CC | F | 5 | 5 |
 | SW Oregon CC | M | 5 | 5 |
-| ADM, Adel | F | 4 | 1 |
 | Everett CC | F | 4 | 4 |
 | G.C. Foster | M | 4 | 2 |
 | Garden State TC | M | 4 | 2 |
@@ -38,14 +37,15 @@ catalog has no exact gendered identity for them.
 | United States | M | 4 | 1 |
 | University of Minnesota Club | M | 4 | 2 |
 | UTech | M | 4 | 2 |
-| Valley, WDM | F | 4 | 1 |
-| Waukee NW | F | 4 | 1 |
 | AC Training | M | 3 | 2 |
 | Everett CC | M | 3 | 3 |
 | Mt. Hood CC | M | 3 | 3 |
-| Pleasant Valley | F | 3 | 1 |
-| SE Polk | F | 3 | 1 |
 | SW Oregon CC | F | 3 | 3 |
+| Virginia Tech Running Club | M | 3 | 1 |
+| ADM, Adel | F | 2 | 1 |
+| Bishop Moore | M | 2 | 1 |
+| Bullis | F | 2 | 1 |
+| Centennial | M | 2 | 1 |
 
 ## Required evidence before any mapping
 
