@@ -188,3 +188,9 @@ unapplied. The additive affiliation foundation (`20260903180000`) was then appli
 transaction-tested direct DDL step and recorded in the ledger; it changed only the `teams` schema.
 Timestamp-drifted files and state-present/provenance-uncertain files remain held pending an explicit
 baseline/alignment plan.
+
+The follow-up compatibility-view migration
+`20260903212617_teams_summary_prefers_explicit_affiliation` was applied transactionally and recorded
+as applied. It preserves the existing `teams_summary` column contract and changes no current output
+because all existing `teams.team_name` values remain NULL. The invalid-history split and paused
+4×100 team-link migration remain absent and unapplied.

@@ -30,12 +30,17 @@ fields and index `team_name` when present, while retaining the existing school a
 The resolver test suite passes 12/12. Because every existing `team_name` is still NULL, this
 changes no current match and is safe to deploy ahead of any reviewed backfill.
 
+The existing `public.teams_summary` view was then updated in place to use
+`COALESCE(t.team_name, s.official_name)` while keeping its original eight-column contract. The
+live view still returns 3,516 rows, with zero display-name changes, and migration
+`20260903212617_teams_summary_prefers_explicit_affiliation` is recorded as applied.
+
 ## Required next steps after applying
 
 1. Reconcile any remaining repository/production migration-history drift before applying additional
    migrations.
-2. Update remaining compatibility readers (`teams_summary`, frontend display paths, and non-TFRRS
-   scraper lookups) to use `COALESCE(team_name, schools.official_name)` and expose `team_type`
+2. Update remaining compatibility readers (frontend display paths and non-TFRRS scraper lookups)
+   to use `COALESCE(team_name, schools.official_name)` and expose `team_type`
    without changing old fields.
 3. Add fixtures/tests for collegiate, club, scholastic, international, open, unattached, and
    school-linked historical cases.
