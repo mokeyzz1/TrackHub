@@ -82,6 +82,19 @@ owner-schema snapshot (local port 55433). Results:
 The test server was stopped after verification. The retained baseline dump and the live database
 were not modified.
 
+## Production preflight
+
+Immediately before any live execution, a read-only preflight confirmed the scope has not drifted:
+
+- known-provider candidates: 1,342;
+- candidate fingerprint: `5f860770aa852c58deb0da12addd63f7` (unchanged);
+- completed known-provider candidates: 1,342;
+- held fallback changes: 325; and
+- existing archive rows for `20260902_timing_platform_known_provider_repair`: 0.
+
+The guarded apply script will repeat these checks inside its transaction and fail closed if any value
+changes before it acquires its locks.
+
 ## Approval gate
 
 No migration or production write should be created/executed until the owner approves the exact
