@@ -275,7 +275,8 @@ async function loadState(pool, runId) {
 
   const teams = teamIds.length
     ? (await pool.query(
-      `SELECT t.team_id, t.school_id, s.official_name, s.short_name
+      `SELECT t.team_id, t.school_id, t.team_name, t.team_type,
+              COALESCE(t.team_name, s.official_name) AS official_name, s.short_name
          FROM public.teams t
          JOIN public.schools s ON s.school_id = t.school_id
         WHERE t.team_id = ANY($1::bigint[])`,
