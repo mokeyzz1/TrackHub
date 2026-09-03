@@ -25,7 +25,7 @@ is owned by Supabase and must be documented rather than redesigned by the applic
 | `external_ids` | keep + adopt | populated multi-source identity table; audit why entity-specific columns are mostly unused |
 | `athlete_prs` | replace after readers migrate | large scraped/duplicated fact store; computed view is the intended source of truth |
 | `v_athlete_prs` | keep + improve | derived PR view; fix multi-event/component semantics before treating as authoritative |
-| `events` | decision required | empty per-meet event-instance model still has a frontend reader |
+| `events` | retire after reader migration | empty per-meet scheduling model; one frontend reader remains and has an explicit retirement gate |
 | `live_results` | isolate + validate | 48 stale live-ingest rows; separate lifecycle from finalized facts |
 | `unprocessed_live_results` | keep temporarily | compatibility view over `live_results`; retire with the live-results reader |
 | `schools_full` | keep + improve | convenience view; migrate legacy text division dependency |
