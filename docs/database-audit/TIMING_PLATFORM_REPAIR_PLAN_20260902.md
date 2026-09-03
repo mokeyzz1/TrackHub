@@ -2,7 +2,7 @@
 
 Date: 2026-09-02
 
-Status: prepared for approval; no production rows changed
+Status: prepared and isolated-test verified; no production rows changed
 
 ## Scope
 
@@ -66,6 +66,21 @@ The paired rollback will:
 
 This plan is intentionally separate from migration-history reconciliation. It does not mark any
 Supabase migration as applied and does not create a public repair command.
+
+## Isolated replay verification
+
+The apply and rollback scripts were replayed against a fresh PostgreSQL 17 restore of the retained
+owner-schema snapshot (local port 55433). Results:
+
+- first apply archived and updated exactly 1,342 rows;
+- apply replay verified the archive and completed as a no-op;
+- rollback restored all 1,342 rows, including the archived `updated_at` values;
+- post-rollback candidate count and fingerprint returned to 1,342 and
+  `5f860770aa852c58deb0da12addd63f7`; and
+- rollback replay completed as a safe no-op with no archive rows left behind.
+
+The test server was stopped after verification. The retained baseline dump and the live database
+were not modified.
 
 ## Approval gate
 
