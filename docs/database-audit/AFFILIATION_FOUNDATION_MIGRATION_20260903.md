@@ -25,8 +25,9 @@ relaxation, policy change, compatibility-view rewrite, or placeholder retirement
 
 ## Dual-read checkpoint — 2026-09-03
 
-The shared conservative identity resolver and the active TFRRS team readers now select the new
-fields and index `team_name` when present, while retaining the existing school aliases as fallback.
+The shared conservative identity resolver, active TFRRS team readers, and frontend result/relay
+display paths now select the new fields and use `team_name` when present, while retaining the
+existing school aliases as fallback.
 The resolver test suite passes 12/12. Because every existing `team_name` is still NULL, this
 changes no current match and is safe to deploy ahead of any reviewed backfill.
 
@@ -39,8 +40,8 @@ live view still returns 3,516 rows, with zero display-name changes, and migratio
 
 1. Reconcile any remaining repository/production migration-history drift before applying additional
    migrations.
-2. Update remaining compatibility readers (frontend display paths and non-TFRRS scraper lookups)
-   to use `COALESCE(team_name, schools.official_name)` and expose `team_type`
+2. Update remaining non-TFRRS scraper lookups to use `COALESCE(team_name, schools.official_name)`
+   and expose `team_type`
    without changing old fields.
 3. Add fixtures/tests for collegiate, club, scholastic, international, open, unattached, and
    school-linked historical cases.
