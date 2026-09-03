@@ -39,9 +39,20 @@ The upcoming exception fingerprint is:
 
 ## Remaining held scope
 
-After isolating the `.anet.live` family, 308 of the original 325 held changes remain unresolved.
-They include generic timing domains and intermediary hosts such as TrackScoreboard-backed pages.
-Those cannot be assigned a canonical provider from URL text alone and remain untouched pending
-source-specific review.
+After isolating the `.anet.live` family, 309 of the original 325 held changes remain unresolved:
+16 `.anet.live` rows are completed candidates and the 17th is already a matching `other_timing`
+value on the upcoming meet. The remaining 309 include generic timing domains and intermediary hosts
+such as TrackScoreboard-backed pages. They cannot be assigned a canonical provider from URL text
+alone and remain untouched pending source-specific review.
+
+The 309 rows have no `source_url` values. 129 carry a separate TFRRS link and two carry a separate
+Athletic.net results link, but those links identify alternate result sources rather than proving
+that the generic `meet_url` itself can be handled by the corresponding scraper. They therefore do
+not automatically change the timing-platform classification.
+
+A cross-row consistency check found 72 distinct hosts among the 309 rows, and none of those hosts
+has an existing non-fallback `timing_platform` label on another meet. There is therefore no
+same-host production precedent to use as an automatic mapping. The remaining rows should be handled
+by provider-specific evidence (or left as fallback), rather than a broad domain-name guess.
 
 No additional production repair was executed in this review.
