@@ -38,6 +38,7 @@ test('selects only the canonical 4x100 event for scoped recovery', () => {
   assert.equal(shouldScrapeEvent({ eventName: 'College 4x100 Eastern' }, '4x100m'), true);
   assert.equal(shouldScrapeEvent({ eventName: '4 x 100 Relay Class"A"' }, '4x100m'), false);
   assert.equal(shouldScrapeEvent({ eventName: '4 x 100 Relay 9th Grade' }, '4x100m'), false);
+  assert.equal(shouldScrapeEvent({ eventName: "Women's 4 x 100 Shuttle Hurdle Relay" }, '4x100m'), false);
   assert.equal(shouldScrapeEvent({ eventName: "Men's 4 x 400 Relay" }, '4x100m'), false);
   assert.equal(shouldScrapeEvent({ eventName: '4 x 100 Relay' }, null), true);
 });

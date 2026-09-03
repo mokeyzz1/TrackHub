@@ -86,6 +86,10 @@ function isCollegiate4x100EventName(name) {
   const suffix = String(match[1] || '').trim();
   if (!suffix) return true;
 
+  // Shuttle-hurdle relays can be presented as "4 x 100" on mixed relay pages, but they are a
+  // different event and must never enter a canonical 4x100 comparison.
+  if (/\bshuttle\b|\bhurdles?\b/i.test(suffix)) return false;
+
   // Mixed college/high-school TFRRS pages append division labels to the event name. Accept only
   // explicit collegiate labels; importing Class A/B/C or grade divisions would contaminate a
   // college meet with scholastic relay rows.
