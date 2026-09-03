@@ -26,7 +26,7 @@ is owned by Supabase and must be documented rather than redesigned by the applic
 | `athlete_prs` | keep temporarily + reconcile, then retire | scraped cache still contains source evidence not reproducible from imported results; computed view is the eventual authority only after gap closure |
 | `v_athlete_prs` | keep + improve | derived PR view; fix multi-event/component semantics before treating as authoritative |
 | `events` | retire after reader migration | empty per-meet scheduling model; one frontend reader remains and has an explicit retirement gate |
-| `live_results` | isolate + validate | 48 stale live-ingest rows; separate lifecycle from finalized facts |
+| `live_results` | isolate + retire after lifecycle migration | 48 stale unlinked rows; active readers/writers remain, so archive and migrate lifecycle first |
 | `unprocessed_live_results` | keep temporarily | compatibility view over `live_results`; retire with the live-results reader |
 | `schools_full` | keep + improve | convenience view; migrate legacy text division dependency |
 | `teams_summary` | keep + improve | convenience view; verify aggregation and canonical dimension joins |
