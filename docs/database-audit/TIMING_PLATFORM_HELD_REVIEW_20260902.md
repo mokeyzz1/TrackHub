@@ -67,3 +67,7 @@ key `20260902_timing_platform_anet_live_completed_repair` and candidate fingerpr
 On the isolated PostgreSQL 17 restore, apply, apply replay, rollback, and rollback replay all
 passed. Meet `94975` remained `upcoming` with `other_timing` throughout the test. Production was not
 changed; these 16 rows require separate approval.
+
+The live preflight is also clean: 16 completed candidates, fingerprint
+`cb2a8186d5d6392b96b9cbccd49703eb`, one preserved upcoming exception (`94975`), and zero existing
+archive rows for the new operation key.
