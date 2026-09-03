@@ -110,6 +110,11 @@ The operation key is `20260902_timing_platform_known_provider_repair`. The archi
 retained so the paired rollback remains available. No public repair command or migration-history row
 was added.
 
+The follow-up held review is recorded in `TIMING_PLATFORM_HELD_REVIEW_20260902.md`. It identified
+16 completed `.anet.live` rows that are strong AthleticLIVE/Athletic.net candidates, plus one
+upcoming `.anet.live` meet that remains held to avoid changing active routing. These are outside the
+already-applied 1,342-row operation and require a separate approval if they are to be repaired.
+
 ## Approval gate
 
 No migration or production write should be created/executed until the owner approves the exact
