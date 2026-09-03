@@ -122,6 +122,11 @@ Using that conservative policy, 1,342 changes are classified as known-provider m
 held for review. The held group is concentrated in generic or intermediary hosts (including
 TrackScoreboard pages); it is not safe to relabel those automatically from URL text alone.
 
+The owner-approved known-provider repair was subsequently applied with operation key
+`20260902_timing_platform_known_provider_repair`. It archived 1,342 unique meet before-images and
+updated only those rows; the 325 held fallback rows remain unchanged. The archive is retained for
+rollback, and no migration-history row or new table was added.
+
 ## Cleanup migrations applied outside history
 
 These five migrations were applied directly to production after snapshot/rollback verification but

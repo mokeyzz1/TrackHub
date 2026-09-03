@@ -2,7 +2,7 @@
 
 Date: 2026-09-02
 
-Status: prepared and isolated-test verified; no production rows changed
+Status: applied and verified in production; 325 ambiguous rows remain held
 
 ## Scope
 
@@ -94,6 +94,21 @@ Immediately before any live execution, a read-only preflight confirmed the scope
 
 The guarded apply script will repeat these checks inside its transaction and fail closed if any value
 changes before it acquires its locks.
+
+## Production execution
+
+The owner-approved apply ran on 2026-09-02 using the guarded script. It committed successfully and
+reported 1,342 updated rows. Read-only postconditions confirmed:
+
+- the private archive contains 1,342 unique `public.meets` before-images;
+- all 1,342 archived rows now differ from their original fallback platform;
+- zero known-provider candidates remain;
+- all 325 held fallback rows remain unchanged; and
+- `public.meets` still contains 12,878 rows.
+
+The operation key is `20260902_timing_platform_known_provider_repair`. The archive is intentionally
+retained so the paired rollback remains available. No public repair command or migration-history row
+was added.
 
 ## Approval gate
 
