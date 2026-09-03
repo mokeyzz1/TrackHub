@@ -33,6 +33,13 @@ node scrapers/reconciliation/outdoor-2026-4x100/cli.js audit --meet 12810
 # is represented; meets without a TFRRS URL are recorded as blocked rather than omitted.
 node scrapers/reconciliation/outdoor-2026-4x100/cli.js prepare
 
+# Verify cached TFRRS candidates for blocked meets without changing any database row.
+node scrapers/reconciliation/outdoor-2026-4x100/cli.js discover
+
+# Stage only page/date-verified candidates in the existing private queue. Jobs remain blocked and
+# public meets.tfrrs_url is not changed.
+node scrapers/reconciliation/outdoor-2026-4x100/cli.js discover --stage
+
 # Continuously audit queued meets and save a private repair plan. Public facts remain unchanged.
 node scrapers/reconciliation/outdoor-2026-4x100/cli.js run --max-jobs 0
 

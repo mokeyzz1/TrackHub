@@ -7,6 +7,7 @@ const { ensureIngestDatabaseUrl } = require('../../shared/private_database_url')
 const { ReconciliationDatabase } = require('./database');
 const { Tfrrs4x100Source } = require('./tfrrs_source');
 const { ReconciliationWorker } = require('./worker');
+const { discover: discoverTfrrsCandidates } = require('./source_discovery');
 
 const DEFAULT_SCOPE = 'outdoor-2026-4x100-source-reconciliation-v1';
 
@@ -31,8 +32,8 @@ function nonNegativeInteger(value, name, fallback = null) {
 
 function parseArgs(argv = process.argv.slice(2)) {
   const command = argv[0] || 'help';
-  if (!['audit', 'prepare', 'run', 'summary', 'help'].includes(command)) {
-    throw new Error('command must be audit, prepare, run, summary, or help');
+  if (!['audit', 'discover', 'prepare', 'run', 'summary', 'help'].includes(command)) {
+    throw new Error('command must be audit, discover, prepare, run, summary, or help');
   }
   return {
     command,
@@ -44,6 +45,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     maxJobs: nonNegativeInteger(valueAfter(argv, '--max-jobs'), '--max-jobs', 0),
     delayMs: nonNegativeInteger(valueAfter(argv, '--delay-ms'), '--delay-ms', 1000),
     retryFailed: argv.includes('--retry-failed'),
+    stage: argv.includes('--stage'),
     json: argv.includes('--json'),
   };
 }
@@ -51,11 +53,12 @@ function parseArgs(argv = process.argv.slice(2)) {
 function help() {
   console.log(`Outdoor 2026 TFRRS 4x100 reconciliation\n\n` +
     `  audit --meet ID       Read-only source-vs-database comparison\n` +
+    `  discover              Verify cached TFRRS candidates for blocked jobs\n` +
     `  prepare               Populate the dedicated private queue\n` +
     `  run [--max-jobs N]    Drain the private queue; plans repairs but never changes public facts\n` +
     `  summary               Show private queue outcomes\n\n` +
     `Options: --scope KEY --season NAME --from YYYY-MM-DD --to YYYY-MM-DD\n` +
-    `         --meet ID --delay-ms N --retry-failed --json\n\n` +
+    `         --meet ID --delay-ms N --retry-failed --stage --json\n\n` +
     `There is deliberately no public apply command in this version.`);
 }
 
@@ -85,6 +88,18 @@ async function main(argv = process.argv.slice(2)) {
   });
 
   try {
+    if (args.command === 'discover') {
+      const result = await discoverTfrrsCandidates({
+        pool: database.pool,
+        scope: args.scope,
+        limit: args.maxJobs,
+        delayMs: args.delayMs,
+        stage: args.stage,
+      });
+      console.log(JSON.stringify(result));
+      return result;
+    }
+
     if (args.command === 'audit') {
       if (!args.meetId) throw new Error('audit requires --meet ID');
       const meet = await database.getMeet(args.meetId);
