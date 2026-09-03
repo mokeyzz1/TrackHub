@@ -75,6 +75,22 @@ separate bounded batches. Large historical fact/archive counts are intentionally
 PostgreSQL statistics; the final report will record the exact query result or an explicit count
 limitation.
 
+## Exact managed-schema counts captured
+
+The managed-schema batch completed without count errors:
+
+| Schema | Exact rows across tables | Notable populated objects |
+| --- | ---: | --- |
+| `auth` | 77 | `schema_migrations` only; user/session/auth data is currently empty |
+| `realtime` | 81 | `schema_migrations` only; subscription/message tables are empty |
+| `storage` | 1,906 | 1 bucket and 1,840 storage objects |
+| `supabase_migrations` | 64 | applied migration metadata |
+| `vault` | 0 | encrypted-secret table currently empty |
+
+The same pass captured 240 auth columns, 20 realtime columns, 71 storage columns, 6 migration
+metadata columns, and 17 vault columns, plus the managed enum types. These objects are included in
+the catalog for completeness; they are not candidates for application-level consolidation.
+
 ## Required follow-through
 
 This file is an inventory baseline, not a cleanup decision. Every cataloged object still needs an
