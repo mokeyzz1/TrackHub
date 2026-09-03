@@ -80,6 +80,8 @@ export async function getPerformancesByEvent(eventName: string, limit: number = 
         gender
       ),
       teams (
+        team_name,
+        team_type,
         schools (
           official_name,
           division
@@ -105,7 +107,7 @@ export async function getPerformancesByEvent(eventName: string, limit: number = 
     date: r.date,
     meet_name: r.meet_name,
     place: r.place,
-    school_name: r.teams?.schools?.official_name,
+    school_name: r.teams?.team_name || r.teams?.schools?.official_name,
     division: r.teams?.schools?.division,
   })) || [];
 }
@@ -1294,6 +1296,8 @@ export async function getRelayResults(meetName: string, eventName: string, date:
       place,
       round,
       teams (
+        team_name,
+        team_type,
         gender,
         schools (
           official_name,
@@ -1335,7 +1339,7 @@ export async function getRelayResults(meetName: string, eventName: string, date:
       relay_result_id: r.relay_result_id,
       team_id: r.team_id,
       gender: team?.gender,
-      school_name: school?.official_name || school?.short_name || 'Unknown',
+      school_name: team?.team_name || school?.official_name || school?.short_name || 'Unknown',
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,
       place: r.place,
@@ -1378,6 +1382,8 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
         meet_name,
         date,
         teams (
+          team_name,
+          team_type,
           schools (
             official_name,
             short_name
@@ -1421,7 +1427,7 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
       meet_name: relay?.meet_name,
       date: relay?.date,
       leg_order: r.leg_order,
-      school_name: school?.official_name || school?.short_name,
+      school_name: relay?.teams?.team_name || school?.official_name || school?.short_name,
       teammates,
     };
   }) || [];
