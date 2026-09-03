@@ -50,6 +50,11 @@ Environment breakdown for those results: 27,535 outdoor; 18,049 indoor; 10,462 N
 `results.season_code` is NULL for all 56,046 rows, so a future season/affiliation migration cannot
 assume that field is sufficient to reconstruct history.
 
+Across the whole live `athlete_team_seasons` bridge, 7,357 rows (5,655 distinct athletes) have a
+historical team whose `teams.school_id` differs from the athlete’s current `school_id`; 120,000 rows
+(87,002 athletes) agree. This is evidence that the bridge is already carrying historical affiliation
+information that must not be overwritten when a person’s current school changes.
+
 Relay usage for the two placeholder teams:
 
 | Measure | Count |

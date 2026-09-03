@@ -26,6 +26,7 @@ can be approved. “Held” means no production mutation is authorized for that 
 | DB-18 | Access control | Canonical public reads are policy-backed; private ingest uses grants; only one application archive lacks RLS. | Recheck grants for archive exception and add policy tests before archive changes. | Held |
 | DB-19 | Managed schemas | `auth`, `storage`, `realtime`, `vault`, GraphQL, and extensions are platform-owned. | Leave untouched; document findings as platform configuration issues. | Decided |
 | DB-20 | Performance | Large facts have many indexes but usefulness has not been workload-validated. | Use query plans/observed workload before dropping or adding indexes. | Held |
+| DB-21 | Historical affiliation | 7,357 bridge rows (5,655 athletes) link a historical team to a different current athlete school. | Treat `athlete_team_seasons` as historical evidence; never overwrite it during current-school cleanup. | Evidence captured; held |
 
 ## Completion rule
 
