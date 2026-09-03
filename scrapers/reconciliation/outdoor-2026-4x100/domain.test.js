@@ -88,6 +88,23 @@ test('preserves and matches DNS as a legitimate result', () => {
   assert.equal(result.missing_result_count, 0);
 });
 
+test('historical inactive teams remain resolvable by exact TFRRS identity', () => {
+  const historical = new TeamCatalog({ teams: [{
+    team_id: 22,
+    gender: 'F',
+    is_active: false,
+    official_name: 'Historical College',
+    tfrrs_team_url: 'https://www.tfrrs.org/teams/tf/NY_college_f_Historical_College.html',
+  }] });
+  const fact = normalizeSourceFact(source({
+    team_gender: 'F',
+    school_name: 'Historical College',
+    source_team_key: 'Historical_College',
+  }), 1, historical);
+  assert.equal(fact.team_id, 22);
+  assert.equal(fact.team_resolution_method, 'exact_tfrrs_team_key');
+});
+
 test('finds a timed source result missing beside an existing status result', () => {
   const status = normalizeSourceFact(source({ mark_raw: 'DNF', mark_seconds: null, place: null }), 1, catalog);
   const timed = normalizeSourceFact(source({

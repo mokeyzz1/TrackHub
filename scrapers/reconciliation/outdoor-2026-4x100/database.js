@@ -117,13 +117,14 @@ class ReconciliationDatabase {
 
   async getTeamCatalog() {
     if (this.teamCatalog) return this.teamCatalog;
+    // Historical meets may legitimately reference teams that are no longer competing.
+    // `is_active` is a current-competition flag, not canonical-identity validity.
     const [{ rows: teams }, aliasResolver] = await Promise.all([
       this.pool.query(
         `SELECT t.team_id, t.gender, t.school_id, t.tfrrs_team_url,
                 s.school_id AS canonical_school_id, s.official_name, s.short_name
            FROM public.teams t
-           JOIN public.schools s ON s.school_id = t.school_id
-          WHERE t.is_active IS DISTINCT FROM false`
+           JOIN public.schools s ON s.school_id = t.school_id`
       ),
       TeamAliasResolver.load(this.pool, 'tfrrs'),
     ]);
@@ -215,7 +216,7 @@ class ReconciliationDatabase {
     }
   }
 
-  async claimJob({ scope, leaseMinutes = 30, retryFailed = false, includeStaged = false, meetId = null } = {}) {
+  async claimJob({ scope, leaseMinutes = 30, retryFailed = false, includeStaged = false, recheckStaged = false, meetId = null } = {}) {
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
@@ -236,13 +237,16 @@ class ReconciliationDatabase {
                   AND job.source_candidates #>> '{${RECONCILIATION_KEY},queue_state}' = 'failed')
               OR ($3::boolean AND job.status = 'blocked'
                   AND job.source_candidates #>> '{${RECONCILIATION_KEY},tfrrs_candidate,url}' IS NOT NULL)
+              OR ($4::boolean
+                  AND job.status IN ('complete', 'matched', 'needs_review', 'repair_ready')
+                  AND job.source_candidates #>> '{${RECONCILIATION_KEY},tfrrs_candidate,url}' IS NOT NULL)
             )
             AND job.next_attempt_at <= now()
-            AND ($4::integer IS NULL OR job.meet_id = $4)
+            AND ($5::integer IS NULL OR job.meet_id = $5)
           ORDER BY job.priority, job.meet_id
           FOR UPDATE SKIP LOCKED
           LIMIT 1`,
-        [scope, retryFailed, includeStaged, meetId]
+        [scope, retryFailed, includeStaged, recheckStaged, meetId]
       );
       if (!rows[0]) {
         await client.query('COMMIT');
