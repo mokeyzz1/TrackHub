@@ -183,6 +183,8 @@ into `supabase_migrations.schema_migrations` using `supabase migration repair --
 
 The live ledger now contains each version with its canonical name. The repair changed migration
 metadata only; it did not replay SQL or alter application rows. The local invalid-history split
-(`20260902100000`), paused 4×100 team-link migration (`20260903200000`), and the new affiliation
-foundation migration (`20260903180000`) remain absent and unapplied. Timestamp-drifted files and
-state-present/provenance-uncertain files remain held pending an explicit baseline/alignment plan.
+(`20260902100000`) and paused 4×100 team-link migration (`20260903200000`) remain absent and
+unapplied. The additive affiliation foundation (`20260903180000`) was then applied through a
+transaction-tested direct DDL step and recorded in the ledger; it changed only the `teams` schema.
+Timestamp-drifted files and state-present/provenance-uncertain files remain held pending an explicit
+baseline/alignment plan.
