@@ -29,7 +29,8 @@ source comparison and are never treated as absent data.
 # One read-only truth check. No private or public rows are written.
 node scrapers/reconciliation/outdoor-2026-4x100/cli.js audit --meet 12810
 
-# Populate the dedicated private queue after its migration is applied.
+# Populate the dedicated private queue after its migration is applied. Every in-range season meet
+# is represented; meets without a TFRRS URL are recorded as blocked rather than omitted.
 node scrapers/reconciliation/outdoor-2026-4x100/cli.js prepare
 
 # Continuously audit queued meets and save a private repair plan. Public facts remain unchanged.

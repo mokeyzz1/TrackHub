@@ -88,7 +88,7 @@ async function main(argv = process.argv.slice(2)) {
     if (args.command === 'audit') {
       if (!args.meetId) throw new Error('audit requires --meet ID');
       const meet = await database.getMeet(args.meetId);
-      if (!meet) throw new Error(`meet ${args.meetId} was not found or has no individual results`);
+      if (!meet) throw new Error(`meet ${args.meetId} was not found`);
       const { result, actions } = await worker.auditMeet(meet);
       printResult(result, actions, args.json);
       return { result, actions };

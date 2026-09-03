@@ -41,7 +41,7 @@ class ReconciliationWorker {
       if (!job) break;
       try {
         const meet = await this.database.getMeet(job.meet_id);
-        if (!meet) throw new Error(`meet ${job.meet_id} is missing or has no individual results`);
+        if (!meet) throw new Error(`meet ${job.meet_id} is missing`);
         const { result, actions } = await this.auditMeet(meet);
         await this.database.finishJob(job, result, actions);
         counts.set(result.status, (counts.get(result.status) || 0) + 1);

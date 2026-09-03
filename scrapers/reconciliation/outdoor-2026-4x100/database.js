@@ -82,12 +82,8 @@ class ReconciliationDatabase {
     const { rows } = await this.pool.query(
       `SELECT m.meet_id, m.name, m.date::text, m.end_date::text, m.location, m.season,
               m.tfrrs_url, m.meet_url, m.results_status
-        FROM public.meets m
-       WHERE m.meet_id = $1
-          AND (
-            EXISTS (SELECT 1 FROM public.results r WHERE r.meet_id = m.meet_id)
-            OR EXISTS (SELECT 1 FROM public.relay_results rr WHERE rr.meet_id = m.meet_id)
-          )`,
+         FROM public.meets m
+        WHERE m.meet_id = $1`,
       [meetId]
     );
     return rows[0] || null;
@@ -101,10 +97,6 @@ class ReconciliationDatabase {
         WHERE btrim(m.season) = $1
           AND m.date BETWEEN $2::date AND $3::date
           AND m.date < current_date
-          AND (
-            EXISTS (SELECT 1 FROM public.results r WHERE r.meet_id = m.meet_id)
-            OR EXISTS (SELECT 1 FROM public.relay_results rr WHERE rr.meet_id = m.meet_id)
-          )
         ORDER BY m.date, m.name, m.meet_id`,
       [season, from, to]
     );
