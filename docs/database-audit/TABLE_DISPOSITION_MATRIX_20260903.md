@@ -23,7 +23,7 @@ is owned by Supabase and must be documented rather than redesigned by the applic
 | `conferences` | keep + improve | populated reference dimension; model temporal membership rather than one current pointer only |
 | `conference_memberships` | keep + validate | empty but structurally meaningful historical M:N model; confirm future use |
 | `external_ids` | keep + adopt | populated multi-source identity table; audit why entity-specific columns are mostly unused |
-| `athlete_prs` | replace after readers migrate | large scraped/duplicated fact store; computed view is the intended source of truth |
+| `athlete_prs` | keep temporarily + reconcile, then retire | scraped cache still contains source evidence not reproducible from imported results; computed view is the eventual authority only after gap closure |
 | `v_athlete_prs` | keep + improve | derived PR view; fix multi-event/component semantics before treating as authoritative |
 | `events` | retire after reader migration | empty per-meet scheduling model; one frontend reader remains and has an explicit retirement gate |
 | `live_results` | isolate + validate | 48 stale live-ingest rows; separate lifecycle from finalized facts |
