@@ -11,7 +11,7 @@ the existing `public.teams` table:
 
 The migration deliberately does **not** create a new table, populate or move rows, change existing
 foreign keys, change RLS/policies, rewrite compatibility views, or retire school 1835. Existing
-readers continue to use the old school-derived display until the dual-read step is implemented.
+readers remain compatible while the dual-read rollout is introduced incrementally.
 
 ## Application checkpoint — 2026-09-03
 
@@ -23,12 +23,20 @@ Verification confirmed both columns are present and nullable, all 3,516 existing
 have NULL values in both new fields, and existing athlete rows remain unchanged. No data backfill, FK
 relaxation, policy change, compatibility-view rewrite, or placeholder retirement occurred.
 
+## Dual-read checkpoint — 2026-09-03
+
+The shared conservative identity resolver and the active TFRRS team readers now select the new
+fields and index `team_name` when present, while retaining the existing school aliases as fallback.
+The resolver test suite passes 12/12. Because every existing `team_name` is still NULL, this
+changes no current match and is safe to deploy ahead of any reviewed backfill.
+
 ## Required next steps after applying
 
 1. Reconcile any remaining repository/production migration-history drift before applying additional
    migrations.
-2. Update compatibility readers (`teams_summary`, frontend types, and scraper team lookups) to use
-   `COALESCE(team_name, schools.official_name)` and expose `team_type` without changing old fields.
+2. Update remaining compatibility readers (`teams_summary`, frontend display paths, and non-TFRRS
+   scraper lookups) to use `COALESCE(team_name, schools.official_name)` and expose `team_type`
+   without changing old fields.
 3. Add fixtures/tests for collegiate, club, scholastic, international, open, unattached, and
    school-linked historical cases.
 4. Begin a reviewed dual-read/dual-write rollout. No backfill is part of this first wave.
