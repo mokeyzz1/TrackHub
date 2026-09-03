@@ -40,14 +40,23 @@ async function main() {
      order by n.nspname, c.relname
   `)).rows;
 
+  const requestedSchemas = process.argv
+    .filter((arg) => arg.startsWith('--schema='))
+    .map((arg) => arg.slice('--schema='.length));
+  const selectedRelations = requestedSchemas.length
+    ? relations.filter((relation) => requestedSchemas.includes(relation.schema_name))
+    : relations;
+
   const counts = [];
-  for (const relation of relations) {
+  for (const relation of selectedRelations) {
     const qualified = `${quoteIdentifier(relation.schema_name)}.${quoteIdentifier(relation.table_name)}`;
     try {
       const result = await client.query(`select count(*)::bigint as row_count from ${qualified}`);
       counts.push({ ...relation, row_count: result.rows[0].row_count });
+      console.error(`${relation.schema_name}.${relation.table_name}: ${result.rows[0].row_count}`);
     } catch (error) {
       counts.push({ ...relation, row_count: null, error: error.message });
+      console.error(`${relation.schema_name}.${relation.table_name}: ERROR ${error.message}`);
     }
   }
 
@@ -67,8 +76,9 @@ async function main() {
            datetime_precision
       from information_schema.columns
      where table_schema not in ('pg_catalog', 'information_schema')
+       ${requestedSchemas.length ? `and table_schema in (${requestedSchemas.map((_, index) => `$${index + 1}`).join(', ')})` : ''}
      order by table_schema, table_name, ordinal_position
-  `)).rows;
+  `, requestedSchemas)).rows;
 
   const types = (await client.query(`
     select n.nspname as schema_name,
@@ -85,9 +95,10 @@ async function main() {
       join pg_namespace n on n.oid = t.typnamespace
      where n.nspname not like 'pg_%'
        and n.nspname <> 'information_schema'
+       ${requestedSchemas.length ? `and n.nspname in (${requestedSchemas.map((_, index) => `$${index + 1}`).join(', ')})` : ''}
        and t.typtype in ('e', 'd')
      order by n.nspname, t.typname
-  `)).rows;
+  `, requestedSchemas)).rows;
 
   if (process.argv.includes('--summary')) {
     const bySchema = new Map();

@@ -42,6 +42,39 @@ type, underlying type, nullability, defaults, and numeric/length metadata.
 - Installed extensions include `pg_stat_statements`, `pgcrypto`, `plpgsql`, `supabase_vault`, and
   `uuid-ossp`.
 
+## Exact application-schema counts captured
+
+The current live audit evidence and bounded schema pass provide these exact counts. They are
+inventory facts, not PostgreSQL estimates:
+
+| Schema | Table | Rows |
+| --- | --- | ---: |
+| `ingest` | `athlete_aliases` | 1,339 |
+| `ingest` | `event_recovery_queue` | 10,608 |
+| `ingest` | `fact_cleanup_archive` | 138,911 |
+| `ingest` | `observations` | 156,385 |
+| `ingest` | `quarantine` | 9,648 |
+| `ingest` | `recovery_queue` | 2,573 |
+| `ingest` | `runs` | 1,497 |
+| `ingest` | `source_links` | 41,214 |
+| `ingest` | `source_records` | 54,518 |
+| `ingest` | `team_aliases` | 114 |
+| `public` | `athletes` | 151,537 |
+| `public` | `athlete_team_seasons` | 127,357 |
+| `public` | `results` | 3,419,178 |
+| `public` | `relay_results` | 200,736 |
+| `public` | `relay_athletes` | 450,685 |
+| `public` | `schools` | 1,786 |
+| `public` | `teams` | 3,516 |
+| `public` | `athlete_prs` | 475,523 |
+| `public` | `event_types` | 67 |
+| `public` | `event_aliases` | 1,329 |
+
+The remaining small public tables, backup tables, and managed-schema tables are being counted in
+separate bounded batches. Large historical fact/archive counts are intentionally not inferred from
+PostgreSQL statistics; the final report will record the exact query result or an explicit count
+limitation.
+
 ## Required follow-through
 
 This file is an inventory baseline, not a cleanup decision. Every cataloged object still needs an
