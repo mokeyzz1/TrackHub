@@ -53,7 +53,8 @@ async function main() {
     : relations;
 
   const counts = [];
-  for (const relation of selectedRelations) {
+  const skipCounts = process.argv.includes('--columns-only');
+  for (const relation of skipCounts ? [] : selectedRelations) {
     const qualified = `${quoteIdentifier(relation.schema_name)}.${quoteIdentifier(relation.table_name)}`;
     try {
       const result = await client.query(`select count(*)::bigint as row_count from ${qualified}`);
@@ -105,7 +106,34 @@ async function main() {
      order by n.nspname, t.typname
   `, requestedSchemas)).rows;
 
-  if (process.argv.includes('--summary')) {
+  if (process.argv.includes('--table-summary')) {
+    const byTable = new Map();
+    for (const column of columns) {
+      const key = `${column.schema_name}.${column.table_name}`;
+      const entry = byTable.get(key) || {
+        schema_name: column.schema_name,
+        table_name: column.table_name,
+        columns: 0,
+        nullable: 0,
+        definitions: [],
+      };
+      entry.columns += 1;
+      if (column.is_nullable === 'YES') entry.nullable += 1;
+      entry.definitions.push({
+        name: column.column_name,
+        type: column.data_type,
+        udt: `${column.udt_schema}.${column.udt_name}`,
+        nullable: column.is_nullable === 'YES',
+        default: column.column_default,
+      });
+      byTable.set(key, entry);
+    }
+    console.log(JSON.stringify({
+      tables: [...byTable.values()].sort((a, b) => `${a.schema_name}.${a.table_name}`.localeCompare(`${b.schema_name}.${b.table_name}`)),
+      counts,
+      custom_types: types,
+    }, null, 2));
+  } else if (process.argv.includes('--summary')) {
     const bySchema = new Map();
     for (const row of counts) {
       const entry = bySchema.get(row.schema_name) || { schema_name: row.schema_name, tables: 0, rows: 0, count_errors: 0 };
