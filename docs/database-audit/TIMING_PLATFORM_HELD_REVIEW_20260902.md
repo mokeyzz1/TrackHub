@@ -56,3 +56,14 @@ same-host production precedent to use as an automatic mapping. The remaining row
 by provider-specific evidence (or left as fallback), rather than a broad domain-name guess.
 
 No additional production repair was executed in this review.
+
+## Isolated repair proposal
+
+The separate scripts `apply_anet_live_completed_repair.sql` and
+`rollback_anet_live_completed_repair.sql` are prepared for the 16 completed rows. They use operation
+key `20260902_timing_platform_anet_live_completed_repair` and candidate fingerprint
+`cb2a8186d5d6392b96b9cbccd49703eb`.
+
+On the isolated PostgreSQL 17 restore, apply, apply replay, rollback, and rollback replay all
+passed. Meet `94975` remained `upcoming` with `other_timing` throughout the test. Production was not
+changed; these 16 rows require separate approval.
