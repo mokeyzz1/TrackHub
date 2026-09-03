@@ -122,9 +122,14 @@ async function importResults(options = {}) {
 
   const schoolToTeamId = {};
   teams?.forEach(t => {
+    const explicitName = t.team_name?.toLowerCase();
     const shortName = t.schools?.short_name?.toLowerCase();
     const officialName = t.schools?.official_name?.toLowerCase();
     // Store both men's and women's team IDs
+    if (explicitName) {
+      if (!schoolToTeamId[explicitName]) schoolToTeamId[explicitName] = {};
+      schoolToTeamId[explicitName][t.gender] = t.team_id;
+    }
     if (shortName) {
       if (!schoolToTeamId[shortName]) schoolToTeamId[shortName] = {};
       schoolToTeamId[shortName][t.gender] = t.team_id;
