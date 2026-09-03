@@ -118,6 +118,10 @@ the authoritative result provider, especially for generic timing hosts and Track
 pages. Any eventual write should be a separate reversible migration with a before-image/archive,
 postcondition checks, and explicit approval.
 
+Using that conservative policy, 1,342 changes are classified as known-provider matches and 325 are
+held for review. The held group is concentrated in generic or intermediary hosts (including
+TrackScoreboard pages); it is not safe to relabel those automatically from URL text alone.
+
 ## Cleanup migrations applied outside history
 
 These five migrations were applied directly to production after snapshot/rollback verification but
