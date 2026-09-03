@@ -3,7 +3,7 @@
 Generated 2026-09-03 from the private reconciliation queue. This is a profiling report only; it
 does not create aliases or change public team/result rows.
 
-The queue contains 676 unresolved source-team actions across 120 meets and 352 distinct source
+The queue contains 556 unresolved source-team actions across 78 meets and 314 distinct source
 team names. An exact, gender-aware comparison against active canonical school names produced zero
 matches for the unresolved set. A read-only re-fetch of all 227 source event pages recovered three
 unique-prefix resolutions (`Highland` F → team 2003, `Hudson` M → team 2016, and `Marion` F → team
@@ -40,30 +40,30 @@ After the historical-team resolver recheck, the current leading unresolved names
 
 | Source name | Gender | Actions | Meets |
 |---|---:|---:|---:|
-| Catholic | F | 7 | 5 |
 | Clackamas CC | M | 6 | 6 |
 | Clackamas CC | F | 5 | 5 |
 | SW Oregon CC | M | 5 | 5 |
-| Wis.-La Crosse | M | 5 | 3 |
-| Wis.-Oshkosh | M | 5 | 3 |
 | ADM, Adel | F | 4 | 1 |
-| Allegheny | M | 4 | 4 |
 | Everett CC | F | 4 | 4 |
 | G.C. Foster | M | 4 | 2 |
 | Garden State TC | M | 4 | 2 |
 | GVSU Track Club | M | 4 | 3 |
-| Lakeland | M | 4 | 3 |
 | Mt. Hood CC | F | 4 | 4 |
-| Oswego State | F | 4 | 2 |
-| Potsdam St. | M | 4 | 2 |
-| St. Benedict | F | 4 | 3 |
 | United States | M | 4 | 1 |
 | University of Minnesota Club | M | 4 | 2 |
 | UTech | M | 4 | 2 |
+| Valley, WDM | F | 4 | 1 |
+| Waukee NW | F | 4 | 1 |
+| AC Training | M | 3 | 2 |
+| Everett CC | M | 3 | 3 |
+| Mt. Hood CC | M | 3 | 3 |
+| Pleasant Valley | F | 3 | 1 |
+| SE Polk | F | 3 | 1 |
+| SW Oregon CC | F | 3 | 3 |
 
 The next mapping pass should use the source result/team URL, state or conference context, and the
 existing `public.schools`/`public.teams` catalog together. Until that evidence is assembled, these
-676 actions remain `needs_review` and no alias migration should be proposed.
+556 actions remain `needs_review` and no alias migration should be proposed.
 
 See the [source-key review packet](</Users/mk/Projects/track-meet-tracker/docs/database-audit/OUTDOOR_2026_4X100_SOURCE_KEY_REVIEW_20260903.md>)
 for the three recovered candidates. They remain unapproved and unchanged.
