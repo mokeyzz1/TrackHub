@@ -1234,7 +1234,7 @@ async function loadImportTeamLookup() {
       while (true) {
         const { data: batch, error } = await supabase
           .from('teams')
-          .select('team_id, gender, school_id, tfrrs_team_url, schools(short_name, official_name)')
+          .select('team_id, gender, school_id, team_name, team_type, tfrrs_team_url, schools(short_name, official_name)')
           .range(offset, offset + pageSize - 1);
 
         if (error) throw new Error(`Error loading teams: ${error.message}`);
@@ -1254,6 +1254,13 @@ async function loadImportTeamLookup() {
         const officialName = team.schools?.official_name;
 
         teamToSchool.set(team.team_id, team.school_id);
+
+        if (team.team_name) {
+          const exactKey = `${team.team_name.toLowerCase()}|${team.gender}`;
+          const normKey = `${normalizeSchoolName(team.team_name)}|${team.gender}`;
+          if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+          if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
+        }
 
         const teamInfo = parseTfrrsTeamInfo(team.tfrrs_team_url);
         if (teamInfo) {

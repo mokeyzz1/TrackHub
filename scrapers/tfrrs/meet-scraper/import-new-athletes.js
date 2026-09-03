@@ -50,7 +50,7 @@ async function importNewAthletes(commit = false) {
   while (true) {
     const { data: batch } = await supabase
       .from('teams')
-      .select('team_id, gender, school_id, schools(short_name, official_name)')
+      .select('team_id, gender, school_id, team_name, team_type, schools(short_name, official_name)')
       .range(offset, offset + 999);
     if (!batch || batch.length === 0) break;
     allTeams = allTeams.concat(batch);
@@ -65,6 +65,13 @@ async function importNewAthletes(commit = false) {
     const shortName = team.schools?.short_name;
     const officialName = team.schools?.official_name;
     teamToSchool.set(team.team_id, team.school_id);
+
+    if (team.team_name) {
+      const exactKey = `${team.team_name.toLowerCase()}|${team.gender}`;
+      const normKey = `${normalizeSchoolName(team.team_name)}|${team.gender}`;
+      if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+      if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
+    }
 
     if (shortName) {
       const exactKey = `${shortName.toLowerCase()}|${team.gender}`;

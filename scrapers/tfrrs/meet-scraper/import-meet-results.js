@@ -76,7 +76,7 @@ async function importMeetResults(commit = false) {
   while (true) {
     const { data: batch, error } = await supabase
       .from('teams')
-      .select('team_id, gender, school_id, schools(short_name, official_name)')
+      .select('team_id, gender, school_id, team_name, team_type, schools(short_name, official_name)')
       .range(offset, offset + pageSize - 1);
 
     if (error) {
@@ -101,6 +101,15 @@ async function importMeetResults(commit = false) {
     const officialName = team.schools?.official_name;
 
     teamToSchool.set(team.team_id, team.school_id);
+
+    // Explicit affiliations are authoritative when present; retain school-name
+    // aliases for legacy rows until the affiliation backfill is complete.
+    if (team.team_name) {
+      const exactKey = `${team.team_name.toLowerCase()}|${team.gender}`;
+      const normKey = `${normalizeSchoolName(team.team_name)}|${team.gender}`;
+      if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+      if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
+    }
 
     // Add both exact (lowercase) and normalized versions for lookup
     if (shortName) {

@@ -21,7 +21,7 @@ async function check() {
   while (true) {
     const { data } = await supabase
       .from('teams')
-      .select('team_id, gender, school_id, schools(short_name, official_name)')
+      .select('team_id, gender, school_id, team_name, team_type, schools(short_name, official_name)')
       .range(offset, offset + 999);
     if (!data || data.length === 0) break;
     allTeams = allTeams.concat(data);
@@ -33,6 +33,11 @@ async function check() {
   for (const team of allTeams) {
     const shortName = team.schools?.short_name;
     const officialName = team.schools?.official_name;
+
+    if (team.team_name) {
+      teamByName.set(team.team_name.toLowerCase() + '|' + team.gender, team.team_id);
+      teamByName.set(normalizeSchoolName(team.team_name) + '|' + team.gender, team.team_id);
+    }
 
     if (shortName) {
       teamByName.set(shortName.toLowerCase() + '|' + team.gender, team.team_id);

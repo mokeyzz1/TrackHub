@@ -110,7 +110,7 @@ async function importResults(options = {}) {
   while (true) {
     const { data: batch } = await supabase
       .from('teams')
-      .select('team_id, gender, school_id, schools(short_name, official_name)')
+      .select('team_id, gender, school_id, team_name, team_type, schools(short_name, official_name)')
       .range(offset, offset + pageSize - 1);
     if (!batch || batch.length === 0) break;
     allTeams = allTeams.concat(batch);

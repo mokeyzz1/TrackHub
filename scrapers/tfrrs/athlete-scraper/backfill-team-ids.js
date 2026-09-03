@@ -154,7 +154,7 @@ async function backfillTeamIds(options = {}) {
   while (true) {
     const { data: batch } = await supabase
       .from('teams')
-      .select('team_id, gender, school_id, schools(short_name, official_name)')
+      .select('team_id, gender, school_id, team_name, team_type, schools(short_name, official_name)')
       .range(offset, offset + pageSize - 1);
     if (!batch || batch.length === 0) break;
     allTeams = allTeams.concat(batch);
@@ -166,8 +166,13 @@ async function backfillTeamIds(options = {}) {
 
   const schoolToTeamId = {};
   teams?.forEach(t => {
+    const explicitName = t.team_name?.toLowerCase();
     const shortName = t.schools?.short_name?.toLowerCase();
     const officialName = t.schools?.official_name?.toLowerCase();
+    if (explicitName) {
+      if (!schoolToTeamId[explicitName]) schoolToTeamId[explicitName] = {};
+      schoolToTeamId[explicitName][t.gender] = t.team_id;
+    }
     if (shortName) {
       if (!schoolToTeamId[shortName]) schoolToTeamId[shortName] = {};
       schoolToTeamId[shortName][t.gender] = t.team_id;
