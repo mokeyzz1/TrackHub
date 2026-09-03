@@ -232,7 +232,7 @@ class ReconciliationDatabase {
     return rowCount;
   }
 
-  async queueNeedsReviewForRecheck({ scope, meetId = null } = {}) {
+  async queueNeedsReviewForRecheck({ scope, meetId = null, force = false } = {}) {
     const { rowCount } = await this.pool.query(
       `UPDATE ${QUEUE_TABLE}
           SET status = 'queued', lease_token = NULL, leased_until = NULL,
@@ -243,12 +243,12 @@ class ReconciliationDatabase {
           AND ($2::integer IS NULL OR meet_id = $2)
           AND status = 'needs_review'
           AND COALESCE(source_candidates #>> '{${RECONCILIATION_KEY},queue_state}', 'finished') = 'finished'
-          AND attempts <= 1
+          AND ($3::boolean OR attempts <= 1)
           AND (
             source_candidates #>> '{${RECONCILIATION_KEY},source_url}' IS NOT NULL
             OR source_candidates #>> '{${RECONCILIATION_KEY},tfrrs_candidate,url}' IS NOT NULL
           )`,
-      [scope, meetId]
+      [scope, meetId, force]
     );
     return rowCount;
   }

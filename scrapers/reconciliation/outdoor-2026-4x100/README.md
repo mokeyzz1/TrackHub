@@ -52,6 +52,9 @@ node scrapers/reconciliation/outdoor-2026-4x100/cli.js run --recheck-staged --ma
 # Re-audit all finished needs_review rows after a private catalog/resolver change.
 node scrapers/reconciliation/outdoor-2026-4x100/cli.js run --recheck-needs-review --max-jobs 0
 
+# Explicitly refresh one already-reviewed meet after a verified parser/source correction.
+node scrapers/reconciliation/outdoor-2026-4x100/cli.js run --recheck-needs-review --force-recheck --meet 12771 --max-jobs 1
+
 # Show outcomes.
 node scrapers/reconciliation/outdoor-2026-4x100/cli.js summary
 ```

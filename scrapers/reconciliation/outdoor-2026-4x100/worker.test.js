@@ -111,12 +111,25 @@ test('recheck mode queues staged candidates once before processing', async () =>
 
 test('needs-review recheck queues finished review jobs once before processing', async () => {
   let queued = 0;
+  let force;
   const database = {
-    queueNeedsReviewForRecheck: async () => { queued++; return 2; },
+    queueNeedsReviewForRecheck: async options => { queued++; force = options.force; return 2; },
     claimJob: async () => null,
   };
   const source = { load: async () => ({ snapshot: { status: 'not_contested', event_count: 0 }, facts: [] }) };
   const worker = new ReconciliationWorker({ database, source, delayMs: 0 });
   await worker.runQueue({ scope: 'test', recheckNeedsReview: true });
   assert.equal(queued, 1);
+  assert.equal(force, false);
+});
+
+test('force recheck passes an explicit override for a corrected private meet', async () => {
+  let force;
+  const database = {
+    queueNeedsReviewForRecheck: async options => { force = options.force; return 1; },
+    claimJob: async () => null,
+  };
+  const worker = new ReconciliationWorker({ database, source: {}, delayMs: 0 });
+  await worker.runQueue({ scope: 'test', recheckNeedsReview: true, forceRecheck: true });
+  assert.equal(force, true);
 });
