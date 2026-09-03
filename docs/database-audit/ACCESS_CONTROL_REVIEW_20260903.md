@@ -1,0 +1,30 @@
+# Access-control review — 2026-09-03
+
+## Live findings
+
+The read-only catalog check found one RLS exception in the application-owned schemas:
+
+- `public.results_athlete_merge_backup` has RLS disabled and has no public policy.
+- The table is an 11-row historical archive; its grants must remain restricted to service roles.
+
+All other `public` and `ingest` base tables have RLS enabled. `anon` and `authenticated` have no
+direct INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, or TRIGGER grants on the application tables;
+the only public-role write grant is the constrained `INSERT` path on `public.waitlist`.
+
+The `ingest` tables have no row policies but are protected by RLS plus explicit service-role and
+postgres grants. That is an intentional private-schema boundary, not an omission to “fix” by adding
+public policies.
+
+## Function security
+
+Application functions use fixed `search_path` settings including `pg_temp`. The only application
+security-definer function is `public.register_push_token(text,text)`, which is the intended
+validated public RPC. Ingest recovery functions are invoker-security functions and are not public
+table write grants.
+
+## Disposition
+
+No access-control change is being applied in this pass. The backup exception will be verified against
+its complete ACL and archive-retention policy before deciding whether to enable RLS or move the
+archive into the private `ingest` boundary. Managed `auth`, `storage`, `realtime`, and `vault`
+security surfaces remain platform-owned and are documented but not modified.
