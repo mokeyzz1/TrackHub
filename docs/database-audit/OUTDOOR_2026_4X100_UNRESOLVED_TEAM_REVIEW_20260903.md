@@ -41,3 +41,12 @@ existing `public.schools`/`public.teams` catalog together. Until that evidence i
 
 See the [source-key review packet](</Users/mk/Projects/track-meet-tracker/docs/database-audit/OUTDOOR_2026_4X100_SOURCE_KEY_REVIEW_20260903.md>)
 for the three recovered candidates. They remain unapproved and unchanged.
+
+## Source-key catalog hold
+
+A focused re-fetch of the highest-frequency names recovered authoritative keys such as
+`Catholic`, `Oswego_State`, `Wis_La_Crosse`, `Wis_Oshkosh`, `Rochester`, `Washington_U`, and
+`Wis_Stout`. Their matching school records exist, but every corresponding gendered team row is
+currently inactive. `Clackamas_CC` and `SW_Oregon_CC` have no matching school/team record at all.
+These are catalog-identity issues, not safe alias opportunities; they require a separate reviewed
+school/team decision before any 4×100 repair can use them.
