@@ -14,5 +14,5 @@ The three source rows each have an exact source URL and a four-athlete lineup in
 reconciliation payload. No alias was inserted and no public result was changed. Owner confirmation
 is still required before these mappings are staged as reviewed aliases or used in a repair plan.
 
-The remaining 741 unresolved actions did not produce an unambiguous active-catalog resolution from
-the source-key re-fetch and remain held for research.
+The remaining unresolved actions did not produce an unambiguous active-catalog resolution from the
+source-key re-fetch and remain held for research.
