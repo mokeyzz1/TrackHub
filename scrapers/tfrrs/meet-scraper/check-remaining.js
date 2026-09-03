@@ -40,12 +40,16 @@ async function check() {
     }
 
     if (shortName) {
-      teamByName.set(shortName.toLowerCase() + '|' + team.gender, team.team_id);
-      teamByName.set(normalizeSchoolName(shortName) + '|' + team.gender, team.team_id);
+      const exactKey = shortName.toLowerCase() + '|' + team.gender;
+      const normKey = normalizeSchoolName(shortName) + '|' + team.gender;
+      if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+      if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
     }
     if (officialName) {
-      teamByName.set(officialName.toLowerCase() + '|' + team.gender, team.team_id);
-      teamByName.set(normalizeSchoolName(officialName) + '|' + team.gender, team.team_id);
+      const exactKey = officialName.toLowerCase() + '|' + team.gender;
+      const normKey = normalizeSchoolName(officialName) + '|' + team.gender;
+      if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+      if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
     }
   }
 

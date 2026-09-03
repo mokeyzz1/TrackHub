@@ -119,8 +119,14 @@ async function matchSchoolAliases() {
     const officialName = team.schools?.official_name?.toLowerCase();
     const explicitName = team.team_name?.toLowerCase();
     if (explicitName) teamByName.set(explicitName + '|' + team.gender, team.team_id);
-    if (shortName) teamByName.set(shortName + '|' + team.gender, team.team_id);
-    if (officialName) teamByName.set(officialName + '|' + team.gender, team.team_id);
+    if (shortName) {
+      const key = shortName + '|' + team.gender;
+      if (!teamByName.has(key)) teamByName.set(key, team.team_id);
+    }
+    if (officialName) {
+      const key = officialName + '|' + team.gender;
+      if (!teamByName.has(key)) teamByName.set(key, team.team_id);
+    }
   }
 
   // Find unmatched school names

@@ -175,11 +175,11 @@ async function backfillTeamIds(options = {}) {
     }
     if (shortName) {
       if (!schoolToTeamId[shortName]) schoolToTeamId[shortName] = {};
-      schoolToTeamId[shortName][t.gender] = t.team_id;
+      if (!schoolToTeamId[shortName][t.gender]) schoolToTeamId[shortName][t.gender] = t.team_id;
     }
     if (officialName && officialName !== shortName) {
       if (!schoolToTeamId[officialName]) schoolToTeamId[officialName] = {};
-      schoolToTeamId[officialName][t.gender] = t.team_id;
+      if (!schoolToTeamId[officialName][t.gender]) schoolToTeamId[officialName][t.gender] = t.team_id;
     }
   });
   console.log(`  Loaded ${Object.keys(schoolToTeamId).length} schools\n`);
