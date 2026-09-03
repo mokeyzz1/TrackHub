@@ -49,6 +49,9 @@ node scrapers/reconciliation/outdoor-2026-4x100/cli.js run --staged --max-jobs 0
 # Re-audit already-finished staged candidates after a private catalog/resolver change.
 node scrapers/reconciliation/outdoor-2026-4x100/cli.js run --recheck-staged --max-jobs 0
 
+# Re-audit all finished needs_review rows after a private catalog/resolver change.
+node scrapers/reconciliation/outdoor-2026-4x100/cli.js run --recheck-needs-review --max-jobs 0
+
 # Show outcomes.
 node scrapers/reconciliation/outdoor-2026-4x100/cli.js summary
 ```

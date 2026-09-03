@@ -232,6 +232,26 @@ class ReconciliationDatabase {
     return rowCount;
   }
 
+  async queueNeedsReviewForRecheck({ scope, meetId = null } = {}) {
+    const { rowCount } = await this.pool.query(
+      `UPDATE ${QUEUE_TABLE}
+          SET status = 'queued', lease_token = NULL, leased_until = NULL,
+              source_candidates = jsonb_set(COALESCE(source_candidates, '{}'::jsonb),
+                '{${RECONCILIATION_KEY},queue_state}', '"queued"'::jsonb, true),
+              updated_at = now()
+        WHERE scope_key = $1
+          AND ($2::integer IS NULL OR meet_id = $2)
+          AND status = 'needs_review'
+          AND source_candidates #>> '{${RECONCILIATION_KEY},queue_state}' = 'finished'
+          AND (
+            source_candidates #>> '{${RECONCILIATION_KEY},source_url}' IS NOT NULL
+            OR source_candidates #>> '{${RECONCILIATION_KEY},tfrrs_candidate,url}' IS NOT NULL
+          )`,
+      [scope, meetId]
+    );
+    return rowCount;
+  }
+
   async claimJob({ scope, leaseMinutes = 30, retryFailed = false, includeStaged = false, meetId = null } = {}) {
     const client = await this.pool.connect();
     try {

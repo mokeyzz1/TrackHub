@@ -108,3 +108,15 @@ test('recheck mode queues staged candidates once before processing', async () =>
   await worker.runQueue({ scope: 'test', recheckStaged: true, maxJobs: 1 });
   assert.equal(queued, 1);
 });
+
+test('needs-review recheck queues finished review jobs once before processing', async () => {
+  let queued = 0;
+  const database = {
+    queueNeedsReviewForRecheck: async () => { queued++; return 2; },
+    claimJob: async () => null,
+  };
+  const source = { load: async () => ({ snapshot: { status: 'not_contested', event_count: 0 }, facts: [] }) };
+  const worker = new ReconciliationWorker({ database, source, delayMs: 0 });
+  await worker.runQueue({ scope: 'test', recheckNeedsReview: true });
+  assert.equal(queued, 1);
+});

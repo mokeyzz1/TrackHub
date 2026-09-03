@@ -47,6 +47,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     retryFailed: argv.includes('--retry-failed'),
     includeStaged: argv.includes('--staged'),
     recheckStaged: argv.includes('--recheck-staged'),
+    recheckNeedsReview: argv.includes('--recheck-needs-review'),
     stage: argv.includes('--stage'),
     json: argv.includes('--json'),
   };
@@ -60,7 +61,7 @@ function help() {
     `  run [--max-jobs N]    Drain queued jobs; plans repairs but never changes public facts\n` +
     `  summary               Show private queue outcomes\n\n` +
     `Options: --scope KEY --season NAME --from YYYY-MM-DD --to YYYY-MM-DD\n` +
-    `         --meet ID --delay-ms N --retry-failed --staged --recheck-staged --stage --json\n\n` +
+    `         --meet ID --delay-ms N --retry-failed --staged --recheck-staged --recheck-needs-review --stage --json\n\n` +
     `There is deliberately no public apply command in this version.`);
 }
 

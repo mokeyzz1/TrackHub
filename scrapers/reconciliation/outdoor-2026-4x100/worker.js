@@ -33,9 +33,12 @@ class ReconciliationWorker {
     return { result, actions: buildRepairActions(result) };
   }
 
-  async runQueue({ scope, maxJobs = 0, meetId = null, retryFailed = false, includeStaged = false, recheckStaged = false } = {}) {
+  async runQueue({ scope, maxJobs = 0, meetId = null, retryFailed = false, includeStaged = false, recheckStaged = false, recheckNeedsReview = false } = {}) {
     if (recheckStaged && this.database.queueStagedForRecheck) {
       await this.database.queueStagedForRecheck({ scope, meetId });
+    }
+    if (recheckNeedsReview && this.database.queueNeedsReviewForRecheck) {
+      await this.database.queueNeedsReviewForRecheck({ scope, meetId });
     }
     let processed = 0;
     const counts = new Map();

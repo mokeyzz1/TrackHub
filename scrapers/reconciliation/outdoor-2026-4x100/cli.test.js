@@ -15,6 +15,7 @@ test('audit defaults to the dedicated Outdoor 2026 TFRRS scope', () => {
     retryFailed: false,
     includeStaged: false,
     recheckStaged: false,
+    recheckNeedsReview: false,
     stage: false,
     json: false,
   });
