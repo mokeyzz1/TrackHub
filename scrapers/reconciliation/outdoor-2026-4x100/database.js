@@ -243,6 +243,7 @@ class ReconciliationDatabase {
           AND ($2::integer IS NULL OR meet_id = $2)
           AND status = 'needs_review'
           AND COALESCE(source_candidates #>> '{${RECONCILIATION_KEY},queue_state}', 'finished') = 'finished'
+          AND attempts <= 1
           AND (
             source_candidates #>> '{${RECONCILIATION_KEY},source_url}' IS NOT NULL
             OR source_candidates #>> '{${RECONCILIATION_KEY},tfrrs_candidate,url}' IS NOT NULL
