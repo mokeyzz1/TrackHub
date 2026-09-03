@@ -28,6 +28,8 @@ relaxation, policy change, compatibility-view rewrite, or placeholder retirement
 The shared conservative identity resolver, active TFRRS and TrackScoreboard team readers, and
 frontend result/relay display paths now select the new fields and use `team_name` when present,
 while retaining the existing school aliases as fallback.
+Legacy helper maps are non-overwriting as well, so a future explicit name cannot be replaced by a
+later school alias with the same normalized key.
 The resolver test suite passes 12/12. Because every existing `team_name` is still NULL, this
 changes no current match and is safe to deploy ahead of any reviewed backfill.
 
