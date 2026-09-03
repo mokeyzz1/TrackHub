@@ -71,3 +71,8 @@ changed; these 16 rows require separate approval.
 The live preflight is also clean: 16 completed candidates, fingerprint
 `cb2a8186d5d6392b96b9cbccd49703eb`, one preserved upcoming exception (`94975`), and zero existing
 archive rows for the new operation key.
+
+The owner-approved 16-row repair was applied successfully. Operation key
+`20260902_timing_platform_anet_live_completed_repair` now contains 16 unique before-images; zero
+completed `.anet.live` candidates remain, meet `94975` is still `upcoming` with `other_timing`, and
+the total meet count remains 12,878. The archive is retained for rollback.

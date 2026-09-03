@@ -112,8 +112,8 @@ was added.
 
 The follow-up held review is recorded in `TIMING_PLATFORM_HELD_REVIEW_20260902.md`. It identified
 16 completed `.anet.live` rows that are strong AthleticLIVE/Athletic.net candidates, plus one
-upcoming `.anet.live` meet that remains held to avoid changing active routing. These are outside the
-already-applied 1,342-row operation and require a separate approval if they are to be repaired.
+upcoming `.anet.live` meet that remains held to avoid changing active routing. The 16 completed rows
+were subsequently applied under their separate archive operation; the upcoming row remains held.
 
 ## Approval gate
 
