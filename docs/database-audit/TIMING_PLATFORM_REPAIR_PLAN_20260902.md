@@ -2,7 +2,7 @@
 
 Date: 2026-09-02
 
-Status: applied and verified in production; 325 ambiguous rows remain held
+Status: applied and verified in production; 216 ambiguous rows remain held
 
 ## Scope
 
@@ -103,7 +103,8 @@ reported 1,342 updated rows. Read-only postconditions confirmed:
 - the private archive contains 1,342 unique `public.meets` before-images;
 - all 1,342 archived rows now differ from their original fallback platform;
 - zero known-provider candidates remain;
-- all 325 held fallback rows remain unchanged; and
+- the original 325 held fallback rows were unchanged by this operation; two later, separately
+  approved host-specific repairs handled 112 completed rows, leaving 216 fallback changes held; and
 - `public.meets` still contains 12,878 rows.
 
 The operation key is `20260902_timing_platform_known_provider_repair`. The archive is intentionally
@@ -114,9 +115,12 @@ The follow-up held review is recorded in `TIMING_PLATFORM_HELD_REVIEW_20260902.m
 16 completed `.anet.live` rows that are strong AthleticLIVE/Athletic.net candidates, plus one
 upcoming `.anet.live` meet that remains held to avoid changing active routing. The 16 completed rows
 were subsequently applied under their separate archive operation; the upcoming row remains held.
+An additional verified AthleticLIVE custom-domain batch then applied 96 completed rows under its
+own archive operation. Five active/upcoming exceptions remain held, and the remaining 216 fallback
+changes are still unresolved.
 
 ## Approval gate
 
-No migration or production write should be created/executed until the owner approves the exact
-1,342-row known-provider scope. The 325 generic/intermediary rows require a separate policy
-decision and are not part of this proposed repair.
+Any future migration or production write against the remaining 216 generic/intermediary rows
+requires a separate owner-approved, provider-specific scope; those rows are not safe to relabel
+from URL text alone.

@@ -2,7 +2,7 @@
 
 Date: 2026-09-02
 
-Status: read-only review; no additional rows changed
+Status: reviewed and partially applied; remaining fallback rows are still held
 
 ## `.anet.live` family
 
@@ -39,23 +39,22 @@ The upcoming exception fingerprint is:
 
 ## Remaining held scope
 
-After isolating the `.anet.live` family, 309 of the original 325 held changes remain unresolved:
-16 `.anet.live` rows are completed candidates and the 17th is already a matching `other_timing`
-value on the upcoming meet. The remaining 309 include generic timing domains and intermediary hosts
-such as TrackScoreboard-backed pages. They cannot be assigned a canonical provider from URL text
-alone and remain untouched pending source-specific review.
+After the two approved repairs, 216 of the original 325 held changes remain unresolved. They are
+generic timing domains and intermediary hosts such as TrackScoreboard-backed pages. They cannot be
+assigned a canonical provider from URL text alone and remain untouched pending source-specific
+review.
 
-The 309 rows have no `source_url` values. 129 carry a separate TFRRS link and two carry a separate
+The 216 rows have no `source_url` values. 129 carry a separate TFRRS link and two carry a separate
 Athletic.net results link, but those links identify alternate result sources rather than proving
 that the generic `meet_url` itself can be handled by the corresponding scraper. They therefore do
 not automatically change the timing-platform classification.
 
-A cross-row consistency check found 72 distinct hosts among the 309 rows, and none of those hosts
+A cross-row consistency check found 72 distinct hosts among the 216 rows, and none of those hosts
 has an existing non-fallback `timing_platform` label on another meet. There is therefore no
 same-host production precedent to use as an automatic mapping. The remaining rows should be handled
 by provider-specific evidence (or left as fallback), rather than a broad domain-name guess.
 
-No additional production repair was executed in this review.
+No additional production repair is included in the remaining held scope.
 
 ## Isolated repair proposal
 
@@ -65,20 +64,31 @@ used operation key `20260902_timing_platform_anet_live_completed_repair` and can
 `cb2a8186d5d6392b96b9cbccd49703eb`.
 
 On the isolated PostgreSQL 17 restore, apply, apply replay, rollback, and rollback replay all
-passed. Meet `94975` remained `upcoming` with `other_timing` throughout the test. Production was not
-changed; these 16 rows require separate approval.
+passed. Meet `94975` remained `upcoming` with `other_timing` throughout the test. At proposal time
+production was unchanged; the 16-row repair was subsequently approved and applied below.
 
-The live preflight for the next verified-host batch found 96 completed candidates, fingerprint
+The live preflight for the verified-host batch found 96 completed candidates, fingerprint
 `4a080d9bdc57bcd1bf0a5ab06f776d5c`, and four non-completed exceptions. The `.anet.live` upcoming
-exception (`94975`) remains preserved; the new verified-host archive key is unused.
+exception (`94975`) remains preserved, for five active/upcoming exceptions across both batches.
 
 The owner-approved 16-row repair was applied successfully. Operation key
 `20260902_timing_platform_anet_live_completed_repair` now contains 16 unique before-images; zero
 completed `.anet.live` candidates remain, meet `94975` is still `upcoming` with `other_timing`, and
 the total meet count remains 12,878. The archive is retained for rollback.
 
-The next verified-host batch is documented in `apply_verified_athleticlive_completed_repair.sql` and
-`rollback_verified_athleticlive_completed_repair.sql`. It covers 96 completed rows and deliberately
-holds four active/upcoming rows. Its live candidate fingerprint is
-`4a080d9bdc57bcd1bf0a5ab06f776d5c`; apply, replay, rollback, and rollback replay all passed against
-the isolated PostgreSQL 17 restore.
+The verified-host batch was then applied with operation key
+`20260902_timing_platform_verified_athleticlive_completed_repair`. It archived 96 unique
+before-images and updated all 96 completed candidates. A read-only postcondition confirmed zero
+completed candidates remain in that host set, the archive contains 96 rows, and `public.meets`
+still contains 12,878 rows. The five active/upcoming exceptions remain unchanged:
+
+| Meet | Status | Stored platform | Host |
+|---|---|---|---|
+| 95055 George Kyte Invitational | live | `other` | `results.wingfootfinish.com` |
+| 94974 Dave Murray Invitational | upcoming | `other` | `results.wingfootfinish.com` |
+| 95004 Clash of the Inland Northwest | upcoming | `other_timing` | `live.athletictiming.net` |
+| 95012 Fighting Illini Invitational | upcoming | `other` | `results.shazamracing.com` |
+| 95042 H.W. 'Bill' Wright Invitational | upcoming | `other` | `results.shazamracing.com` |
+
+Apply replay was a safe no-op, and the paired rollback was verified against the isolated
+PostgreSQL 17 restore before production execution. Both archives are retained for rollback.
