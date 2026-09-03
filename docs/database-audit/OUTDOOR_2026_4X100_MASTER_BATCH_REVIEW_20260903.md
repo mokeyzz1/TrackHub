@@ -52,6 +52,7 @@ mapping approvals.
 - [Club identity review](OUTDOOR_2026_4X100_CLUB_IDENTITY_REVIEW_20260903.md)
 - [Explicit club queue](OUTDOOR_2026_4X100_EXPLICIT_CLUB_QUEUE_20260903.md)
 - [Catalog hold review](OUTDOOR_2026_4X100_CATALOG_HOLD_REVIEW_20260903.md)
+- [Rollback for the applied 24 team links](rollback_reviewed_4x100_team_links.sql)
 
 ## Safety decision
 
