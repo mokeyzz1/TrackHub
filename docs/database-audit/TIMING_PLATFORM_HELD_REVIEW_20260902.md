@@ -31,7 +31,7 @@ without a separate approval.
 
 The completed-subset candidate fingerprint is:
 
-`cb2a8186d5d6392b96b9cbccd49703eb`
+`cb2a8186d5d6392b96b9cbccd49703eb` for the `.anet.live` family alone.
 
 The upcoming exception fingerprint is:
 
@@ -60,19 +60,25 @@ No additional production repair was executed in this review.
 ## Isolated repair proposal
 
 The separate scripts `apply_anet_live_completed_repair.sql` and
-`rollback_anet_live_completed_repair.sql` are prepared for the 16 completed rows. They use operation
-key `20260902_timing_platform_anet_live_completed_repair` and candidate fingerprint
+`rollback_anet_live_completed_repair.sql` were applied to the 16 completed `.anet.live` rows. They
+used operation key `20260902_timing_platform_anet_live_completed_repair` and candidate fingerprint
 `cb2a8186d5d6392b96b9cbccd49703eb`.
 
 On the isolated PostgreSQL 17 restore, apply, apply replay, rollback, and rollback replay all
 passed. Meet `94975` remained `upcoming` with `other_timing` throughout the test. Production was not
 changed; these 16 rows require separate approval.
 
-The live preflight is also clean: 16 completed candidates, fingerprint
-`cb2a8186d5d6392b96b9cbccd49703eb`, one preserved upcoming exception (`94975`), and zero existing
-archive rows for the new operation key.
+The live preflight for the next verified-host batch found 96 completed candidates, fingerprint
+`4a080d9bdc57bcd1bf0a5ab06f776d5c`, and four non-completed exceptions. The `.anet.live` upcoming
+exception (`94975`) remains preserved; the new verified-host archive key is unused.
 
 The owner-approved 16-row repair was applied successfully. Operation key
 `20260902_timing_platform_anet_live_completed_repair` now contains 16 unique before-images; zero
 completed `.anet.live` candidates remain, meet `94975` is still `upcoming` with `other_timing`, and
 the total meet count remains 12,878. The archive is retained for rollback.
+
+The next verified-host batch is documented in `apply_verified_athleticlive_completed_repair.sql` and
+`rollback_verified_athleticlive_completed_repair.sql`. It covers 96 completed rows and deliberately
+holds four active/upcoming rows. Its live candidate fingerprint is
+`4a080d9bdc57bcd1bf0a5ab06f776d5c`; apply, replay, rollback, and rollback replay all passed against
+the isolated PostgreSQL 17 restore.
