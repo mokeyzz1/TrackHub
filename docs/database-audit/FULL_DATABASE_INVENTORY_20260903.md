@@ -70,6 +70,15 @@ inventory facts, not PostgreSQL estimates:
 | `public` | `event_types` | 67 |
 | `public` | `event_aliases` | 1,329 |
 
+Additional exact public counts include `meets` 12,973, `conferences` 1,114, `divisions` 6,
+`regions` 27, `external_ids` 356, `events` 0, `conference_memberships` 0, `live_results` 48,
+`unmapped_events` 46, `push_tokens` 1, and `waitlist` 1. The public backup/archive counts are
+`athletes_empty_backup` 12,518, `relay_results_d3_backup` 40,935,
+`relay_athletes_d3_backup` 89,085, `results_d1_backup` 23,766,
+`results_d2_backup` 453,737, `results_xsource_20260819_backup` 1,252,
+`results_accidental_import_20260819_backup` 31, `results_athlete_merge_backup` 11, and
+`relay_results_20260819_backup` 1.
+
 The remaining small public tables, backup tables, and managed-schema tables are being counted in
 separate bounded batches. Large historical fact/archive counts are intentionally not inferred from
 PostgreSQL statistics; the final report will record the exact query result or an explicit count

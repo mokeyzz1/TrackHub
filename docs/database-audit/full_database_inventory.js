@@ -43,7 +43,12 @@ async function main() {
   const requestedSchemas = process.argv
     .filter((arg) => arg.startsWith('--schema='))
     .map((arg) => arg.slice('--schema='.length));
-  const selectedRelations = requestedSchemas.length
+  const requestedTables = process.argv
+    .filter((arg) => arg.startsWith('--table='))
+    .map((arg) => arg.slice('--table='.length));
+  const selectedRelations = requestedTables.length
+    ? relations.filter((relation) => requestedTables.includes(`${relation.schema_name}.${relation.table_name}`))
+    : requestedSchemas.length
     ? relations.filter((relation) => requestedSchemas.includes(relation.schema_name))
     : relations;
 
