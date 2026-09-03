@@ -12,7 +12,7 @@ function queueStatusForOutcome(status) {
   return 'needs_review';
 }
 
-function reconciliationPayload({ scope, status, queueState, result = null, error = null, actions = [] }) {
+function reconciliationPayload({ scope, status, queueState, result = null, error = null, actions = [], candidate = null }) {
   if (!result) {
     return {
       scope_key: scope,
@@ -20,6 +20,7 @@ function reconciliationPayload({ scope, status, queueState, result = null, error
       queue_state: queueState,
       source_event_status: 'unavailable',
       error: error || null,
+      ...(candidate ? { tfrrs_candidate: candidate } : {}),
     };
   }
   return {
@@ -44,6 +45,7 @@ function reconciliationPayload({ scope, status, queueState, result = null, error
     diff: result.diff || {},
     actions,
     reason: result.reason || null,
+    ...(candidate ? { tfrrs_candidate: candidate } : {}),
   };
 }
 
@@ -87,6 +89,16 @@ class ReconciliationDatabase {
       [meetId]
     );
     return rows[0] || null;
+  }
+
+  async getMeetForJob(job) {
+    const meet = await this.getMeet(job.meet_id);
+    if (!meet) return null;
+    const candidate = job.source_candidates?.reconciliation?.tfrrs_candidate;
+    if (!meet.tfrrs_url && candidate?.url) {
+      return { ...meet, tfrrs_url: candidate.url, private_source_candidate: candidate };
+    }
+    return meet;
   }
 
   async listMeets({ season = 'Outdoor 2026', from = '2026-04-01', to = '2026-06-30' } = {}) {
@@ -203,7 +215,7 @@ class ReconciliationDatabase {
     }
   }
 
-  async claimJob({ scope, leaseMinutes = 30, retryFailed = false, meetId = null } = {}) {
+  async claimJob({ scope, leaseMinutes = 30, retryFailed = false, includeStaged = false, meetId = null } = {}) {
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
@@ -218,14 +230,19 @@ class ReconciliationDatabase {
         `SELECT job.*
            FROM ${QUEUE_TABLE} job
           WHERE job.scope_key = $1
-            AND (job.status = 'queued' OR ($2::boolean AND job.status = 'needs_review'
-                 AND job.source_candidates #>> '{${RECONCILIATION_KEY},queue_state}' = 'failed'))
+            AND (
+              job.status = 'queued'
+              OR ($2::boolean AND job.status = 'needs_review'
+                  AND job.source_candidates #>> '{${RECONCILIATION_KEY},queue_state}' = 'failed')
+              OR ($3::boolean AND job.status = 'blocked'
+                  AND job.source_candidates #>> '{${RECONCILIATION_KEY},tfrrs_candidate,url}' IS NOT NULL)
+            )
             AND job.next_attempt_at <= now()
-            AND ($3::integer IS NULL OR job.meet_id = $3)
+            AND ($4::integer IS NULL OR job.meet_id = $4)
           ORDER BY job.priority, job.meet_id
           FOR UPDATE SKIP LOCKED
           LIMIT 1`,
-        [scope, retryFailed, meetId]
+        [scope, retryFailed, includeStaged, meetId]
       );
       if (!rows[0]) {
         await client.query('COMMIT');
@@ -264,6 +281,7 @@ class ReconciliationDatabase {
         queueState: 'finished',
         result,
         actions,
+        candidate: job.source_candidates?.reconciliation?.tfrrs_candidate || null,
       });
       const updated = await client.query(
         `UPDATE ${QUEUE_TABLE}

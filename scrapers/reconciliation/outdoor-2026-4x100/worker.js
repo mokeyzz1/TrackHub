@@ -33,14 +33,16 @@ class ReconciliationWorker {
     return { result, actions: buildRepairActions(result) };
   }
 
-  async runQueue({ scope, maxJobs = 0, meetId = null, retryFailed = false } = {}) {
+  async runQueue({ scope, maxJobs = 0, meetId = null, retryFailed = false, includeStaged = false } = {}) {
     let processed = 0;
     const counts = new Map();
     while (!maxJobs || processed < maxJobs) {
-      const job = await this.database.claimJob({ scope, meetId, retryFailed });
+      const job = await this.database.claimJob({ scope, meetId, retryFailed, includeStaged });
       if (!job) break;
       try {
-        const meet = await this.database.getMeet(job.meet_id);
+        const meet = this.database.getMeetForJob
+          ? await this.database.getMeetForJob(job)
+          : await this.database.getMeet(job.meet_id);
         if (!meet) throw new Error(`meet ${job.meet_id} is missing`);
         const { result, actions } = await this.auditMeet(meet);
         await this.database.finishJob(job, result, actions);

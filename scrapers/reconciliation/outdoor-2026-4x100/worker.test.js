@@ -54,3 +54,40 @@ test('the queue keeps processing after one meet fails', async () => {
   assert.deepEqual(failed, [[1, 'temporary source failure']]);
   assert.deepEqual(finished, [[2, 'not_contested']]);
 });
+
+test('staged candidates are passed to the source without changing the public meet', async () => {
+  let claimedOptions;
+  let loadedMeet;
+  const job = {
+    job_id: 3,
+    meet_id: 3,
+    lease_token: 'three',
+    source_candidates: {
+      reconciliation: {
+        tfrrs_candidate: { url: 'https://www.tfrrs.org/results/3' },
+      },
+    },
+  };
+  const database = {
+    claimJob: async options => { claimedOptions = options; return claimedOptions.includeStaged ? job : null; },
+    getMeetForJob: async queuedJob => ({
+      meet_id: queuedJob.meet_id,
+      name: 'Staged Meet',
+      tfrrs_url: queuedJob.source_candidates.reconciliation.tfrrs_candidate.url,
+    }),
+    getLocalFacts: async () => [],
+    getTeamCatalog: async () => ({}),
+    finishJob: async () => {},
+  };
+  const source = {
+    load: async meet => {
+      loadedMeet = meet;
+      return { snapshot: { status: 'not_contested', event_count: 0 }, facts: [] };
+    },
+  };
+  const worker = new ReconciliationWorker({ database, source, delayMs: 0 });
+  const result = await worker.runQueue({ scope: 'test', includeStaged: true, maxJobs: 1 });
+  assert.equal(result.processed, 1);
+  assert.equal(claimedOptions.includeStaged, true);
+  assert.equal(loadedMeet.tfrrs_url, 'https://www.tfrrs.org/results/3');
+});

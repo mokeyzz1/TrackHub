@@ -45,6 +45,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     maxJobs: nonNegativeInteger(valueAfter(argv, '--max-jobs'), '--max-jobs', 0),
     delayMs: nonNegativeInteger(valueAfter(argv, '--delay-ms'), '--delay-ms', 1000),
     retryFailed: argv.includes('--retry-failed'),
+    includeStaged: argv.includes('--staged'),
     stage: argv.includes('--stage'),
     json: argv.includes('--json'),
   };
@@ -55,10 +56,10 @@ function help() {
     `  audit --meet ID       Read-only source-vs-database comparison\n` +
     `  discover              Verify cached TFRRS candidates for blocked jobs\n` +
     `  prepare               Populate the dedicated private queue\n` +
-    `  run [--max-jobs N]    Drain the private queue; plans repairs but never changes public facts\n` +
+    `  run [--max-jobs N]    Drain queued jobs; plans repairs but never changes public facts\n` +
     `  summary               Show private queue outcomes\n\n` +
     `Options: --scope KEY --season NAME --from YYYY-MM-DD --to YYYY-MM-DD\n` +
-    `         --meet ID --delay-ms N --retry-failed --stage --json\n\n` +
+    `         --meet ID --delay-ms N --retry-failed --staged --stage --json\n\n` +
     `There is deliberately no public apply command in this version.`);
 }
 
