@@ -2,7 +2,13 @@
 
 Date: 2026-09-03  
 Scope: `outdoor-2026-4x100-source-reconciliation-v1`  
-Status: private audit and planning only; no public rows, aliases, or result facts changed.
+Status: private audit plus one guarded team-link promotion; no result rows, aliases, or missing
+source facts were promoted.
+
+The first reviewed promotion has since been applied separately: migration `899f78a` linked 24
+exact-round local relay rows to their already-canonical teams and archived every original row.
+The remaining plan below is still private; no missing-result inserts or identity aliases were
+promoted.
 
 ## Batch outcome
 
@@ -14,9 +20,9 @@ Current queue outcomes:
 
 | Outcome | Meets | Source results | Missing | Extra | Broken-team |
 |---|---:|---:|---:|---:|---:|
-| Matched | 225 | 2,351 | 0 | 0 | 0 |
-| Repair-ready | 132 | 1,896 | 413 | 313 | 60 |
-| Needs review | 88 | 2,028 | 303 | 145 | 177 |
+| Matched | 227 | 2,365 | 0 | 0 | 0 |
+| Repair-ready | 130 | 1,882 | 402 | 313 | 49 |
+| Needs review | 88 | 2,028 | 292 | 147 | 164 |
 | Not contested | 37 | 0 | 0 | 0 | 0 |
 | Blocked | 265 | 0 | 0 | 0 | 0 |
 
@@ -50,8 +56,7 @@ mapping approvals.
 ## Safety decision
 
 Do not add a new table, bulk alias migration, or generic source-name mapping. The existing
-private queue is sufficient for the batch plan. A future promotion should be a reviewed,
+private queue is sufficient for the batch plan. Further promotion should be a reviewed,
 transactional operation limited to identities with verified source keys, canonical campus,
 gender, and division. Ambiguous names, middle-school records, open/international relays, and
 club identities stay private until the application’s school/team model explicitly supports them.
-

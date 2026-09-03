@@ -1,7 +1,8 @@
 # Outdoor 2026 4×100 exact-round approval batch
 
-Generated 2026-09-03 from the private reconciliation queue. This is an approval packet only; it
-does not update `public.relay_results`.
+Generated 2026-09-03 from the private reconciliation queue. The 24 rows in this packet were
+applied by migration `899f78a` on 2026-09-03 after archival in `ingest.fact_cleanup_archive`.
+The packet remains the evidence record; it is not a general approval for other rows.
 
 Every row below has an ordered lineup match, equal mark (including normalized `a` suffixes where
 present), equal round, an active canonical proposed team, four valid relay legs, and no existing
@@ -34,6 +35,7 @@ same-team/meet/mark/round collision.
 | NJCAA Division III Outdoor Championships | 12938 | 233088 | 52.80 | 3 | RC - Gloucester CC (1989) | 52.80 | Finals |
 | NJCAA Division III Outdoor Championships | 12938 | 233097 | 53.10 | 4 | RC - Gloucester CC (1989) | 53.10 | Preliminaries |
 
-The executable guarded proposal is
+The executable guarded proposal was promoted as
 [`outdoor_2026_4x100_team_link_plan.sql`](</Users/mk/Projects/track-meet-tracker/docs/database-audit/outdoor_2026_4x100_team_link_plan.sql>).
-It must be reviewed and explicitly approved before any public update is run.
+The migration is replay-safe and updates only the 24 exact-round rows. The 16 round-ambiguous
+rows remain untouched and still require review.
