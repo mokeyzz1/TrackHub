@@ -2,7 +2,7 @@
 
 Date: 2026-09-02
 
-Status: read-only assessment; no migration-history rows changed
+Status: partial reconciliation completed 2026-09-03; uncertain migrations remain untouched
 
 ## Evidence
 
@@ -169,3 +169,20 @@ equivalence.
 
 Until this sequence is complete, the cleanup and 4×100 work remain safe because they do not depend
 on replaying the migration queue.
+
+## Reconciliation checkpoint — 2026-09-03
+
+The five cleanup migrations documented above as already applied directly in production were repaired
+into `supabase_migrations.schema_migrations` using `supabase migration repair --status applied`:
+
+- `20260902120000_consolidate_reviewed_school_duplicates`
+- `20260902130000_remove_reviewed_empty_school_duplicates`
+- `20260902140000_repair_aug18_tfrrs_edition_contamination`
+- `20260902144458_preserve_reviewed_secondary_athlete_identities`
+- `20260902170615_consolidate_reviewed_athlete_duplicates`
+
+The live ledger now contains each version with its canonical name. The repair changed migration
+metadata only; it did not replay SQL or alter application rows. The local invalid-history split
+(`20260902100000`), paused 4×100 team-link migration (`20260903200000`), and the new affiliation
+foundation migration (`20260903180000`) remain absent and unapplied. Timestamp-drifted files and
+state-present/provenance-uncertain files remain held pending an explicit baseline/alignment plan.
