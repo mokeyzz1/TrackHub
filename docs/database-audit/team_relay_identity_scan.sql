@@ -111,6 +111,9 @@ with conflicting_source_ids as (
   having count(distinct athlete_id) > 1
 ), tagged as (
   select ra.relay_athlete_id,
+         ra.created_at,
+         ra.athlete_name,
+         a.full_name,
          case when lower(btrim(a.tfrrs_athlete_id)) = lower(btrim(ra.tfrrs_athlete_id))
               then 'canonical_match' else 'canonical_mismatch' end as bucket
   from public.relay_athletes ra
@@ -121,7 +124,12 @@ with conflicting_source_ids as (
 )
 select bucket,
        count(*)::bigint as relay_rows,
-       count(distinct relay_athlete_id)::bigint as legs
+       count(distinct relay_athlete_id)::bigint as legs,
+       min(created_at) as first_created,
+       max(created_at) as last_created,
+       count(*) filter (where lower(regexp_replace(coalesce(athlete_name, ''), '[^a-z0-9]+', '', 'gi'))
+                              <> lower(regexp_replace(coalesce(full_name, ''), '[^a-z0-9]+', '', 'gi')))::bigint
+         as display_name_mismatches
 from tagged
 group by bucket
 order by bucket;

@@ -72,6 +72,13 @@ June 2026; the matching duplicate rows were created from August through Septembe
 strong review signal for an importer/identity-resolution issue, but it is not proof that the older
 legs can be reassigned: TFRRS profile history and source meet context still need to be checked.
 
+The bounded cohort contains 96 source IDs and 514 relay-leg rows: 214 canonical-match rows and 300
+canonical-mismatch rows. The mismatch rows run from February 5 through June 15, 2026, while the
+matching rows begin August 9 and continue through September 1. Eleven rows also disagree on the
+displayed athlete name. The timing strongly suggests a later resolver correction or duplicate
+import, but source-record ownership is not stored on the relay-leg row itself; no reassignment is
+authorized from this signal alone.
+
 ## Constraints and access boundary
 
 - `teams` has a validated foreign key to `schools`, a `gender IN ('M','F')` check, a typed-affiliation
