@@ -130,3 +130,96 @@ select count(*)::bigint as source_ids,
        min(parents)::bigint as min_parents_per_id,
        max(parents)::bigint as max_parents_per_id
 from per_source_id;
+
+-- 6. Private provenance coverage for the reviewed cohorts.
+with repeated_parents as (
+  select distinct relay_result_id
+  from public.relay_athletes
+  where relay_result_id is not null and athlete_id is not null
+  group by relay_result_id, athlete_id
+  having count(*) > 1
+), conflict_ids as (
+  select lower(btrim(tfrrs_athlete_id)) as source_key
+  from public.relay_athletes
+  where tfrrs_athlete_id is not null and btrim(tfrrs_athlete_id) <> ''
+  group by lower(btrim(tfrrs_athlete_id))
+  having count(distinct athlete_id) > 1
+), conflict_parents as (
+  select distinct ra.relay_result_id
+  from public.relay_athletes ra
+  join conflict_ids c on c.source_key = lower(btrim(ra.tfrrs_athlete_id))
+), cohorts as (
+  select 'repeated_athlete_parents' as cohort, relay_result_id from repeated_parents
+  union all
+  select 'conflicting_source_id_parents', relay_result_id from conflict_parents
+)
+select cohort,
+       count(*)::bigint as parents,
+       count(*) filter (where exists (
+         select 1 from ingest.source_links sl
+         where sl.relay_result_id = cohorts.relay_result_id
+           and sl.link_status = 'linked'
+       ))::bigint as parents_with_source_link,
+       count(*) filter (where exists (
+         select 1 from ingest.observations o
+         where o.canonical_relay_id = cohorts.relay_result_id
+           and o.decision = 'insert'
+       ))::bigint as parents_with_insert_observation
+from cohorts
+group by cohort
+order by cohort;
+
+-- 7. The source-linked conflict subset has source payload legs that can be compared
+-- by parent and leg order. The payload's athlete_id is an internal ID from the run;
+-- the source key/name are the source identity fields.
+with conflict_ids as (
+  select lower(btrim(tfrrs_athlete_id)) as source_key
+  from public.relay_athletes
+  where tfrrs_athlete_id is not null and btrim(tfrrs_athlete_id) <> ''
+  group by lower(btrim(tfrrs_athlete_id))
+  having count(distinct athlete_id) > 1
+), conflict_parents as (
+  select distinct ra.relay_result_id
+  from public.relay_athletes ra
+  join conflict_ids c on c.source_key = lower(btrim(ra.tfrrs_athlete_id))
+), source_legs as (
+  select sl.relay_result_id,
+         sr.source_record_id,
+         (leg.value->>'leg_order')::integer as leg_order,
+         (leg.value->>'athlete_id')::bigint as payload_athlete_id,
+         lower(btrim(leg.value->>'tfrrs_athlete_id')) as source_key,
+         lower(regexp_replace(coalesce(leg.value->>'athlete_name', ''), '[^a-z0-9]+', '', 'gi'))
+           as source_name_key
+  from conflict_parents cp
+  join ingest.source_links sl
+    on sl.relay_result_id = cp.relay_result_id
+   and sl.link_status = 'linked'
+  join ingest.source_records sr using (source_record_id)
+  cross join lateral jsonb_array_elements(coalesce(sr.payload->'relay_athletes', '[]'::jsonb)) leg(value)
+), compared as (
+  select s.*,
+         ra.athlete_id as canonical_athlete_id,
+         lower(btrim(ra.tfrrs_athlete_id)) as canonical_source_key,
+         lower(regexp_replace(coalesce(ra.athlete_name, ''), '[^a-z0-9]+', '', 'gi'))
+           as canonical_name_key,
+         case when ra.relay_athlete_id is null then 'missing_canonical_leg'
+              when ra.athlete_id = s.payload_athlete_id then 'payload_internal_id_match'
+              else 'payload_internal_id_mismatch' end as internal_id_bucket,
+         case when ra.relay_athlete_id is null then 'missing_canonical_leg'
+              when lower(btrim(ra.tfrrs_athlete_id)) = s.source_key
+               and lower(regexp_replace(coalesce(ra.athlete_name, ''), '[^a-z0-9]+', '', 'gi'))
+                   = s.source_name_key then 'source_key_name_match'
+              else 'source_key_or_name_mismatch' end as source_identity_bucket
+  from source_legs s
+  left join public.relay_athletes ra
+    on ra.relay_result_id = s.relay_result_id
+   and ra.leg_order = s.leg_order
+)
+select internal_id_bucket,
+       source_identity_bucket,
+       count(*)::bigint as source_legs,
+       count(distinct relay_result_id)::bigint as parents,
+       count(distinct source_record_id)::bigint as source_records
+from compared
+group by internal_id_bucket, source_identity_bucket
+order by internal_id_bucket, source_identity_bucket;

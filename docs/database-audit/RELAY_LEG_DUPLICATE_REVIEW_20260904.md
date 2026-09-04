@@ -44,6 +44,25 @@ One internal athlete matches the canonical `athletes.tfrrs_athlete_id` for each 
 the other does not. Relay legs do not currently retain a direct source-record ownership key, so
 the match signal cannot prove that the mismatch rows should be reassigned.
 
+### Provenance coverage
+
+| Cohort | Parents | Parents with linked source record | Parents with insert observation |
+| --- | ---: | ---: | ---: |
+| Repeated-athlete groups | 296 | 0 | 0 |
+| Conflicting source-ID groups | 497 | 77 | 75 |
+
+The 77 source-linked conflict parents each have one TFRRS source record with four payload legs
+(308 payload legs total). Every payload leg agrees with the stored relay row on leg order, source
+athlete ID, and display name. Of those 308 comparisons, 301 also retain the payload's internal
+`athlete_id`; four use a different internal athlete row and three have no canonical `athlete_id`
+at all. Two of the four internal-ID mismatches have a current canonical athlete row for the source
+ID and matching name; the other two source IDs have no current canonical athlete row. These are
+bounded repair candidates, not permission to bulk-reassign the 300 mismatch legs.
+
+The 459 repeated rows remain completely outside the private source-link layer (their 296 parents
+have neither a linked source record nor an insert observation). They cannot be source-verified from
+the current provenance tables.
+
 ## Decision
 
 No cleanup write is authorized from these counts:
@@ -55,9 +74,11 @@ No cleanup write is authorized from these counts:
   source date/meet evidence, and a before-image/rollback map.
 - Do not add a relay-specific table or identity column merely to hold this review state.
 
-The safe next evidence gate is to map relay parents/legs back to their private source records and
-raw observations, then review small source-owned batches. Until that mapping is available, the
-existing rows remain preserved and the application should continue reading them as stored facts.
+The safe next evidence gate is to review the 77 source-linked conflict parents and the four
+internal-ID mismatch legs with before-images and a deterministic target check. The 459 repeated
+rows have no source link and remain preserved; they require source recovery or an importer-level
+fix before they can be classified. Until either mapping exists, the application should continue
+reading all rows as stored facts.
 
 ## Relationship to the broader schema cleanup
 
