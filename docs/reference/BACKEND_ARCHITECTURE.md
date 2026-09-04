@@ -45,6 +45,14 @@ TFRRS and athletic.net both have adapters into this contract. `ingest.recovery_q
 historical meet coverage and source candidates before a recovery run. The scheduled TFRRS workflow
 now fails closed unless the `INGEST_DATABASE_URL` secret is present and invokes controlled mode.
 
+The 2026-09-04 private-ingest checkpoint confirms the full control plane also includes
+`ingest.source_records`, `ingest.observations`, `ingest.source_links`, `ingest.quarantine`,
+`ingest.runs`, `ingest.fact_cleanup_archive`, `ingest.recovery_queue`,
+`ingest.event_recovery_queue`, `ingest.athlete_aliases`, and `ingest.team_aliases`. The
+meet-level and paused 4x100 event-level queues are intentionally separate; this is a grain
+boundary, not duplicate storage. Exact live counts and ACL/RLS evidence are in
+`docs/database-audit/INGEST_PROVENANCE_REVIEW_20260904.md`.
+
 The live security audit also confirmed RLS on every public table, no browser DML on result/fact
 tables, private backup tables, and the PR view set to `security_invoker=true`. These claims come
 from live catalog queries, not this document.

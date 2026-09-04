@@ -58,9 +58,10 @@ These UI/read changes do not alter canonical rows, tables, policies, or migratio
 | Seasons/environments/rounds/events | Live vocabulary and NULL/ambiguous populations are inventoried; `results.season_code` is NULL for all 3,419,178 rows, environment has 258,521 NULLs, and round has preserved spelling/heat variants. | Deterministic mappings only; raw values and ambiguous rows remain held. See `season_environment_round_dry_run.sql`. |
 | PR/ranking authority | Scraped `athlete_prs` and computed `v_athlete_prs` differ in coverage and provenance. The points-view parsing defect is fixed without rewriting source rows. | Keep the cache; reconciliation and reader migration remain held until full-season parity is demonstrated. |
 | Ingest queues and provenance | Meet-level and event-level queues have different contracts; observations, quarantine, source links, runs, and cleanup archives are active evidence surfaces. | Keep separate; do not merge by name. |
+| Private ingest/provenance checkpoint | All ten `ingest` tables are RLS-protected with no public policies and no anon/authenticated schema usage. Exact counts are 54,518 source records, 156,385 observations, 41,214 source links, 9,648 quarantine rows, 1,497 runs, and 140,207 cleanup before-images. The general 2,573-row meet queue and paused 10,608-row 4x100 event queue remain separate; 13,304 source records are not yet linked and two old 4x100 dry-run records remain marked running. | `INGEST_PROVENANCE_REVIEW_20260904.md`, `ingest_provenance_scan.sql` |
 | Unmapped event telemetry | All 46 stored raw labels (1,484 sightings) now exact-match the canonical `event_aliases` map; no unresolved labels remain. | Keep the raw review history. The alias join is authoritative; no duplicate link column or deletion is needed now. |
 | External identity map | 356 verified source IDs cover 353 athletes; no duplicate `(source, external_key)` groups; nullable school/team/conference fields are unused. | Keep as one shared portability map. Review the three athletes with multiple verified IDs individually; do not bulk-backfill or split the table. |
-| Ingest queues | Meet-level (`2,573`) and event-level (`10,608`) queues have different required keys, counts, leases, and outcome contracts; access is private. | Keep separate. Do not merge by table name or add a compatibility layer until lifecycle tests require it. |
+| Ingest queues | Meet-level (`2,573`) and event-level (`10,608`) queues have different required keys, counts, leases, and outcome contracts; access is private. | Keep separate. Do not merge by table name or add a compatibility layer until lifecycle tests require it. The two stale paused 4x100 run records are held for operator disposition. |
 | Migration history | Live ledger has 83 records; the repository has 120 tracked SQL files / 103 unique prefixes, with 80 shared names, 26 timestamp-drifted names, 40 local-only names, and two production-only names. | Read-only reconciliation recorded. Do not replay or repair uncertain history; classify local-only files and prove exact equivalence before any metadata change. See `MIGRATION_HISTORY_RECONCILIATION_20260902.md`. |
 
 ## What is not finished
@@ -75,13 +76,13 @@ are in `docs/DATA_ISSUES_TRACKER.md`.
 
 ## Current next gate
 
-The next safe action is a read-only review of the private ingest/provenance schemas, grants, RLS,
-and writer boundaries, followed by the bounded source review of the 10 TFRRS URL groups, five
-Athletic.net URL groups, two meet name/date pairs, and relay source-ID/leg cohorts. No meet merge,
-result reassignment, team-link rewrite, new organization table, or relaxation of the school-backed
-key is authorized until those identities are evidenced and every reader/writer path has a migration
-and rollback plan. The `live_results` lifecycle remains deferred by product priority; its 48 rows
-and compatibility view are unchanged.
+The next safe action is the bounded source review of the 10 TFRRS URL groups, five Athletic.net URL
+groups, two meet name/date pairs, and relay source-ID/leg cohorts. In parallel, a separate ACL
+hardening review can decide whether to revoke the trigger helper's implicit PUBLIC EXECUTE. No meet
+merge, result reassignment, team-link rewrite, new organization table, or relaxation of the
+school-backed key is authorized until those identities are evidenced and every reader/writer path
+has a migration and rollback plan. The `live_results` lifecycle remains deferred by product
+priority; its 48 rows and compatibility view are unchanged.
 
 ## Worktree note
 
