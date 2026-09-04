@@ -63,7 +63,7 @@ The 459 repeated rows remain completely outside the private source-link layer (t
 have neither a linked source record nor an insert observation). They cannot be source-verified from
 the current provenance tables.
 
-## Bounded repair candidate
+## Bounded repair applied
 
 Two of the four source-linked internal-ID mismatches are deterministic repairs: relay legs
 `445111` and `467775` have source payloads whose source IDs and names resolve to unique current
@@ -77,7 +77,10 @@ rollback are:
 - `supabase/migrations/20260904210000_repair_source_backed_relay_athlete_links.sql`
 - `docs/database-audit/rollback_source_backed_relay_athlete_links.sql`
 
-No relay parent, mark, source ID, name, leg order, or athlete profile is changed by this repair.
+The migration applied successfully as live ledger version `20260904220438`. Postconditions show
+both rows now point to the intended canonical athletes, both before-images are present in the
+private archive, and zero rows remain on the two old links. No relay parent, mark, source ID, name,
+leg order, or athlete profile was changed by this repair.
 
 ## Decision
 
