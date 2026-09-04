@@ -13,9 +13,20 @@ read-only; the paired migration performs the exact-ID, reversible backfill after
 before-state. The links below are the authority used for each classification; a school name or logo
 by itself is not treated as proof.
 
+## Live application result
+
+Applied to the live database as Supabase migration `20260904073101_classify_all_other_schools`
+after a forced-rollback test and a complete migrate-then-rollback test. The operation classified
+all 128 collegiate rows, archived 128 full `schools` before-images under operation key
+`20260904_classify_all_other_schools_v1`, and left `Dawgs Track Club` as the only intentional
+`Other` row. Post-application validation found zero `division`/`division_id` mismatches.
+
+Final classifications: 49 NCAA Division III, 37 NAIA, 18 U SPORTS, 10 USCAA, 9 LAI,
+2 NCCAA Division I, 2 NCCAA Division II, and 1 NCAA Division II.
+
 ## Reviewed cohort
 
-| School ID | Current name | Proposed classification | Evidence | Confidence | Write status |
+| School ID | Current name | Proposed classification | Evidence | Confidence | Evidence-stage status |
 | ---: | --- | --- | --- | --- | --- |
 | 1703 | North Central College (Ill.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=492) lists Division III active and indoor/outdoor track; [official athletics](https://northcentralcardinals.com/sports/mens-track-and-field) confirms the program. | High | Held |
 | 1706 | Marian University (Ind.) | NAIA | [Official Marian athletics page](https://www.marian.edu/give-to-marian/make-a-difference/athletics) identifies NAIA character values and current NAIA athletics; historical [EADA report](https://www.marian.edu/_assets/_documents/eada-2021-22-from-eada-website.pdf) identifies NAIA Division II. | High | Held |
@@ -40,7 +51,7 @@ by itself is not treated as proof.
 
 ### Additional reviewed rows
 
-| School ID | Current name | Proposed classification | Evidence | Confidence | Write status |
+| School ID | Current name | Proposed classification | Evidence | Confidence | Evidence-stage status |
 | ---: | --- | --- | --- | --- | --- |
 | 1750 | Pacific University (Ore.) | NCAA Division III | [Official Pacific athletics profile](https://www.pacificu.edu/directory/provost-academic-affairs/athletics?page=%2C0%2C1%2C0) identifies 24 NCAA Division III programs and indoor/outdoor track. | High | Held |
 | 1722 | Dickinson College | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=185) lists Division III active and indoor/outdoor track. | High | Held |
@@ -55,7 +66,7 @@ by itself is not treated as proof.
 
 ### Next reviewed rows
 
-| School ID | Current name | Proposed classification | Evidence | Confidence | Write status |
+| School ID | Current name | Proposed classification | Evidence | Confidence | Evidence-stage status |
 | ---: | --- | --- | --- | --- | --- |
 | 1725 | Guelph | U SPORTS / OUA (international) | [Official University of Guelph handbook](https://s3.us-east-2.amazonaws.com/sidearm.nextgen.sites/uoguelph.internetconsult.com/documents/2023/9/7/StudentHandbook-23-24.pdf) lists men’s and women’s track and field in OUA/U SPORTS. | High | Held |
 | 1736 | Wentworth Institute of Technology | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=762) lists Division III active and indoor track; [official student-life page](https://wit.edu/student-life/sports-recreation) confirms NCAA Division III teams. | High | Held |
@@ -98,7 +109,7 @@ by itself is not treated as proof.
 
 ### Completed remaining inventory
 
-| School ID | Current name | Proposed classification | Evidence | Confidence | Write status |
+| School ID | Current name | Proposed classification | Evidence | Confidence | Evidence-stage status |
 | ---: | --- | --- | --- | --- | --- |
 | 1742 | Bridgewater (Va.) | NCAA Division III / ODAC | [Official 2026 schedule](https://bridgewatereagles.com/sports/mens-track-and-field/schedule/2026) includes the NCAA Division III Outdoor Championships. | High | Prepared |
 | 1759 | Anderson (Ind.) | NCAA Division III / HCAC | [Official university profile](https://anderson.edu/about/) identifies NCAA Division III athletics; the [HCAC schedule](https://heartlandconf.org/schedule.aspx?schedule=4336) identifies Anderson (Ind.) track. | High | Prepared |
