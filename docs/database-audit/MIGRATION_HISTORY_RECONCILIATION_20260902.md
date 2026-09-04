@@ -249,3 +249,17 @@ The 40 local names absent from production history were classified without changi
 `top_performances_with_scoring` is the one same-version naming mismatch: the local `20260210` file
 and production `20260210_top_performances_function` are one history slot, not two changes. This
 classification is a review aid only; it does not authorize marking any local file as applied.
+
+## Production-only verification — 2026-09-04
+
+The two live names without a same-named local file were checked against live state:
+
+- `20260806182647_create_v_athlete_prs` is present as `public.v_athlete_prs`; its SQL is the
+  computed, source-derived PR view represented by the local `20260715_computed_athlete_prs.sql`
+  file under a different version.
+- `20260810125242_20260810_map_remaining_event_aliases` has all 19 expected alias rows present.
+  The current database has zero `results` rows with a NULL `event_type_id` and zero
+  `unmapped_events` rows lacking an alias match.
+
+These checks confirm live state, not permission to create duplicate local history entries. No
+history repair or replay is needed for either production-only record.
