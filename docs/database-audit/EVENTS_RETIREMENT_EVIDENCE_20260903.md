@@ -31,3 +31,19 @@ search found no other live `.from('events')` reader or writer.
 
 No table, row, policy, or constraint was changed by this evidence packet. The retirement is not
 authorized until the frontend migration and rollback test are complete.
+
+## Retirement checkpoint — 2026-09-04
+
+The approved disposition was completed after the safeguards above:
+
+- `useMeetDetails` no longer reads `public.events` and now returns the canonical meet model.
+- Generated frontend database types were refreshed from the live schema; `public.events`,
+  `event_entries`, and `meet_entries` are no longer represented as live tables.
+- Migration `20260904141650_retire_empty_events_table.sql` was applied with a non-empty guard and
+  without `CASCADE`. The table and its owned sequence are absent from `public`.
+- The drop and exact-structure rollback were each run in rolled-back transactions against the live
+  database. The rollback restored the table, sequence, constraints, indexes, trigger, RLS policy,
+  and grants with zero rows.
+
+Because the precondition was zero rows and no dependent object existed, this retirement changed no
+canonical meet, result, athlete, relay, or team data.
