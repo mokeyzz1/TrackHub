@@ -87,10 +87,11 @@ The `651507` pair is the strongest actual-duplicate candidate, but four individu
 relay rows differ; no merge is authorized without source ownership evidence.
 
 Nine of the ten duplicate TFRRS URL groups have no private source records. The only group with
-source records is `/results/96401`: all 24 staged TFRRS records and their links point to meet 12632
-(Bauer Open, April 15, 2026); meet 12562 (April 18, 2026) reuses the same URL but has no linked
-source records. This is strong ownership evidence for the staged rows, not permission to delete or
-reassign the April 18 facts.
+source records is `/results/96401`: it has 24 staged TFRRS records, 21 currently linked to meet
+12632 (Bauer Open, April 15, 2026), while three records are still untyped/unlinked. Meet 12562
+(April 18, 2026) reuses the same URL but has no linked source records. This is current promotion
+evidence, not permission to delete or reassign the April 18 facts or to discard the three unlinked
+records. See `MEET_SOURCE_OWNERSHIP_REVIEW_20260904.md` for the complete candidate rollup.
 
 The name/date candidates add two different signals. The Grubbys pair has 11 source links on each
 side: Athletic.net records (three relay parents plus eight legs) point to meet 12325, while TFRRS

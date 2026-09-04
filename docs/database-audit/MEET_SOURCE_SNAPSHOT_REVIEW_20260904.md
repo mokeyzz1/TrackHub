@@ -30,9 +30,10 @@ copy, or an import error.
 
 - Nine URL groups have no private `ingest.source_records`, so the current-page identity cannot be
   used to rewrite old facts.
-- `/results/96401` has 24 private TFRRS source records, all linked to meet 12632 (Apr. 15). Meet
-  12562 (Apr. 18) has no linked private records. This is ownership evidence for the staged rows,
-  not a deletion or reassignment instruction.
+- `/results/96401` has 24 private TFRRS source records; 21 are currently linked to meet 12632
+  (Apr. 15) and three remain untyped/unlinked. Meet 12562 (Apr. 18) has no linked private records.
+  This is ownership evidence for the promoted rows, not a deletion or reassignment instruction;
+  the three unlinked records remain preserved review evidence.
 - The previously measured canonical overlaps remain unchanged: three historical URL pairs have
   byte-equivalent individual sets while relay sets differ; the source-page check does not resolve
   those fact-set conflicts.
