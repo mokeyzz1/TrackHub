@@ -93,11 +93,11 @@ source_pk)` key prevents duplicate archive entries and preserves rollback eviden
 - Foreign keys use restrictive deletes for evidence and canonical links; queue run pointers use
   `SET NULL` so run-history cleanup cannot strand queue rows. Queue, observation, alias, and source
   keys are protected by primary/unique/check constraints.
-- The trigger helper `clear_recovery_queue_error_on_complete()` has no explicit ACL (therefore
-  PostgreSQL's default PUBLIC EXECUTE), while the schema itself is inaccessible to public roles and
-  all operational functions are explicitly limited to `service_role`/`postgres`. This has no
-  reachable browser write path, but it is a small ACL-hygiene item to review in the next security
-  wave; no privilege was changed during this audit.
+- The trigger helper `clear_recovery_queue_error_on_complete()` now has browser/public EXECUTE
+  revoked; `service_role` and `postgres` retain execution. The schema remains inaccessible to
+  public roles and all operational functions are explicitly limited to `service_role`/`postgres`.
+  The companion public timestamp trigger helper was hardened at the same time; platform-owned
+  `storage` helpers were left untouched.
 
 ## Design conclusion
 
