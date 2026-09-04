@@ -163,3 +163,17 @@ select p.url_key,p.meet_a,p.meet_b,
         where ra.meet_id=p.meet_a) as relay_overlap
 from pairs p
 order by p.url_key;
+
+-- 9. Name/date candidates with private source lineage, if any.
+select coalesce(r.meet_id, rr.meet_id) as meet_id,
+       sr.source,
+       count(*) filter (where sl.result_id is not null) as linked_result_rows,
+       count(*) filter (where sl.relay_result_id is not null) as linked_relay_rows,
+       count(*) as source_link_rows
+from ingest.source_links sl
+join ingest.source_records sr using (source_record_id)
+left join public.results r on r.result_id = sl.result_id
+left join public.relay_results rr on rr.relay_result_id = sl.relay_result_id
+where coalesce(r.meet_id, rr.meet_id) in (12325,12472,12788,12792)
+group by coalesce(r.meet_id, rr.meet_id), sr.source
+order by meet_id, sr.source;

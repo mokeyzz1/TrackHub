@@ -92,6 +92,15 @@ source records is `/results/96401`: all 24 staged TFRRS records and their links 
 source records. This is strong ownership evidence for the staged rows, not permission to delete or
 reassign the April 18 facts.
 
+The name/date candidates add two different signals. The Grubbys pair has 11 source links on each
+side: Athletic.net records (three relay parents plus eight legs) point to meet 12325, while TFRRS
+records (three relay parents plus eight legs) point to meet 12472. Their separate source keys
+(`/meets/651507` versus `/results/96019`) and partially different facts indicate a multi-source
+duplicate candidate, not a row that can be deleted without unioning facts and preserving both
+lineage paths. The South Coast pair (12788 / 12792) has byte-equivalent individual and relay sets
+but no private source links; only meet 12792 has a timing-site URL. It remains held pending a
+source snapshot.
+
 ## Constraints and access boundary
 
 - `meets` has a primary key on `meet_id` and checks for the current `status` and `results_source`
