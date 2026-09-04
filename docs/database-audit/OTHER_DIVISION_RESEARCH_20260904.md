@@ -7,7 +7,7 @@ competition classification. The current inventory contains 245 schools and 129 o
 no conference value. Several of the largest schools in that bucket are plainly collegiate
 programs, while others are international or otherwise outside the NCAA/NAIA taxonomy.
 
-This first evidence pass reviews 42 of the highest-impact rows identified in the live inventory. It is
+This first evidence pass reviews 49 of the highest-impact rows identified in the live inventory. It is
 read-only: no `schools.division`, team, athlete, result, or logo rows were changed. The links below
 are the authority used for the proposed classification; a school name or logo by itself is not
 treated as proof.
@@ -68,6 +68,12 @@ treated as proof.
 | 1737 | Emmanuel College (Mass.) | NCAA Division III | [Official Emmanuel compliance page](https://emmanuel.prestosports.com/information/compliance) references NCAA Division III/GNAC; [official college facts](https://www.emmanuel.edu/sites/default/files/2025-02/2024_adm_counselor_fast_facts_0830_print.pdf) lists indoor/outdoor track. | High | Held |
 | 1738 | Franciscan University of Steubenville | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=30069) lists Division III active and indoor track; [official athletics quick facts](https://franciscanathletics.com/sports/2018/11/2/quick-facts.aspx) confirms Division III and indoor/outdoor track. | High | Held |
 | 1746 | Bethel University (Ind.) | NAIA | [Official Bethel athletics page](https://betheluniversity.edu/home/athletics/) identifies NAIA membership and indoor/outdoor track; [official 2026 track announcement](https://betheluniversity.edu/about/news/track-field-leadership-transition-announced/) describes it as an NAIA track program. | High | Held |
+| 1741 | Midland University | NAIA | [Official Midland track news](https://midlanduniv.prestosports.com/sports/mtrack-ind/2025-26/news) documents NAIA Indoor Track & Field Championships; [USTFCCCA NAIA report](https://www.ustfccca.org/assets/rankings/2025_motf_naia_evsq_week5_natl_team_detail.pdf) lists Midland (Neb.). | High | Held |
+| 1743 | SUNY Delhi | NCAA Division III | [Official SUNY Delhi athletics page](https://delhi.prestosports.com/sports/general/NCAA_Division_III) documents full NCAA Division III membership and track & field; [SUNY campus profile](https://www.suny.edu/campuses/delhi/?view=ada) confirms 19 NCAA DIII teams. | High | Held |
+| 1766 | Keiser University | NAIA | [Official Keiser track announcement](https://kuseahawks.com/news/2026/5/19/mens-outdoor-track-field-mens-and-womens-track-and-field-send-four-seahawks-to-naia-outdoor-nationals.aspx) identifies the 2026 NAIA Outdoor Track & Field National Championships. | High | Held |
+| 1749 | Maryville College (Tenn.) | NCAA Division III | [Official Maryville athletics page](https://www.maryvillecollege.edu/athletics/) identifies 17 NCAA Division III varsity teams and track & field. | High | Held |
+| 1757 | Simon Fraser University | NCAA Division II (current; U SPORTS transition pending) | [Official SFU transition notice](https://www.sfu.ca/vpacademic/news/2025/11/simon-fraser-university-to-pursue-u-sports-membership.html) states SFU remains NCAA Division II through 2026–27 and may transition to U SPORTS in 2027–28; [official 2026 schedule](https://athletics.sfu.ca/sports/mens-track-and-field/schedule/2026) shows NCAA Division II championships. | High | Held |
+| 1748 | Université Laval | U SPORTS / RSEQ (international) | [Official Laval track page](https://rougeetor.ulaval.ca/sports/athletisme/) identifies U SPORTS and RSEQ statistics and championships; [official university sports page](https://www.ulaval.ca/en/ulaval-experience/why-choose-universite-laval/sports) confirms the Rouge et Or varsity program. | High | Held |
 
 ## What this establishes
 
