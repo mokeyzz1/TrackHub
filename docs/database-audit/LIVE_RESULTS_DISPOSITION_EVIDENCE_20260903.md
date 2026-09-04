@@ -110,3 +110,11 @@ The live catalog and repository were rechecked together:
 
 This closes the dependency-inventory portion of the gate. Retirement is still held because those
 manual writers/tools and the 48 stale rows need an owner-approved migration and retention decision.
+
+## Product-priority checkpoint — 2026-09-04
+
+Live in-meet tracking is not currently in use and is not a present product priority. The safe
+decision is therefore to **defer** the replacement/retirement work: preserve the 48 rows, the
+compatibility view, and the existing permissions exactly as they are; do not add a replacement
+table; and reopen the lifecycle migration only when live tracking returns to active development.
+This is a prioritization decision, not permission to delete or reinterpret the stale rows.
