@@ -29,11 +29,15 @@ do not split it into source-specific tables.
 - Frequent labels include `5000 M Open`, `1500m Run`, `100 Meter Dash D1 Elite`, `DMR 4000m`, and
   `SMR 1600m`.
 - The table has no canonical event-type link, so it is review telemetry rather than a source of
-  event semantics.
-- Current access is service-role write plus public read policy; the write boundary is correct, but
-  retention and resolution status are not yet explicit.
+  event semantics. A current exact-match join against `event_aliases` resolves **all 46** labels
+  (1,484 sightings); there are zero currently unresolved labels.
+- Current access is service-role-only (RLS policy plus service-role table grants); there is no
+  `anon`/`authenticated` read or write grant. The write boundary is correct, but retention and
+  resolution status are not explicit columns.
 
-Disposition: keep as private review telemetry, add a reviewed resolution workflow before any alias
-promotion, and retain raw labels. Do not delete rows merely because aliases are later added.
+Disposition: keep as private review telemetry and retain raw labels. Treat exact alias matches as
+resolved for review purposes, but do not delete rows or add a duplicate canonical link merely
+because aliases are later added. A resolution-state column is optional future work only if a
+review/retention workflow needs durable state beyond the authoritative `event_aliases` join.
 
 No reference or telemetry rows were changed by this review.
