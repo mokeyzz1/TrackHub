@@ -125,6 +125,12 @@ function isCombinedAggregate(result: EventResult): boolean {
   return /^\d{3,5}$/.test(raw);
 }
 
+function storedCombinedScore(result: EventResult): number | null {
+  const raw = String(result.mark_raw || '').trim().replace(/,/g, '');
+  const score = Number(raw);
+  return Number.isFinite(score) ? score : null;
+}
+
 function getOfficialCombinedLabels(eventName: string, environment?: string | null): string[] | null {
   const key = combinedEventKey(eventName);
   const eventType = Object.keys(COMBINED_EVENT_ORDERS).find(type => key.includes(type));
@@ -164,10 +170,16 @@ function groupMultiEventResults(results: EventResult[], eventName: string): Even
   const collapsed: EventResult[] = [];
   grouped.forEach(group => {
     const aggregateCandidates = group.filter(isCombinedAggregate);
-    const aggregate = [...aggregateCandidates].sort((a, b) =>
-      getRoundPriority(normalizeRoundName(a.round)) - getRoundPriority(normalizeRoundName(b.round)) ||
-      (a.result_id - b.result_id)
-    )[0];
+    const aggregateRoundPriority = Math.min(
+      ...aggregateCandidates.map(result => getRoundPriority(normalizeRoundName(result.round)))
+    );
+    const aggregate = aggregateCandidates
+      .filter(result => getRoundPriority(normalizeRoundName(result.round)) === aggregateRoundPriority)
+      .sort((a, b) =>
+        (storedCombinedScore(b) ?? -1) - (storedCombinedScore(a) ?? -1) ||
+        (a.place || 999) - (b.place || 999) ||
+        (a.result_id - b.result_id)
+      )[0];
     const componentRows = group.filter(result => !isCombinedAggregate(result));
     if (componentRows.length === 0) {
       // A points/status-only row is still useful on its own. There are no component facts to
