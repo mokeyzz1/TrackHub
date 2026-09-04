@@ -32,9 +32,9 @@ table row total, NULL count, and empty-string count. High-volume restored totals
 | `public.relay_results` | 203,826 |
 | `public.relay_athletes` | 462,728 |
 | `public.athlete_prs` | 475,527 |
-| `public.results_d2_backup` | 453,737 |
-| `public.relay_results_d3_backup` | 40,935 |
-| `public.relay_athletes_d3_backup` | 89,085 |
+| `archive.results_d2_backup` | 453,737 |
+| `archive.relay_results_d3_backup` | 40,935 |
+| `archive.relay_athletes_d3_backup` | 89,085 |
 
 The saved integrity scan also completed on the restored copy. It reproduced the expected zero
 duplicate canonical result keys, zero duplicate numeric relay keys, zero missing numeric values
@@ -58,7 +58,7 @@ The successful restore recreated:
 | RLS-enabled tables | 39 of 40 application tables |
 
 The only application table without RLS is the already-documented, service-role-only
-`public.results_athlete_merge_backup` archive. PostgreSQL `pg_amcheck` completed successfully with
+`archive.results_athlete_merge_backup` archive. PostgreSQL `pg_amcheck` completed successfully with
 parent/child B-tree checks, heap-to-index coverage, and unique-index verification; it reported no
 physical table or index corruption.
 

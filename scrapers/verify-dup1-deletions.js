@@ -2,13 +2,13 @@
 /**
  * AUDIT the DUP-1 deletions after the fact. Read-only.
  *
- * 33 meets had their results deleted as copies. The rows are in `results_d1_backup`, so each
+ * 33 meets had their results deleted as copies. The rows are in `archive.results_d1_backup`, so each
  * deleted meet's schools can be reconstructed and tested against its own host state — the same
  * evidence that resolved DUP-1 in the first place.
  *
  * EXPECTED: a genuine copy's host state is ABSENT from its own schools' states (the results
  * belong to a meet somewhere else). If a deleted meet's host state MATCHES its schools, it was
- * probably the real meet and the deletion was wrong — restore it from results_d1_backup.
+ * probably the real meet and the deletion was wrong — restore it from archive.results_d1_backup.
  *
  *   node verify-dup1-deletions.js
  *
@@ -42,7 +42,7 @@ const stateOf = loc => { if(!loc) return null;
   const { rows } = await c.query(`
     SELECT b.meet_id, m.name, m.location, count(*)::int AS deleted_rows,
            (array_agg(DISTINCT s.state) FILTER (WHERE s.state IS NOT NULL)) AS school_states
-    FROM results_d1_backup b
+    FROM archive.results_d1_backup b
     JOIN meets m ON m.meet_id = b.meet_id
     LEFT JOIN teams t ON t.team_id = b.team_id
     LEFT JOIN schools s ON s.school_id = t.school_id
@@ -60,6 +60,6 @@ const stateOf = loc => { if(!loc) return null;
   console.log(`  confirmed copies (host state absent from own schools): ${ok}`);
   console.log(`  SUSPECT — host state matches own schools:              ${wrong}`);
   console.log(`  cannot tell (no location or no school states):         ${unknown}`);
-  if (wrong) console.log('\nRestore a suspect meet:\n  INSERT INTO results SELECT * FROM results_d1_backup WHERE meet_id = <id>;');
+  if (wrong) console.log('\nRestore a suspect meet:\n  INSERT INTO results SELECT * FROM archive.results_d1_backup WHERE meet_id = <id>;');
   await c.end();
 })().catch(e => { console.error('ERR', e.message); process.exit(1); });

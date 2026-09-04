@@ -17,8 +17,8 @@
  *   - a twin already exists with the resolved event_type_id  -> DELETE this row (back it up)
  *   - otherwise                                              -> UPDATE it
  *
- * Deleted rows go to results_d2_backup, same as the rest of the DUP-2 work.
- *   Rollback: INSERT INTO results SELECT * FROM results_d2_backup;
+ * Deleted rows go to archive.results_d2_backup, same as the rest of the DUP-2 work.
+ *   Rollback: INSERT INTO results SELECT * FROM archive.results_d2_backup;
  *
  *   node backfill-null-event-types.js            # dry run
  *   node backfill-null-event-types.js --apply
@@ -67,7 +67,7 @@ const mk = () => new Client({ host, port: 5432, user: 'postgres', password: root
     const ids = dupes.map(r => r.result_id);
     require('fs').writeFileSync(require('path').join(__dirname,
       `backfill-null-event-types-${new Date().toISOString().replace(/[:.]/g, '-')}.json`), JSON.stringify(ids));
-    await c.query('INSERT INTO results_d2_backup SELECT * FROM results WHERE result_id = ANY($1::int[])', [ids]);
+    await c.query('INSERT INTO archive.results_d2_backup SELECT * FROM results WHERE result_id = ANY($1::int[])', [ids]);
     const d = await c.query('DELETE FROM results WHERE result_id = ANY($1::int[])', [ids]);
     console.log(`deleted ${d.rowCount} hidden duplicates (backed up first)`);
   }

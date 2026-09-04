@@ -226,10 +226,10 @@ async function commitPlan(pool, plan) {
     await client.query('SELECT athlete_id FROM public.athletes WHERE athlete_id = ANY($1::bigint[]) FOR UPDATE', [
       [plan.old_athlete_id, plan.target_athlete_id]
     ]);
-    await client.query('CREATE TABLE IF NOT EXISTS public.results_athlete_merge_backup (LIKE public.results INCLUDING DEFAULTS)');
+    await client.query('CREATE TABLE IF NOT EXISTS archive.results_athlete_merge_backup (LIKE public.results INCLUDING DEFAULTS)');
     if (plan.delete_result_ids.length) {
       await client.query(
-        `INSERT INTO public.results_athlete_merge_backup
+        `INSERT INTO archive.results_athlete_merge_backup
          SELECT * FROM public.results WHERE result_id = ANY($1::bigint[])
          ON CONFLICT DO NOTHING`, [plan.delete_result_ids]
       );

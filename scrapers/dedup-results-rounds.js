@@ -26,9 +26,9 @@
  *             > lowest result_id.
  *
  * ROLLBACK. Nothing references results.result_id (no FKs), so deletion creates no orphans.
- * Every deleted row is copied WHOLE into `results_d2_backup` first — an id list is not enough to
+ * Every deleted row is copied WHOLE into `archive.results_d2_backup` first — an id list is not enough to
  * undo a DELETE. Restore with:
- *     INSERT INTO results SELECT <cols> FROM results_d2_backup;
+ *     INSERT INTO results SELECT <cols> FROM archive.results_d2_backup;
  * (See CLAUDE.md §7 — a previous backfill was run without capturing what it touched and became
  * unverifiable. Not repeating that.)
  *
@@ -123,11 +123,11 @@ SELECT result_id FROM ranked WHERE rn > 1`;
   }
 
   // 1. backup table holding the WHOLE row (an id list cannot undo a DELETE)
-  await c.query(`CREATE TABLE IF NOT EXISTS results_d2_backup (LIKE results INCLUDING DEFAULTS)`);
+  await c.query(`CREATE TABLE IF NOT EXISTS archive.results_d2_backup (LIKE results INCLUDING DEFAULTS)`);
   // Appending is fine and expected (pilot run, then the full run). Each run writes its own audit
   // JSON, so any single run is still individually identifiable and reversible.
-  const { rows: [pre] } = await c.query('SELECT count(*)::int AS n FROM results_d2_backup');
-  if (pre.n > 0) console.log(`results_d2_backup already holds ${pre.n.toLocaleString()} rows (earlier run) — appending`);
+  const { rows: [pre] } = await c.query('SELECT count(*)::int AS n FROM archive.results_d2_backup');
+  if (pre.n > 0) console.log(`archive.results_d2_backup already holds ${pre.n.toLocaleString()} rows (earlier run) — appending`);
 
   console.log('resolving doomed ids...');
   const { rows: doomed } = await c.query(DOOMED_SQL);
@@ -144,7 +144,7 @@ SELECT result_id FROM ranked WHERE rn > 1`;
     const chunk = ids.slice(i, i + BATCH);
     try {
       const b = await c.query(
-        `INSERT INTO results_d2_backup SELECT * FROM results WHERE result_id = ANY($1::int[])`, [chunk]);
+        `INSERT INTO archive.results_d2_backup SELECT * FROM results WHERE result_id = ANY($1::int[])`, [chunk]);
       backed += b.rowCount;
       const d = await c.query(`DELETE FROM results WHERE result_id = ANY($1::int[])`, [chunk]);
       deleted += d.rowCount;
@@ -168,6 +168,6 @@ SELECT result_id FROM ranked WHERE rn > 1`;
     SELECT count(*)::int AS remaining_groups, COALESCE(sum(n-1),0)::int AS remaining_extra FROM g`);
   console.log(`\nDONE — backed up ${backed.toLocaleString()} | deleted ${deleted.toLocaleString()}`);
   console.log(`remaining duplicate groups: ${v.remaining_groups.toLocaleString()} (expect ~185 prelim+final, deliberately kept)`);
-  console.log(`rollback: INSERT INTO results SELECT * FROM results_d2_backup;`);
+  console.log(`rollback: INSERT INTO results SELECT * FROM archive.results_d2_backup;`);
   await c.end();
 })().catch(e => { console.error('ERR', e.message); process.exit(1); });

@@ -10,19 +10,23 @@ and nobody has noticed yet.
 
 ---
 
-## Backups currently in the database (verified 2026-09-02)
+## Backups currently in the database (verified 2026-09-04)
+
+All rollback tables are preserved in the private `archive` schema. They are no longer part of the
+public API surface; `service_role` has read-only access and database-owner access is required to
+append or restore rows.
 
 | backup table | rows | holds |
 |---|---|---|
-| `results_d2_backup` | **453,737** | DUP-2 round duplicates + DUP-5 athlete-history duplicates + 1 event-type collision + 9 M8 doubled-code collisions |
-| `results_d1_backup` | **23,766** | DUP-1 results deleted from meets that were copies of other meets |
-| `relay_results_d3_backup` | **40,935** | all DUP-3 passes + NCAA DII 4x100 rollback + 7 later duplicate relays; breakdown below |
-| `relay_athletes_d3_backup` | **89,085** | the legs of those relays (saved BEFORE the parent, because of the cascade) |
-| `athletes_empty_backup` | **12,518** | DUP-4 empty duplicate athlete records |
-| `results_accidental_import_20260819_backup` | **31** | rows the legacy `scrape-and-import.js` wrote into MAAC Indoor Championships by accident — see below |
-| `results_xsource_20260819_backup` | **1,252** | cross-source individual-result copies removed after field merge |
-| `relay_results_20260819_backup` | **1** | cross-source relay copy removed after event resolution |
-| `results_athlete_merge_backup` | **11** | duplicate result rows removed by reviewed athlete merges; merge-specific reversal evidence lives with each review plan |
+| `archive.results_d2_backup` | **453,737** | DUP-2 round duplicates + DUP-5 athlete-history duplicates + 1 event-type collision + 9 M8 doubled-code collisions |
+| `archive.results_d1_backup` | **23,766** | DUP-1 results deleted from meets that were copies of other meets |
+| `archive.relay_results_d3_backup` | **40,935** | all DUP-3 passes + NCAA DII 4x100 rollback + 7 later duplicate relays; breakdown below |
+| `archive.relay_athletes_d3_backup` | **89,085** | the legs of those relays (saved BEFORE the parent, because of the cascade) |
+| `archive.athletes_empty_backup` | **12,518** | DUP-4 empty duplicate athlete records |
+| `archive.results_accidental_import_20260819_backup` | **31** | rows the legacy `scrape-and-import.js` wrote into MAAC Indoor Championships by accident — see below |
+| `archive.results_xsource_20260819_backup` | **1,252** | cross-source individual-result copies removed after field merge |
+| `archive.relay_results_20260819_backup` | **1** | cross-source relay copy removed after event resolution |
+| `archive.results_athlete_merge_backup` | **11** | duplicate result rows removed by reviewed athlete merges; merge-specific reversal evidence lives with each review plan |
 
 Per-run audit JSONs of the exact ids live in `scrapers/*.json` (16 files as of 2026-08-10), plus
 `scrapers/backfill-mark-seconds-2026-08-19T04-16-01-505Z.jsonl.gz` for M9 (below).
@@ -52,21 +56,21 @@ read-only reconciliation is reproducible with `docs/database-audit/reconcile_bac
 
 ```sql
 -- DUP-2 + DUP-5: within-meet round duplicates and athlete-history duplicates
-INSERT INTO results SELECT * FROM results_d2_backup;
+INSERT INTO results SELECT * FROM archive.results_d2_backup;
 
 -- DUP-1: results deleted from copied meets
-INSERT INTO results SELECT * FROM results_d1_backup;
+INSERT INTO results SELECT * FROM archive.results_d1_backup;
 
 -- DUP-3: duplicate relays — PARENTS FIRST, then legs (FK order matters)
-INSERT INTO relay_results  SELECT * FROM relay_results_d3_backup;
-INSERT INTO relay_athletes SELECT * FROM relay_athletes_d3_backup;
+INSERT INTO relay_results  SELECT * FROM archive.relay_results_d3_backup;
+INSERT INTO relay_athletes SELECT * FROM archive.relay_athletes_d3_backup;
 
 -- DUP-4: empty duplicate athlete records
-INSERT INTO athletes SELECT * FROM athletes_empty_backup;
+INSERT INTO athletes SELECT * FROM archive.athletes_empty_backup;
 
 -- Accidental legacy import, 2026-08-19 (only if you want the bad rows BACK, which you don't —
 -- they carry NULL event_type_id and Preliminaries+"Heat N" duplicates)
-INSERT INTO results SELECT * FROM results_accidental_import_20260819_backup;
+INSERT INTO results SELECT * FROM archive.results_accidental_import_20260819_backup;
 ```
 
 ## 14 meets IMPORTED (2026-08-19) — 11,651 results, 827 new athletes
@@ -105,7 +109,7 @@ athletic.net's richer data was not lost.
 
 ```sql
 -- restore the deleted athletic.net copies (they will reappear as duplicates)
-INSERT INTO results SELECT * FROM results_xsource_20260819_backup;
+INSERT INTO results SELECT * FROM archive.results_xsource_20260819_backup;
 ```
 
 ⚠️ The merge is **not** reversed by that statement: wind/team_id copied onto surviving TFRRS rows
@@ -124,7 +128,7 @@ The owner asked whether the checks really covered the entire database. They did 
 | `relay_results.mark_seconds` backfill | **119,148** | ids in `scrapers/backfill-mark-seconds-relay_results-*.jsonl.gz` (verified 119,148 unique) → `UPDATE relay_results SET mark_seconds = NULL WHERE relay_result_id = ANY(...)` |
 | `athlete_prs.mark_seconds` backfill | **260,360** | ids in `scrapers/backfill-mark-seconds-athlete_prs-*.jsonl.gz` (verified 260,360 unique) → same pattern on `id` |
 | `athlete_prs` doubled mark codes + 48 relay event types | 41 + 48 | `migrations/20260819_sibling_table_gaps.sql` — a repair, not a deletion; re-derivable from `mark_raw`/`event_name` |
-| 1 cross-source duplicate relay deleted | **1** | `INSERT INTO relay_results SELECT * FROM relay_results_20260819_backup;` |
+| 1 cross-source duplicate relay deleted | **1** | `INSERT INTO relay_results SELECT * FROM archive.relay_results_20260819_backup;` |
 
 The deleted relay (234919, `1:02.87a` from athletic.net) duplicated 215793 (`1:02.87` from TFRRS) —
 same meet, team, place and round. It was invisible until its NULL `event_type_id` was resolved,
@@ -173,7 +177,7 @@ exists — that is the guard doing its job. To restore anyway, drop the index, i
 Ranked by how long it would go unnoticed:
 
 1. ~~**A wrongly-deleted copied meet (DUP-1).**~~ **AUDITED 2026-08-12 — 33/33 correct.** Every
-   cleared meet was re-tested from `results_d1_backup` (schools vs host state). 31 clean; the 2
+   cleared meet was re-tested from `archive.results_d1_backup` (schools vs host state). 31 clean; the 2
    flags were false positives caused by the post-expansion Big Ten spanning CA/OR/WA. Tool:
    `scrapers/verify-dup1-deletions.js`. This was the session's highest-risk change and it is now
    verified rather than assumed.

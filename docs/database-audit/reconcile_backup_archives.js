@@ -28,12 +28,12 @@ async function main() {
     const { rows: archived } = await client.query(`
       WITH leg_counts AS (
         SELECT relay_result_id, count(*)::int AS archived_legs
-          FROM public.relay_athletes_d3_backup
+          FROM archive.relay_athletes_d3_backup
          GROUP BY relay_result_id
       )
       SELECT relay_result_id, meet_id, event_type_id, team_id, event_name, mark_raw, place, round,
              created_at, COALESCE(l.archived_legs, 0) AS archived_legs
-        FROM public.relay_results_d3_backup r
+        FROM archive.relay_results_d3_backup r
         LEFT JOIN leg_counts l USING (relay_result_id)
        ORDER BY relay_result_id`);
     const unexplained = archived.filter(row => !knownIds.has(row.relay_result_id));
@@ -45,7 +45,7 @@ async function main() {
              count(r.relay_result_id)::int AS canonical_candidate_count,
              array_agg(r.relay_result_id ORDER BY r.relay_result_id)
                FILTER (WHERE r.relay_result_id IS NOT NULL) AS canonical_candidate_ids
-        FROM public.relay_results_d3_backup b
+        FROM archive.relay_results_d3_backup b
         LEFT JOIN public.relay_results r
           ON r.meet_id = b.meet_id
          AND r.event_type_id = b.event_type_id

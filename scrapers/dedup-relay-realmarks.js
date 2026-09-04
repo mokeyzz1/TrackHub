@@ -48,16 +48,16 @@ SELECT relay_result_id FROM ranked WHERE copies > 1 AND rn > 1`;
   console.log(`duplicate relay rows on real marks: ${ids.length.toLocaleString()}`);
   if (!APPLY) { console.log('(dry run)'); await c.end(); return; }
 
-  await c.query('CREATE TABLE IF NOT EXISTS relay_results_d3_backup  (LIKE relay_results  INCLUDING DEFAULTS)');
-  await c.query('CREATE TABLE IF NOT EXISTS relay_athletes_d3_backup (LIKE relay_athletes INCLUDING DEFAULTS)');
+  await c.query('CREATE TABLE IF NOT EXISTS archive.relay_results_d3_backup  (LIKE relay_results  INCLUDING DEFAULTS)');
+  await c.query('CREATE TABLE IF NOT EXISTS archive.relay_athletes_d3_backup (LIKE relay_athletes INCLUDING DEFAULTS)');
   require('fs').writeFileSync(require('path').join(__dirname,
     `dedup-relay-realmarks-${new Date().toISOString().replace(/[:.]/g,'-')}.json`), JSON.stringify(ids));
 
   let legs = 0, saved = 0, del = 0;
   for (let i = 0; i < ids.length; i += BATCH) {
     const ch = ids.slice(i, i + BATCH);
-    legs  += (await c.query('INSERT INTO relay_athletes_d3_backup SELECT * FROM relay_athletes WHERE relay_result_id = ANY($1::int[])', [ch])).rowCount;
-    saved += (await c.query('INSERT INTO relay_results_d3_backup SELECT * FROM relay_results WHERE relay_result_id = ANY($1::int[])', [ch])).rowCount;
+    legs  += (await c.query('INSERT INTO archive.relay_athletes_d3_backup SELECT * FROM relay_athletes WHERE relay_result_id = ANY($1::int[])', [ch])).rowCount;
+    saved += (await c.query('INSERT INTO archive.relay_results_d3_backup SELECT * FROM relay_results WHERE relay_result_id = ANY($1::int[])', [ch])).rowCount;
     del   += (await c.query('DELETE FROM relay_results WHERE relay_result_id = ANY($1::int[])', [ch])).rowCount;
     await sleep(100);
     if (i % (BATCH*5) === 0 || i + BATCH >= ids.length) console.log(`  ${Math.min(i+BATCH, ids.length).toLocaleString()}/${ids.length.toLocaleString()} deleted ${del.toLocaleString()}`);

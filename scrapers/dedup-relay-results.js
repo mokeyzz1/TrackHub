@@ -22,8 +22,8 @@
  * reasoning that made DUP-2 safe.
  *
  *   Rollback (order matters — parents before children):
- *     INSERT INTO relay_results  SELECT * FROM relay_results_d3_backup;
- *     INSERT INTO relay_athletes SELECT * FROM relay_athletes_d3_backup;
+ *     INSERT INTO relay_results  SELECT * FROM archive.relay_results_d3_backup;
+ *     INSERT INTO relay_athletes SELECT * FROM archive.relay_athletes_d3_backup;
  *
  *   node dedup-relay-results.js            # dry run
  *   node dedup-relay-results.js --apply
@@ -105,8 +105,8 @@ SELECT relay_result_id FROM ranked WHERE copies > 1 AND rn > 1`;
     await c.end(); return;
   }
 
-  await c.query('CREATE TABLE IF NOT EXISTS relay_results_d3_backup  (LIKE relay_results  INCLUDING DEFAULTS)');
-  await c.query('CREATE TABLE IF NOT EXISTS relay_athletes_d3_backup (LIKE relay_athletes INCLUDING DEFAULTS)');
+  await c.query('CREATE TABLE IF NOT EXISTS archive.relay_results_d3_backup  (LIKE relay_results  INCLUDING DEFAULTS)');
+  await c.query('CREATE TABLE IF NOT EXISTS archive.relay_athletes_d3_backup (LIKE relay_athletes INCLUDING DEFAULTS)');
 
   const { rows: doomed } = await c.query(DOOMED_SQL);
   const ids = doomed.map(r => r.relay_result_id);
@@ -123,9 +123,9 @@ SELECT relay_result_id FROM ranked WHERE copies > 1 AND rn > 1`;
     try {
       // legs FIRST — the cascade destroys them the moment the parent goes
       legsSaved += (await c.query(
-        'INSERT INTO relay_athletes_d3_backup SELECT * FROM relay_athletes WHERE relay_result_id = ANY($1::int[])', [chunk])).rowCount;
+        'INSERT INTO archive.relay_athletes_d3_backup SELECT * FROM relay_athletes WHERE relay_result_id = ANY($1::int[])', [chunk])).rowCount;
       saved += (await c.query(
-        'INSERT INTO relay_results_d3_backup SELECT * FROM relay_results WHERE relay_result_id = ANY($1::int[])', [chunk])).rowCount;
+        'INSERT INTO archive.relay_results_d3_backup SELECT * FROM relay_results WHERE relay_result_id = ANY($1::int[])', [chunk])).rowCount;
       deleted += (await c.query(
         'DELETE FROM relay_results WHERE relay_result_id = ANY($1::int[])', [chunk])).rowCount;
     } catch (e) {
