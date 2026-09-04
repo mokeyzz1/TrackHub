@@ -30,7 +30,24 @@ interface EventResult {
   place: number;
   round: string;
   wind?: number;
+  event_id?: number | null;
+  event_type_id?: number | null;
+  mark_meters?: number | null;
+  environment?: string | null;
+  multiEventComponents?: MultiEventComponent[];
+  multiEventLabeling?: 'official' | 'source-order';
+  multiEventMissingAggregate?: boolean;
   isMissing?: boolean;
+}
+
+interface MultiEventComponent {
+  result_id: number;
+  mark_raw: string;
+  mark_seconds?: number | null;
+  mark_meters?: number | null;
+  place?: number | null;
+  round: string;
+  label?: string;
 }
 
 interface RelayResult {
@@ -81,6 +98,121 @@ function getRoundPriority(round: string): number {
   if (r.includes('prelim')) return 200;
 
   return 50;
+}
+
+// Combined-event feeds store the overall points row beside the component marks. The event
+// name is not enough to identify a component, so labels are only applied when the feed has the
+// expected number of component rows; otherwise we preserve source order and say so in the UI.
+const COMBINED_EVENT_ORDERS: Record<string, string[]> = {
+  decathlon: ['100m', 'Long Jump', 'Shot Put', 'High Jump', '400m', '110m Hurdles', 'Discus', 'Pole Vault', 'Javelin', '1500m'],
+  heptathlon: ['100m Hurdles', 'High Jump', 'Shot Put', '200m', 'Long Jump', 'Javelin', '800m'],
+};
+
+function combinedEventKey(eventName: string): string {
+  return eventName.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function isCombinedEventName(eventName: string): boolean {
+  const key = combinedEventKey(eventName);
+  return key.includes('decathlon') || key.includes('heptathlon') || key.includes('pentathlon');
+}
+
+function isCombinedAggregate(result: EventResult): boolean {
+  if (result.mark_seconds != null || result.mark_meters != null) return false;
+  const raw = String(result.mark_raw || '').trim().replace(/,/g, '');
+  // Points are the only untyped numeric values in a combined-event feed. A component status
+  // (DNS/DNF/NH/NM/etc.) is intentionally not treated as an aggregate.
+  return /^\d{3,5}$/.test(raw);
+}
+
+function getOfficialCombinedLabels(eventName: string, environment?: string | null): string[] | null {
+  const key = combinedEventKey(eventName);
+  const eventType = Object.keys(COMBINED_EVENT_ORDERS).find(type => key.includes(type));
+  const order = eventType ? COMBINED_EVENT_ORDERS[eventType] : null;
+  if (!order) return null;
+
+  // These orders are for outdoor Decathlon/Heptathlon. If a source explicitly identifies another
+  // environment, leave the component names generic until its convention is verified instead of
+  // presenting a guessed label as fact.
+  const normalizedEnvironment = (environment || '').toLowerCase();
+  if (normalizedEnvironment && normalizedEnvironment !== 'outdoor') {
+    return null;
+  }
+  return order;
+}
+
+function groupMultiEventResults(results: EventResult[], eventName: string): EventResult[] {
+  if (results.length === 0) return results;
+
+  const grouped = new Map<string, EventResult[]>();
+  const ungrouped: EventResult[] = [];
+
+  results.forEach(result => {
+    const groupingId = result.athlete_id != null && result.event_id != null
+      ? `event:${result.event_id}:athlete:${result.athlete_id}`
+      : result.athlete_id != null && result.event_type_id != null
+        ? `type:${result.event_type_id}:athlete:${result.athlete_id}`
+        : null;
+    if (!groupingId) {
+      ungrouped.push(result);
+      return;
+    }
+    if (!grouped.has(groupingId)) grouped.set(groupingId, []);
+    grouped.get(groupingId)!.push(result);
+  });
+
+  const collapsed: EventResult[] = [];
+  grouped.forEach(group => {
+    const aggregateCandidates = group.filter(isCombinedAggregate);
+    const aggregate = [...aggregateCandidates].sort((a, b) =>
+      getRoundPriority(normalizeRoundName(a.round)) - getRoundPriority(normalizeRoundName(b.round)) ||
+      (a.result_id - b.result_id)
+    )[0];
+    const componentRows = group.filter(result => !isCombinedAggregate(result));
+    if (componentRows.length === 0) {
+      // A points/status-only row is still useful on its own. There are no component facts to
+      // attach, so keep the source row unchanged.
+      collapsed.push(aggregate || group[0]);
+      return;
+    }
+
+    // Prefer the best round available for each component (usually Finals). This removes the heat
+    // duplicates visible in the current flat list while retaining source order within that round.
+    const bestComponentPriority = Math.min(
+      ...componentRows.map(result => getRoundPriority(normalizeRoundName(result.round)))
+    );
+    const selectedComponents = componentRows
+      .filter(result => getRoundPriority(normalizeRoundName(result.round)) === bestComponentPriority)
+      .sort((a, b) => a.result_id - b.result_id);
+    const displayAggregate = aggregate || {
+      ...group[0],
+      mark_raw: '—',
+      mark_seconds: undefined,
+      mark_meters: null,
+      place: 0,
+    };
+    const officialLabels = getOfficialCombinedLabels(eventName, displayAggregate.environment);
+    const hasOfficialLabels = officialLabels != null && selectedComponents.length === officialLabels.length;
+
+    collapsed.push({
+      ...displayAggregate,
+      multiEventLabeling: hasOfficialLabels ? 'official' : 'source-order',
+      multiEventMissingAggregate: !aggregate,
+      multiEventComponents: selectedComponents.map((component, index) => ({
+        result_id: component.result_id,
+        mark_raw: component.mark_raw,
+        mark_seconds: component.mark_seconds,
+        mark_meters: component.mark_meters,
+        place: component.place,
+        round: component.round,
+        label: hasOfficialLabels ? officialLabels![index] : undefined,
+      })),
+    });
+  });
+
+  // Rows without a stable event/athlete key are not collapsed. This is a deliberate safety valve
+  // for legacy data rather than a reason to hide facts from the results screen.
+  return [...collapsed, ...ungrouped];
 }
 
 // Check if a round is an individual heat (not combined)
@@ -188,6 +320,12 @@ function fillMissingPlaces(results: EventResult[], roundName: string): EventResu
 
   // Only fill gaps for finals/semis, not individual heats
   if (!shouldFillMissingPlaces(roundName)) {
+    return sorted;
+  }
+
+  // A combined-event athlete can have component marks without an overall points row. Those
+  // synthetic "points unavailable" rows do not represent a missing finishing place.
+  if (sorted.some(result => result.multiEventMissingAggregate)) {
     return sorted;
   }
 
@@ -305,6 +443,7 @@ export default function EventResultsScreen() {
   const [isRelay, setIsRelay] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedMultiResults, setExpandedMultiResults] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     fetchResults();
@@ -346,8 +485,13 @@ export default function EventResultsScreen() {
     }
   }
 
-  // Group results by round
-  const roundGroups = useMemo(() => groupByRound(results), [results]);
+  // Combined events are standings plus component marks, not a flat list of independent results.
+  // Collapse them only when the existing rows provide a stable event/athlete key.
+  const displayedResults = useMemo(
+    () => isCombinedEventName(eventName || '') ? groupMultiEventResults(results, eventName || '') : results,
+    [eventName, results]
+  );
+  const roundGroups = useMemo(() => groupByRound(displayedResults), [displayedResults]);
   const relayRoundGroups = useMemo(() => groupRelayByRound(relayResults), [relayResults]);
 
   function formatDate(dateString: string) {
@@ -367,6 +511,8 @@ export default function EventResultsScreen() {
   function renderResultRow(result: EventResult, index: number, isLast: boolean) {
     const isTopThree = result.place >= 1 && result.place <= 3;
     const isMissing = result.isMissing === true;
+    const isMultiEvent = Boolean(result.multiEventComponents?.length);
+    const isExpanded = expandedMultiResults.has(result.result_id);
 
     // Missing row - not clickable, different styling
     if (isMissing) {
@@ -406,15 +552,27 @@ export default function EventResultsScreen() {
     }
 
     return (
-      <TouchableOpacity
+      <View
         key={result.result_id}
-        style={[styles.resultRow, isLast && styles.resultRowLast]}
-        onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          router.push(`/athlete/${result.athlete_id}`);
-        }}
-        activeOpacity={0.7}
+        style={[isMultiEvent && styles.multiEventResultContainer, isMultiEvent && isLast && styles.resultRowLast]}
       >
+        <TouchableOpacity
+          style={[styles.resultRow, !isMultiEvent && isLast && styles.resultRowLast]}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            if (isMultiEvent) {
+              setExpandedMultiResults(previous => {
+                const next = new Set(previous);
+                if (next.has(result.result_id)) next.delete(result.result_id);
+                else next.add(result.result_id);
+                return next;
+              });
+            } else {
+              router.push(`/athlete/${result.athlete_id}`);
+            }
+          }}
+          activeOpacity={0.7}
+        >
         {/* Place */}
         <View style={[styles.placeCell, isTopThree && styles.placeCellTop]}>
           <Text style={[styles.placeText, isTopThree && styles.placeTextTop]}>
@@ -444,8 +602,49 @@ export default function EventResultsScreen() {
         {/* Time/Mark */}
         <View style={styles.timeCell}>
           <Text style={styles.timeText}>{result.mark_raw || '-'}</Text>
+          {isMultiEvent && (
+            <Ionicons
+              name={isExpanded ? 'chevron-up' : 'chevron-down'}
+              size={15}
+              color={colors.text.tertiary}
+            />
+          )}
         </View>
-      </TouchableOpacity>
+
+        </TouchableOpacity>
+
+        {isMultiEvent && isExpanded && (
+          <View style={styles.multiEventComponents}>
+            <View style={styles.multiEventComponentsHeader}>
+              <Text style={styles.multiEventComponentsTitle}>Component marks</Text>
+              <View style={styles.multiEventComponentsHeaderActions}>
+                <TouchableOpacity
+                  onPress={() => router.push(`/athlete/${result.athlete_id}`)}
+                  hitSlop={8}
+                >
+                  <Text style={styles.multiEventProfileLink}>View profile</Text>
+                </TouchableOpacity>
+                <Text style={styles.multiEventComponentsHint}>
+                  {result.multiEventMissingAggregate
+                    ? 'Overall points unavailable'
+                    : result.multiEventLabeling === 'official'
+                      ? 'Standard order'
+                      : 'Source order · labels pending'}
+                </Text>
+              </View>
+            </View>
+            {result.multiEventComponents!.map((component, componentIndex) => (
+              <View key={`${result.result_id}-${component.result_id}`} style={styles.multiEventComponentRow}>
+                <Text style={styles.multiEventComponentLabel} numberOfLines={1}>
+                  {component.label || `Component ${componentIndex + 1}`}
+                </Text>
+                <Text style={styles.multiEventComponentMark}>{component.mark_raw || '-'}</Text>
+                <Text style={styles.multiEventComponentRound}>{normalizeRoundName(component.round)}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
     );
   }
 
@@ -481,7 +680,7 @@ export default function EventResultsScreen() {
             <Text style={styles.headerText}>TEAM</Text>
           </View>
           <View style={styles.timeCell}>
-            <Text style={styles.headerText}>TIME</Text>
+            <Text style={styles.headerText}>{isCombinedEventName(eventName || '') ? 'PTS' : 'TIME'}</Text>
           </View>
         </View>
 
@@ -888,6 +1087,11 @@ const styles = StyleSheet.create({
     // Container for result rows
   },
 
+  multiEventResultContainer: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borders.light,
+  },
+
   // Result Row
   resultRow: {
     flexDirection: 'row',
@@ -899,6 +1103,68 @@ const styles = StyleSheet.create({
   },
   resultRowLast: {
     borderBottomWidth: 0,
+  },
+  multiEventComponents: {
+    paddingHorizontal: 12,
+    paddingBottom: 10,
+    backgroundColor: '#F8F9FC',
+    borderTopWidth: 1,
+    borderTopColor: colors.borders.light,
+  },
+  multiEventComponentsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+  },
+  multiEventComponentsHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  multiEventComponentsTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: colors.text.secondary,
+  },
+  multiEventComponentsHint: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+  },
+  multiEventProfileLink: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.primary.trackOrange,
+  },
+  multiEventComponentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 5,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  multiEventComponentLabel: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.text.secondary,
+  },
+  multiEventComponentMark: {
+    width: 72,
+    textAlign: 'right',
+    fontSize: 12,
+    fontWeight: '800',
+    color: colors.text.primary,
+    fontFamily: 'Courier',
+  },
+  multiEventComponentRound: {
+    width: 58,
+    marginLeft: 8,
+    textAlign: 'right',
+    fontSize: 10,
+    fontWeight: '600',
+    color: colors.text.tertiary,
   },
   resultRowMissing: {
     backgroundColor: '#FEF2F2',

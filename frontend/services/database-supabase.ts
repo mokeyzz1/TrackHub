@@ -1441,11 +1441,15 @@ export async function getEventResults(meetName: string, eventName: string, date:
       .select(`
         result_id,
         athlete_id,
+        event_id,
+        event_type_id,
         mark_raw,
         mark_seconds,
+        mark_meters,
         place,
         round,
         wind,
+        environment,
         athletes (
           full_name,
           gender,
@@ -1463,9 +1467,11 @@ export async function getEventResults(meetName: string, eventName: string, date:
     );
     if (eventTypeId) query = query.eq('event_type_id', eventTypeId);
     else query = query.eq('event_name', eventName);
+    // Keep the source insertion order. Combined-event component rows share the parent event and
+    // athlete, and their result_id sequence is the only stable component ordering available in
+    // the current schema. Ordinary event screens still sort their rounds/places in the reader.
     const { data, error } = await query
-      .order('round', { ascending: true })
-      .order('place', { ascending: true })
+      .order('result_id', { ascending: true })
       .range(offset, offset + pageSize - 1);
 
     if (error) {
@@ -1487,15 +1493,19 @@ export async function getEventResults(meetName: string, eventName: string, date:
     return {
       result_id: r.result_id,
       athlete_id: r.athlete_id,
+      event_id: r.event_id ?? null,
+      event_type_id: r.event_type_id ?? eventTypeId ?? null,
       athlete_name: athlete?.full_name || 'Unknown',
       gender: athlete?.gender,
       class_year: athlete?.class_year || '',
       school_name: school?.official_name || school?.short_name || 'Unknown',
-      mark_raw: r.mark_raw,
+      mark_raw: r.mark_raw || '',
       mark_seconds: r.mark_seconds,
+      mark_meters: r.mark_meters,
       place: r.place,
       round: r.round || 'Results',
       wind: r.wind,
+      environment: r.environment ?? null,
     };
   });
 
