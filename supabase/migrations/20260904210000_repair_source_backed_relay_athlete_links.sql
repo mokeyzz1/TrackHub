@@ -66,7 +66,8 @@ BEGIN
           ON sl.relay_result_id = e.relay_result_id
          AND sl.source_record_id = e.source_record_id
          AND sl.link_status = 'linked'
-        JOIN ingest.source_records sr USING (source_record_id)
+        JOIN ingest.source_records sr
+          ON sr.source_record_id = sl.source_record_id
         CROSS JOIN LATERAL jsonb_array_elements(coalesce(sr.payload->'relay_athletes', '[]'::jsonb)) leg(value)
        WHERE (leg.value->>'leg_order')::integer = ra.leg_order
          AND lower(btrim(leg.value->>'tfrrs_athlete_id')) = e.source_key
