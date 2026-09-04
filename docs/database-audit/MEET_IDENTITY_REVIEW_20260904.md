@@ -50,6 +50,23 @@ that the URL itself is a results page, but production has two rows using it on M
 2026. Those rows may represent separate editions/segments or a duplicate import; source-level
 comparison is required.
 
+### Same-URL fact-set evidence
+
+The read-only fingerprint query found three historical TFRRS URL pairs whose **individual result
+sets are byte-equivalent at the canonical identity level** (same athlete, event, team, mark, place,
+and round for every row):
+
+| URL | Meet IDs / dates | Individual rows | Relay rows |
+| --- | --- | ---: | --- |
+| `/results/92756` | 8202 (2023-02-04) / 2879 (2025-02-07) | 959 = 959 | 47 / 27 |
+| `/results/93948` | 11160 (2020-02-14) / 3274 (2022-02-11) | 1,058 = 1,058 | 30 / 40 |
+| `/results/95227` | 11014 (2021-02-13) / 1455 (2022-02-11) | 2,487 = 2,487 | 62 / 87 |
+
+This is strong evidence of historical result-set contamination or source-page reuse. It is not a
+survivor decision: relay sets differ, source pages can be edited, and the result rows retain
+different meet parents. Preserve both rows while a source snapshot/lineage review determines which
+meet owns each fact.
+
 ## Constraints and access boundary
 
 - `meets` has a primary key on `meet_id` and checks for the current `status` and `results_source`

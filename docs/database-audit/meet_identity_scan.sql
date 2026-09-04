@@ -73,3 +73,28 @@ select m.meet_id,m.name,m.date,m.end_date,m.location,m.status,m.season,
 from public.meets m
 join duplicate_urls d on d.url_key=lower(regexp_replace(btrim(m.tfrrs_url), '/+$', ''))
 order by m.tfrrs_url,m.date,m.meet_id;
+
+-- 6. Same-URL result-set fingerprints. Equal fingerprints are review evidence, not a delete command.
+with duplicate_meets as (
+  select lower(regexp_replace(btrim(tfrrs_url), '/+$', '')) as url_key,
+         array_agg(meet_id order by meet_id) as meet_ids
+  from public.meets
+  where tfrrs_url is not null and btrim(tfrrs_url) <> ''
+  group by 1 having count(*) > 1
+), facts as (
+  select d.url_key,m.meet_id,
+    (select count(*) from public.results r where r.meet_id=m.meet_id)::bigint as result_rows,
+    (select md5(coalesce(string_agg(
+      md5(concat_ws('|',coalesce(r.athlete_id::text,''),coalesce(r.event_type_id::text,''),
+          coalesce(r.team_id::text,''),coalesce(r.mark_raw,''),coalesce(r.place::text,''),coalesce(r.round,''))),
+      ',' order by r.athlete_id,r.event_type_id,r.team_id,r.mark_raw,r.place,r.round),''))
+     from public.results r where r.meet_id=m.meet_id) as result_fingerprint,
+    (select count(*) from public.relay_results rr where rr.meet_id=m.meet_id)::bigint as relay_rows,
+    (select md5(coalesce(string_agg(
+      md5(concat_ws('|',coalesce(rr.event_type_id::text,''),coalesce(rr.team_id::text,''),
+          coalesce(rr.mark_raw,''),coalesce(rr.place::text,''),coalesce(rr.round,''))),
+      ',' order by rr.event_type_id,rr.team_id,rr.mark_raw,rr.place,rr.round),''))
+     from public.relay_results rr where rr.meet_id=m.meet_id) as relay_fingerprint
+  from duplicate_meets d join public.meets m on m.meet_id=any(d.meet_ids)
+)
+select * from facts order by url_key,meet_id;

@@ -29,7 +29,7 @@ These workstreams have evidence of a live change or a completed verification gat
 | Current catalog baseline | Recounted all non-system schemas after cleanup: 74 tables, 7 views, 27 sequences; nine backup tables are private in `archive`, and the live ledger has 83 records. | `FULL_DATABASE_INVENTORY_20260903.md`, `TABLE_STRUCTURE_REVIEW_20260903.md` |
 | PR view source semantics | The derived PR view now uses supplied leading aggregate points and excludes typed multi-event component rows; no canonical rows were changed. | `ATHLETE_PRS_DISPOSITION_EVIDENCE_20260903.md`, migration `20260904195352_fix_v_athlete_prs_points_source.sql`, rollback file |
 | Team/relay identity checkpoint | `teams` is still school-backed (3,516 rows; 3,509 legacy rows have no explicit name/type), source URLs are unique, and relay parent/leg links are structurally complete enough for bounded review. | `TEAM_RELAY_IDENTITY_REVIEW_20260904.md`, `team_relay_identity_scan.sql` |
-| Meet identity checkpoint | 12,978 meet rows remain; source URL identity is sparse and reused across 10 TFRRS and 5 Athletic.net collision groups, with two normalized name/date pairs. | `MEET_IDENTITY_REVIEW_20260904.md`, `meet_identity_scan.sql` |
+| Meet identity checkpoint | 12,978 meet rows remain; source URL identity is sparse and reused across 10 TFRRS and 5 Athletic.net collision groups, with two normalized name/date pairs. Three historical TFRRS URL pairs also have byte-equivalent individual fact sets and require lineage review. | `MEET_IDENTITY_REVIEW_20260904.md`, `meet_identity_scan.sql` |
 
 ## Committed application/read fixes (not a live-data change)
 
