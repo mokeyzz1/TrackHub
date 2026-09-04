@@ -183,3 +183,18 @@ preserved until governing-body history/current affiliation is modeled explicitly
 Several Ohio Christian athlete rows also contain older results that deserve a separate
 athlete-history audit. This proposal changes only school/team identity references; it does not
 reinterpret or delete those performances.
+
+## Live post-cleanup checkpoint — 2026-09-04
+
+The live normalized-name scan now reports exactly **2 collision groups / 2 extra rows**, matching
+the reviewed proposal's expected postcondition:
+
+- `Lewis Clark` (ID, NAIA, school 791) and `Lewis & Clark` (OR, DIII, school 1337) are distinct
+  institutions with different state/division metadata and active fact usage.
+- `West Chester` (PA, DII, school 661) and `Westchester` (NY, NJCAA, school 1144) are distinct
+  institutions with different state/division metadata. The NY row is currently an empty shell but
+  is not merged from name similarity alone.
+
+The 115 previously measured extras are therefore resolved by reviewed migrations or intentionally
+retained as these two cross-institution name collisions. No further school merge is authorized
+without new source evidence and a new before-image/rollback review.
