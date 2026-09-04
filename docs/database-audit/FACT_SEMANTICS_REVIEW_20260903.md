@@ -68,3 +68,19 @@ source labels and lineup evidence while distinguishing:
 6. Define when derived PR/ranking data is recomputed and how historical results are versioned.
 
 No fact rows were modified by this review.
+
+## Canonical-fact invariant checkpoint — 2026-09-04
+
+The post-cleanup recheck confirms the nullable-link populations are still present and the
+canonical event links remain complete:
+
+- `results` remains 3,419,178 rows: 0 NULL `event_type_id`, 562,033 NULL `meet_id`, and 401,563
+  NULL `team_id`.
+- `relay_results` remains 200,736 rows: 0 NULL `event_type_id`, 22,865 NULL `meet_id`, 31,344
+  NULL `team_id`, and 327 NULL `mark_raw`.
+- `relay_athletes` remains 450,685 rows: 0 NULL `relay_result_id` and 3,359 NULL `athlete_id`.
+
+The NULL links are not converted to `NOT NULL`: they still represent history, open/unattached
+participation, or unresolved source identity. The exact event-type invariant is safe, while the
+meet/team/athlete populations remain semantic review queues. The derived PR-view points parser was
+corrected separately to use supplied aggregate tokens; this checkpoint does not rewrite fact rows.
