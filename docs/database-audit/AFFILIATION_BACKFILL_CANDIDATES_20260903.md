@@ -45,3 +45,8 @@ alias record before any backfill.
 
 The seven reviewed rows now have explicit values in production. No other team rows were populated;
 the remaining population is still held for review.
+
+The Dawgs Track Club school logo association was later removed by the separately approved
+`20260904020412_remove_reviewed_dawgs_logo_association` migration. The school, team, athlete, and
+result records remain; the complete before-image is in the private archive and the original image
+file remains preserved at `scrapers/athletic-net/output/school-logo-backfill/manual_noncollege/1829.png`.
