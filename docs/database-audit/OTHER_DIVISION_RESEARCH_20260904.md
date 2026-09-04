@@ -3,11 +3,12 @@
 ## Purpose
 
 The live `schools.division = 'Other'` value is a catch-all metadata state, not a
-competition classification. The current inventory contains 245 schools and 129 of them have
-no conference value. Several of the largest schools in that bucket are plainly collegiate
-programs, while others are international or otherwise outside the NCAA/NAIA taxonomy.
+competition classification. The current inventory contains 129 schools linked to 245 teams;
+the school rows have no conference value. Several of the largest schools in that bucket are
+plainly collegiate programs, while others are international or otherwise outside the
+NCAA/NAIA taxonomy.
 
-This first evidence pass reviews 49 of the highest-impact rows identified in the live inventory. It is
+This first evidence pass reviews 58 of the highest-impact rows identified in the live inventory. It is
 read-only: no `schools.division`, team, athlete, result, or logo rows were changed. The links below
 are the authority used for the proposed classification; a school name or logo by itself is not
 treated as proof.
@@ -74,6 +75,16 @@ treated as proof.
 | 1749 | Maryville College (Tenn.) | NCAA Division III | [Official Maryville athletics page](https://www.maryvillecollege.edu/athletics/) identifies 17 NCAA Division III varsity teams and track & field. | High | Held |
 | 1757 | Simon Fraser University | NCAA Division II (current; U SPORTS transition pending) | [Official SFU transition notice](https://www.sfu.ca/vpacademic/news/2025/11/simon-fraser-university-to-pursue-u-sports-membership.html) states SFU remains NCAA Division II through 2026–27 and may transition to U SPORTS in 2027–28; [official 2026 schedule](https://athletics.sfu.ca/sports/mens-track-and-field/schedule/2026) shows NCAA Division II championships. | High | Held |
 | 1748 | Université Laval | U SPORTS / RSEQ (international) | [Official Laval track page](https://rougeetor.ulaval.ca/sports/athletisme/) identifies U SPORTS and RSEQ statistics and championships; [official university sports page](https://www.ulaval.ca/en/ulaval-experience/why-choose-universite-laval/sports) confirms the Rouge et Or varsity program. | High | Held |
+| 1755 | University of St. Thomas (Tex.) | NCAA Division III | [Official St. Thomas announcement](https://ustcelts.com/news/2022/8/15/8_15_2022_322.aspx) documents active NCAA Division III membership effective September 1, 2022; [official 2026 track report](https://ustcelts.com/news/2026/5/29/womens-track-and-field-celts-earn-ustfccca-all-region-honors-in-the-west-region.aspx) confirms the current Division III track program. | High | Held |
+| 1783 | West Virginia University Institute of Technology | NAIA | [Official WVU Tech track report](https://goldenbearathletics.com/news/2026/5/9/general-wvu-tech-competes-at-wvu-last-chance.aspx) identifies the 2026 NAIA Outdoor Track & Field National Championship; [official 2025 championship report](https://goldenbearathletics.com/news/2025/2/28/whitcomb-represents-wvu-tech-at-naia-national-championship.aspx) confirms participation in the NAIA indoor championship. | High | Held |
+| 1756 | SUNY Fredonia | NCAA Division III | [Official Fredonia athletics page](https://www.fredonia.edu/athletics) identifies its Division III athletics record; [official 2026 track report](https://www.fredonia.edu/news/articles/sample-finishes-20th-nationals) confirms participation in the NCAA Division III Outdoor Track & Field Championships. | High | Held |
+| 1764 | University of Saint Francis (Ind.) | NAIA | [Official university athletics page](https://www.sf.edu/campus-life/athletics/) identifies Saint Francis as an NAIA member; [official track leadership announcement](https://www.sf.edu/news/2023/07/saint-francis-names-brendon-moody-as-director-of-track-and-field-cross-country/) confirms the NAIA track and field program. | High | Held |
+| 1758 | Saint Vincent College (Pa.) | NCAA Division III | [Official athletics mission](https://athletics.stvincent.edu/sports/2016/1/7/GEN_0107160147.aspx) identifies Saint Vincent as an NCAA Division III/PAC member; [official track page](https://athletics.stvincent.edu/sports/mens-track-and-field/) confirms the program. | High | Held |
+| 1762 | University of Toronto | U SPORTS / OUA (international) | [Official 2026–27 selection criteria](https://varsityblues.ca/sports/2021/7/28/track-and-field-selection-criteria.aspx) identify the Toronto track team and use OUA and U SPORTS championship standards; [official university facility page](https://kpe.utoronto.ca/facility/varsity-centre-arena) confirms track and field as a Varsity Blues intercollegiate sport. | High | Held |
+| 1763 | Western University (Ont.) | U SPORTS / OUA (international) | [Official Western track page](https://westernmustangs.ca/sports/track-and-field) records the 2026 OUA and U SPORTS championship meets for the Mustangs. | High | Held |
+| 1768 | Asbury University | NCAA Division III (also NCCAA) | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=30243) lists Asbury as an active Division III member; [official Asbury notice](https://asburyeagles.com/news/2026/4/9/mens-cross-country-asbury-celebrates-ncaa-division-iii-week-april-6-13.aspx) confirms active NCAA Division III and concurrent NCCAA membership. | High | Held |
+| 1786 | Sewanee: The University of the South | NCAA Division III | [Official track quick facts](https://sewaneetigers.com/sports/2021/5/19/track-field-quick-facts.aspx) identify NCAA Division III/SAA affiliation; [official 2025–26 schedule](https://sewaneetigers.com/sports/mens-track-and-field/schedule/2025-26?grid=true) confirms the current program. | High | Held |
+| 1776 | Bethany College (Kan.) | NAIA | [Official Bethany athletics description](https://swedecentral.bethanylb.edu/club_signup?group_type=9999) identifies NAIA/KCAC membership and men’s and women’s indoor/outdoor track and field. | High | Held |
 
 ## What this establishes
 
