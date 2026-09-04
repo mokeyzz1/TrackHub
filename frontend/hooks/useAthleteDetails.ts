@@ -23,6 +23,7 @@ export interface Performance {
   result_id: number;
   athlete_id: number;
   meet_id?: number | null;
+  team_id?: number | null;
   full_name?: string;
   gender?: string;
   event_name: string;
@@ -37,6 +38,7 @@ export interface Performance {
   school_name?: string;
   division?: string;
   state?: string;
+  competed_for_team?: string | null;
   competed_for_school?: string;
 }
 
@@ -54,17 +56,19 @@ export interface PersonalRecord {
 }
 
 export interface RelayParticipation {
-  relay_result_id: number;
+  relay_result_id: number | null;
   meet_id?: number | null;
+  team_id?: number | null;
   event_name: string;
-  mark_raw: string;
-  place: number;
-  round?: string;
+  mark_raw: string | null;
+  place: number | null;
+  round?: string | null;
   meet_name: string;
   date: string;
-  leg_order: number;
+  leg_order?: number | null;
   school_name?: string;
   teammates: string[];
+  is_unlinked?: boolean;
 }
 
 export function useAthleteDetails(athleteId: number) {

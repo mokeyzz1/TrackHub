@@ -73,12 +73,71 @@ export default function AthleteDetailScreen() {
     return relayParticipations.filter(r => new Date(r.date).getFullYear().toString() === selectedSeason);
   }, [relayParticipations, selectedSeason]);
 
+  // Some older imports projected a relay row into `results` for the athlete but never created
+  // the matching `relay_athletes` lineup link. Keep that real team performance visible as a
+  // clearly labelled fallback instead of dropping it when individual rows are separated out.
+  const relayParticipationRows = useMemo(() => {
+    type RelayLike = {
+      meet_id?: number | null;
+      meet_name: string;
+      date: string;
+      team_id?: number | null;
+      school_name?: string | null;
+      competed_for_team?: string | null;
+      event_name: string;
+      mark_raw: string | null;
+    };
+
+    const relayFingerprint = (row: RelayLike) => {
+      const meet = row.meet_id != null
+        ? `id:${row.meet_id}`
+        : `name:${row.meet_name}|${row.date?.slice(0, 10) || ''}`;
+      const team = row.team_id != null
+        ? `team:${row.team_id}`
+        : `team-name:${row.school_name || row.competed_for_team || ''}`;
+      return `${meet}|${team}|${canonicalEventName(row)}|${row.mark_raw || ''}`;
+    };
+
+    const linkedFingerprints = new Set(
+      filteredRelayParticipations.map(relay => relayFingerprint(relay))
+    );
+
+    const fallbackRows = filteredPerformances
+      .filter(perf => perf.performance_type === 'relay')
+      .filter(perf => !linkedFingerprints.has(relayFingerprint({
+        meet_id: perf.meet_id,
+        meet_name: perf.meet_name,
+        date: perf.date,
+        team_id: perf.team_id,
+        competed_for_team: perf.competed_for_team,
+        event_name: perf.event_name,
+        mark_raw: perf.mark_raw,
+      })))
+      .map(perf => ({
+        relay_result_id: null,
+        meet_id: perf.meet_id,
+        team_id: perf.team_id,
+        event_name: perf.event_name,
+        mark_raw: perf.mark_raw || null,
+        place: perf.place ?? null,
+        round: perf.round ?? null,
+        meet_name: perf.meet_name,
+        date: perf.date,
+        leg_order: null,
+        school_name: perf.competed_for_team || perf.competed_for_school || undefined,
+        teammates: [],
+        is_unlinked: true,
+      }));
+
+    return [...filteredRelayParticipations, ...fallbackRows];
+  }, [filteredPerformances, filteredRelayParticipations]);
+
   // Calculate stats from filtered performances
   const stats = useMemo(() => {
     const uniqueEvents = new Set(individualPerformances.map(p => canonicalEventName(p)));
     const uniqueMeets = new Set([
       ...individualPerformances.map(p => p.meet_id != null ? `id:${p.meet_id}` : `name:${p.meet_name}`),
-      ...filteredRelayParticipations.map(r => r.meet_id != null ? `id:${r.meet_id}` : `name:${r.meet_name}`),
+      ...relayParticipationRows.map(r => r.meet_id != null ? `id:${r.meet_id}` : `name:${r.meet_name}`),
     ]);
     const wins = individualPerformances.filter(p => p.place === 1).length;
 
@@ -87,7 +146,7 @@ export default function AthleteDetailScreen() {
       meets: uniqueMeets.size,
       wins,
     };
-  }, [individualPerformances, filteredRelayParticipations]);
+  }, [individualPerformances, relayParticipationRows]);
 
   // Group all athlete activity by meet. Individual and relay facts remain distinct inside the
   // card, so the same relay is visible to each linked athlete without looking like an individual PR.
@@ -99,7 +158,7 @@ export default function AthleteDetailScreen() {
       endDate: string;
       competedForSchool?: string;
       events: typeof individualPerformances;
-      relays: typeof filteredRelayParticipations;
+      relays: typeof relayParticipationRows;
     }>();
 
     const ensureMeet = (item: {
@@ -128,7 +187,7 @@ export default function AthleteDetailScreen() {
         endDate: item.date,
         competedForSchool: item.competed_for_school || item.school_name,
         events: [] as typeof individualPerformances,
-        relays: [] as typeof filteredRelayParticipations,
+        relays: [] as typeof relayParticipationRows,
       };
       grouped.set(meetKey, meet);
       return meet;
@@ -145,7 +204,7 @@ export default function AthleteDetailScreen() {
         }).events.push(perf);
       });
 
-    [...filteredRelayParticipations]
+    [...relayParticipationRows]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .forEach(relay => {
         ensureMeet({
@@ -192,7 +251,7 @@ export default function AthleteDetailScreen() {
 
       // A linked athlete should have one relay participation row per relay. Keep the parent relay
       // identity as the display key in case an older import produced duplicate leg links.
-      const relayDeduped = new Map<string, typeof filteredRelayParticipations[0]>();
+      const relayDeduped = new Map<string, typeof relayParticipationRows[0]>();
       for (const relay of meet.relays) {
         const key = relay.relay_result_id != null
           ? String(relay.relay_result_id)
@@ -206,7 +265,7 @@ export default function AthleteDetailScreen() {
     return Array.from(grouped.values())
       .sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
       .slice(0, 10);
-  }, [individualPerformances, filteredRelayParticipations]);
+  }, [individualPerformances, relayParticipationRows]);
 
   const isFollowing = athlete ? isFavorite(athlete.athlete_id.toString(), 'athlete') : false;
 
@@ -550,46 +609,63 @@ export default function AthleteDetailScreen() {
                     <>
                       <Text style={styles.subsectionTitle}>Relay participation</Text>
                       <View style={styles.meetEventsList}>
-                        {meet.relays.map((relay, relayIndex) => (
-                          <View
-                            key={`relay-${relay.relay_result_id}`}
-                            style={[
-                              styles.meetEventRow,
-                              relayIndex === meet.relays.length - 1 && styles.meetEventRowLast
-                            ]}
-                          >
-                            <View style={styles.meetEventInfo}>
-                              <View style={styles.meetEventNameRow}>
-                                <Text style={styles.meetEventName}>{canonicalEventName(relay)}</Text>
-                                <View style={styles.legTag}>
-                                  <Text style={styles.legTagText}>Leg {relay.leg_order}</Text>
+                        {meet.relays.map((relay, relayIndex) => {
+                          const relayKey = relay.relay_result_id != null
+                            ? `relay-${relay.relay_result_id}`
+                            : `relay-${meet.meetKey}-${canonicalEventName(relay)}-${relay.mark_raw || 'unknown'}-${relayIndex}`;
+
+                          return (
+                            <View
+                              key={relayKey}
+                              style={[
+                                styles.meetEventRow,
+                                relayIndex === meet.relays.length - 1 && styles.meetEventRowLast
+                              ]}
+                            >
+                              <View style={styles.meetEventInfo}>
+                                <View style={styles.meetEventNameRow}>
+                                  <Text style={styles.meetEventName}>{canonicalEventName(relay)}</Text>
+                                  {relay.leg_order != null ? (
+                                    <View style={styles.legTag}>
+                                      <Text style={styles.legTagText}>Leg {relay.leg_order}</Text>
+                                    </View>
+                                  ) : (
+                                    <View style={styles.relayPendingTag}>
+                                      <Text style={styles.relayPendingTagText}>Team relay</Text>
+                                    </View>
+                                  )}
+                                  {relay.round && (
+                                    <View style={styles.roundTag}>
+                                      <Text style={styles.roundTagText}>{shortenRound(relay.round)}</Text>
+                                    </View>
+                                  )}
                                 </View>
-                                {relay.round && (
-                                  <View style={styles.roundTag}>
-                                    <Text style={styles.roundTagText}>{shortenRound(relay.round)}</Text>
+                                <Text style={styles.meetEventMark}>{relay.mark_raw || '—'}</Text>
+                                {relay.school_name && (
+                                  <Text style={styles.relayTeamText}>for {relay.school_name}</Text>
+                                )}
+                                {relay.is_unlinked && (
+                                  <Text style={styles.relayPendingText}>Athlete link pending</Text>
+                                )}
+                                {relay.teammates.length > 0 && (
+                                  <Text style={styles.teammatesText}>
+                                    with {relay.teammates.slice(0, 3).join(', ')}
+                                  </Text>
+                                )}
+                              </View>
+                              <View style={styles.meetEventRight}>
+                                {relay.place != null && (
+                                  <View style={styles.placeBadgeSmall}>
+                                    <Text style={styles.placeTextSmall}>{relay.place}</Text>
+                                    <Text style={styles.placeSuffixSmall}>
+                                      {relay.place === 1 ? 'st' : relay.place === 2 ? 'nd' : relay.place === 3 ? 'rd' : 'th'}
+                                    </Text>
                                   </View>
                                 )}
                               </View>
-                              <Text style={styles.meetEventMark}>{relay.mark_raw}</Text>
-                              {relay.school_name && (
-                                <Text style={styles.relayTeamText}>for {relay.school_name}</Text>
-                              )}
-                              {relay.teammates.length > 0 && (
-                                <Text style={styles.teammatesText}>
-                                  with {relay.teammates.slice(0, 3).join(', ')}
-                                </Text>
-                              )}
                             </View>
-                            <View style={styles.meetEventRight}>
-                              <View style={styles.placeBadgeSmall}>
-                                <Text style={styles.placeTextSmall}>{relay.place}</Text>
-                                <Text style={styles.placeSuffixSmall}>
-                                  {relay.place === 1 ? 'st' : relay.place === 2 ? 'nd' : relay.place === 3 ? 'rd' : 'th'}
-                                </Text>
-                              </View>
-                            </View>
-                          </View>
-                        ))}
+                          );
+                        })}
                       </View>
                     </>
                   )}
@@ -600,7 +676,7 @@ export default function AthleteDetailScreen() {
         )}
 
         {/* No data message */}
-        {individualPerformances.length === 0 && filteredRelayParticipations.length === 0 && (
+        {individualPerformances.length === 0 && relayParticipationRows.length === 0 && (
           <View style={styles.section}>
             <View style={styles.errorContainer}>
               <Ionicons name="podium-outline" size={48} color={colors.text.tertiary} />
@@ -1163,6 +1239,19 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text.white,
   },
+  relayPendingTag: {
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.borders.medium,
+  },
+  relayPendingTagText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.text.secondary,
+  },
   teammatesText: {
     fontSize: 12,
     fontWeight: '600',
@@ -1175,6 +1264,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text.secondary,
     marginTop: 4,
+  },
+  relayPendingText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.text.tertiary,
+    marginTop: 4,
+    fontStyle: 'italic',
   },
   resultTime: {
     fontSize: 28,
