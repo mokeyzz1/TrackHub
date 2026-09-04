@@ -179,7 +179,13 @@ export async function getSchoolById(schoolId: number) {
   console.log('getSchoolById called with:', schoolId);
   const { data, error } = await supabase
     .from('schools')
-    .select('*')
+    .select(`
+      *,
+      conferences (
+        name,
+        abbreviation
+      )
+    `)
     .eq('school_id', schoolId)
     .single();
 
@@ -188,7 +194,11 @@ export async function getSchoolById(schoolId: number) {
     console.error('getSchoolById error:', error);
     return null;
   }
-  return data;
+  const conference = data?.conferences as { name?: string | null } | null;
+  return data ? {
+    ...data,
+    conference: conference?.name || null,
+  } : null;
 }
 
 // Get athletes for a school (all athletes)
@@ -320,6 +330,216 @@ export async function getSchoolMeets(schoolId: number, limit: number = 50) {
   });
 
   return [...meetsMap.values()].slice(0, limit);
+}
+
+export interface SchoolTopPerformance {
+  performance_id: number;
+  performance_type: 'individual' | 'relay';
+  athlete_id: number | null;
+  athlete_name: string | null;
+  team_id: number | null;
+  team_name: string | null;
+  gender: string | null;
+  event_type_id: number | null;
+  event_name: string;
+  mark_raw: string | null;
+  mark_seconds: number | null;
+  mark_meters: number | null;
+  date: string;
+  meet_id: number | null;
+  meet_name: string;
+  place: number | null;
+  round: string | null;
+  measure: string | null;
+  environment: string | null;
+}
+
+// Get one best-known performance per event/gender/type for a school's season. Individual and
+// relay facts remain separate so a relay is counted once for the team rather than once per leg.
+export async function getSchoolTopPerformances(
+  schoolId: number,
+  season: string,
+  limit: number = 60
+): Promise<SchoolTopPerformance[]> {
+  const [startYear] = season.split('-');
+  const startDate = `${startYear}-08-01`;
+  const endDate = `${parseInt(startYear) + 1}-07-31`;
+
+  const { data: teams, error: teamsError } = await supabase
+    .from('teams')
+    .select('team_id')
+    .eq('school_id', schoolId);
+
+  if (teamsError) throw teamsError;
+  if (!teams || teams.length === 0) return [];
+
+  const teamIds = teams.map(t => t.team_id);
+  const [individualResultResponse, relayResultResponse] = await Promise.all([
+    supabase
+      .from('results')
+      .select(`
+        result_id,
+        athlete_id,
+        team_id,
+        meet_id,
+        event_name,
+        event_type_id,
+        event_types (
+          code,
+          category,
+          measure
+        ),
+        mark_raw,
+        mark_seconds,
+        mark_meters,
+        date,
+        meet_name,
+        place,
+        round,
+        environment,
+        athletes (
+          full_name,
+          gender
+        ),
+        teams (
+          team_name,
+          gender
+        )
+      `)
+      .in('team_id', teamIds)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: false })
+      .limit(5000),
+    supabase
+      .from('relay_results')
+      .select(`
+        relay_result_id,
+        team_id,
+        meet_id,
+        event_name,
+        event_type_id,
+        event_types (
+          code,
+          category,
+          measure
+        ),
+        mark_raw,
+        mark_seconds,
+        date,
+        meet_name,
+        place,
+        round,
+        teams (
+          team_name,
+          gender
+        )
+      `)
+      .in('team_id', teamIds)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: false })
+      .limit(5000),
+  ]);
+
+  if (individualResultResponse.error) throw individualResultResponse.error;
+  if (relayResultResponse.error) throw relayResultResponse.error;
+
+  const eventType = (row: any) => Array.isArray(row.event_types) ? row.event_types[0] : row.event_types;
+  const numericValue = (row: any, measure: string | null): number | null => {
+    if (measure === 'distance') {
+      return row.mark_meters == null ? null : Number(row.mark_meters);
+    }
+    if (measure === 'points') {
+      const parsed = Number(String(row.mark_raw || '').replace(/,/g, ''));
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return row.mark_seconds == null ? null : Number(row.mark_seconds);
+  };
+
+  const candidates: (SchoolTopPerformance & { ranking_value: number | null })[] = [];
+  (individualResultResponse.data || []).forEach((row: any) => {
+    const meta = eventType(row);
+    // Relay projections in results are not individual performances. The canonical relay parent
+    // query below supplies the team-level fact once.
+    if (meta?.category === 'relay') return;
+    const value = numericValue(row, meta?.measure || null);
+    if (value == null || !Number.isFinite(value)) return;
+    const athlete = row.athletes;
+    const team = row.teams;
+    candidates.push({
+      performance_id: row.result_id,
+      performance_type: 'individual',
+      athlete_id: row.athlete_id ?? null,
+      athlete_name: athlete?.full_name || null,
+      team_id: row.team_id ?? null,
+      team_name: team?.team_name || null,
+      gender: athlete?.gender || team?.gender || null,
+      event_type_id: row.event_type_id ?? null,
+      event_name: meta?.code || canonicalEventName(row),
+      mark_raw: row.mark_raw || null,
+      mark_seconds: row.mark_seconds ?? null,
+      mark_meters: row.mark_meters ?? null,
+      date: row.date,
+      meet_id: row.meet_id ?? null,
+      meet_name: row.meet_name || '',
+      place: row.place ?? null,
+      round: row.round ?? null,
+      measure: meta?.measure || null,
+      environment: row.environment || null,
+      ranking_value: value,
+    });
+  });
+
+  (relayResultResponse.data || []).forEach((row: any) => {
+    const meta = eventType(row);
+    const value = numericValue(row, meta?.measure || 'time');
+    if (value == null || !Number.isFinite(value)) return;
+    const team = row.teams;
+    candidates.push({
+      performance_id: row.relay_result_id,
+      performance_type: 'relay',
+      athlete_id: null,
+      athlete_name: null,
+      team_id: row.team_id ?? null,
+      team_name: team?.team_name || null,
+      gender: team?.gender || null,
+      event_type_id: row.event_type_id ?? null,
+      event_name: meta?.code || canonicalEventName(row),
+      mark_raw: row.mark_raw || null,
+      mark_seconds: row.mark_seconds ?? null,
+      mark_meters: null,
+      date: row.date,
+      meet_id: row.meet_id ?? null,
+      meet_name: row.meet_name || '',
+      place: row.place ?? null,
+      round: row.round ?? null,
+      measure: meta?.measure || 'time',
+      environment: null,
+      ranking_value: value,
+    });
+  });
+
+  const bestByEvent = new Map<string, SchoolTopPerformance & { ranking_value: number | null }>();
+  candidates.forEach(candidate => {
+    const environmentKey = candidate.environment || 'unknown';
+    const key = `${candidate.event_type_id ?? candidate.event_name}|${candidate.gender || 'unknown'}|${candidate.performance_type}|${environmentKey}`;
+    const existing = bestByEvent.get(key);
+    if (!existing) {
+      bestByEvent.set(key, candidate);
+      return;
+    }
+    const higherIsBetter = candidate.measure === 'distance' || candidate.measure === 'points';
+    const isBetter = higherIsBetter
+      ? candidate.ranking_value! > existing.ranking_value!
+      : candidate.ranking_value! < existing.ranking_value!;
+    if (isBetter) bestByEvent.set(key, candidate);
+  });
+
+  return Array.from(bestByEvent.values())
+    .sort((a, b) => a.event_name.localeCompare(b.event_name) || a.performance_type.localeCompare(b.performance_type) || a.gender?.localeCompare(b.gender || '') || 0)
+    .slice(0, limit)
+    .map(({ ranking_value: _rankingValue, ...performance }) => performance);
 }
 
 // Get athlete details
