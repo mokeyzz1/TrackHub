@@ -63,6 +63,22 @@ The 459 repeated rows remain completely outside the private source-link layer (t
 have neither a linked source record nor an insert observation). They cannot be source-verified from
 the current provenance tables.
 
+## Bounded repair candidate
+
+Two of the four source-linked internal-ID mismatches are deterministic repairs: relay legs
+`445111` and `467775` have source payloads whose source IDs and names resolve to unique current
+athletes `193435` (Sheldon Richardson) and `194385` (Zoe Ewell). Their source payload internal IDs,
+leg order, source IDs, and names are consistent; only the stored `relay_athletes.athlete_id` points
+at the wrong internal row. The guarded migration archives both complete rows and updates only that
+link. The two Jaala Thymes rows have no current athlete row for their source ID, and the three
+missing-link legs have no canonical athlete ID, so those remain held. The repair migration and
+rollback are:
+
+- `supabase/migrations/20260904210000_repair_source_backed_relay_athlete_links.sql`
+- `docs/database-audit/rollback_source_backed_relay_athlete_links.sql`
+
+No relay parent, mark, source ID, name, leg order, or athlete profile is changed by this repair.
+
 ## Decision
 
 No cleanup write is authorized from these counts:
