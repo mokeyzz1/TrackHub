@@ -31,6 +31,7 @@ These workstreams have evidence of a live change or a completed verification gat
 | Team/relay identity checkpoint | `teams` is still school-backed (3,516 rows; 3,509 legacy rows have no explicit name/type), source URLs are unique, and relay parent/leg links are structurally complete enough for bounded review. | `TEAM_RELAY_IDENTITY_REVIEW_20260904.md`, `team_relay_identity_scan.sql` |
 | Meet identity checkpoint | 12,978 meet rows remain; source URL identity is sparse and reused across 10 TFRRS and 5 Athletic.net collision groups, with two normalized name/date pairs. Three historical TFRRS URL pairs also have byte-equivalent individual fact sets and require lineage review. | `MEET_IDENTITY_REVIEW_20260904.md`, `meet_identity_scan.sql` |
 | Result identity checkpoint | Core result identity is complete (`athlete_id`, `event_name`, `mark_raw`, `event_type_id`); linked rows already have two valid uniqueness indexes, while nullable parent/context fields remain measured semantic states. | `RESULT_IDENTITY_REVIEW_20260904.md`, `result_identity_scan.sql` |
+| Event catalog checkpoint | All 67 canonical event types and 1,329 aliases are mapped and constrained; case-only alias variants share canonical IDs, and every event type is used by an individual or relay fact surface. | `EVENT_CATALOG_REVIEW_20260904.md`, `event_catalog_scan.sql` |
 
 ## Committed application/read fixes (not a live-data change)
 
