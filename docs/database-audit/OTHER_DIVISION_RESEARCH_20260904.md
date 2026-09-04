@@ -1,0 +1,61 @@
+# `Other`-division school research — 2026-09-04
+
+## Purpose
+
+The live `schools.division = 'Other'` value is a catch-all metadata state, not a
+competition classification. The current inventory contains 245 schools and 129 of them have
+no conference value. Several of the largest schools in that bucket are plainly collegiate
+programs, while others are international or otherwise outside the NCAA/NAIA taxonomy.
+
+This first evidence pass reviews the highest-impact rows identified in the live inventory. It is
+read-only: no `schools.division`, team, athlete, result, or logo rows were changed. The links below
+are the authority used for the proposed classification; a school name or logo by itself is not
+treated as proof.
+
+## Reviewed cohort
+
+| School ID | Current name | Proposed classification | Evidence | Confidence | Write status |
+| ---: | --- | --- | --- | --- | --- |
+| 1703 | North Central College (Ill.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=492) lists Division III active and indoor/outdoor track; [official athletics](https://northcentralcardinals.com/sports/mens-track-and-field) confirms the program. | High | Held |
+| 1706 | Marian University (Ind.) | NAIA | [Official Marian athletics page](https://www.marian.edu/give-to-marian/make-a-difference/athletics) identifies NAIA character values and current NAIA athletics; historical [EADA report](https://www.marian.edu/_assets/_documents/eada-2021-22-from-eada-website.pdf) identifies NAIA Division II. | High | Held |
+| 1704 | Concordia University Nebraska | NAIA | [Official athletics](https://www.cune.edu/athletics) and [track and field page](https://cune.edu/athletics/teams/track-and-field) identify NAIA competition and national qualifiers. | High | Held |
+| 1705 | SUNY Geneseo | NCAA Division III | [Official Geneseo athletics/news](https://www.geneseo.edu/news/they-are-the-champions/) documents NCAA Division III track championships. | High | Held |
+| 1708 | Augustana College (Ill.) | NCAA Division III | [Official athletics overview](https://www.augustana.edu/admissions/athletics-overview) identifies CCIW/NCAA Division III; [athletics site](https://athletics.augustana.edu/) lists track and field. | High | Held |
+| 1710 | Bethel University (Minn.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=60) lists Division III active; [official student-life sports page](https://www.bethel.edu/undergrad/student-life/activities/sports) identifies NCAA Division III programs including track. | High | Held |
+| 1709 | Northwestern College (Iowa) | NAIA | [Official Northwestern sports page](https://www.nwciowa.edu/campus-life/sports-and-fitness) identifies GPAC competition and the NAIA; track is listed among Raider athletics. | High | Held |
+| 1718 | Trinity University (Tex.) | NCAA Division III | [Official Trinity sports page](https://trinity.edu/campus-life/sports) identifies NCAA Division III athletics and track; [official athletics site](https://trinitytigers.com/) provides the program record. | High | Held |
+| 1711 | Simpson College (Iowa) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=641) identifies Division III active; [official athletics page](https://simpson.edu/departments-offices--centers/athletics/) confirms the college athletics program. | High | Held |
+| 1712 | Benedictine College (Kan.) | NAIA | [Official athletics](https://ravenathletics.com/) identifies Raven athletics; [official EADA report](https://benedictine.edu/wp-content/uploads/files/about/gov/eada/eada-summary.pdf) identifies NAIA Division I and indoor/outdoor track. | High | Held |
+| 1716 | Wheaton College (Ill.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=778) lists Division III active and indoor/outdoor track; [official college profile](https://www.wheaton.edu/about-wheaton/why-wheaton/college-profile/athletics) confirms NCAA DIII/CCIW athletics. | High | Held |
+| 1713 | Washington and Lee University | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=752) lists Division III active; [official athletics](https://generalssports.com/news/2026/5/15/mens-track-and-field-rush-gartley-earn-bids-to-2026-ncaa-division-iii-outdoor-track-field-national-championship.aspx) documents the 2026 NCAA Division III track championship. | High | Held |
+| 1714 | Connecticut College | NCAA Division III | [Official academic catalog](https://conncoll.smartcatalogiq.com/en/2026-2027/catalog/general-information/athletics) identifies NCAA Division III/NESCAC and indoor/outdoor track; [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=163) lists Division III active. | High | Held |
+| 1724 | University of St. Thomas (Fla.) | NAIA | [USTFCCCA NAIA event-squad report](https://www.ustfccca.org/assets/rankings/2025_motf_naia_evsq_week8_natl_team_detail.pdf) lists St. Thomas (Fla.) in the NAIA track field. | Medium–High | Held |
+| 1715 | University of Windsor | U SPORTS / OUA (international) | [University of Windsor athletics](https://www.uwindsor.ca/event-type/athletics) is the institutional source; [U SPORTS board announcement](https://www.uwindsor.ca/news/2026-06-22/athletics-director-stephanie-white-elected-u-sports-board) and [OUA track rules](https://s3.amazonaws.com/oua.ca/documents/2023/2/13/Rules_Regulations_Track_Field_FINAL.pdf) establish the Canadian competition context. | High | Held |
+| 1720 | University of Saint Mary (Kan.) | NAIA | [Official academic catalog](https://stmary.smartcatalogiq.com/en/2025-2026/academic-catalog-ay-2025-2026/student-life-and-activities/athletics/) identifies NAIA/KCAC membership and men’s and women’s track and field. | High | Held |
+| 1717 | Southeastern University (Fla.) | NAIA | [Official 2025–26 fact book](https://seu.edu/about/fact-book/2025-26/) identifies NAIA membership and track championships; [official athletics report](https://fire.seu.edu/news/2026/3/4/mens-track-field-fire-set-for-naia-indoor-track-field-national-championships-in-gainesville.aspx) identifies the NAIA national meet. | High | Held |
+| 1719 | Concordia University Wisconsin | NCAA Division III | [Official athletics quick facts](https://cuwfalcons.com/sports/2025/4/16/athletics-quickfacts.aspx) identify NCAA Division III; [official track page](https://cuwfalcons.com/sports/mens-track-and-field) confirms the sport. | High | Held |
+| 1721 | Carroll University (Wis.) | NCAA Division III | [Official athletics page](https://carrollu.edu/campus-student-life/athletics/) identifies 23 NCAA Division III teams, CCIW, and indoor/outdoor track. | High | Held |
+| 1727 | Saint John’s University (Minn.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=602) lists Division III active/MIAC; [official 2026 track report](https://gojohnnies.com/news/2026/5/15/track-and-field-four-johnnies-qualify-for-ncaa-championships-all-region-in-five-events.aspx) identifies NCAA Division III championships. | High | Held |
+
+## What this establishes
+
+1. `Other` is materially mixed: this reviewed cohort contains NCAA Division III, NAIA, and
+   Canadian U SPORTS/OUA programs.
+2. The current value is therefore a data-quality gap, not a valid “non-collegiate” label. A bulk
+   rule such as “Other = club” would misclassify a large share of the data.
+3. Logos are supporting evidence only. The classification comes from institutional, NCAA, NAIA,
+   U SPORTS, or conference records.
+4. `University of Windsor` cannot be represented faithfully by the current `schools.division`
+   vocabulary without deciding how international collegiate systems should be modeled. It is
+   held rather than forced into NCAA/NAIA.
+5. `Marian University (Ind.)` is a useful correction to the earlier hypothesis: it is NAIA, while
+   similarly named Marian University (Wis.) is NCAA Division III. Name matching without state or
+   source identity is unsafe.
+
+## Recommended next gate
+
+Continue the same evidence pass for the remaining `Other` schools, prioritizing by linked athlete
+and result volume. Produce a reviewed school-level mapping with source URL, effective date, and
+confidence. Only after owner approval should a reversible migration update exact school IDs,
+archive complete before-images in `ingest.fact_cleanup_archive`, and verify that no unreviewed
+`Other` row changed. Until then, `schools.division` remains unchanged.
