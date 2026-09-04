@@ -48,3 +48,7 @@ live view still returns 3,516 rows, with zero display-name changes, and migratio
 3. Add fixtures/tests for collegiate, club, scholastic, international, open, unattached, and
    school-linked historical cases.
 4. Begin a reviewed dual-read/dual-write rollout. No backfill is part of this first wave.
+
+The first reviewed backfill cohort was subsequently applied as a separate migration
+(`20260904004321_backfill_reviewed_explicit_team_affiliations`) with seven private before-images
+and exact-row postcondition checks. The remaining teams are not implicitly classified.

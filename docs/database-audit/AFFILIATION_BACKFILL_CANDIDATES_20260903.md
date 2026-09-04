@@ -16,7 +16,7 @@ The two college pairs are intentionally **not** classified as clubs or unattache
 their names contain “Academy” or “International”; their existing NCAA/NAIA division is stronger
 evidence. The generic `Other` division is not treated as a category by itself.
 
-## Proposed first batch (prepared, not applied)
+## First batch — applied 2026-09-04
 
 Populate only these seven rows, using the existing school label as `team_name` and the proposed
 typed value above. Before-images should be written to the existing private
@@ -26,11 +26,11 @@ columns to be NULL, assert exactly seven rows changed, and verify the postcondit
 No athlete, result, relay, school, bridge, policy, or foreign-key rows would be changed. The batch
 would be independently reversible from the archive and should be applied only after owner approval.
 
-The prepared migration is
+The migration was
 `supabase/migrations/20260904004321_backfill_reviewed_explicit_team_affiliations.sql`. It was
-executed in a live transaction and rolled back successfully; its seven-row precondition,
-before-image count, update count, and postcondition assertions all passed. Production still has
-seven untouched candidate rows.
+executed transactionally after approval. Its seven-row precondition, before-image count, update
+count, and postcondition assertions all passed. Seven before-images are retained under operation
+key `20260904_reviewed_explicit_team_affiliations_v1` in the existing private archive.
 
 ## Held cohort
 
@@ -40,5 +40,5 @@ alias record before any backfill.
 
 ## Safety status
 
-This report performed no writes. The seven candidate rows still have `team_name IS NULL` and
-`team_type IS NULL` in production.
+The seven reviewed rows now have explicit values in production. No other team rows were populated;
+the remaining population is still held for review.
