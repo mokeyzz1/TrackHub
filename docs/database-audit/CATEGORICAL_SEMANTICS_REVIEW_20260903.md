@@ -59,3 +59,20 @@ Normalization must preserve the original raw round text for provenance.
 No categorical values were rewritten by this review. The next step is a value-by-value mapping table
 with source evidence, affected row counts, proposed canonical value, and an explicit “preserve raw /
 quarantine / migrate” action for ambiguous values.
+
+## Current vocabulary checkpoint — 2026-09-04
+
+The read-only recheck confirms the earlier risk boundaries:
+
+- `results.season_code` is NULL for all 3,419,178 result rows. It is a dead compatibility column,
+  but repository readers still exist, so it is not dropped in this wave.
+- `results.environment` is `outdoor` (1,419,130), `indoor` (1,362,923), `xc` (378,604), and
+  NULL (258,521). Only the three populated spellings are canonical; NULL remains held.
+- `results.round` is NULL (1,247,067), `Final` (1,096,774), `Finals` (775,943), `Prelim`
+  (178,641), `Preliminaries` (90,358), numbered heats 1–16, `Semifinals` (28), and `Prelims`
+  (3). Exact spelling aliases are deterministic, but raw text and heat numbers must be preserved.
+- `meets.season` is mostly `Indoor YYYY`, `Outdoor YYYY`, and `XC YYYY`; `Summer YYYY` and the
+  two lowercase `indoor` rows remain ambiguous until meet-date/source evidence is reviewed.
+
+The companion read-only profile is `season_environment_round_dry_run.sql`. No values, constraints,
+or columns were changed.
