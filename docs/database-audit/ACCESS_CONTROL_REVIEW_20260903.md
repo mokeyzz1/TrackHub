@@ -28,3 +28,11 @@ No access-control change is being applied in this pass. The backup exception wil
 its complete ACL and archive-retention policy before deciding whether to enable RLS or move the
 archive into the private `ingest` boundary. Managed `auth`, `storage`, `realtime`, and `vault`
 security surfaces remain platform-owned and are documented but not modified.
+
+## Post-move checkpoint — 2026-09-04
+
+The backup tables were moved to the private `archive` schema in a separate reversible migration.
+`archive.results_athlete_merge_backup` has RLS disabled by design, but its live ACL is
+`postgres=arwdDxtm` and `service_role=r`; `anon` and `authenticated` have no SELECT privilege. The
+same private-schema boundary applies to all nine historical backup tables. No public policy is
+needed, and no archive rows were changed.

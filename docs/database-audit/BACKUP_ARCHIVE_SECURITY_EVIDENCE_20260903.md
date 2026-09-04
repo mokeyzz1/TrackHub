@@ -30,3 +30,15 @@ Before any archive retirement or move:
 4. Recheck `anon`/`authenticated` privileges and policies after the change.
 
 No archive rows, ACLs, or RLS settings were changed by this review.
+
+## Private archive checkpoint — 2026-09-04
+
+The approved archive-boundary move is complete. All nine historical backup tables were moved from
+`public` to `archive` without copying or deleting rows; exact counts were preserved (621,336 rows
+total). Public schema exposure is gone: `anon` and `authenticated` have no table access, while
+`service_role` retains SELECT-only recovery access. The former RLS exception
+`results_athlete_merge_backup` is now `archive.results_athlete_merge_backup`; its RLS-disabled state
+is intentionally covered by the private schema and ACL boundary rather than a public policy.
+
+Read-only archive verification and the documented recovery paths passed after the move. No archive
+retirement or row deletion is authorized by this checkpoint.
