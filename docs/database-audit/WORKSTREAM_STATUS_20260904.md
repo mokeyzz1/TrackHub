@@ -25,6 +25,7 @@ These workstreams have evidence of a live change or a completed verification gat
 | Classification/conference cleanup | Reviewed `Other` classifications and exact conference identity/URL repairs were migrated with rollback files; bulk reinterpretation was intentionally avoided. | `OTHER_DIVISION_RESEARCH_20260904.md`, `TABLE_DISPOSITION_MATRIX_20260903.md`, commits `16085e4`–`bb894bf` |
 | Fact lookup indexes | Canonical fact lookup indexes were added after FK review; superseded/unhelpful indexes were removed with rollback SQL. | `FOREIGN_KEY_INDEX_REVIEW_20260904.md`, `UNUSED_INDEX_REVIEW_20260904.md`, commits `e62ad22`, `8122cf3` |
 | Empty legacy events model | The empty `events` table was retired only after dependency/type/frontend checks and an exact rollback test. | `EVENTS_RETIREMENT_EVIDENCE_20260903.md`, commit `37e17ea` |
+| PR view source semantics | The derived PR view now uses supplied leading aggregate points and excludes typed multi-event component rows; no canonical rows were changed. | `ATHLETE_PRS_DISPOSITION_EVIDENCE_20260903.md`, migration `20260904150000_fix_v_athlete_prs_points_source.sql`, rollback file |
 
 ## Committed application/read fixes (not a live-data change)
 
@@ -48,7 +49,7 @@ These UI/read changes do not alter canonical rows, tables, policies, or migratio
 | Identity collisions | School, athlete, meet, team, and relay collision populations have been measured; names alone are not safe merge keys. | Held for source-backed evidence and per-group reviewed maps. |
 | Canonical facts/duplicates | Duplicate and missing-link populations have been quantified, with rollback lessons documented. | Held where survivor identity or source ownership is ambiguous. |
 | Seasons/environments/rounds/events | Live vocabulary and NULL/ambiguous populations are inventoried. | Deterministic mappings only; ambiguous values remain held. |
-| PR/ranking authority | Scraped `athlete_prs` and computed `v_athlete_prs` differ in coverage and provenance. | Reconciliation and reader migration remain held until parity is demonstrated. |
+| PR/ranking authority | Scraped `athlete_prs` and computed `v_athlete_prs` differ in coverage and provenance. The points-view parsing defect is fixed without rewriting source rows. | Keep the cache; reconciliation and reader migration remain held until full-season parity is demonstrated. |
 | Ingest queues and provenance | Meet-level and event-level queues have different contracts; observations, quarantine, source links, runs, and cleanup archives are active evidence surfaces. | Keep separate; do not merge by name. |
 | Unmapped event telemetry | All 46 stored raw labels (1,484 sightings) now exact-match the canonical `event_aliases` map; no unresolved labels remain. | Keep the raw review history. The alias join is authoritative; no duplicate link column or deletion is needed now. |
 | External identity map | 356 verified source IDs cover 353 athletes; no duplicate `(source, external_key)` groups; nullable school/team/conference fields are unused. | Keep as one shared portability map. Review the three multi-row athlete identities individually; do not bulk-backfill or split the table. |

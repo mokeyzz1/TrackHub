@@ -38,3 +38,27 @@ The safe path is:
    lost.
 
 No PR rows, policies, or schema objects were changed by this review.
+
+## Authority checkpoint — 2026-09-04
+
+A fresh read-only count before the view fix found the same broad split: `athlete_prs` has 475,523
+rows for 77,361 athletes and 246 raw event labels, while `v_athlete_prs` exposes 851,775 derived
+rows for 115,403 athletes and 64 canonical event types. The scraped table still has 466,965 rows
+with both `set_at` and `meet_name` NULL (98.2%), and it has no `event_type_id` or `environment`
+bucket. It remains evidence-bearing, not disposable.
+
+Both surfaces are publicly readable; only `service_role`/`postgres` have write privileges on the
+scraped table. The derived view has no stored rows and reads directly from canonical `results`.
+
+The view had one concrete source-semantics defect: its points branch extracted every digit from
+`mark_raw`, turning a supplied aggregate such as `6445 (+0.0)` into `644500` and allowing typed
+multi-event components to enter the points bucket. A bounded dry run of the replacement logic
+keeps 849,385 PR rows, including 6,882 supplied point aggregates, and excludes component rows
+whose `mark_seconds`/`mark_meters` are populated. No score is calculated and no source row is
+rewritten.
+
+Migration `20260904150000_fix_v_athlete_prs_points_source.sql` was applied as a view-only change;
+its rollback is `docs/database-audit/rollback_fix_v_athlete_prs_points_source.sql`. The new logic
+accepts only a leading 3–5 digit aggregate token and requires both typed component columns to be
+NULL. It also adds `result_id` as a deterministic tie-breaker. The scraped cache remains kept and
+its full-season parity/missing-result reconciliation remains held.
