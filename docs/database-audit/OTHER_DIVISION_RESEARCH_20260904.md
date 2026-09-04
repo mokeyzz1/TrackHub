@@ -7,7 +7,7 @@ competition classification. The current inventory contains 245 schools and 129 o
 no conference value. Several of the largest schools in that bucket are plainly collegiate
 programs, while others are international or otherwise outside the NCAA/NAIA taxonomy.
 
-This first evidence pass reviews 38 of the highest-impact rows identified in the live inventory. It is
+This first evidence pass reviews 42 of the highest-impact rows identified in the live inventory. It is
 read-only: no `schools.division`, team, athlete, result, or logo rows were changed. The links below
 are the authority used for the proposed classification; a school name or logo by itself is not
 treated as proof.
@@ -64,6 +64,10 @@ treated as proof.
 | 1752 | King’s College (Pa.) | NCAA Division III | [Official King’s track history](https://kingscollegeathletics.com/sports/2015/5/13/MTF_05_13_15_about_track_field.aspx) identifies Division III track and field; [2026 schedule](https://kingscollegeathletics.com/news/2026/3/17/womens-track-field-kolinovsky-announces-2026-mens-and-womens-outdoor-track-field-schedule.aspx) confirms NCAA Division III championships. | High | Held |
 | 1747 | Governors State University | NAIA | [Official Governors State announcement](https://gsunews.govst.edu/gsu-athletics-launches-mens-and-womens-track-programs-names-john-niendorf-head-coach/) identifies the track program as competing in the CCAC and NAIA; [USTFCCCA NAIA report](https://www.ustfccca.org/assets/rankings/2025_mitf_naia_evsq_week3_natl_team_detail.pdf) lists Governors State. | High | Held |
 | 1740 | Bismarck State College | NAIA (current; formerly NJCAA) | [Official Bismarck State page](https://bismarckstate.edu/about/NAIAFrontierConference/) documents the 2024 transition from NJCAA to NAIA/Frontier and lists men’s/women’s track and field; [official track schedule](https://bscmystics.com/sports/mtrack/index) shows the NAIA national meet. | High | Held |
+| 1754 | Trinity Western University | U SPORTS / Canada West (international) | [Official Trinity Western facts](https://www.twu.ca/about-us/facts-figures) identifies U SPORTS membership and men’s/women’s track and field; [official athletics material](https://www.twu.ca/sites/default/files/hkinvi_2.pdf) confirms the Spartan program. | High | Held |
+| 1737 | Emmanuel College (Mass.) | NCAA Division III | [Official Emmanuel compliance page](https://emmanuel.prestosports.com/information/compliance) references NCAA Division III/GNAC; [official college facts](https://www.emmanuel.edu/sites/default/files/2025-02/2024_adm_counselor_fast_facts_0830_print.pdf) lists indoor/outdoor track. | High | Held |
+| 1738 | Franciscan University of Steubenville | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=30069) lists Division III active and indoor track; [official athletics quick facts](https://franciscanathletics.com/sports/2018/11/2/quick-facts.aspx) confirms Division III and indoor/outdoor track. | High | Held |
+| 1746 | Bethel University (Ind.) | NAIA | [Official Bethel athletics page](https://betheluniversity.edu/home/athletics/) identifies NAIA membership and indoor/outdoor track; [official 2026 track announcement](https://betheluniversity.edu/about/news/track-field-leadership-transition-announced/) describes it as an NAIA track program. | High | Held |
 
 ## What this establishes
 
