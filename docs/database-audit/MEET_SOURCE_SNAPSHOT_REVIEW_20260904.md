@@ -26,6 +26,17 @@ production row that reuses them. The final two contain same-season date conflict
 alignment narrows ownership but does not settle whether the other row is a second segment, a source
 copy, or an import error.
 
+## Name/date candidate source check
+
+The South Coast pair (meet IDs 12788 and 12792, both dated Apr. 21, 2026) has identical canonical
+individual and relay fact sets but no private source links. The only timing URL on 12792 points to
+[Finished Results meet 14182](https://www2.finishedresults.com/meets/14182), whose visible page is
+**South Coast Conference Championships, Apr. 25, 2026, El Camino CC**. The official
+[TFRRS South Coast listing](https://www.tfrrs.org/leagues/31.html) lists a combined **2026 South
+Coast Conference Prelims and Finals** window of Apr. 21–25, not a single Apr. 21 result page. This
+supports a source/date mismatch and a possible prelims-versus-finals parent relationship; it does
+not identify a survivor or authorize copying the URL to meet 12788.
+
 ## Cross-check against private lineage
 
 - Nine URL groups have no private `ingest.source_records`, so the current-page identity cannot be
