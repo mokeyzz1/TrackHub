@@ -1,0 +1,75 @@
+# Meet identity and source-provenance review — 2026-09-04
+
+## Scope
+
+This is a read-only production review of `public.meets`. It follows the team/relay identity
+checkpoint because result uniqueness cannot be defined until the meet/source identity contract is
+clear. No meet, result, URL, policy, table, or constraint was changed.
+
+The reproducible query set is `docs/database-audit/meet_identity_scan.sql`.
+
+## Live coverage
+
+| Measure | Rows |
+| --- | ---: |
+| Meets | 12,978 |
+| Missing location | 11,282 |
+| Missing timing-site `meet_url` | 11,142 |
+| Missing original `source_url` | 12,974 |
+| Missing `tfrrs_meet_id` | 12,906 |
+| Missing TFRRS results URL | 12,513 |
+| Missing Athletic.net results URL | 12,382 |
+| Missing World Athletics results URL | 12,978 |
+| Missing `end_date` | 0 |
+| Missing `level` | 11,281 |
+| Missing `timing_platform` | 11,358 |
+| Missing `results_source` | 1,045 |
+
+The canonical name/date/status/season fields are populated, but source identity is sparse. `tfrrs_url`
+is populated on 465 rows and `athletic_net_results_url` on 596 rows; `tfrrs_meet_id` is populated on
+only 72 rows. `source_url` is an original USTFCCCA pointer and is not a substitute for a per-source
+results identity.
+
+## Collision findings
+
+| Candidate | Groups | Extra rows | Interpretation |
+| --- | ---: | ---: | --- |
+| Normalized TFRRS URL | 10 | 13 | Same URL points at multiple canonical rows; hold as aliases/source conflict |
+| Normalized Athletic.net URL | 5 | 5 | Same results page points at multiple rows; hold for source/date review |
+| Normalized name + date | 2 | 2 | `Grubbys Easter Classic`/`Grubby's Easter Classic` and a typo pair; review, do not merge by name alone |
+
+The TFRRS URL collision is not theoretical. The official TFRRS page for result `94971` currently
+identifies itself as the **Tyson Invitational, February 13–14, 2026**, while production assigns that
+same URL to Tyson Invitational rows dated February 14, 2020; February 12, 2021; and February 11,
+2022, plus related historical result rows. This proves that the URL value, as stored today, is not a
+stable historical meet key. It must be reconciled with source snapshots or archived source records
+before any unique index or automatic reassignment is considered.
+
+The official TFRRS page for result `95531` identifies the 2026 SNHU Spring Invitational and confirms
+that the URL itself is a results page, but production has two rows using it on March 26 and March 28,
+2026. Those rows may represent separate editions/segments or a duplicate import; source-level
+comparison is required.
+
+## Constraints and access boundary
+
+- `meets` has a primary key on `meet_id` and checks for the current `status` and `results_source`
+  vocabularies, but no unique constraint on source URLs, source IDs, or name/date.
+- The public table is SELECT-only for `anon` and `authenticated`; no policy was added or changed.
+- Existing URL and date indexes support lookup, but they do not establish identity.
+
+## Design conclusion
+
+The meet table is a canonical fact parent with multiple source/provenance columns that currently
+mix three different concepts: a timing-site link, a results-page link, and an original directory
+pointer. The sparse `tfrrs_meet_id` column and duplicate results URLs mean we must not make any source
+URL unique or delete “duplicates” from names/dates alone.
+
+The safe target is a source-aware meet identity/alias contract backed by the existing private source
+records and cleanup archive. Until that contract is proven, keep all 12,978 meet rows, preserve raw
+URLs, and treat duplicate URL groups as review queues. No new table is justified by this scan alone.
+
+## Next gate
+
+Compare the 10 TFRRS URL groups, five Athletic.net URL groups, and two name/date pairs against source
+records and linked fact counts in bounded batches. For each group, classify same-meet alias,
+multi-day/segment, or actual duplicate; only then design a reversible reassignment/archive plan.

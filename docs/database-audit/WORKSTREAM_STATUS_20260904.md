@@ -29,6 +29,7 @@ These workstreams have evidence of a live change or a completed verification gat
 | Current catalog baseline | Recounted all non-system schemas after cleanup: 74 tables, 7 views, 27 sequences; nine backup tables are private in `archive`, and the live ledger has 83 records. | `FULL_DATABASE_INVENTORY_20260903.md`, `TABLE_STRUCTURE_REVIEW_20260903.md` |
 | PR view source semantics | The derived PR view now uses supplied leading aggregate points and excludes typed multi-event component rows; no canonical rows were changed. | `ATHLETE_PRS_DISPOSITION_EVIDENCE_20260903.md`, migration `20260904195352_fix_v_athlete_prs_points_source.sql`, rollback file |
 | Team/relay identity checkpoint | `teams` is still school-backed (3,516 rows; 3,509 legacy rows have no explicit name/type), source URLs are unique, and relay parent/leg links are structurally complete enough for bounded review. | `TEAM_RELAY_IDENTITY_REVIEW_20260904.md`, `team_relay_identity_scan.sql` |
+| Meet identity checkpoint | 12,978 meet rows remain; source URL identity is sparse and reused across 10 TFRRS and 5 Athletic.net collision groups, with two normalized name/date pairs. | `MEET_IDENTITY_REVIEW_20260904.md`, `meet_identity_scan.sql` |
 
 ## Committed application/read fixes (not a live-data change)
 
@@ -49,7 +50,7 @@ These UI/read changes do not alter canonical rows, tables, policies, or migratio
 | --- | --- | --- |
 | Multi-event semantics | Aggregate points and typed component marks share the same `event_type_id`; 70,764 rows carry a typed time/distance under a points event type. | Immediate source-value display fix is committed. A normalized parent/component schema is allowed later, but only after deterministic mapping, provenance, and rollback are proven. See `MULTI_EVENT_SEMANTICS_REVIEW_20260904.md`. |
 | `live_results` lifecycle | Exactly 48 stale 2025 rows remain unprocessed, unfinalized, and unlinked. Manual writers/readers remain, and the compatibility view omits newer lifecycle fields. | Deferred because live tracking is not currently in use. Preserve rows/view/permissions unchanged; no replacement table or retirement write now. Reopen when the feature becomes active. See `LIVE_RESULTS_DISPOSITION_EVIDENCE_20260903.md`. |
-| Identity collisions | School collisions are reduced to two intentional pairs; athlete scan finds 209 shared Athletic.net URLs (151 same-shape, 58 mixed-shape) plus a broad 7,037-group name collision population. Relay legs add 96 TFRRS source IDs attached to one canonical and one nonmatching internal athlete (300 mismatch legs). | Names/URLs/source IDs alone are not merge keys. Hold for source-backed evidence and per-group reviewed maps. |
+| Identity collisions | School collisions are reduced to two intentional pairs; athlete scan finds 209 shared Athletic.net URLs (151 same-shape, 58 mixed-shape) plus a broad 7,037-group name collision population. Relay legs add 96 TFRRS source IDs attached to one canonical and one nonmatching internal athlete (300 mismatch legs). Meet identity adds 10 TFRRS and 5 Athletic.net URL collision groups. | Names/URLs/source IDs alone are not merge keys. Hold for source-backed evidence and per-group reviewed maps. |
 | Canonical facts/duplicates | Duplicate and missing-link populations have been quantified, with rollback lessons documented. | Held where survivor identity or source ownership is ambiguous. |
 | Seasons/environments/rounds/events | Live vocabulary and NULL/ambiguous populations are inventoried; `results.season_code` is NULL for all 3,419,178 rows, environment has 258,521 NULLs, and round has preserved spelling/heat variants. | Deterministic mappings only; raw values and ambiguous rows remain held. See `season_environment_round_dry_run.sql`. |
 | PR/ranking authority | Scraped `athlete_prs` and computed `v_athlete_prs` differ in coverage and provenance. The points-view parsing defect is fixed without rewriting source rows. | Keep the cache; reconciliation and reader migration remain held until full-season parity is demonstrated. |
@@ -71,11 +72,12 @@ are in `docs/DATA_ISSUES_TRACKER.md`.
 
 ## Current next gate
 
-The next safe action is a bounded source review of the 459 repeated relay-athlete groups and the
-non-collegiate team population. No team-link rewrite, new organization table, or relaxation of the
-school-backed key is authorized until those identities are evidenced and every reader/writer path
-has a migration and rollback plan. The `live_results` lifecycle remains deferred by product
-priority; its 48 rows and compatibility view are unchanged.
+The next safe action is a bounded source review of the 10 TFRRS URL groups, five Athletic.net URL
+groups, two meet name/date pairs, and the relay source-ID/leg cohorts. No meet merge, result
+reassignment, team-link rewrite, new organization table, or relaxation of the school-backed key is
+authorized until those identities are evidenced and every reader/writer path has a migration and
+rollback plan. The `live_results` lifecycle remains deferred by product priority; its 48 rows and
+compatibility view are unchanged.
 
 ## Worktree note
 
