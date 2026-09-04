@@ -32,6 +32,7 @@ These workstreams have evidence of a live change or a completed verification gat
 | Meet identity checkpoint | 12,978 meet rows remain; source URL identity is sparse and reused across 10 TFRRS and 5 Athletic.net collision groups, with two normalized name/date pairs. Three historical TFRRS URL pairs also have byte-equivalent individual fact sets and require lineage review. | `MEET_IDENTITY_REVIEW_20260904.md`, `meet_identity_scan.sql` |
 | Result identity checkpoint | Core result identity is complete (`athlete_id`, `event_name`, `mark_raw`, `event_type_id`); linked rows already have two valid uniqueness indexes, while nullable parent/context fields remain measured semantic states. | `RESULT_IDENTITY_REVIEW_20260904.md`, `result_identity_scan.sql` |
 | Event catalog checkpoint | All 67 canonical event types and 1,329 aliases are mapped and constrained; case-only alias variants share canonical IDs, and every event type is used by an individual or relay fact surface. | `EVENT_CATALOG_REVIEW_20260904.md`, `event_catalog_scan.sql` |
+| Reference/taxonomy checkpoint | Canonical catalog has 11 divisions, 27 regions, and 118 conferences with no orphan references. Current school conference links are populated through `schools.current_conference_id`; the historical `conference_memberships` bridge is empty. `external_ids` has 356 verified athlete IDs with no duplicate source keys. | `REFERENCE_TAXONOMY_REVIEW_20260904.md`, `reference_taxonomy_scan.sql` |
 
 ## Committed application/read fixes (not a live-data change)
 
@@ -58,9 +59,9 @@ These UI/read changes do not alter canonical rows, tables, policies, or migratio
 | PR/ranking authority | Scraped `athlete_prs` and computed `v_athlete_prs` differ in coverage and provenance. The points-view parsing defect is fixed without rewriting source rows. | Keep the cache; reconciliation and reader migration remain held until full-season parity is demonstrated. |
 | Ingest queues and provenance | Meet-level and event-level queues have different contracts; observations, quarantine, source links, runs, and cleanup archives are active evidence surfaces. | Keep separate; do not merge by name. |
 | Unmapped event telemetry | All 46 stored raw labels (1,484 sightings) now exact-match the canonical `event_aliases` map; no unresolved labels remain. | Keep the raw review history. The alias join is authoritative; no duplicate link column or deletion is needed now. |
-| External identity map | 356 verified source IDs cover 353 athletes; no duplicate `(source, external_key)` groups; nullable school/team/conference fields are unused. | Keep as one shared portability map. Review the three multi-row athlete identities individually; do not bulk-backfill or split the table. |
+| External identity map | 356 verified source IDs cover 353 athletes; no duplicate `(source, external_key)` groups; nullable school/team/conference fields are unused. | Keep as one shared portability map. Review the three athletes with multiple verified IDs individually; do not bulk-backfill or split the table. |
 | Ingest queues | Meet-level (`2,573`) and event-level (`10,608`) queues have different required keys, counts, leases, and outcome contracts; access is private. | Keep separate. Do not merge by table name or add a compatibility layer until lifecycle tests require it. |
-| Migration history | Live ledger has 82 records; the repository has 120 tracked SQL files / 103 unique prefixes, with 80 shared names, 26 timestamp-drifted names, 40 local-only names, and two production-only names. | Read-only reconciliation recorded. Do not replay or repair uncertain history; classify local-only files and prove exact equivalence before any metadata change. See `MIGRATION_HISTORY_RECONCILIATION_20260902.md`. |
+| Migration history | Live ledger has 83 records; the repository has 120 tracked SQL files / 103 unique prefixes, with 80 shared names, 26 timestamp-drifted names, 40 local-only names, and two production-only names. | Read-only reconciliation recorded. Do not replay or repair uncertain history; classify local-only files and prove exact equivalence before any metadata change. See `MIGRATION_HISTORY_RECONCILIATION_20260902.md`. |
 
 ## What is not finished
 
@@ -74,12 +75,13 @@ are in `docs/DATA_ISSUES_TRACKER.md`.
 
 ## Current next gate
 
-The next safe action is a bounded source review of the 10 TFRRS URL groups, five Athletic.net URL
-groups, two meet name/date pairs, and the relay source-ID/leg cohorts. No meet merge, result
-reassignment, team-link rewrite, new organization table, or relaxation of the school-backed key is
-authorized until those identities are evidenced and every reader/writer path has a migration and
-rollback plan. The `live_results` lifecycle remains deferred by product priority; its 48 rows and
-compatibility view are unchanged.
+The next safe action is a read-only review of the private ingest/provenance schemas, grants, RLS,
+and writer boundaries, followed by the bounded source review of the 10 TFRRS URL groups, five
+Athletic.net URL groups, two meet name/date pairs, and relay source-ID/leg cohorts. No meet merge,
+result reassignment, team-link rewrite, new organization table, or relaxation of the school-backed
+key is authorized until those identities are evidenced and every reader/writer path has a migration
+and rollback plan. The `live_results` lifecycle remains deferred by product priority; its 48 rows
+and compatibility view are unchanged.
 
 ## Worktree note
 
