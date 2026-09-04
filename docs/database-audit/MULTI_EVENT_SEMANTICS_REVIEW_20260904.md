@@ -43,6 +43,21 @@ Until a component model exists:
 This rule is intentionally conservative. It prevents a `2:17.18` component from being treated as
 2.1718 points or a `17.84m` component from being treated as an aggregate score.
 
+## Product decision recorded — 2026-09-04
+
+The source/database values are authoritative. The application must display the supplied overall
+multi-event score and supplied component marks/scores as-is; it must not recalculate event points,
+re-rank components, or manufacture a missing score. For duplicate supplied aggregate rows in the
+same event instance, the read path may select the highest supplied Finals score as the displayed
+overall value. This is selection of an existing source value, not scoring math.
+
+The immediate correction belongs in the existing read/UI path because the current rows already hold
+the aggregate score but the screen renders aggregate and component facts as one flat list. A
+dedicated multi-event definition/component table remains an allowed future improvement, but only
+after the whole-schema audit confirms the parent key, fixed component order, source-score fields,
+provenance, and rollback plan. Adding a table is not required to make the immediate score display
+correct.
+
 ## Required next gate
 
 The target model needs a component instance/leg representation tied to the parent multi-event
