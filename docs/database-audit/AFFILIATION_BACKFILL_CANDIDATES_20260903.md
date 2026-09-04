@@ -10,11 +10,14 @@ gender, and current source metadata. It found seven high-signal team rows:
 | 3611 (M), 3612 (F) | Unattached | NULL | `unattached` | High |
 | 3605 (M) | Dawgs Track Club | Other | `club` | High |
 | 713 (M), 714 (F) | Academy of Art | DII | `collegiate` | High |
-| 1350 (M), 1351 (F) | Alliant International | NAIA | `collegiate` | High |
+| 1350 (M), 1351 (F) | Alliant International | NAIA | `collegiate` (historical) | High |
 
 The two college pairs are intentionally **not** classified as clubs or unattached merely because
 their names contain “Academy” or “International”; their existing NCAA/NAIA division is stronger
-evidence. The generic `Other` division is not treated as a category by itself.
+evidence. Alliant’s school row is inactive and currently has no linked athletes/results, so its
+label means historical collegiate affiliation, not an assertion that the program is active today.
+The generic `Other` division is not treated as a category by itself. Logo metadata is retained as
+supporting identity evidence, but never used as the sole type classifier.
 
 ## First batch — applied 2026-09-04
 
