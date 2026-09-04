@@ -43,3 +43,22 @@ considering any interface consolidation. Any queue migration must be a compatibi
 dual-read/dual-write verification, not a merge based on table names.
 
 No private ingest row or policy was changed by this review.
+
+## Queue contract checkpoint — 2026-09-04
+
+The live queue schemas still demonstrate two different scopes. `ingest.recovery_queue` has 2,573
+meet-level rows with required `meet_id`, coverage/relay-coverage state, whole-meet fact counts,
+canonical-match evidence, and a single meet-level retry/status contract. Its current distribution
+is 1,509 complete, 941 blocked, 99 partial, and 24 queued; the coverage states remain 1,529 covered,
+890 individual-only, 144 empty, and 10 relay-only.
+
+`ingest.event_recovery_queue` has 10,608 event-level rows with required `meet_id`, `event_type_id`,
+canonical event code, individual/parent/numeric-parent/leg counts, leases, source candidates,
+attempts, and event-specific source outcomes. Its current statuses remain 8,578 blocked, 768
+queued, 508 complete, 437 needs_review, 217 not_found, 98 exhausted, and 2 in_progress. All rows
+are canonically typed; 9,861 have individual work, 480 parent work, and 449 relay-leg work.
+
+Both queue tables grant access only to `postgres` and `service_role`; no public role grants or RLS
+policies expose them. The separate required keys and lifecycle fields confirm that these are not
+duplicate tables and should not be merged by name. No queue row, policy, or grant was changed by
+this checkpoint.
