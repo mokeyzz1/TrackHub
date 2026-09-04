@@ -64,3 +64,26 @@ lifecycle migration; it is not a reason to mutate the stale rows now.
 The relation still has separate indexes for date, event, final/processed state, meet URL/ID,
 scrape time, and result type. No index change is authorized until the replacement owner and query
 workload are identified.
+
+## Replacement-contract draft — 2026-09-04
+
+Repository tracing found no frontend import of `useLiveResults` and no caller of
+`getTopPerformances()`; the shipped app's current meet and performance reads use the canonical
+`results`/`relay_results` paths. The remaining dependencies are manual `live`/`final` scraper
+commands, documentation, cleanup/identity tools that count or move rows, and the meet-link
+classifier that uses `live_results` as a timing-platform label. No scheduled invocation was found.
+
+The safest replacement boundary is therefore the existing private ingest layer, not another public
+copy table:
+
+- future live capture should be owned by an explicit ingest run and retain raw payloads/source
+  links in `ingest.source_records`/`ingest.observations` before any promotion;
+- finalized individual and relay facts should be promoted through the canonical `results` and
+  `relay_results` writer contract;
+- public frontend reads should remain on canonical facts, with live state treated as an explicitly
+  private/operational concern if the feature returns;
+- `live_results` retirement waits until manual writers and tooling references are removed or
+  migrated, the retention window is approved, and a before-image/rollback test passes.
+
+This is a contract draft, not an authorization to retire the table. It deliberately reuses the
+existing private evidence surfaces and does not propose a new table.
