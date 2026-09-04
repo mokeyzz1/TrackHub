@@ -6,6 +6,9 @@ before the 2026-27 season (starts Dec 2026 / Jan 2027).
 Companion docs: `BACKEND_PRIORITIES.md` (execution order) · `CLAUDE.md` (rules & context) ·
 `memory/backend-rebuild-status.md` (problem/solution history).
 
+Current branch checkpoint: `docs/database-audit/WORKSTREAM_STATUS_20260904.md` records what is
+applied, code-only, held, and next. It does not replace the evidence packets below.
+
 **SCALE NOTE (owner, 2026-08):** every issue found by inspecting ONE athlete's profile turned out
 to affect tens of thousands. Always measure an in-app symptom across the whole DB before deciding
 it's minor.

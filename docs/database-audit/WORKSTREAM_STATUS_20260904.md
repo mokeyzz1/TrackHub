@@ -1,0 +1,73 @@
+# Database cleanup workstream status — 2026-09-04
+
+This is the branch-level checkpoint for the preservation-first database cleanup. It is a status
+map, not a claim that the database is finished. The detailed evidence packets and migration files
+remain the source of truth for each item.
+
+## Safety contract
+
+- Preserve before-images and rollback paths before any destructive write.
+- Treat source values as authoritative; do not manufacture scores or identities.
+- Keep the 4×100 reconciliation workflow paused while the broader schema audit runs.
+- Do not add a table, column, index, policy, or migration merely to hold temporary audit state.
+- Separate live database changes, committed application code, and read-only evidence in status
+  reporting.
+
+## Applied and verified
+
+These workstreams have evidence of a live change or a completed verification gate:
+
+| Workstream | What changed or was verified | Evidence / commit |
+| --- | --- | --- |
+| Preservation baseline | Full and owner-schema PostgreSQL archives, hashes, restore TOC, schema SQL, and isolated restore verification captured. | `BASELINE-20260902.md`, `RESTORE-VERIFICATION-20260902.md` |
+| Private recovery boundary | Historical backup tables moved behind the private `archive` schema; public roles cannot read them; restore access is service-role-only. | `BACKUP_ARCHIVE_SECURITY_EVIDENCE_20260903.md`, commit `548e69c` |
+| Affiliation foundation | Additive explicit team-affiliation fields, dual-read rollout, deterministic lookup precedence, and reviewed backfill evidence were applied without overwriting historical relationships. | `AFFILIATION_*` packets, commits `d0eb29d`–`1ac4946` |
+| Classification/conference cleanup | Reviewed `Other` classifications and exact conference identity/URL repairs were migrated with rollback files; bulk reinterpretation was intentionally avoided. | `OTHER_DIVISION_RESEARCH_20260904.md`, `TABLE_DISPOSITION_MATRIX_20260903.md`, commits `16085e4`–`bb894bf` |
+| Fact lookup indexes | Canonical fact lookup indexes were added after FK review; superseded/unhelpful indexes were removed with rollback SQL. | `FOREIGN_KEY_INDEX_REVIEW_20260904.md`, `UNUSED_INDEX_REVIEW_20260904.md`, commits `e62ad22`, `8122cf3` |
+| Empty legacy events model | The empty `events` table was retired only after dependency/type/frontend checks and an exact rollback test. | `EVENTS_RETIREMENT_EVIDENCE_20260903.md`, commit `37e17ea` |
+
+## Committed application/read fixes (not a live-data change)
+
+These are in the branch source and require the app bundle to reload/rebuild before they appear in
+the running app:
+
+| Area | Current behavior | Commit |
+| --- | --- | --- |
+| Athlete activity | Individual and relay activity is unified by meet; unlinked relay activity remains visible. | `e722e78`, `f1738c7` |
+| School activity | Relay-only meets and relay-only athletes are included in school reads; event-aware school performance reads were added. | `fe73725`, `e8ed73e`, `e8cbe5e` |
+| Multi-event results | Existing aggregate/component rows are grouped by athlete/event instance; supplied Finals aggregate score is displayed, duplicate supplied Finals scores select the highest source value, and component marks remain expandable. No score calculation or data write occurs. | `7db9626`, `3a6e1c4` |
+
+These UI/read changes do not alter canonical rows, tables, policies, or migrations.
+
+## Evidence captured; migration deliberately held
+
+| Area | Current finding | Status / gate |
+| --- | --- | --- |
+| Multi-event semantics | Aggregate points and typed component marks share the same `event_type_id`; 70,764 rows carry a typed time/distance under a points event type. | Immediate source-value display fix is committed. A normalized parent/component schema is allowed later, but only after deterministic mapping, provenance, and rollback are proven. See `MULTI_EVENT_SEMANTICS_REVIEW_20260904.md`. |
+| `live_results` lifecycle | Exactly 48 stale 2025 rows remain unprocessed, unfinalized, and unlinked. Manual writers/readers remain, and the compatibility view omits newer lifecycle fields. | Held until an active owner, retention window, and replacement contract are approved. No rows or policies changed. See `LIVE_RESULTS_DISPOSITION_EVIDENCE_20260903.md`. |
+| Identity collisions | School, athlete, meet, team, and relay collision populations have been measured; names alone are not safe merge keys. | Held for source-backed evidence and per-group reviewed maps. |
+| Canonical facts/duplicates | Duplicate and missing-link populations have been quantified, with rollback lessons documented. | Held where survivor identity or source ownership is ambiguous. |
+| Seasons/environments/rounds/events | Live vocabulary and NULL/ambiguous populations are inventoried. | Deterministic mappings only; ambiguous values remain held. |
+| PR/ranking authority | Scraped `athlete_prs` and computed `v_athlete_prs` differ in coverage and provenance. | Reconciliation and reader migration remain held until parity is demonstrated. |
+| Ingest queues and provenance | Meet-level and event-level queues have different contracts; observations, quarantine, source links, runs, and cleanup archives are active evidence surfaces. | Keep separate; do not merge by name. |
+
+## What is not finished
+
+The database is not being declared clean. Open work remains in the living tracker, including cross-
+meet copies, relay duplicates/unlinked relays, athlete identity conflicts, missing team links,
+season/environment/round normalization, unmapped events, legacy live-results retirement, PR parity,
+and measured index/workload validation.
+
+The full decision list is in `OPEN_DECISIONS_REGISTER_20260903.md`; issue sizes and historical fixes
+are in `docs/DATA_ISSUES_TRACKER.md`.
+
+## Current next gate
+
+The next safe action is to finish the `live_results` lifecycle contract and dependency inventory,
+not to delete the 48 stale rows. Any replacement table or migration must wait for that contract,
+the whole-schema audit, an exact before-image archive, and a rollback/invariant test.
+
+## Worktree note
+
+The branch contains unrelated scraper edits and generated local artifacts that remain unstaged and
+were intentionally preserved. This status record does not include or stage them.
