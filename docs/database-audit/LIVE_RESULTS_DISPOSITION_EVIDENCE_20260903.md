@@ -87,3 +87,26 @@ copy table:
 
 This is a contract draft, not an authorization to retire the table. It deliberately reuses the
 existing private evidence surfaces and does not propose a new table.
+
+## Dependency inventory — 2026-09-04
+
+The live catalog and repository were rechecked together:
+
+- The database has exactly one dependent view, `public.unprocessed_live_results`; no dependent
+  materialized views, functions, or user triggers were found. The view is a compatibility
+  projection and omits the newer lifecycle columns (`team_name`, `is_final`, `meet_id`, and
+  `result_type`).
+- RLS is enabled with only `live_results_public_read` for `anon`/`authenticated` (`SELECT USING
+  (true)`). Those roles have no write grants. `service_role` and `postgres` retain the write
+  privileges used by controlled/manual tooling.
+- The scheduled GitHub workflow runs `scrapers/meets/update_meet_status.js` only. It does not
+  invoke the live or final result writers. The live path in `backend/scripts/smart_meet_scraper.js`
+  is explicitly `live_scraper_not_implemented`; completed-meet routing and the standalone
+  `scrapers/live`/`scrapers/final` commands remain manually callable.
+- Repository references remain in the legacy frontend hook/service definitions, backend live
+  investigation/query/monitor scripts, the `scrapers/live` and `scrapers/final` writers, and
+  reviewed identity/cleanup tools that count or move legacy rows. No current shipped frontend
+  caller was found.
+
+This closes the dependency-inventory portion of the gate. Retirement is still held because those
+manual writers/tools and the 48 stale rows need an owner-approved migration and retention decision.
