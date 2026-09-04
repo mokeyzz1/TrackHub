@@ -67,6 +67,31 @@ survivor decision: relay sets differ, source pages can be edited, and the result
 different meet parents. Preserve both rows while a source snapshot/lineage review determines which
 meet owns each fact.
 
+## Bounded source-review pass
+
+The duplicate groups were compared in one read-only pass against private source records and
+NULL-safe canonical fact overlap:
+
+| Athletic.net URL | Meet IDs | Individual rows (A / B; overlap) | Relay rows (A / B; overlap) | Classification |
+| --- | --- | ---: | ---: | --- |
+| `/meets/66223` | 12747 / 12914 | 461 / 348; 0 | 30 / 2; 0 | Shared page key with disjoint fact sets; keep both |
+| `/meets/67952` | 12587 / 12620 | 428 / 1,255; 0 | 14 / 24; 0 | Shared page key with disjoint fact sets; keep both |
+| `/meets/70965` | 12936 / 12937 | 46 / 230; 0 | 5 / 5; 0 | Shared page key with disjoint fact sets; keep both |
+| `/meet/639904` | 11911 / 11912 | 770 / 770; 770 | 0 / 163; 0 | Individual set copied across a combined-events/parent pair; hold parent mapping |
+| `/meet/651507` | 12325 / 12472 | 202 / 202; 194 | 4 / 4; 1 | Same-day name variant with substantial overlap; hold survivor decision |
+
+The first three rows are not duplicates merely because the URL is shared: their fact sets are
+disjoint. The `639904` pair has byte-equivalent individual rows but different relay coverage and
+different meet dates/locations, so the combined-events row must remain a separate parent candidate.
+The `651507` pair is the strongest actual-duplicate candidate, but four individual rows and three
+relay rows differ; no merge is authorized without source ownership evidence.
+
+Nine of the ten duplicate TFRRS URL groups have no private source records. The only group with
+source records is `/results/96401`: all 24 staged TFRRS records and their links point to meet 12632
+(Bauer Open, April 15, 2026); meet 12562 (April 18, 2026) reuses the same URL but has no linked
+source records. This is strong ownership evidence for the staged rows, not permission to delete or
+reassign the April 18 facts.
+
 ## Constraints and access boundary
 
 - `meets` has a primary key on `meet_id` and checks for the current `status` and `results_source`
@@ -87,6 +112,7 @@ URLs, and treat duplicate URL groups as review queues. No new table is justified
 
 ## Next gate
 
-Compare the 10 TFRRS URL groups, five Athletic.net URL groups, and two name/date pairs against source
-records and linked fact counts in bounded batches. For each group, classify same-meet alias,
-multi-day/segment, or actual duplicate; only then design a reversible reassignment/archive plan.
+The bounded pass is complete. The next gate is to obtain source snapshots for the nine TFRRS groups
+without private lineage and for the strongest Athletic.net/name-date candidates, then classify
+same-meet alias, multi-day/segment, or actual duplicate. Only then design a reversible
+reassignment/archive plan.

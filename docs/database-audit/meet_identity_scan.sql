@@ -98,3 +98,68 @@ with duplicate_meets as (
   from duplicate_meets d join public.meets m on m.meet_id=any(d.meet_ids)
 )
 select * from facts order by url_key,meet_id;
+
+-- 7. When private source records exist, show which canonical meet currently owns the links.
+with duplicate_urls as (
+  select lower(regexp_replace(btrim(tfrrs_url), '/+$', '')) as url_key,
+         regexp_replace(lower(regexp_replace(btrim(tfrrs_url), '/+$', '')),
+                         '^.*?/results/', '') as source_meet_key
+  from public.meets
+  where tfrrs_url is not null and btrim(tfrrs_url) <> ''
+  group by 1
+  having count(*) > 1
+)
+select d.url_key,
+       d.source_meet_key,
+       count(sr.source_record_id) as source_records,
+       count(distinct sr.source_event_key) as event_keys,
+       count(distinct case
+         when sl.result_id is not null then r.meet_id
+         when sl.relay_result_id is not null then rr.meet_id
+       end) as linked_meets
+from duplicate_urls d
+left join ingest.source_records sr
+  on sr.source = 'tfrrs' and sr.source_meet_key = d.source_meet_key
+left join ingest.source_links sl on sl.source_record_id = sr.source_record_id
+left join public.results r on r.result_id = sl.result_id
+left join public.relay_results rr on rr.relay_result_id = sl.relay_result_id
+group by d.url_key,d.source_meet_key
+order by d.url_key;
+
+-- 8. Athletic.net collision-pair overlap. Equal individual rows are evidence, not a merge command.
+with duplicate_meets as (
+  select lower(regexp_replace(btrim(athletic_net_results_url), '/+$', '')) as url_key,
+         array_agg(meet_id order by meet_id) as meet_ids
+  from public.meets
+  where athletic_net_results_url is not null and btrim(athletic_net_results_url) <> ''
+  group by 1
+  having count(*) > 1
+), pairs as (
+  select url_key,meet_ids[1] as meet_a,meet_ids[2] as meet_b from duplicate_meets
+)
+select p.url_key,p.meet_a,p.meet_b,
+       (select count(*) from public.results r where r.meet_id=p.meet_a) as a_results,
+       (select count(*) from public.results r where r.meet_id=p.meet_b) as b_results,
+       (select count(*) from public.results ra
+        join public.results rb
+          on rb.meet_id=p.meet_b
+         and rb.athlete_id=ra.athlete_id
+         and rb.event_type_id=ra.event_type_id
+         and rb.mark_raw is not distinct from ra.mark_raw
+         and rb.place is not distinct from ra.place
+         and rb.round is not distinct from ra.round
+         and rb.team_id is not distinct from ra.team_id
+        where ra.meet_id=p.meet_a) as result_overlap,
+       (select count(*) from public.relay_results rr where rr.meet_id=p.meet_a) as a_relays,
+       (select count(*) from public.relay_results rr where rr.meet_id=p.meet_b) as b_relays,
+       (select count(*) from public.relay_results ra
+        join public.relay_results rb
+          on rb.meet_id=p.meet_b
+         and rb.event_type_id=ra.event_type_id
+         and rb.mark_raw is not distinct from ra.mark_raw
+         and rb.place is not distinct from ra.place
+         and rb.round is not distinct from ra.round
+         and rb.team_id is not distinct from ra.team_id
+        where ra.meet_id=p.meet_a) as relay_overlap
+from pairs p
+order by p.url_key;
