@@ -38,10 +38,13 @@ recovery, and migration code rather than public frontend reads.
   code; these writers must be consolidated or gated before tightening constraints.
 - The shared ingestion boundary uses `ingest.runs`, `source_records`, `observations`,
   `source_links`, `quarantine`, aliases, and recovery queues.
-- `public.events` is still queried by `frontend/hooks/useMeetDetails.ts` even though it is empty;
-  it cannot be dropped until that reader is migrated or removed.
+- `public.events` was retired on 2026-09-04 after its only reader was removed; generated frontend
+  types now match the live schema.
 - `public.athlete_prs` is still read by scraper code while `public.v_athlete_prs` is the derived
   replacement; both paths must be reconciled before retiring the scraped table.
+- `public.live_results` remains a compatibility surface: no scheduled workflow invokes the live or
+  final scraper paths, but manual package commands and repository read/write code remain. It is
+  held for an explicit lifecycle owner and replacement contract.
 - Several frontend paths accept a `meetId` argument but query by copied meet name/date or raw
   event text instead. These are correctness dependencies, not merely style issues.
 

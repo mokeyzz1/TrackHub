@@ -33,3 +33,16 @@ Assign `live_results` **isolate and retire after lifecycle migration**:
    with exact-structure rollback SQL.
 
 No row, table, policy, or view was changed by this evidence packet.
+
+## Lifecycle checkpoint — 2026-09-04
+
+The live table was rechecked after the schema cleanup wave: it still contains exactly 48 rows from
+one meet URL, all created and scraped on 2025-12-02. All remain `is_processed = false`,
+`is_final = false`, `result_type = 'live'`, with zero athlete, team, or meet links. The
+`unprocessed_live_results` view still projects those same rows.
+
+Repository workflow inspection found no scheduled invocation of the live or final scraper paths;
+however, the `scrapers` package still exposes manual `live` and `final` commands, and compatibility
+read/write code remains in the repository. Because an external/manual caller cannot be ruled out,
+no rows were moved or deleted. The table remains **held for lifecycle ownership and a replacement
+contract**.

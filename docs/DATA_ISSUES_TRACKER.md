@@ -80,7 +80,7 @@ never delete without a self-proving test · small throttled batches (weak instan
 | ~~U4b~~ | ~~Athlete progression & season bests split one event into several~~ | **FIXED 2026-08-09 — see F13.** |
 | ~~U8~~ | ~~Source of the `Finals`+`Heat N` duplicates~~ | **SOLVED + FIXED 2026-08-10 — see below.** |
 | U5 | **Frontend still matches by text** | App reads `meet_name`/`event_name` strings instead of IDs. Until this lands most cleanup is dormant. |
-| U6 | **Abandoned live-results code** | In-app live results was dropped (link-out via `meet_url` is the shipped answer). Dead: `live_results` table, `useLiveResults.ts`, `getTopPerformances()`, 8 live scripts. |
+| U6 | **Legacy live-results path** | No scheduled workflow invokes live/final scraping, and the shipped app uses meet link-outs, but `live_results`, `useLiveResults.ts`, `getTopPerformances()`, and manual live/final scripts remain. Hold table retirement until a lifecycle owner and replacement contract are approved. |
 | ~~U7~~ | ~~Merge `backend-rebuild` → `main`~~ | **DONE 2026-08-12** — 88 commits merged (`15307b9`). This mattered more than it looked: `main` is the default branch, so the cron'd scrapers were running WITHOUT any of this year's fixes. Production would have regenerated the duplicates in December. |
 
 ## ✅ FIXED (2026-07 → 2026-08)
