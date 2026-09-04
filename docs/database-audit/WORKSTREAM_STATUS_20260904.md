@@ -28,7 +28,7 @@ These workstreams have evidence of a live change or a completed verification gat
 | Empty legacy events model | The empty `events` table was retired only after dependency/type/frontend checks and an exact rollback test. | `EVENTS_RETIREMENT_EVIDENCE_20260903.md`, commit `37e17ea` |
 | Current catalog baseline | Recounted all non-system schemas after cleanup: 74 tables, 7 views, 27 sequences; nine backup tables are private in `archive`, and the live ledger has 83 records. | `FULL_DATABASE_INVENTORY_20260903.md`, `TABLE_STRUCTURE_REVIEW_20260903.md` |
 | PR view source semantics | The derived PR view now uses supplied leading aggregate points and excludes typed multi-event component rows; no canonical rows were changed. | `ATHLETE_PRS_DISPOSITION_EVIDENCE_20260903.md`, migration `20260904195352_fix_v_athlete_prs_points_source.sql`, rollback file |
-| Team/relay identity checkpoint | `teams` is still school-backed (3,516 rows; 3,509 legacy rows have no explicit name/type), source URLs are unique, and relay parent/leg links are structurally complete enough for bounded review. The 96-ID relay conflict cohort is 214 canonical-match vs 300 mismatch legs, with 11 display-name mismatches; no reassignment was applied. | `TEAM_RELAY_IDENTITY_REVIEW_20260904.md`, `team_relay_identity_scan.sql` |
+| Team/relay identity checkpoint | `teams` is still school-backed (3,516 rows; 3,509 legacy rows have no explicit name/type), source URLs are unique, and relay parent/leg links are structurally complete enough for bounded review. The focused repeat-leg gate finds 459 repeated athlete groups but 0 exact same-slot duplicates; all repeats use two different leg slots. The 96-ID relay conflict cohort is 214 canonical-match vs 300 mismatch legs, spanning multiple parents/meets; no reassignment was applied. | `TEAM_RELAY_IDENTITY_REVIEW_20260904.md`, `team_relay_identity_scan.sql`, `RELAY_LEG_DUPLICATE_REVIEW_20260904.md`, `relay_leg_duplicate_scan.sql` |
 | Meet identity checkpoint | 12,978 meet rows remain; source URL identity is sparse and reused across 10 TFRRS and 5 Athletic.net collision groups, with two normalized name/date pairs. The bounded pass found a 770/770 copied Athletic.net individual set and a 194/202 overlap pair; only TFRRS `96401` has private source records, all owned by meet 12632. No merge or reassignment was applied. | `MEET_IDENTITY_REVIEW_20260904.md`, `meet_identity_scan.sql` |
 | Meet source snapshot checkpoint | Official TFRRS/DirectAthletics pages were checked for all 10 duplicated TFRRS URL keys. The first eight currently resolve to 2026 editions despite older production parents; `95531` aligns to Mar. 26 while its Mar. 28 sibling remains held, and `96401` aligns to Apr. 15 with private records owned by meet 12632. No URL was promoted to a unique key and no facts were reassigned. | `MEET_SOURCE_SNAPSHOT_REVIEW_20260904.md` |
 | Athletic.net source snapshot checkpoint | AthleticLIVE/Athletic.net pages were checked for all five duplicated URL keys. `66223` currently names a different Apr. 4 meet, `67952` spans the Apr. 15/18 PCAC segments, `70965` aligns to the Marauders row, `639904` is explicitly the combined-events page, and `651507` confirms the Grubbys duplicate candidate. No parent or fact was changed. | `ATHLETIC_NET_SOURCE_SNAPSHOT_REVIEW_20260904.md` |
@@ -80,14 +80,14 @@ are in `docs/DATA_ISSUES_TRACKER.md`.
 
 ## Current next gate
 
-The next safe action is the bounded source review of the 10 TFRRS URL groups, five Athletic.net URL
-groups, two meet name/date pairs, and relay source-ID/leg cohorts. The function-level ACL review is
-now recorded; a separate, tested ACL migration can decide whether to revoke the two trigger
-helpers' implicit PUBLIC EXECUTE. No meet
-merge, result reassignment, team-link rewrite, new organization table, or relaxation of the
-school-backed key is authorized until those identities are evidenced and every reader/writer path
-has a migration and rollback plan. The `live_results` lifecycle remains deferred by product
-priority; its 48 rows and compatibility view are unchanged.
+The next safe action is to map the relay parent/leg cohorts back to private source records and raw
+observations, then review small source-owned batches. The repeated-leg gate proved that the 459
+rows are not exact same-slot duplicates, so no deletion or leg collapse is justified. The function-
+level ACL review is now recorded; a separate, tested ACL migration can decide whether to revoke the
+two trigger helpers' implicit PUBLIC EXECUTE. No meet merge, result reassignment, team-link rewrite,
+new organization table, or relaxation of the school-backed key is authorized until those identities
+are evidenced and every reader/writer path has a migration and rollback plan. The `live_results`
+lifecycle remains deferred by product priority; its 48 rows and compatibility view are unchanged.
 
 ## Worktree note
 

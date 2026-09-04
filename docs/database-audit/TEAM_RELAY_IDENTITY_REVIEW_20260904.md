@@ -56,11 +56,17 @@ Athletic.net URL, and no duplicate normalized `team_name` under the same `(schoo
 | Parents with missing `mark_raw` | 327 |
 | Parents with missing `date` | 11,153 |
 
-Only two `(relay_result_id, leg_order)` duplicate groups were found. A separate source review found
-459 `(relay_result_id, athlete_id)` repeat groups (459 extra rows); those include source patterns
-where the same person is listed twice or where source IDs/names conflict. They are review candidates,
-not safe duplicate deletions. No parent-level duplicate partition remained under the existing
-identity index for linked meet/team rows.
+Only two `(relay_result_id, leg_order)` duplicate groups were found. The focused follow-up in
+`RELAY_LEG_DUPLICATE_REVIEW_20260904.md` found 459 `(relay_result_id, athlete_id)` repeat groups
+(459 extra rows), but **zero** exact `(relay_result_id, athlete_id, leg_order)` duplicate groups.
+Every repeat uses two different leg slots, most often `{1,2}`, `{3,4}`, `{5,6}`, or `{2,3}`. These
+are source/provenance candidates, not safe duplicate deletions. No parent-level duplicate partition
+remained under the existing identity index for linked meet/team rows.
+
+The source-ID conflict cohort is also multi-parent: 96 source IDs occur on 514 relay-leg rows,
+spanning 208–289 parents depending on the canonical-match/mismatch side (127–207 distinct meets).
+That breadth makes a one-row cleanup assumption unsafe; source ownership must be recovered before
+any reassignment.
 
 ### Relay source-ID conflicts
 
@@ -110,8 +116,9 @@ Do not:
 
 ## Next gate
 
-Review the 459 repeated athlete-leg groups and the 96 relay TFRRS-source-ID conflicts in bounded
-source batches, then quantify the non-collegiate team population from source observations. Only then
-decide whether nullable organization links, alias rows, or a generalized affiliation dimension are
-required. Any reassignment or schema change must have a before-image, rollback SQL, invariant checks,
-and a reader/writer migration plan.
+Map relay parents/legs back to private source records and raw observations, then review the 459
+repeat groups and 96 source-ID conflicts in small source-owned batches. After that, quantify the
+non-collegiate team population from source observations. Only then decide whether nullable
+organization links, alias rows, or a generalized affiliation dimension are required. Any
+reassignment or schema change must have a before-image, rollback SQL, invariant checks, and a
+reader/writer migration plan.
