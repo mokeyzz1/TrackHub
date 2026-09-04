@@ -194,3 +194,25 @@ The follow-up compatibility-view migration
 as applied. It preserves the existing `teams_summary` column contract and changes no current output
 because all existing `teams.team_name` values remain NULL. The invalid-history split and paused
 4×100 team-link migration remain absent and unapplied.
+
+## Current ledger checkpoint — 2026-09-04
+
+A fresh read-only recheck of the linked production project (`hunbahsnaeeztmzqpnrl`) confirms:
+
+- `supabase_migrations.schema_migrations` contains 82 records, from
+  `20260122075100` through `20260904141650`.
+- The repository contains 120 tracked migration SQL files and 103 unique version prefixes.
+- 54 local version prefixes match production exactly. A further 26 migration names are shared but
+  use different local/production timestamps; this is the previously documented timestamp drift,
+  not evidence that those SQL changes should be replayed.
+- 40 local migration names are absent from the live ledger and remain unclassified (superseded,
+  unapplied, or intentionally local). Two live names have no same-named local file:
+  `create_v_athlete_prs` and `20260810_map_remaining_event_aliases`.
+- One shared-name mismatch remains (`20260210` locally named
+  `top_performances_with_scoring`, versus production `top_performances_function`).
+
+The live migration rows include statement arrays but no rollback arrays; that metadata is not a
+substitute for a before-image or an SQL-equivalence proof. No `migration repair`, `db push`, DDL,
+or data write was performed during this checkpoint. The invalid-history split
+(`20260902100000`) and paused 4×100 team-link migration (`20260903200000`) remain absent and
+unapplied.

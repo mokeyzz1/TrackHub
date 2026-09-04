@@ -53,6 +53,7 @@ These UI/read changes do not alter canonical rows, tables, policies, or migratio
 | Unmapped event telemetry | All 46 stored raw labels (1,484 sightings) now exact-match the canonical `event_aliases` map; no unresolved labels remain. | Keep the raw review history. The alias join is authoritative; no duplicate link column or deletion is needed now. |
 | External identity map | 356 verified source IDs cover 353 athletes; no duplicate `(source, external_key)` groups; nullable school/team/conference fields are unused. | Keep as one shared portability map. Review the three multi-row athlete identities individually; do not bulk-backfill or split the table. |
 | Ingest queues | Meet-level (`2,573`) and event-level (`10,608`) queues have different required keys, counts, leases, and outcome contracts; access is private. | Keep separate. Do not merge by table name or add a compatibility layer until lifecycle tests require it. |
+| Migration history | Live ledger has 82 records; the repository has 120 tracked SQL files / 103 unique prefixes, with 80 shared names, 26 timestamp-drifted names, 40 local-only names, and two production-only names. | Read-only reconciliation recorded. Do not replay or repair uncertain history; classify local-only files and prove exact equivalence before any metadata change. See `MIGRATION_HISTORY_RECONCILIATION_20260902.md`. |
 
 ## What is not finished
 
