@@ -1,4 +1,4 @@
--- Rollback for 20260904150000_fix_v_athlete_prs_points_source.sql.
+-- Rollback for 20260904195352_fix_v_athlete_prs_points_source.sql.
 -- Restores the prior view definition exactly; it does not touch canonical rows.
 
 CREATE OR REPLACE VIEW public.v_athlete_prs AS
@@ -51,4 +51,3 @@ SELECT
   result_id  AS source_result_id
 FROM ranked
 WHERE rn = 1;
-

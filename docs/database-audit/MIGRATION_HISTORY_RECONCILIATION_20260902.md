@@ -263,3 +263,11 @@ The two live names without a same-named local file were checked against live sta
 
 These checks confirm live state, not permission to create duplicate local history entries. No
 history repair or replay is needed for either production-only record.
+
+## View-fix ledger follow-up — 2026-09-04
+
+The reversible PR-view migration was applied successfully. The Supabase migration tool assigned
+the canonical live version `20260904195352` with name `fix_v_athlete_prs_points_source`; the local
+file is aligned to that exact version. The production ledger now contains 83 records. This was a
+view definition change only: `athlete_prs` and `results` row counts were not written, and the
+rollback definition is retained alongside the migration. No additional history repair is needed.

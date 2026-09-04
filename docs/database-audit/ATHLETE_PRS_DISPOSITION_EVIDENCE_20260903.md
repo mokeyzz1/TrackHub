@@ -57,7 +57,7 @@ keeps 849,385 PR rows, including 6,882 supplied point aggregates, and excludes c
 whose `mark_seconds`/`mark_meters` are populated. No score is calculated and no source row is
 rewritten.
 
-Migration `20260904150000_fix_v_athlete_prs_points_source.sql` was applied as a view-only change;
+Migration `20260904195352_fix_v_athlete_prs_points_source.sql` was applied as a view-only change;
 its rollback is `docs/database-audit/rollback_fix_v_athlete_prs_points_source.sql`. The new logic
 accepts only a leading 3–5 digit aggregate token and requires both typed component columns to be
 NULL. It also adds `result_id` as a deterministic tie-breaker. The scraped cache remains kept and
