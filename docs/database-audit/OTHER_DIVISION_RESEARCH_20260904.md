@@ -7,7 +7,7 @@ competition classification. The current inventory contains 245 schools and 129 o
 no conference value. Several of the largest schools in that bucket are plainly collegiate
 programs, while others are international or otherwise outside the NCAA/NAIA taxonomy.
 
-This first evidence pass reviews 30 of the highest-impact rows identified in the live inventory. It is
+This first evidence pass reviews 38 of the highest-impact rows identified in the live inventory. It is
 read-only: no `schools.division`, team, athlete, result, or logo rows were changed. The links below
 are the authority used for the proposed classification; a school name or logo by itself is not
 treated as proof.
@@ -51,6 +51,19 @@ treated as proof.
 | 1730 | Milwaukee School of Engineering | NCAA Division III | [Official MSOE track page](https://msoe.sidearmsports.com/sports/mens-track-and-field) identifies the varsity program; [NACC track report](https://naccsports.org/news/2026/3/11/indoor-track-field-msoe-trio-takes-final-2026-nacc-indoor-track-field-weekly-honors.aspx) places athletes on NCAA Division III performance lists. | Medium–High | Held |
 | 1729 | Concordia University Chicago | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=160) lists Division III active and indoor/outdoor track; [official athletics](https://www.cucougars.com/) lists the program. | High | Held |
 | 1732 | Penn State Harrisburg | NCAA Division III | [Official quick facts](https://psuharrisburgsports.com/sports/2024/9/9/inside-athletics-Quick-Facts.aspx) identifies NCAA Division III and men’s/women’s track; [Penn State campus page](https://www.psu.edu/academics/campuses/harrisburg) confirms 19 NCAA DIII teams. | High | Held |
+
+### Next reviewed rows
+
+| School ID | Current name | Proposed classification | Evidence | Confidence | Write status |
+| ---: | --- | --- | --- | --- | --- |
+| 1725 | Guelph | U SPORTS / OUA (international) | [Official University of Guelph handbook](https://s3.us-east-2.amazonaws.com/sidearm.nextgen.sites/uoguelph.internetconsult.com/documents/2023/9/7/StudentHandbook-23-24.pdf) lists men’s and women’s track and field in OUA/U SPORTS. | High | Held |
+| 1736 | Wentworth Institute of Technology | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=762) lists Division III active and indoor track; [official student-life page](https://wit.edu/student-life/sports-recreation) confirms NCAA Division III teams. | High | Held |
+| 1826 | University of British Columbia | U SPORTS / Canada West (international) | [Official UBC athletics](https://thunderbirds.ubc.ca/) identifies varsity athletics; [official UBC track and field page](https://gothunderbirds.ca/sports/track-and-field) confirms the program; UBC’s athletics materials identify U SPORTS/Canada West competition. | High | Held |
+| 1739 | Wilmington College (Ohio) | NCAA Division III | [Official Wilmington athletics](https://www.wilmington.edu/athletics) identifies 18 NCAA Division III teams including men’s and women’s track and field. | High | Held |
+| 1767 | Southwestern University (Tex.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=8746) lists Division III active and indoor track; [official university page](https://www.southwestern.edu/parents-and-families/) confirms NCAA Division III athletics. | High | Held |
+| 1752 | King’s College (Pa.) | NCAA Division III | [Official King’s track history](https://kingscollegeathletics.com/sports/2015/5/13/MTF_05_13_15_about_track_field.aspx) identifies Division III track and field; [2026 schedule](https://kingscollegeathletics.com/news/2026/3/17/womens-track-field-kolinovsky-announces-2026-mens-and-womens-outdoor-track-field-schedule.aspx) confirms NCAA Division III championships. | High | Held |
+| 1747 | Governors State University | NAIA | [Official Governors State announcement](https://gsunews.govst.edu/gsu-athletics-launches-mens-and-womens-track-programs-names-john-niendorf-head-coach/) identifies the track program as competing in the CCAC and NAIA; [USTFCCCA NAIA report](https://www.ustfccca.org/assets/rankings/2025_mitf_naia_evsq_week3_natl_team_detail.pdf) lists Governors State. | High | Held |
+| 1740 | Bismarck State College | NAIA (current; formerly NJCAA) | [Official Bismarck State page](https://bismarckstate.edu/about/NAIAFrontierConference/) documents the 2024 transition from NJCAA to NAIA/Frontier and lists men’s/women’s track and field; [official track schedule](https://bscmystics.com/sports/mtrack/index) shows the NAIA national meet. | High | Held |
 
 ## What this establishes
 
