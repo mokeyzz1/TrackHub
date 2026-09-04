@@ -216,3 +216,36 @@ substitute for a before-image or an SQL-equivalence proof. No `migration repair`
 or data write was performed during this checkpoint. The invalid-history split
 (`20260902100000`) and paused 4×100 team-link migration (`20260903200000`) remain absent and
 unapplied.
+
+## Local-only classification pass — 2026-09-04
+
+The 40 local names absent from production history were classified without changing the ledger:
+
+- **Superseded function/normalization drafts — do not replay:**
+  `fix_event_name_matching`, `fix_weight_throw_scoring`, `indoor_outdoor_scoring`,
+  `normalized_event_names`, `normalize_event_names`, `comprehensive_event_normalization`, and
+  `event_normalization_batched`. Later canonical event aliases and the current live function
+  supersede these drafts.
+- **Effect observed, but exact provenance still unresolved — do not replay:**
+  `add_meet_end_date`, `add_performance_indexes`, `push_tokens`, `drop_duplicate_indexes`,
+  `enable_rls_relay_tables`, `recompute_meet_seasons`, `seed_event_catalog`, `add_meet_id_fks`,
+  `computed_athlete_prs`, `drop_dead_tables`, `relay_event_normalization`,
+  `athletic_net_event_aliases`, `backfill_results_source_tfrrs`,
+  `refresh_athlete_current_school`, `index_results_team_id`, `track_relay_source_coverage`,
+  `wa_scoring_with_bounds`, `add_athleticlive_pentathlon_sub_event_aliases`,
+  `add_athleticlive_college_event_aliases`, `add_athleticlive_racewalk_masters_aliases`,
+  `add_athleticlive_pentathlon_mile_aliases`, `add_athleticlive_punctuated_seeded_event_aliases`,
+  `add_lai_puerto_rico_team_entities`, `add_tfrrs_unattached_team_aliases`,
+  `add_hammer_throw_event_alias`, `add_ccbc_catonsville_athletic_net_alias`,
+  `add_semifinal_event_aliases`, `add_athleticlive_3000m_racewalk_alias`, and
+  `reconcile_partial_event_queue_status`. Live object/data checks show the relevant effects or
+  later replacements, but not which historical file supplied them.
+- **Partially handled and held:** `expand_timing_platform_detection`. The known-provider subset
+  was repaired separately with archived before-images; fallback/unknown-host rows remain held.
+  Replaying this file would overwrite the reviewed boundary.
+- **Explicitly not applied:** `split_invalid_history_claims` and
+  `apply_reviewed_4x100_team_links`. Both remain pending by design.
+
+`top_performances_with_scoring` is the one same-version naming mismatch: the local `20260210` file
+and production `20260210_top_performances_function` are one history slot, not two changes. This
+classification is a review aid only; it does not authorize marking any local file as applied.
