@@ -46,3 +46,21 @@ however, the `scrapers` package still exposes manual `live` and `final` commands
 read/write code remains in the repository. Because an external/manual caller cannot be ruled out,
 no rows were moved or deleted. The table remains **held for lifecycle ownership and a replacement
 contract**.
+
+## Lifecycle checkpoint — 2026-09-04 (schema and policy recheck)
+
+The live relation still has 48 rows. Its current contract is 22 columns (the dropped ordinal is the
+historical `entry_id` position), including `team_name`, `is_final`, `meet_id`, and `result_type`.
+All 48 rows remain `result_type = 'live'`, `is_processed = false`, and `is_final = false`, with
+zero athlete, team, or meet links. They still point to one meet URL and span only the 2025-12-02
+capture window.
+
+`public.live_results` has RLS enabled with one broad SELECT policy for `anon` and `authenticated`.
+The `public.unprocessed_live_results` compatibility view is not itself RLS-enabled and currently
+projects only the older column subset (`live_result_id` through `updated_at`), omitting
+`team_name`, `is_final`, `meet_id`, and `result_type`. This is a contract gap to resolve during
+lifecycle migration; it is not a reason to mutate the stale rows now.
+
+The relation still has separate indexes for date, event, final/processed state, meet URL/ID,
+scrape time, and result type. No index change is authorized until the replacement owner and query
+workload are identified.
