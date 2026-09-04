@@ -14,5 +14,6 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.update_updated_at_column() TO PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION ingest.clear_recovery_queue_error_on_complete() TO PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION ingest.clear_recovery_queue_error_on_complete() FROM service_role;
 
 COMMIT;

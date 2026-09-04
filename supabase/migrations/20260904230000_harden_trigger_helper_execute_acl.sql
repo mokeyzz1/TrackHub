@@ -30,6 +30,7 @@ $$;
 
 REVOKE EXECUTE ON FUNCTION public.update_updated_at_column() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION ingest.clear_recovery_queue_error_on_complete() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION ingest.clear_recovery_queue_error_on_complete() TO service_role;
 
 DO $$
 BEGIN
