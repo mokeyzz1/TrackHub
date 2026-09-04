@@ -62,6 +62,16 @@ where the same person is listed twice or where source IDs/names conflict. They a
 not safe duplicate deletions. No parent-level duplicate partition remained under the existing
 identity index for linked meet/team rows.
 
+### Relay source-ID conflicts
+
+Ninety-six non-empty TFRRS athlete source IDs are attached to two internal `athlete_id` values in
+the relay-leg table. In every one of those 96 cases, one internal row has a matching canonical
+`athletes.tfrrs_athlete_id` and one does not. The cohort contains 214 relay legs on the canonical
+match side and 300 legs on the mismatch side. The mismatch legs were created between February and
+June 2026; the matching duplicate rows were created from August through September 2026. This is a
+strong review signal for an importer/identity-resolution issue, but it is not proof that the older
+legs can be reassigned: TFRRS profile history and source meet context still need to be checked.
+
 ## Constraints and access boundary
 
 - `teams` has a validated foreign key to `schools`, a `gender IN ('M','F')` check, a typed-affiliation
@@ -93,7 +103,8 @@ Do not:
 
 ## Next gate
 
-Review the 459 repeated athlete-leg groups in bounded source batches and quantify the non-collegiate
-team population from source observations. Only then decide whether nullable organization links,
-alias rows, or a generalized affiliation dimension are required. Any schema change must have a
-before-image, rollback SQL, invariant checks, and a reader/writer migration plan.
+Review the 459 repeated athlete-leg groups and the 96 relay TFRRS-source-ID conflicts in bounded
+source batches, then quantify the non-collegiate team population from source observations. Only then
+decide whether nullable organization links, alias rows, or a generalized affiliation dimension are
+required. Any reassignment or schema change must have a before-image, rollback SQL, invariant checks,
+and a reader/writer migration plan.

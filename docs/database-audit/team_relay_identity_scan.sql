@@ -101,3 +101,27 @@ select
   count(*) filter (where mark_raw is null or btrim(mark_raw) = '')::bigint as missing_mark,
   count(*) filter (where date is null)::bigint as null_date
 from public.relay_results;
+
+-- 7. A relay source ID should resolve to one canonical athlete. Conflicts are review-only.
+with conflicting_source_ids as (
+  select lower(btrim(tfrrs_athlete_id)) as source_key
+  from public.relay_athletes
+  where tfrrs_athlete_id is not null and btrim(tfrrs_athlete_id) <> ''
+  group by lower(btrim(tfrrs_athlete_id))
+  having count(distinct athlete_id) > 1
+), tagged as (
+  select ra.relay_athlete_id,
+         case when lower(btrim(a.tfrrs_athlete_id)) = lower(btrim(ra.tfrrs_athlete_id))
+              then 'canonical_match' else 'canonical_mismatch' end as bucket
+  from public.relay_athletes ra
+  join conflicting_source_ids c
+    on c.source_key = lower(btrim(ra.tfrrs_athlete_id))
+  join public.athletes a on a.athlete_id = ra.athlete_id
+  where ra.tfrrs_athlete_id is not null and btrim(ra.tfrrs_athlete_id) <> ''
+)
+select bucket,
+       count(*)::bigint as relay_rows,
+       count(distinct relay_athlete_id)::bigint as legs
+from tagged
+group by bucket
+order by bucket;

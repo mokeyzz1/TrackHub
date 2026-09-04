@@ -186,3 +186,13 @@ from this scan alone. The reusable read-only detector is
 
 The final production counts remain 151,537 athletes, 3,419,178 results, and 450,685 relay legs;
 the four contradictory same-performance athlete pairs remain present and held.
+
+## Relay source-ID identity checkpoint — 2026-09-04
+
+The relay-leg table adds a separate source-identity signal that is not visible in the canonical
+`athletes.tfrrs_athlete_id` uniqueness scan: 96 non-empty TFRRS athlete IDs are attached to two
+internal athletes each. Every source ID has one canonical match and one nonmatching internal row;
+214 relay legs use the matching row and 300 use the nonmatching row. The examples generally share
+name, gender, and school but differ in source-profile ID or creation cohort. These rows are held for
+source-backed review and are not included in any merge or reassignment. The reproducible scan is
+`docs/database-audit/team_relay_identity_scan.sql`.
