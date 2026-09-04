@@ -152,15 +152,37 @@ is authorized without source-by-source review:
    date/meet indexes, retested locally, and then completed successfully live. Final production
    checks found zero duplicate references or orphaned facts.
 
-## Current production preflight
+## Historical production preflight
 
-The live database currently has 152,204 athletes, 3,507,218 results, 462,728 relay legs, and
-156,385 ingestion observations. It has 393 pre-cleanup high-confidence identity pairs because the
-three reviewed school/meet cleanup migrations have not yet been applied there; after those steps,
-the fresh production snapshot matched the reviewed 667-athlete consolidation fingerprints. The
-The live database now contains 341 verified secondary identities and 341 active aliases, plus the
-2,921-row athlete-consolidation archive. The final live state has 151,537 athletes, 3,419,178
-results, and 450,685 relay legs; all eight athlete rows in the four held pairs remain present.
+The pre-cleanup live snapshot had 152,204 athletes, 3,507,218 results, 462,728 relay legs, and
+156,385 ingestion observations. Those figures are retained here as the before-state for the
+reviewed migrations; they are not the current production counts.
+
+## Current production state — 2026-09-04
+
+The live database now has 151,537 athletes, 3,419,178 results, and 450,685 relay legs. It contains
+341 verified secondary source identities and 341 active aliases, plus the 2,921-row athlete
+consolidation archive. All eight athlete rows in the four contradictory same-performance pairs
+remain present and held. The new 209 shared Athletic.net URL collisions are not included in any
+merge; they require a separate reviewed source map.
 
 This order preserves every source identity and prevents the cleanup from immediately recreating the
 same duplicates.
+
+## Live post-cleanup identity checkpoint — 2026-09-04
+
+The broad normalized-name-plus-school scan currently reports 7,037 candidate groups / 10,649
+extra rows. That is a collision population, not a merge list. A stronger source-identity signal
+also surfaced **209 shared Athletic.net profile URLs** (209 extra athlete rows): 151 groups have
+the same name/school/gender shape, while 58 groups contain a different name, school, or gender.
+None of the 209 URL keys is represented in `public.external_ids`; the existing 58 Athletic.net
+external-ID rows cover different reviewed keys. There are currently zero duplicate TFRRS ID groups.
+
+The mixed URL groups are explicit evidence that a URL cannot become a table-wide unique constraint
+without source validation. The same-shape groups are review candidates for promotion into the
+existing `external_ids`/`ingest.athlete_aliases` identity surfaces, but no athlete merge is safe
+from this scan alone. The reusable read-only detector is
+`docs/database-audit/athletic_net_url_collision_scan.sql`.
+
+The final production counts remain 151,537 athletes, 3,419,178 results, and 450,685 relay legs;
+the four contradictory same-performance athlete pairs remain present and held.
