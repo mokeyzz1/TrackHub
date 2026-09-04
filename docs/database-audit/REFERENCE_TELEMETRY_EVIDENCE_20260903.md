@@ -22,6 +22,18 @@ This is a working athlete-source identity map, not an unused generic table. The 
 columns are future capacity, not evidence of bad data. Keep it and use it for identity resolution;
 do not split it into source-specific tables.
 
+### Reference checkpoint — 2026-09-04
+
+The table still contains **356** verified rows for **353** athletes: 283 TFRRS rows (282 athletes),
+58 Athletic.net rows, and 15 DirectAthletics rows. Every row has an athlete link; school, team, and
+conference links are all NULL, and 282 external URLs are NULL. No duplicate `(source,
+external_key)` groups exist. Three athletes have two source rows (two cross-source pairs and one
+athlete with two TFRRS keys); these are identity-review candidates, not automatic merge or delete
+targets. The primary key and `(source, external_key)` unique constraint remain appropriate.
+
+Access remains public-read only for `anon`/`authenticated`; writes are not granted to those roles.
+No reference identity row or policy was changed by this checkpoint.
+
 ## `unmapped_events`
 
 - Live rows: **46** distinct raw labels.
