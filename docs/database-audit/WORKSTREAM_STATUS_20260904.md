@@ -25,6 +25,7 @@ These workstreams have evidence of a live change or a completed verification gat
 | Classification/conference cleanup | Reviewed `Other` classifications and exact conference identity/URL repairs were migrated with rollback files; bulk reinterpretation was intentionally avoided. | `OTHER_DIVISION_RESEARCH_20260904.md`, `TABLE_DISPOSITION_MATRIX_20260903.md`, commits `16085e4`–`bb894bf` |
 | Fact lookup indexes | Canonical fact lookup indexes were added after FK review; superseded/unhelpful indexes were removed with rollback SQL. | `FOREIGN_KEY_INDEX_REVIEW_20260904.md`, `UNUSED_INDEX_REVIEW_20260904.md`, commits `e62ad22`, `8122cf3` |
 | Empty legacy events model | The empty `events` table was retired only after dependency/type/frontend checks and an exact rollback test. | `EVENTS_RETIREMENT_EVIDENCE_20260903.md`, commit `37e17ea` |
+| Current catalog baseline | Recounted all non-system schemas after cleanup: 74 tables, 7 views, 27 sequences; nine backup tables are private in `archive`, and the live ledger has 83 records. | `FULL_DATABASE_INVENTORY_20260903.md`, `TABLE_STRUCTURE_REVIEW_20260903.md` |
 | PR view source semantics | The derived PR view now uses supplied leading aggregate points and excludes typed multi-event component rows; no canonical rows were changed. | `ATHLETE_PRS_DISPOSITION_EVIDENCE_20260903.md`, migration `20260904195352_fix_v_athlete_prs_points_source.sql`, rollback file |
 
 ## Committed application/read fixes (not a live-data change)

@@ -49,3 +49,18 @@ defect. Each must be evaluated against row semantics, code references, foreign-k
 permissions, and operational lifecycle. The target cleanup plan will explicitly classify every
 table as canonical, improve, consolidate, archive, retire-after-migration, managed/leave untouched,
 or owner decision required.
+
+## Post-cleanup catalog checkpoint — 2026-09-04
+
+The structure review was rechecked after the latest safe waves:
+
+- The nine historical backup tables now live in private `archive`; the former
+  `public.results_athlete_merge_backup` RLS exception is no longer in the public schema.
+- `public.events` and its empty-table indexes/sequence were retired after the frontend dependency
+  was removed and the exact rollback test passed.
+- `public` now has 20 tables, 4 views, and 22 RLS policies; `ingest` remains 10 private RLS tables.
+- `public.live_results` is unchanged at 48 stale rows and remains deferred by product priority,
+  with its compatibility view and permissions preserved.
+
+No new structural exception was introduced by this checkpoint; unresolved uniqueness, nullable
+linkage, and lifecycle questions remain tracked in the open-decisions register.

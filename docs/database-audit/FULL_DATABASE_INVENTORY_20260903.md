@@ -115,3 +115,35 @@ evidence-backed disposition:
 
 The next pass is the per-schema/per-object review. It will not create a new private table or run a
 cleanup migration merely to hold audit state.
+
+## Current catalog checkpoint — 2026-09-04
+
+After the archive-boundary and empty-table cleanup waves, a fresh catalog count reports:
+
+| Schema | Tables | Views | Sequences |
+| --- | ---: | ---: | ---: |
+| `archive` | 9 | 0 | 0 |
+| `auth` | 23 | 0 | 1 |
+| `extensions` | 0 | 2 | 0 |
+| `graphql` | 0 | 0 | 0 |
+| `graphql_public` | 0 | 0 | 0 |
+| `ingest` | 10 | 0 | 8 |
+| `public` | 20 | 4 | 17 |
+| `realtime` | 2 | 0 | 1 |
+| `storage` | 8 | 0 | 0 |
+| `supabase_migrations` | 1 | 0 | 0 |
+| `vault` | 1 | 1 | 0 |
+
+The live instance therefore contains 74 tables, 7 views, and 27 sequences across these
+non-system schemas. `public` currently has 22 RLS policies. The migration ledger contains 83 rows,
+ending at `20260904195352_fix_v_athlete_prs_points_source`.
+
+The nine private archive tables retain the exact before-image counts: `athletes_empty_backup`
+(12,518), `relay_athletes_d3_backup` (89,085), `relay_results_20260819_backup` (1),
+`relay_results_d3_backup` (40,935), `results_accidental_import_20260819_backup` (31),
+`results_athlete_merge_backup` (11), `results_d1_backup` (23,766), `results_d2_backup` (453,737),
+and `results_xsource_20260819_backup` (1,252). The public `events` table and its sequence are
+absent after the dependency-checked retirement; `live_results` remains intentionally deferred.
+
+This checkpoint supersedes the earlier pre-cleanup counts in this file for current-state work. The
+original baseline remains preserved as historical evidence.
