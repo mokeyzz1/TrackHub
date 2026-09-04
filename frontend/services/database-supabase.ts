@@ -223,28 +223,54 @@ export async function getSchoolAthletesBySeason(schoolId: number, season: string
 
   const teamIds = teams.map(t => t.team_id);
 
-  // Get unique athlete IDs who have results in this season for these teams
-  const { data: results, error: resultsError } = await supabase
-    .from('results')
-    .select('athlete_id')
-    .in('team_id', teamIds)
-    .gte('date', startDate)
-    .lte('date', endDate)
-    .limit(2000);
+  // A roster can include athletes whose only school result is a relay leg. Read individual
+  // results and relay parents together, then resolve the relay lineup into athlete IDs.
+  const [individualResultResponse, relayResultResponse] = await Promise.all([
+    supabase
+      .from('results')
+      .select('athlete_id')
+      .in('team_id', teamIds)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .limit(2000),
+    supabase
+      .from('relay_results')
+      .select('relay_result_id')
+      .in('team_id', teamIds)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .limit(2000),
+  ]);
 
-  if (resultsError) throw resultsError;
-  if (!results || results.length === 0) return [];
+  if (individualResultResponse.error) throw individualResultResponse.error;
+  if (relayResultResponse.error) throw relayResultResponse.error;
 
-  // Get unique athlete IDs
-  const athleteIds = [...new Set(results.map(r => r.athlete_id).filter(Boolean))];
+  const athleteIds = new Set(
+    (individualResultResponse.data || []).map(r => r.athlete_id).filter(Boolean)
+  );
+  const relayResultIds = (relayResultResponse.data || []).map(r => r.relay_result_id).filter(Boolean);
 
-  if (athleteIds.length === 0) return [];
+  if (relayResultIds.length > 0) {
+    const { data: relayAthletes, error: relayAthletesError } = await supabase
+      .from('relay_athletes')
+      .select('athlete_id')
+      .in('relay_result_id', relayResultIds)
+      .not('athlete_id', 'is', null)
+      .limit(8000);
+
+    if (relayAthletesError) throw relayAthletesError;
+    (relayAthletes || []).forEach(row => {
+      if (row.athlete_id) athleteIds.add(row.athlete_id);
+    });
+  }
+
+  if (athleteIds.size === 0) return [];
 
   // Fetch athlete details
   const { data: athletes, error: athletesError } = await supabase
     .from('athletes')
     .select('athlete_id, full_name, gender, class_year, primary_events')
-    .in('athlete_id', athleteIds)
+    .in('athlete_id', [...athleteIds])
     .limit(limit);
 
   if (athletesError) throw athletesError;
