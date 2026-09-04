@@ -264,19 +264,30 @@ export async function getSchoolMeets(schoolId: number, limit: number = 50) {
 
   const teamIds = teams.map(t => t.team_id);
 
-  // Get unique meets from results
-  const { data: results, error: resultsError } = await supabase
-    .from('results')
-    .select('meet_id, meet_name, date')
-    .in('team_id', teamIds)
-    .order('date', { ascending: false })
-    .limit(1000);
+  // A meet can contain only relay facts for a school/team, so read both canonical result sources
+  // before deduplicating. This keeps the school timeline aligned with the meet model used by the
+  // athlete page (individual and relay performances belong to the same meet).
+  const [individualResultResponse, relayResultResponse] = await Promise.all([
+    supabase
+      .from('results')
+      .select('meet_id, meet_name, date')
+      .in('team_id', teamIds)
+      .order('date', { ascending: false })
+      .limit(1000),
+    supabase
+      .from('relay_results')
+      .select('meet_id, meet_name, date')
+      .in('team_id', teamIds)
+      .order('date', { ascending: false })
+      .limit(1000),
+  ]);
 
-  if (resultsError) throw resultsError;
+  if (individualResultResponse.error) throw individualResultResponse.error;
+  if (relayResultResponse.error) throw relayResultResponse.error;
 
   // Dedupe by meet_id
   const meetsMap = new Map<number, { meet_id: number; meet_name: string; date: string }>();
-  results?.forEach((r: any) => {
+  [...(individualResultResponse.data || []), ...(relayResultResponse.data || [])].forEach((r: any) => {
     if (r.meet_id && !meetsMap.has(r.meet_id)) {
       meetsMap.set(r.meet_id, { meet_id: r.meet_id, meet_name: r.meet_name || '', date: r.date || '' });
     }
