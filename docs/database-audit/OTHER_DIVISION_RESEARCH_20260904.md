@@ -7,7 +7,7 @@ competition classification. The current inventory contains 245 schools and 129 o
 no conference value. Several of the largest schools in that bucket are plainly collegiate
 programs, while others are international or otherwise outside the NCAA/NAIA taxonomy.
 
-This first evidence pass reviews the highest-impact rows identified in the live inventory. It is
+This first evidence pass reviews 30 of the highest-impact rows identified in the live inventory. It is
 read-only: no `schools.division`, team, athlete, result, or logo rows were changed. The links below
 are the authority used for the proposed classification; a school name or logo by itself is not
 treated as proof.
@@ -36,6 +36,21 @@ treated as proof.
 | 1719 | Concordia University Wisconsin | NCAA Division III | [Official athletics quick facts](https://cuwfalcons.com/sports/2025/4/16/athletics-quickfacts.aspx) identify NCAA Division III; [official track page](https://cuwfalcons.com/sports/mens-track-and-field) confirms the sport. | High | Held |
 | 1721 | Carroll University (Wis.) | NCAA Division III | [Official athletics page](https://carrollu.edu/campus-student-life/athletics/) identifies 23 NCAA Division III teams, CCIW, and indoor/outdoor track. | High | Held |
 | 1727 | Saint John’s University (Minn.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=602) lists Division III active/MIAC; [official 2026 track report](https://gojohnnies.com/news/2026/5/15/track-and-field-four-johnnies-qualify-for-ncaa-championships-all-region-in-five-events.aspx) identifies NCAA Division III championships. | High | Held |
+
+### Additional reviewed rows
+
+| School ID | Current name | Proposed classification | Evidence | Confidence | Write status |
+| ---: | --- | --- | --- | --- | --- |
+| 1750 | Pacific University (Ore.) | NCAA Division III | [Official Pacific athletics profile](https://www.pacificu.edu/directory/provost-academic-affairs/athletics?page=%2C0%2C1%2C0) identifies 24 NCAA Division III programs and indoor/outdoor track. | High | Held |
+| 1722 | Dickinson College | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=185) lists Division III active and indoor/outdoor track. | High | Held |
+| 1735 | Carroll College (Mont.) | NAIA | [Official Carroll leadership profile](https://www.carroll.edu/sites/default/files/2025-01/2025-Carroll-Presidential-Leadership-Profile.pdf) identifies Frontier/Cascade NAIA competition and indoor/outdoor track. | High | Held |
+| 1734 | Trinity College (Conn.) | NCAA Division III | [Official Trinity profile](https://www.trincoll.edu/AboutTrinity/) identifies 30 NCAA Division III varsity teams; the college’s athletics includes track and field. | High | Held |
+| 1723 | Columbia College (Mo.) | NAIA | [Official 2026 track announcement](https://columbiacougars.com/news/2026/5/19/mens-track-field-track-and-field-set-to-compete-at-naia-championships.aspx) identifies the NAIA Outdoor Track and Field National Championships; [official athletics](https://columbiacougars.com/) lists track and field. | High | Held |
+| 1733 | Wheaton College (Mass.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=779) lists Division III active and indoor/outdoor track; [official athletics](https://wheatoncollegelyons.com/) lists track and field. | High | Held |
+| 1731 | Penn State Behrend | NCAA Division III | [Official Behrend at-a-glance](https://behrend.psu.edu/about-the-college/at-a-glance) identifies NCAA Division III teams, including indoor/outdoor track and field. | High | Held |
+| 1730 | Milwaukee School of Engineering | NCAA Division III | [Official MSOE track page](https://msoe.sidearmsports.com/sports/mens-track-and-field) identifies the varsity program; [NACC track report](https://naccsports.org/news/2026/3/11/indoor-track-field-msoe-trio-takes-final-2026-nacc-indoor-track-field-weekly-honors.aspx) places athletes on NCAA Division III performance lists. | Medium–High | Held |
+| 1729 | Concordia University Chicago | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=160) lists Division III active and indoor/outdoor track; [official athletics](https://www.cucougars.com/) lists the program. | High | Held |
+| 1732 | Penn State Harrisburg | NCAA Division III | [Official quick facts](https://psuharrisburgsports.com/sports/2024/9/9/inside-athletics-Quick-Facts.aspx) identifies NCAA Division III and men’s/women’s track; [Penn State campus page](https://www.psu.edu/academics/campuses/harrisburg) confirms 19 NCAA DIII teams. | High | Held |
 
 ## What this establishes
 
