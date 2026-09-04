@@ -324,10 +324,12 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
       result_id,
       athlete_id,
       team_id,
+      meet_id,
       event_name,
       event_type_id,
       event_types (
-        code
+        code,
+        category
       ),
       mark_raw,
       mark_seconds,
@@ -360,6 +362,11 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
     ...r,
     // Canonical event from the DB — group and display by this, never by raw event_name
     event_canonical: canonicalEventName(r),
+    // Relay rows in results are athlete-facing projections of a team performance. Keep the
+    // classification explicit so profile stats/timelines do not count them as individual events.
+    performance_type: r.event_types?.category === 'relay' || isRelayEvent(r.event_name)
+      ? 'relay'
+      : 'individual',
     competed_for_school: r.teams?.schools?.official_name || r.teams?.schools?.short_name || null,
   })) || [];
 }
@@ -1370,6 +1377,7 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
       leg_order,
       relay_results (
         relay_result_id,
+        meet_id,
         event_name,
         event_type_id,
         event_types (
@@ -1419,6 +1427,7 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
 
     return {
       relay_result_id: relay?.relay_result_id,
+      meet_id: relay?.meet_id,
       event_name: relay?.event_name,
       event_types: relay?.event_types,   // carried through so canonicalEventName() can use it
       mark_raw: relay?.mark_raw,

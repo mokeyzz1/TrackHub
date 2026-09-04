@@ -61,35 +61,100 @@ export default function AthleteDetailScreen() {
     return performances.filter(p => new Date(p.date).getFullYear().toString() === selectedSeason);
   }, [performances, selectedSeason]);
 
+  // Relay rows in `results` are athlete-facing projections of a team performance. Keep them in
+  // the meet activity timeline, but never count them as individual events, wins, or PR inputs.
+  const individualPerformances = useMemo(
+    () => filteredPerformances.filter(p => p.performance_type !== 'relay'),
+    [filteredPerformances]
+  );
+
+  const filteredRelayParticipations = useMemo(() => {
+    if (!selectedSeason) return relayParticipations;
+    return relayParticipations.filter(r => new Date(r.date).getFullYear().toString() === selectedSeason);
+  }, [relayParticipations, selectedSeason]);
+
   // Calculate stats from filtered performances
   const stats = useMemo(() => {
-    if (!filteredPerformances.length) return { events: 0, meets: 0, wins: 0 };
-
-    const uniqueEvents = new Set(filteredPerformances.map(p => canonicalEventName(p)));
-    const uniqueMeets = new Set(filteredPerformances.map(p => p.meet_name));
-    const wins = filteredPerformances.filter(p => p.place === 1).length;
+    const uniqueEvents = new Set(individualPerformances.map(p => canonicalEventName(p)));
+    const uniqueMeets = new Set([
+      ...individualPerformances.map(p => p.meet_id != null ? `id:${p.meet_id}` : `name:${p.meet_name}`),
+      ...filteredRelayParticipations.map(r => r.meet_id != null ? `id:${r.meet_id}` : `name:${r.meet_name}`),
+    ]);
+    const wins = individualPerformances.filter(p => p.place === 1).length;
 
     return {
       events: uniqueEvents.size,
       meets: uniqueMeets.size,
       wins,
     };
-  }, [filteredPerformances]);
+  }, [individualPerformances, filteredRelayParticipations]);
 
-  // Personal records come directly from the database (is_pr = true)
-
-  // Group results by meet - uses filtered performances
-  // Deduplicate: "Heat 3" and "Preliminaries" with same time are the same performance
-  // Combine multi-day meets (same meet name, consecutive dates)
+  // Group all athlete activity by meet. Individual and relay facts remain distinct inside the
+  // card, so the same relay is visible to each linked athlete without looking like an individual PR.
   const meetResults = useMemo(() => {
-    // Group performances by meet name only (not date) to combine multi-day meets
     const grouped = new Map<string, {
+      meetKey: string;
       meetName: string;
       startDate: string;
       endDate: string;
       competedForSchool?: string;
-      events: typeof filteredPerformances;
+      events: typeof individualPerformances;
+      relays: typeof filteredRelayParticipations;
     }>();
+
+    const ensureMeet = (item: {
+      meet_id?: number | null;
+      meet_name: string;
+      date: string;
+      competed_for_school?: string;
+      school_name?: string;
+    }) => {
+      // Prefer canonical meet_id. The name fallback preserves older rows that predate meet links.
+      const meetKey = item.meet_id != null ? `id:${item.meet_id}` : `name:${item.meet_name}`;
+      const existing = grouped.get(meetKey);
+      if (existing) {
+        if (item.date < existing.startDate) existing.startDate = item.date;
+        if (item.date > existing.endDate) existing.endDate = item.date;
+        if (!existing.competedForSchool) {
+          existing.competedForSchool = item.competed_for_school || item.school_name;
+        }
+        return existing;
+      }
+
+      const meet = {
+        meetKey,
+        meetName: item.meet_name,
+        startDate: item.date,
+        endDate: item.date,
+        competedForSchool: item.competed_for_school || item.school_name,
+        events: [] as typeof individualPerformances,
+        relays: [] as typeof filteredRelayParticipations,
+      };
+      grouped.set(meetKey, meet);
+      return meet;
+    };
+
+    [...individualPerformances]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .forEach(perf => {
+        ensureMeet({
+          meet_id: perf.meet_id,
+          meet_name: perf.meet_name,
+          date: perf.date,
+          competed_for_school: perf.competed_for_school,
+        }).events.push(perf);
+      });
+
+    [...filteredRelayParticipations]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .forEach(relay => {
+        ensureMeet({
+          meet_id: relay.meet_id,
+          meet_name: relay.meet_name,
+          date: relay.date,
+          school_name: relay.school_name,
+        }).relays.push(relay);
+      });
 
     // Priority for rounds: Finals > Preliminaries > Heat X
     // Handles both old ("F", "P") and new ("Finals", "Preliminaries") naming
@@ -101,27 +166,6 @@ export default function AthleteDetailScreen() {
       if (r.includes('heat')) return 1;
       return 0;
     };
-
-    [...filteredPerformances]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .forEach(perf => {
-        // Group by meet name only
-        const meetKey = perf.meet_name;
-        if (!grouped.has(meetKey)) {
-          grouped.set(meetKey, {
-            meetName: perf.meet_name,
-            startDate: perf.date,
-            endDate: perf.date,
-            competedForSchool: perf.competed_for_school,
-            events: [],
-          });
-        }
-        const meet = grouped.get(meetKey)!;
-        // Update date range
-        if (perf.date < meet.startDate) meet.startDate = perf.date;
-        if (perf.date > meet.endDate) meet.endDate = perf.date;
-        meet.events.push(perf);
-      });
 
     // Deduplicate events within each meet
     // Same event + same time = same performance, keep the one with higher round priority
@@ -145,44 +189,24 @@ export default function AthleteDetailScreen() {
       }
 
       meet.events = Array.from(deduped.values());
+
+      // A linked athlete should have one relay participation row per relay. Keep the parent relay
+      // identity as the display key in case an older import produced duplicate leg links.
+      const relayDeduped = new Map<string, typeof filteredRelayParticipations[0]>();
+      for (const relay of meet.relays) {
+        const key = relay.relay_result_id != null
+          ? String(relay.relay_result_id)
+          : `${canonicalEventName(relay)}|${relay.mark_raw}|${relay.round || ''}`;
+        if (!relayDeduped.has(key)) relayDeduped.set(key, relay);
+      }
+      meet.relays = Array.from(relayDeduped.values());
     }
 
     // Convert to array, sort by most recent, and limit to 10 meets
     return Array.from(grouped.values())
       .sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime())
       .slice(0, 10);
-  }, [filteredPerformances]);
-
-  // Filter relays by selected season and group by meet
-  const relayResults = useMemo(() => {
-    let filtered = relayParticipations;
-    if (selectedSeason) {
-      filtered = relayParticipations.filter(r => new Date(r.date).getFullYear().toString() === selectedSeason);
-    }
-
-    // Group by meet
-    const grouped = new Map<string, {
-      meetName: string;
-      date: string;
-      relays: typeof filtered;
-    }>();
-
-    [...filtered]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .forEach(relay => {
-        const key = `${relay.meet_name}|${relay.date}`;
-        if (!grouped.has(key)) {
-          grouped.set(key, {
-            meetName: relay.meet_name,
-            date: relay.date,
-            relays: [],
-          });
-        }
-        grouped.get(key)!.relays.push(relay);
-      });
-
-    return Array.from(grouped.values()).slice(0, 10);
-  }, [relayParticipations, selectedSeason]);
+  }, [individualPerformances, filteredRelayParticipations]);
 
   const isFollowing = athlete ? isFavorite(athlete.athlete_id.toString(), 'athlete') : false;
 
@@ -398,7 +422,7 @@ export default function AthleteDetailScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Recent Meets ({meetResults.length})</Text>
             {meetResults.map((meet, meetIndex) => (
-              <FadeInCard key={`${meet.meetName}-${meet.startDate}`} delay={meetIndex * 100}>
+              <FadeInCard key={meet.meetKey} delay={meetIndex * 100}>
                 <View style={styles.meetCard}>
                   {/* Meet Header */}
                   <View style={styles.meetCardHeader}>
@@ -430,155 +454,145 @@ export default function AthleteDetailScreen() {
                     </View>
                   </View>
 
-                  {/* Events List */}
-                  <View style={styles.meetEventsList}>
-                    {meet.events.map((event, eventIndex) => {
-                      const canViewResults = isCleanDataSeason(meet.endDate);
+                  {meet.events.length > 0 && (
+                    <>
+                      {meet.relays.length > 0 && (
+                        <Text style={styles.subsectionTitle}>Individual performances</Text>
+                      )}
+                      {/* Individual events */}
+                      <View style={styles.meetEventsList}>
+                        {meet.events.map((event, eventIndex) => {
+                          const canViewResults = isCleanDataSeason(meet.endDate);
 
-                      if (canViewResults) {
-                        return (
-                          <TouchableOpacity
-                            key={`${event.event_name}-${event.round}-${eventIndex}`}
+                          if (canViewResults) {
+                            return (
+                              <TouchableOpacity
+                                key={`${event.event_name}-${event.round}-${eventIndex}`}
+                                style={[
+                                  styles.meetEventRow,
+                                  eventIndex === meet.events.length - 1 && styles.meetEventRowLast
+                                ]}
+                                onPress={() => {
+                                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                  router.push({
+                                    pathname: '/event-results',
+                                    params: {
+                                      meetName: meet.meetName,
+                                      eventName: event.event_name,
+                                      date: event.date.split('T')[0],
+                                      gender: athlete?.gender || '',
+                                    },
+                                  });
+                                }}
+                                activeOpacity={0.7}
+                              >
+                                <View style={styles.meetEventInfo}>
+                                  <View style={styles.meetEventNameRow}>
+                                    <Text style={styles.meetEventName}>{canonicalEventName(event)}</Text>
+                                    {event.round && (
+                                      <View style={styles.roundTag}>
+                                        <Text style={styles.roundTagText}>{shortenRound(event.round)}</Text>
+                                      </View>
+                                    )}
+                                  </View>
+                                  <Text style={styles.meetEventMark}>{event.mark_raw}</Text>
+                                </View>
+                                <View style={styles.meetEventRight}>
+                                  <View style={styles.placeBadgeSmall}>
+                                    <Text style={styles.placeTextSmall}>{event.place}</Text>
+                                    <Text style={styles.placeSuffixSmall}>
+                                      {event.place === 1 ? 'st' : event.place === 2 ? 'nd' : event.place === 3 ? 'rd' : 'th'}
+                                    </Text>
+                                  </View>
+                                  <Ionicons name="chevron-forward" size={16} color={colors.text.tertiary} />
+                                </View>
+                              </TouchableOpacity>
+                            );
+                          }
+
+                          // Non-clickable row for older data
+                          return (
+                            <View
+                              key={`${event.event_name}-${event.round}-${eventIndex}`}
+                              style={[
+                                styles.meetEventRow,
+                                styles.meetEventRowDisabled,
+                                eventIndex === meet.events.length - 1 && styles.meetEventRowLast
+                              ]}
+                            >
+                              <View style={styles.meetEventInfo}>
+                                <View style={styles.meetEventNameRow}>
+                                  <Text style={[styles.meetEventName, styles.meetEventNameDisabled]}>{canonicalEventName(event)}</Text>
+                                  {event.round && (
+                                    <View style={styles.roundTag}>
+                                      <Text style={styles.roundTagText}>{shortenRound(event.round)}</Text>
+                                    </View>
+                                  )}
+                                </View>
+                                <Text style={[styles.meetEventMark, styles.meetEventMarkDisabled]}>{event.mark_raw}</Text>
+                              </View>
+                              <View style={styles.meetEventRight}>
+                                <View style={styles.placeBadgeSmall}>
+                                  <Text style={styles.placeTextSmall}>{event.place}</Text>
+                                  <Text style={styles.placeSuffixSmall}>
+                                    {event.place === 1 ? 'st' : event.place === 2 ? 'nd' : event.place === 3 ? 'rd' : 'th'}
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </>
+                  )}
+
+                  {meet.relays.length > 0 && (
+                    <>
+                      <Text style={styles.subsectionTitle}>Relay participation</Text>
+                      <View style={styles.meetEventsList}>
+                        {meet.relays.map((relay, relayIndex) => (
+                          <View
+                            key={`relay-${relay.relay_result_id}`}
                             style={[
                               styles.meetEventRow,
-                              eventIndex === meet.events.length - 1 && styles.meetEventRowLast
+                              relayIndex === meet.relays.length - 1 && styles.meetEventRowLast
                             ]}
-                            onPress={() => {
-                              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                              router.push({
-                                pathname: '/event-results',
-                                params: {
-                                  meetName: meet.meetName,
-                                  eventName: event.event_name,
-                                  date: event.date.split('T')[0],
-                                  gender: athlete?.gender || '',
-                                },
-                              });
-                            }}
-                            activeOpacity={0.7}
                           >
                             <View style={styles.meetEventInfo}>
                               <View style={styles.meetEventNameRow}>
-                                <Text style={styles.meetEventName}>{canonicalEventName(event)}</Text>
-                                {event.round && (
+                                <Text style={styles.meetEventName}>{canonicalEventName(relay)}</Text>
+                                <View style={styles.legTag}>
+                                  <Text style={styles.legTagText}>Leg {relay.leg_order}</Text>
+                                </View>
+                                {relay.round && (
                                   <View style={styles.roundTag}>
-                                    <Text style={styles.roundTagText}>{shortenRound(event.round)}</Text>
+                                    <Text style={styles.roundTagText}>{shortenRound(relay.round)}</Text>
                                   </View>
                                 )}
                               </View>
-                              <Text style={styles.meetEventMark}>{event.mark_raw}</Text>
+                              <Text style={styles.meetEventMark}>{relay.mark_raw}</Text>
+                              {relay.school_name && (
+                                <Text style={styles.relayTeamText}>for {relay.school_name}</Text>
+                              )}
+                              {relay.teammates.length > 0 && (
+                                <Text style={styles.teammatesText}>
+                                  with {relay.teammates.slice(0, 3).join(', ')}
+                                </Text>
+                              )}
                             </View>
                             <View style={styles.meetEventRight}>
                               <View style={styles.placeBadgeSmall}>
-                                <Text style={styles.placeTextSmall}>{event.place}</Text>
+                                <Text style={styles.placeTextSmall}>{relay.place}</Text>
                                 <Text style={styles.placeSuffixSmall}>
-                                  {event.place === 1 ? 'st' : event.place === 2 ? 'nd' : event.place === 3 ? 'rd' : 'th'}
+                                  {relay.place === 1 ? 'st' : relay.place === 2 ? 'nd' : relay.place === 3 ? 'rd' : 'th'}
                                 </Text>
                               </View>
-                              <Ionicons name="chevron-forward" size={16} color={colors.text.tertiary} />
-                            </View>
-                          </TouchableOpacity>
-                        );
-                      }
-
-                      // Non-clickable row for older data
-                      return (
-                        <View
-                          key={`${event.event_name}-${event.round}-${eventIndex}`}
-                          style={[
-                            styles.meetEventRow,
-                            styles.meetEventRowDisabled,
-                            eventIndex === meet.events.length - 1 && styles.meetEventRowLast
-                          ]}
-                        >
-                          <View style={styles.meetEventInfo}>
-                            <View style={styles.meetEventNameRow}>
-                              <Text style={[styles.meetEventName, styles.meetEventNameDisabled]}>{canonicalEventName(event)}</Text>
-                              {event.round && (
-                                <View style={styles.roundTag}>
-                                  <Text style={styles.roundTagText}>{shortenRound(event.round)}</Text>
-                                </View>
-                              )}
-                            </View>
-                            <Text style={[styles.meetEventMark, styles.meetEventMarkDisabled]}>{event.mark_raw}</Text>
-                          </View>
-                          <View style={styles.meetEventRight}>
-                            <View style={styles.placeBadgeSmall}>
-                              <Text style={styles.placeTextSmall}>{event.place}</Text>
-                              <Text style={styles.placeSuffixSmall}>
-                                {event.place === 1 ? 'st' : event.place === 2 ? 'nd' : event.place === 3 ? 'rd' : 'th'}
-                              </Text>
                             </View>
                           </View>
-                        </View>
-                      );
-                    })}
-                  </View>
-                </View>
-              </FadeInCard>
-            ))}
-          </View>
-        )}
-
-        {/* Relay Participations */}
-        {relayResults.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Relay Results ({relayResults.length})</Text>
-            {relayResults.map((meet, meetIndex) => (
-              <FadeInCard key={`relay-${meet.meetName}-${meet.date}`} delay={meetIndex * 100}>
-                <View style={styles.meetCard}>
-                  {/* Meet Header */}
-                  <View style={styles.meetCardHeader}>
-                    <Text style={styles.meetCardTitle}>{meet.meetName}</Text>
-                    <Text style={styles.meetCardDate}>
-                      {new Date(meet.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </Text>
-                  </View>
-
-                  {/* Relays List */}
-                  <View style={styles.meetEventsList}>
-                    {meet.relays.map((relay, relayIndex) => (
-                      <View
-                        key={`${relay.event_name}-${relay.round}-${relayIndex}`}
-                        style={[
-                          styles.meetEventRow,
-                          relayIndex === meet.relays.length - 1 && styles.meetEventRowLast
-                        ]}
-                      >
-                        <View style={styles.meetEventInfo}>
-                          <View style={styles.meetEventNameRow}>
-                            <Text style={styles.meetEventName}>{canonicalEventName(relay)}</Text>
-                            <View style={styles.legTag}>
-                              <Text style={styles.legTagText}>Leg {relay.leg_order}</Text>
-                            </View>
-                            {relay.round && (
-                              <View style={styles.roundTag}>
-                                <Text style={styles.roundTagText}>{shortenRound(relay.round)}</Text>
-                              </View>
-                            )}
-                          </View>
-                          <Text style={styles.meetEventMark}>{relay.mark_raw}</Text>
-                          {relay.teammates.length > 0 && (
-                            <Text style={styles.teammatesText}>
-                              with {relay.teammates.slice(0, 3).join(', ')}
-                            </Text>
-                          )}
-                        </View>
-                        <View style={styles.meetEventRight}>
-                          <View style={styles.placeBadgeSmall}>
-                            <Text style={styles.placeTextSmall}>{relay.place}</Text>
-                            <Text style={styles.placeSuffixSmall}>
-                              {relay.place === 1 ? 'st' : relay.place === 2 ? 'nd' : relay.place === 3 ? 'rd' : 'th'}
-                            </Text>
-                          </View>
-                        </View>
+                        ))}
                       </View>
-                    ))}
-                  </View>
+                    </>
+                  )}
                 </View>
               </FadeInCard>
             ))}
@@ -586,7 +600,7 @@ export default function AthleteDetailScreen() {
         )}
 
         {/* No data message */}
-        {filteredPerformances.length === 0 && relayResults.length === 0 && (
+        {individualPerformances.length === 0 && filteredRelayParticipations.length === 0 && (
           <View style={styles.section}>
             <View style={styles.errorContainer}>
               <Ionicons name="podium-outline" size={48} color={colors.text.tertiary} />
@@ -605,7 +619,7 @@ export default function AthleteDetailScreen() {
         visible={statsModalVisible}
         onClose={() => setStatsModalVisible(false)}
         athleteName={athlete?.full_name || 'Athlete'}
-        performances={filteredPerformances}
+        performances={individualPerformances}
         personalRecords={personalRecords}
       />
 
@@ -870,6 +884,16 @@ const styles = StyleSheet.create({
     textShadowColor: colors.backgrounds.white,
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 0,
+  },
+  subsectionTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: colors.text.tertiary,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   pbCard: {
     backgroundColor: colors.backgrounds.white,
@@ -1145,6 +1169,12 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
     marginTop: 4,
     fontStyle: 'italic',
+  },
+  relayTeamText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text.secondary,
+    marginTop: 4,
   },
   resultTime: {
     fontSize: 28,

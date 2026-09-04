@@ -22,6 +22,7 @@ export interface Athlete {
 export interface Performance {
   result_id: number;
   athlete_id: number;
+  meet_id?: number | null;
   full_name?: string;
   gender?: string;
   event_name: string;
@@ -31,6 +32,7 @@ export interface Performance {
   meet_name: string;
   meet_location?: string;
   place: number;
+  performance_type?: 'individual' | 'relay';
   round?: string;
   school_name?: string;
   division?: string;
@@ -53,6 +55,7 @@ export interface PersonalRecord {
 
 export interface RelayParticipation {
   relay_result_id: number;
+  meet_id?: number | null;
   event_name: string;
   mark_raw: string;
   place: number;
