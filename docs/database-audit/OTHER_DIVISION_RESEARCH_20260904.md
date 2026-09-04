@@ -3,12 +3,12 @@
 ## Purpose
 
 The live `schools.division = 'Other'` value is a catch-all metadata state, not a
-competition classification. The current inventory contains 129 schools linked to 245 teams;
-the school rows have no conference value. Several of the largest schools in that bucket are
-plainly collegiate programs, while others are international or otherwise outside the
+competition classification. The current inventory contains 129 schools linked to 245 teams.
+The `schools` table has no conference column. Several of the largest schools in that bucket
+are plainly collegiate programs, while others are international or otherwise outside the
 NCAA/NAIA taxonomy.
 
-This first evidence pass reviews 58 of the highest-impact rows identified in the live inventory. It is
+This first evidence pass reviews 68 of the highest-impact rows identified in the live inventory. It is
 read-only: no `schools.division`, team, athlete, result, or logo rows were changed. The links below
 are the authority used for the proposed classification; a school name or logo by itself is not
 treated as proof.
@@ -85,18 +85,28 @@ treated as proof.
 | 1768 | Asbury University | NCAA Division III (also NCCAA) | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=30243) lists Asbury as an active Division III member; [official Asbury notice](https://asburyeagles.com/news/2026/4/9/mens-cross-country-asbury-celebrates-ncaa-division-iii-week-april-6-13.aspx) confirms active NCAA Division III and concurrent NCCAA membership. | High | Held |
 | 1786 | Sewanee: The University of the South | NCAA Division III | [Official track quick facts](https://sewaneetigers.com/sports/2021/5/19/track-field-quick-facts.aspx) identify NCAA Division III/SAA affiliation; [official 2025–26 schedule](https://sewaneetigers.com/sports/mens-track-and-field/schedule/2025-26?grid=true) confirms the current program. | High | Held |
 | 1776 | Bethany College (Kan.) | NAIA | [Official Bethany athletics description](https://swedecentral.bethanylb.edu/club_signup?group_type=9999) identifies NAIA/KCAC membership and men’s and women’s indoor/outdoor track and field. | High | Held |
+| 1770 | Marymount (Va.) | NCAA Division III | [Official athletics quick facts](https://marymountsaints.com/sports/2022/10/4/athletic-communications.aspx) identify NCAA Division III/Atlantic East affiliation and the cross country/track program. | High | Held |
+| 1761 | Regis (Mass.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=569) lists Regis as an active Division III/GNAC member and identifies indoor track; [official admissions page](https://www.regiscollege.edu/admission-and-aid/undergraduate-admission) confirms 21 Division III teams. | High | Held |
+| 1760 | Saint Mary’s (Minn.) | NCAA Division III | [Official track recruiting page](https://saintmaryssports.com/sb_output.aspx?frform=12&path=wtrack) identifies Saint Mary’s as an NCAA Division III institution; [official 2026 schedule](https://saintmaryssports.com/sports/mens-track-and-field/schedule) confirms the Division III championship path. | High | Held |
+| 1751 | St. Francis (Ill.) | NAIA | [Official university statistics page](https://stfrancis.edu/about-us/saint-stats/) identifies NAIA and CCAC membership; the institutional athletics record distinguishes this Joliet school from Saint Francis (Ind.). | High | Held |
+| 1765 | St. Mary (Neb.) | NAIA | [Official athletics page](https://www.csm.edu/athletics/) identifies the College of Saint Mary as an NAIA/GPAC track and field program; [official catalog](https://catalog.csm.edu/intercollegiate-athletics) confirms the same governing body and sport. | High | Held |
+| 1791 | Talladega | NAIA | [Official 2025–26 track schedule](https://talladegatornadoes.com/sports/mens-track-and-field/schedule/2025-26) includes the NAIA National Championship; [official 2026 track report](https://talladegatornadoes.com/news/2026/3/17/womens-track-and-field-duffus-earns-hbcuac-track-athlete-of-the-week-honors-qualifies-for-naia-nationals-in-200m.aspx) confirms current NAIA qualification. | High | Held |
+| 1773 | SUNY-ESF | USCAA | [Official SUNY-ESF report](https://www.esf.edu/news/2024/women_track_uscas_national_champions.php) documents its USCAA track championship; the [current TFRRS team page](https://www.tfrrs.org/teams/NY_college_m_SUNY-ESF) classifies the program as USCAA and lists the 2026 USCAA championship. | High | Held |
+| 1769 | U. of Victoria | U SPORTS / Canada West (international) | [Official Victoria eligibility page](https://govikesgo.com/sports/2019/5/13/varsity-info-usports.aspx?id=316) explicitly lists men’s/women’s cross country and track among its U SPORTS varsity programs. | High | Held |
+| 1796 | Providence (Great Falls) | NAIA | [Official University of Providence athletics page](https://www.uprovidence.edu/Athletics/) identifies 14 NAIA varsity programs; [official 2025–26 track schedule](https://upargos.com/sports/mens-track-and-field/schedule/2025-26) includes the NAIA Indoor Track & Field Championships. | High | Held |
+| 1772 | Queen’s University | U SPORTS / OUA (international) | [Official 2026 track report](https://gogaelsgo.com/news/2026/2/23/cross-country-distance-track-m-w-queens-distance-track-earns-four-medals-at-oua-track-field-championship-elizabeth-vroom-jude-wheeler-dee-capture-two-each.aspx) documents OUA competition and advancement to the U SPORTS Track & Field Championships. | High | Held |
 
 ## What this establishes
 
-1. `Other` is materially mixed: this reviewed cohort contains NCAA Division III, NAIA, and
-   Canadian U SPORTS/OUA programs.
+1. `Other` is materially mixed: this reviewed cohort contains NCAA Division II/III, NAIA,
+   USCAA, and Canadian U SPORTS programs.
 2. The current value is therefore a data-quality gap, not a valid “non-collegiate” label. A bulk
    rule such as “Other = club” would misclassify a large share of the data.
 3. Logos are supporting evidence only. The classification comes from institutional, NCAA, NAIA,
    U SPORTS, or conference records.
-4. `University of Windsor` cannot be represented faithfully by the current `schools.division`
-   vocabulary without deciding how international collegiate systems should be modeled. It is
-   held rather than forced into NCAA/NAIA.
+4. Canadian programs and SUNY-ESF cannot be represented faithfully as NCAA/NAIA divisions.
+   The model needs to distinguish governing body (for example NCAA, NAIA, U SPORTS, or USCAA)
+   from division and conference before those rows are written.
 5. `Marian University (Ind.)` is a useful correction to the earlier hypothesis: it is NAIA, while
    similarly named Marian University (Wis.) is NCAA Division III. Name matching without state or
    source identity is unsafe.
