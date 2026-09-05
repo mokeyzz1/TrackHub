@@ -16569,17 +16569,22 @@
       "name": "entity_type",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Distinguishes individual_result, relay_result and relay_leg relationship semantics.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16598,17 +16603,22 @@
       "name": "first_linked_at",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Timestamp of first canonical fact linkage.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16627,17 +16637,22 @@
       "name": "last_seen_at",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Latest source/link observation timestamp, distinct from performance date.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16656,17 +16671,22 @@
       "name": "link_status",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Linked, unlinked or quarantined state; linked must have one canonical target.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16685,17 +16705,22 @@
       "name": "relay_result_id",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Optional canonical relay-parent target; mutually exclusive with individual-result target.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16714,17 +16739,22 @@
       "name": "result_id",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Optional canonical individual-result target; mutually exclusive with relay parent target.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16743,17 +16773,22 @@
       "name": "source_record_id",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Internal stable source identity joining provider records, observations and provenance.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16772,17 +16807,22 @@
       "name": "first_seen_at",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Timestamp when the source record was first captured.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16801,17 +16841,22 @@
       "name": "last_seen_at",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Latest source/link observation timestamp, distinct from performance date.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16830,17 +16875,22 @@
       "name": "payload",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Latest raw provider payload shared by all runs referencing this stable source record.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16859,17 +16909,22 @@
       "name": "payload_hash",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Optional evidence digest; a digest alone cannot reconstruct historical payload versions.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16888,17 +16943,22 @@
       "name": "source",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Provider namespace; never replace it with a global bare source ID.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16917,17 +16977,22 @@
       "name": "source_event_key",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Provider-native event identity, distinct from canonical event_type_id.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16946,17 +17011,22 @@
       "name": "source_meet_key",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Provider-native meet identity, distinct from canonical meet_id.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -16975,17 +17045,22 @@
       "name": "source_record_id",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Internal stable source identity joining provider records, observations and provenance.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -17004,17 +17079,22 @@
       "name": "source_record_key",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Provider-local identity; only unique together with source.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -17033,17 +17113,22 @@
       "name": "source_url",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Retrieval URL for source evidence, not proof of canonical meet identity.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "kind": "r",
@@ -47424,17 +47509,22 @@
       "name": "observations",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "One normalized source interpretation per run, with candidate identities and a promotion decision.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "rls": true,
@@ -47505,17 +47595,22 @@
       "name": "runs",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "One importer execution with scope, parser/build identity, lifecycle and outcome metrics.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "rls": true,
@@ -47532,17 +47627,22 @@
       "name": "source_links",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Stable provenance bridge connecting a source record to at most one canonical fact.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "rls": true,
@@ -47559,17 +47659,22 @@
       "name": "source_records",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Provider-qualified stable source identity with latest raw evidence and retrieval metadata.",
+      "problems": "Shared payload remains mutable across runs; historical correction and full-data relationship checks remain open. Same-run restaging and concurrent promotion defects are covered by completed checkpoints.",
+      "proposedImprovement": "Preserve rows and current relationships. Complete ING-02c source-evidence versioning and remaining table-specific lifecycle/relationship checks.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
+      "evidence": [
+        "scrapers/shared/ingestion_store.js",
+        "scrapers/shared/canonical_fact_writer.js",
+        "scrapers/shared/ingestion_postgres.integration.test.js",
+        "docs/database-audit/INGESTION_RESTAGE_CONTRACT_20260905.md"
+      ],
+      "verification": "Purpose and shared writer behavior reviewed; nine PostgreSQL tests pass on current schema-only restore. Full object completion is not claimed.",
+      "rollback": "Review only; no live schema/data change.",
       "appliedLive": false,
       "metadata": {
         "rls": true,

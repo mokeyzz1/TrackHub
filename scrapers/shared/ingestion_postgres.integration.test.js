@@ -16,13 +16,15 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
   const config = { host: realSocket, port: 55434, user: 'postgres', ssl: false, connectionTimeoutMillis: 5000 };
   const admin = new Pool({ ...config, database: 'template1', max: 1 });
   const database = `track_contract_${randomUUID().replaceAll('-', '')}`;
+  const template = process.env.TRACK_SCHEMA_TEST_TEMPLATE || 'postgres';
+  assert.ok(['postgres', 'current_owner_schema'].includes(template), 'Only isolated fixture templates are allowed');
   let pool;
   let created = false;
   try {
     const check = await admin.query("SELECT current_setting('data_directory') AS dir, current_setting('listen_addresses') AS listen");
     assert.equal(fs.realpathSync(check.rows[0].dir), fs.realpathSync(path.join(realSocket, 'pgdata')));
     assert.equal(check.rows[0].listen, '');
-    await admin.query(`CREATE DATABASE ${database} TEMPLATE postgres`);
+    await admin.query(`CREATE DATABASE ${database} TEMPLATE ${template}`);
     created = true;
     pool = new Pool({ ...config, database, max: 5 });
     const empty = await pool.query('SELECT EXISTS(SELECT 1 FROM public.results) OR EXISTS(SELECT 1 FROM public.athletes) AS populated');
