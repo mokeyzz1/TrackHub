@@ -40,7 +40,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | API-01 | P1 | Verify all views/RPCs and application reads against meet/team/athlete/relay/multi-event contracts; fix measured relationship/count defects | MODEL-01 | Open |
 | SEC-01 | P1 | Object-level grants/RLS/policies/functions/triggers review with positive and negative role tests | SAFE-01, MIG-01 | Open |
 | SEC-01a | P0 | Restore PR-view caller-policy boundary without altering base permissions or result selection | SAFE-01, MIG-01e1; targeted metadata-only migration | Complete: PR_VIEW_SECURITY_20260905.md; live option/advisor and role tests verified |
-| API-01a | P1 | Correct the confirmed over-escaped points-total filter; preserve supplied scores and invoker security | SEC-01a | Open; supplied annotated score currently rejected |
+| API-01a | P1 | Align points filtering/extraction whitespace handling; preserve supplied scores and invoker security | SEC-01a | Complete: PR_POINTS_WHITESPACE_20260905.md; live view hardened, zero measured current extraction differences |
 | PERF-01 | P2 | Measure query plans and workload before index changes; retain necessary FK and uniqueness support | API-01, ING-02 | Open |
 | CLOSE-01 | P2 | Refresh catalog, reconcile every object status, run integration/API/security tests and review unresolved items; no blanket completion with hidden holds | All above | Open |
 

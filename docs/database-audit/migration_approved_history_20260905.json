@@ -2,6 +2,14 @@
   "snapshotDate": "2026-09-05",
   "entries": [
     {
+      "file": "20260905184656_fix_pr_view_supplied_points_filter.sql",
+      "version": "20260905184656",
+      "name": "fix_pr_view_supplied_points_filter",
+      "localSha256": "7c5db45bc25f25f563ba1f9bcfa001cfd63f818dfd24813d6d5b26c6d108591b",
+      "ledgerFingerprint": "57cfa93f0bca21108c61befd74170b436416be933c4085ea0f61dd724379c5c3",
+      "review": "Supplied-score/whitespace and rollback regression tests; live invoker view verified. PR_POINTS_WHITESPACE_20260905.md"
+    },
+    {
       "file": "20260905184307_restore_pr_view_invoker_security.sql",
       "version": "20260905184307",
       "name": "restore_pr_view_invoker_security",

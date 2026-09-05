@@ -23,7 +23,8 @@ remove a working public registration endpoint merely to clear its advisory witho
 authorization/abuse model. Repo search found the PR view in generated frontend types, but no runtime
 reader; therefore this change is not a claim of a visible app feature or UI deployment.
 
-Confirmed next issue: the live view contains doubled regex backslashes. A read-only SQL probe shows
-the doubled form rejects `6445 (+0.0)` whereas the intended whitespace expression accepts it.
-API-01a remains open for a tested supplied-score filter correction. Entire PR semantics (wind legality,
+Correction after deeper validation: escaped catalog output initially suggested ordinary totals were
+rejected, but the restored PostgreSQL schema accepts them. The confirmed defect was inconsistent
+whitespace handling between filtering and extraction. See PR_POINTS_WHITESPACE_20260905.md; do not
+interpret this checkpoint as evidence that all ordinary point totals were missing. Entire PR semantics (wind legality,
 source completeness and multi-event component identity) are not certified by this security fix.

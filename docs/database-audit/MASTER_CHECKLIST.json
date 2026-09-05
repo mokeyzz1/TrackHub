@@ -49459,17 +49459,18 @@
       "ownership": "application",
       "priority": "P1",
       "purpose": "Expose best stored result per athlete/event/environment while respecting caller permissions.",
-      "problems": "Caller-policy regression fixed; over-escaped points filter confirmed; full PR semantics remain under review.",
-      "proposedImprovement": "Preserve invoker security on replacements; fix source-score filtering separately without calculating scores.",
+      "problems": "Caller-policy and whitespace-extraction regressions fixed; full legal-PR semantics and source coverage remain under review.",
+      "proposedImprovement": "Preserve invoker security and supplied-score recognition; review legal-mark rules and component identity without computing replacement scores.",
       "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
       "evidence": [
-        "PR_VIEW_SECURITY_20260905.md"
+        "PR_VIEW_SECURITY_20260905.md",
+        "PR_POINTS_WHITESPACE_20260905.md"
       ],
-      "verification": "Positive and negative isolated role tests; live security_invoker=true and advisor finding cleared.",
+      "verification": "14 isolated PostgreSQL tests; live invoker flag and 6,882 supplied-points PR rows verified. No measured current extraction differences.",
       "rollback": "Retain invoker=true; resetting it would reintroduce the security regression.",
       "appliedLive": true,
       "metadata": {

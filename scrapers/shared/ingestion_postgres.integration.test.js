@@ -154,6 +154,33 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
       assert.equal((await pool.query("SELECT count(*)::int AS n FROM ingest.source_records sr JOIN ingest.source_links sl USING(source_record_id) WHERE sr.source_record_key='failing-write'")).rows[0].n, 0);
       assert.equal((await pool.query("SELECT count(*)::int AS n FROM pg_locks WHERE locktype='advisory' AND database=(SELECT oid FROM pg_database WHERE datname=current_database())")).rows[0].n, 0);
     });
+    await t.test('PR view selects supplied overall points and excludes component marks', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query("INSERT INTO public.event_types(event_type_id,code,measure,environment_scope) VALUES(2,'Decathlon','points','both')");
+        for (const [mark, seconds, meters, date] of [
+          ['6445 (+0.0)', null, null, '2026-09-01'], ['7499', null, null, '2026-09-02'],
+          ['\t7499 (+1.0)', null, null, '2026-08-01'], ['9999', 11, null, '2026-09-01'],
+          ['9998', null, 7, '2026-09-01'], ['99999junk', null, null, '2026-09-01'],
+          ['DNF', null, null, '2026-09-01'],
+        ]) {
+          await client.query("INSERT INTO public.results(athlete_id,meet_id,event_type_id,event_name,meet_name,mark_raw,mark_seconds,mark_meters,date,environment) VALUES(1,1,2,'Decathlon','Synthetic Meet',$1,$2,$3,$4,'outdoor')", [mark, seconds, meters, date]);
+        }
+        const oldPoints = await client.query('SELECT mark_raw FROM public.v_athlete_prs WHERE athlete_id=1 AND event_type_id=2');
+        assert.equal(oldPoints.rows[0].mark_raw, '7499', 'Old extraction fails to recognize the earlier tab-prefixed total');
+        await client.query(fs.readFileSync(path.join(__dirname, '../../supabase/migrations/20260905184656_fix_pr_view_supplied_points_filter.sql'), 'utf8'));
+        const points = await client.query('SELECT mark_points,mark_raw,achieved_on FROM public.v_athlete_prs WHERE athlete_id=1 AND event_type_id=2');
+        assert.equal(points.rows.length, 1);
+        assert.equal(points.rows[0].mark_points, '7499');
+        assert.equal(points.rows[0].mark_raw, '\t7499 (+1.0)');
+        assert.ok((await client.query("SELECT reloptions FROM pg_class WHERE oid='public.v_athlete_prs'::regclass")).rows[0].reloptions.includes('security_invoker=true'));
+        const rollback = fs.readFileSync(path.join(__dirname, '../../docs/database-audit/rollback_pr_points_filter_20260905.sql'), 'utf8');
+        // Keep this fixture's outer transaction in control; test the rollback's actual DDL.
+        await client.query(rollback.replace(/^BEGIN;$/m, '').replace(/^COMMIT;$/m, ''));
+        assert.deepEqual((await client.query('SELECT mark_raw FROM public.v_athlete_prs WHERE athlete_id=1 AND event_type_id=2')).rows, oldPoints.rows);
+      } finally { await client.query('ROLLBACK'); client.release(); }
+    });
     await t.test('PR view preserves public reads but follows caller row policies', async () => {
       const client = await pool.connect();
       try {
