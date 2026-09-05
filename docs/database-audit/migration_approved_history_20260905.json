@@ -2,6 +2,14 @@
   "snapshotDate": "2026-09-05",
   "entries": [
     {
+      "file": "20260905184307_restore_pr_view_invoker_security.sql",
+      "version": "20260905184307",
+      "name": "restore_pr_view_invoker_security",
+      "localSha256": "b79f853e7d210b71872a67aa22f828cd598881cbd494f0898bae94b4c33a2542",
+      "ledgerFingerprint": "54df26c36fa65d02dd64d87bff686d4e9424771b01a79641604c33d08e01999c",
+      "review": "Live invoker option and advisor verified; isolated positive/negative role tests. PR_VIEW_SECURITY_20260905.md"
+    },
+    {
       "file": "20260905183823_preserve_ingestion_source_versions.sql",
       "version": "20260905183823",
       "name": "preserve_ingestion_source_versions",

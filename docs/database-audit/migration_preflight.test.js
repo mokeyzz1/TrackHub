@@ -33,10 +33,10 @@ test('all held files are preserved byte-for-byte outside automatic migration dis
     assert.ok(file.disposition && file.evidence && file.nextAction);
   }
 });
-test('all 86 reviewed active files retain their approved bytes and unique versions', () => {
+test('all 87 reviewed active files retain their approved bytes and unique versions', () => {
   const approved = require('./migration_approved_history_20260905.json').entries;
-  assert.equal(approved.length, 86);
-  assert.equal(new Set(approved.map(x => x.version)).size, 86);
+  assert.equal(approved.length, 87);
+  assert.equal(new Set(approved.map(x => x.version)).size, 87);
   for (const file of approved) {
     assert.equal(sha(fs.readFileSync(path.resolve(__dirname, '../../supabase/migrations', file.file))), file.localSha256);
   }

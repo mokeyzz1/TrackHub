@@ -154,6 +154,28 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
       assert.equal((await pool.query("SELECT count(*)::int AS n FROM ingest.source_records sr JOIN ingest.source_links sl USING(source_record_id) WHERE sr.source_record_key='failing-write'")).rows[0].n, 0);
       assert.equal((await pool.query("SELECT count(*)::int AS n FROM pg_locks WHERE locktype='advisory' AND database=(SELECT oid FROM pg_database WHERE datname=current_database())")).rows[0].n, 0);
     });
+    await t.test('PR view preserves public reads but follows caller row policies', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const before = await client.query('SELECT * FROM public.v_athlete_prs ORDER BY athlete_id,event_type_id,environment');
+        assert.ok(before.rows.length > 0);
+        await client.query(fs.readFileSync(path.join(__dirname, '../../supabase/migrations/20260905184307_restore_pr_view_invoker_security.sql'), 'utf8'));
+        for (const role of ['anon', 'authenticated']) {
+          await client.query(`SET LOCAL ROLE ${role}`);
+          const visible = await client.query('SELECT * FROM public.v_athlete_prs ORDER BY athlete_id,event_type_id,environment');
+          assert.deepEqual(visible.rows, before.rows);
+          await client.query('RESET ROLE');
+        }
+        // A synthetic policy restriction proves invoker behavior, not just a catalog flag.
+        await client.query('ALTER POLICY results_public_read ON public.results USING (false)');
+        for (const role of ['anon', 'authenticated']) {
+          await client.query(`SET LOCAL ROLE ${role}`);
+          assert.equal((await client.query('SELECT count(*)::int AS n FROM public.v_athlete_prs')).rows[0].n, 0);
+          await client.query('RESET ROLE');
+        }
+      } finally { await client.query('ROLLBACK'); client.release(); }
+    });
   } finally {
     if (pool) await pool.end();
     if (created) await admin.query(`DROP DATABASE ${database}`);
