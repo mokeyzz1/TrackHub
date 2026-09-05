@@ -1,0 +1,75 @@
+# Database engineering master checklist
+
+This is the single ordered work queue. `MASTER_CHECKLIST.json` is its exhaustive object register;
+other audit documents are supporting evidence, not competing queues. Scope: every non-system
+schema exposed by the catalog, including platform-managed schemas. Application ownership does
+not extend to rewriting Supabase internals. Snapshot: 2026-09-05.
+
+## Product and data contract
+
+One meet contains individual performances and team relay performances. A relay is one collective
+performance with athlete participation links. Athlete and team reads must preserve those links
+without counting four copies of a relay as four team performances. Multi-event totals and
+component scores come from the source; never calculate replacement scores. Historical team
+affiliations, legitimate rounds, status results, and unattributed history must survive cleanup.
+Identity decisions use reviewed source evidence, not names or conflicting source IDs alone.
+Live tracking and a new UI remain deferred. The entire database, not 4x100, is the workstream.
+
+## Ordered checkpoints
+
+| ID | Priority | Work / completion criteria | Dependencies | Status |
+|---|---|---|---|---|
+| TRACK-01 | P0 | Exhaustive object register, ordered queue, explicit evidence and completion gates; automated coverage check | None | Complete: register and coverage tests |
+| SAFE-01 | P0 | Recheck backup availability/hashes; identify restore-tested scope and managed-platform limitations; require fresh before-images for each mutation | TRACK-01 | Next |
+| MIG-01 | P0 | Reconcile local and live migration versions/statements; classify every unmatched entry; prove a safe deployment path without replaying applied SQL | SAFE-01 | Open |
+| ING-01 | P1 | Provider-qualified replay keys; whole-call duplicate/provenance validation; regression tests; measure existing cross-provider key collisions | TRACK-01 | Implemented; checkpoint verification pending |
+| MODEL-01 | P1 | Review each application table/column purpose, actual values, readers/writers and reference relationships; decide preserve, improve or retire | SAFE-01, MIG-01 | Open |
+| ID-01 | P1 | Review canonical identity constraints, reviewed aliases and uncertainty handling; verify prior repairs against alias history | MODEL-01 | Open |
+| ING-02 | P1 | Prove replay, concurrency, payload changes, source-link consistency and rollback using isolated PostgreSQL integration tests | MIG-01, ID-01, ING-01 | Open |
+| DATA-01 | P1 | Apply source-backed repairs with exact before-images, affected-ID assertions and postconditions; ambiguous groups explicitly held | ID-01, ING-02 | Open |
+| API-01 | P1 | Verify all views/RPCs and application reads against meet/team/athlete/relay/multi-event contracts; fix measured relationship/count defects | MODEL-01 | Open |
+| SEC-01 | P1 | Object-level grants/RLS/policies/functions/triggers review with positive and negative role tests | SAFE-01, MIG-01 | Open |
+| PERF-01 | P2 | Measure query plans and workload before index changes; retain necessary FK and uniqueness support | API-01, ING-02 | Open |
+| CLOSE-01 | P2 | Refresh catalog, reconcile every object status, run integration/API/security tests and review unresolved items; no blanket completion with hidden holds | All above | Open |
+
+Priority is dependency-driven. An item may proceed while another is held only when its own
+dependencies are satisfied. Existing implementation evidence is reused, not silently relabeled
+as current verification. ING-01 was already implemented before this queue was consolidated.
+
+## Per-object tracking
+
+The JSON register contains 1,709 individually addressable entries: 75 tables, seven views,
+969 columns, 266 constraints (foreign keys tracked as relationships), 244 indexes, 22 policies,
+114 functions and 12 user-defined triggers. Internal FK triggers are represented by their parent
+constraints. Each entry has purpose, problems, proposed improvement, priority, dependencies,
+ownership, status, evidence, verification, rollback, live-application state and catalog metadata.
+
+An explicit pending purpose is an unanswered review item, not a finding that the object is
+unnecessary. Previously completed audit packets must be reconciled into these entries individually.
+Archive data and platform functions remain included; neither is automatically marked complete.
+Sequences, extensions, grants, defaults, publications, scheduled jobs and database settings must
+also be inventoried under MODEL-01/SEC-01 before CLOSE-01; the current object totals do not claim
+coverage of those additional catalog classes.
+
+## Completion and commit rules
+
+Statuses: captured → reviewed → ready → implemented → verified → complete; held requires an
+explicit reason and next evidence/decision. For no-change items: reviewed → verified → complete
+with a preservation rationale. Never use a commit alone as proof of deployment.
+
+Before a checkpoint commit: scope its files, run relevant tests, record actual results, assess
+historical impact, verify recovery requirements, and update this queue and affected object entries.
+Database mutations need targeted before-images, a tested rollback and post-change queries.
+Code-only safeguards can explicitly record that no data migration or backup is necessary.
+Unit tests with mocked connections do not establish PostgreSQL concurrency or API correctness.
+Preserve unrelated working-tree changes. Continue to the next ready checkpoint after committing.
+
+## Evidence and maintenance
+
+- Baseline and restore: `BASELINE-20260902.md`, `RESTORE-VERIFICATION-20260902.md`.
+- Historical implementation evidence: `WORKSTREAM_STATUS_20260904.md`.
+- Catalog: `schema_catalog_20260905.json`, `schema_objects_20260905.json`; scans alongside them.
+- Migration evidence: `MIGRATION_HISTORY_RECONCILIATION_20260902.md` (refresh required).
+- Run `node --test docs/database-audit/master_checklist.test.js` to verify register coverage.
+- `build_master_checklist.js` seeds the register; do not overwrite reviewed entries by rerunning
+  it. Refresh by stable ID, retaining review evidence and flagging changed/removed definitions.
