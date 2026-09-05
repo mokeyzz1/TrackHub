@@ -1,5 +1,9 @@
 # Database cleanup workstream status — 2026-09-04
 
+The active ordered queue is now `MASTER_CHECKLIST.md`, with individual object review states in
+`MASTER_CHECKLIST.json`. This file retains historical evidence; its older next-step sections do
+not override the master queue.
+
 This is the branch-level checkpoint for the preservation-first database cleanup. It is a status
 map, not a claim that the database is finished. The detailed evidence packets and migration files
 remain the source of truth for each item.
@@ -79,6 +83,17 @@ The full decision list is in `OPEN_DECISIONS_REGISTER_20260903.md`; issue sizes 
 are in `docs/DATA_ISSUES_TRACKER.md`.
 
 ## Current next gate
+
+2026-09-05 implementation checkpoint: shared ingestion now uses a provider-qualified tuple for
+source replay detection; validates observation/source identity equality before database access;
+and rejects duplicate source identities across the entire persist call, including SQL chunk
+boundaries. Regression tests cover provider-local ID collisions, replay, mismatched provenance,
+cross-chunk duplication, successful transaction completion, and rollback on observation failure.
+`npm run test:ingestion`: 233 passing; `npm run test:shared`: 65 passing (overlapping suites).
+The transaction tests use mocked connections, not a restored PostgreSQL integration instance.
+Live read-only check found zero source-record keys shared across providers. No historical
+backfill, public data mutation, or schema migration was performed for this checkpoint.
+The broad schema/API/migration/identity work remains open; these tests do not certify it complete.
 
 Superseded on 2026-09-05 by `SCHEMA_COVERAGE_20260905.md`: resume the whole-schema column and
 consumer review. The live catalog includes 75 tables, including the previously omitted partitioned

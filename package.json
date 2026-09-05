@@ -4,6 +4,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "test:shared": "node --test scrapers/shared/*.test.js",
     "gen:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > types/database.ts && cp types/database.ts frontend/types/database.ts",
     "db:types": "npm run gen:types",
     "test:4x100-recovery": "node --test scrapers/recovery/run_4x100_recovery_batch.test.js",

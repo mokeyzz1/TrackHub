@@ -22,7 +22,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | TRACK-01 | P0 | Exhaustive object register, ordered queue, explicit evidence and completion gates; automated coverage check | None | Complete: register and coverage tests |
 | SAFE-01 | P0 | Recheck backup availability/hashes; identify restore-tested scope and managed-platform limitations; require fresh before-images for each mutation | TRACK-01 | Complete: PRESERVATION_RECHECK_20260905.md |
 | MIG-01 | P0 | Reconcile local and live migration versions/statements; classify every unmatched entry; prove a safe deployment path without replaying applied SQL | SAFE-01 | Open |
-| ING-01 | P1 | Provider-qualified replay keys; whole-call duplicate/provenance validation; regression tests; measure existing cross-provider key collisions | TRACK-01 | Implemented; checkpoint verification pending |
+| ING-01 | P1 | Provider-qualified replay keys; whole-call duplicate/provenance validation; regression tests; measure existing cross-provider key collisions | TRACK-01 | Complete: 233 ingestion / 65 shared tests pass; zero live cross-provider key groups |
 | MODEL-01 | P1 | Review each application table/column purpose, actual values, readers/writers and reference relationships; decide preserve, improve or retire | SAFE-01, MIG-01 | Open |
 | ID-01 | P1 | Review canonical identity constraints, reviewed aliases and uncertainty handling; verify prior repairs against alias history | MODEL-01 | Open |
 | ING-02 | P1 | Prove replay, concurrency, payload changes, source-link consistency and rollback using isolated PostgreSQL integration tests | MIG-01, ID-01, ING-01 | Open |
@@ -61,6 +61,9 @@ Before a checkpoint commit: scope its files, run relevant tests, record actual r
 historical impact, verify recovery requirements, and update this queue and affected object entries.
 Database mutations need targeted before-images, a tested rollback and post-change queries.
 Code-only safeguards can explicitly record that no data migration or backup is necessary.
+ING-01 is code-only: no public rows or schema changed; no backup/backfill is required for the
+measured zero-collision case. Rollback is reverting its isolated code checkpoint. PostgreSQL
+transaction/concurrency integration remains a separate ING-02 gate, not certified by mock tests.
 Unit tests with mocked connections do not establish PostgreSQL concurrency or API correctness.
 Preserve unrelated working-tree changes. Continue to the next ready checkpoint after committing.
 

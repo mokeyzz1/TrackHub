@@ -6,7 +6,7 @@
  * writer deliberately favors a reviewable quarantine over a guessed merge.
  */
 
-const { matchObservation } = require('./result_matcher');
+const { matchObservation, keyForSourceRecord } = require('./result_matcher');
 const { Pool } = require('pg');
 const { queryTimeoutFromEnv } = require('./ingestion_store');
 
@@ -32,14 +32,7 @@ function keyForObservation(observation) {
   return `${candidateEntity}|${actor || ''}|${observation.event_type_id || ''}`;
 }
 
-function keyForSourceRecord(row) {
-  return `${row.source}|${row.source_record_key}`;
-}
-
 function rememberLinkedSource(set, row) {
-  // The matcher accepts the bare source_record_key, while the database-level set also needs the
-  // source namespace to avoid collisions in a mixed run. Keep both representations deliberately.
-  set.add(row.source_record_key);
   set.add(keyForSourceRecord(row));
 }
 

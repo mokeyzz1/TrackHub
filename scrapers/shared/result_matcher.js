@@ -14,6 +14,11 @@ const {
   normalizeRound
 } = require('./ingestion_contract');
 
+function keyForSourceRecord(row) {
+  // Tuple encoding keeps provider-local IDs separate, including IDs containing delimiters.
+  return JSON.stringify([row.source, row.source_record_key]);
+}
+
 function asComparableRow(observation, existing) {
   const isRelay = observation.entity_type === 'relay_result';
   return {
@@ -103,7 +108,7 @@ function roundPreference(observation, existing) {
  * @param {object} observation normalized observation from normalizeObservation().observation
  * @param {Array<object>} existingRows rows already loaded for this meet/identity scope
  * @param {object} options
- * @param {Set<string>} options.seenSourceKeys source records already linked in this run/database
+ * @param {Set<string>} options.seenSourceKeys keyForSourceRecord tuples already linked
  * @param {number} options.historyWindowDays maximum date distance for claiming an unlinked history row
  */
 function matchObservation(observation, existingRows = [], options = {}) {
@@ -119,7 +124,7 @@ function matchObservation(observation, existingRows = [], options = {}) {
     };
   }
 
-  if (seenSourceKeys.has(observation.source_record_key)) {
+  if (seenSourceKeys.has(keyForSourceRecord(observation))) {
     return {
       action: 'skip_duplicate',
       reason: 'source_record_already_seen',
@@ -309,6 +314,7 @@ function matchObservation(observation, existingRows = [], options = {}) {
 }
 
 module.exports = {
+  keyForSourceRecord,
   matchObservation,
   historyKey,
   dateDistanceDays,

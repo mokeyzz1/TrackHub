@@ -6,7 +6,7 @@ const {
   normalizeObservation,
   stableMarkKey
 } = require('./ingestion_contract');
-const { matchObservation } = require('./result_matcher');
+const { matchObservation, keyForSourceRecord } = require('./result_matcher');
 
 function individual(overrides = {}) {
   return normalizeObservation({
@@ -223,9 +223,24 @@ test('treats relay status codes as facts without pretending they have numeric id
 test('skips a source record already linked earlier in the same run', () => {
   const row = individual({ source_record_key: 'source-row-7' });
   const result = matchObservation(row, [], {
-    seenSourceKeys: new Set([row.source_record_key])
+    seenSourceKeys: new Set([keyForSourceRecord(row)])
   });
 
   assert.equal(result.action, 'skip_duplicate');
   assert.equal(result.reason, 'source_record_already_seen');
+});
+
+test('provider-local record IDs cannot suppress another provider observation', () => {
+  const row = individual({ source_record_key: 'source-row-7' });
+  const result = matchObservation(row, [], {
+    seenSourceKeys: new Set([keyForSourceRecord({ ...row, source: 'athletic_net' })])
+  });
+  assert.equal(result.action, 'insert');
+});
+
+test('source identity tuples cannot collide through delimiters', () => {
+  assert.notEqual(
+    keyForSourceRecord({ source: 'a|b', source_record_key: 'c' }),
+    keyForSourceRecord({ source: 'a', source_record_key: 'b|c' })
+  );
 });

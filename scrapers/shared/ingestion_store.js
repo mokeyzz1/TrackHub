@@ -7,6 +7,7 @@
  */
 
 const { Pool } = require('pg');
+const { keyForSourceRecord } = require('./result_matcher');
 
 const BATCH_SIZE = 500;
 const DEFAULT_QUERY_TIMEOUT_MS = 30000;
@@ -83,6 +84,20 @@ class IngestionStore {
     if (!runId) throw new Error('runId is required');
     if (!Array.isArray(records) || records.length === 0) return { sourceRecords: 0, observations: 0 };
 
+    // Validate the whole call, not individual SQL chunks: chunk boundaries must not change
+    // whether duplicate or mismatched provenance is accepted.
+    const seenKeys = new Set();
+    for (const record of records) {
+      required(record.sourceRecord?.source, 'source');
+      required(record.sourceRecord?.source_record_key, 'source_record_key');
+      const key = keyForSourceRecord(record.sourceRecord);
+      if (!record.observation || keyForSourceRecord(record.observation) !== key) {
+        throw new Error('observation/source record identity mismatch');
+      }
+      if (seenKeys.has(key)) throw new Error(`duplicate source record in batch: ${key}`);
+      seenKeys.add(key);
+    }
+
     const client = await this.pool.connect();
     let sourceRecords = 0;
     let observations = 0;
@@ -91,13 +106,6 @@ class IngestionStore {
       await client.query('BEGIN');
 
       for (const batch of chunk(records)) {
-        const seenKeys = new Set();
-        for (const record of batch) {
-          const key = `${required(record.sourceRecord.source, 'source')}|${required(record.sourceRecord.source_record_key, 'source_record_key')}`;
-          if (seenKeys.has(key)) throw new Error(`duplicate source record in batch: ${key}`);
-          seenKeys.add(key);
-        }
-
         const sourceRows = batch.map(record => ({
           source: record.sourceRecord.source,
           source_record_key: record.sourceRecord.source_record_key,
