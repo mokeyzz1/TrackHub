@@ -308,6 +308,44 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
         assert.deepEqual([...new Set(rows.map(r => r.table_name))].sort(), ['child', 'parent']);
       } finally { await client.query('ROLLBACK'); client.release(); }
     });
+    await t.test('public roles retain read-only catalogs and insert-only validated waitlist access', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query(fs.readFileSync(path.join(__dirname, '../../supabase/migrations/20260905195401_restore_waitlist_sequence_usage.sql'), 'utf8'));
+        const publicReads = new Set(['athlete_prs', 'athlete_team_seasons', 'athletes', 'conference_memberships', 'conferences', 'divisions', 'event_aliases', 'event_types', 'external_ids', 'live_results', 'meets', 'regions', 'relay_athletes', 'relay_results', 'results', 'schools', 'teams']);
+        for (const role of ['anon', 'authenticated']) {
+          const grants = (await client.query(`SELECT n.nspname AS schema, c.relname AS name, c.relrowsecurity AS rls,
+            has_table_privilege($1,c.oid,'SELECT') AS read,
+            has_table_privilege($1,c.oid,'INSERT') AS insert,
+            has_table_privilege($1,c.oid,'UPDATE') AS update,
+            has_table_privilege($1,c.oid,'DELETE') AS delete
+            FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname IN ('public','ingest') AND c.relkind='r' AND c.relname<>'test_wide_profile'`, [role])).rows;
+          assert.equal(grants.length, 31);
+          for (const row of grants) {
+            assert.equal(row.rls, true, `${role} ${row.schema}.${row.name} RLS`);
+            assert.equal(row.read, row.schema === 'public' && publicReads.has(row.name), `${role} ${row.schema}.${row.name} SELECT`);
+            assert.equal(row.insert, row.schema === 'public' && row.name === 'waitlist', `${role} ${row.schema}.${row.name} INSERT`);
+            assert.equal(row.update, false);
+            assert.equal(row.delete, false);
+          }
+          await client.query(`SET LOCAL ROLE ${role}`);
+          for (const table of publicReads) await client.query(`SELECT 1 FROM public.${table} LIMIT 1`);
+          await client.query("INSERT INTO public.waitlist(email,feature) VALUES($1,'fixture')", [`${role}@example.invalid`]);
+          for (const denied of ["INSERT INTO public.waitlist(email,feature) VALUES('bad','fixture')", 'SELECT * FROM public.waitlist', 'SELECT * FROM public.push_tokens', 'SELECT * FROM ingest.runs', 'DELETE FROM public.results WHERE false']) {
+            await client.query('SAVEPOINT denied_operation');
+            await assert.rejects(client.query(denied), { code: '42501' });
+            await client.query('ROLLBACK TO SAVEPOINT denied_operation');
+          }
+          await client.query('RESET ROLE');
+        }
+        await client.query('REVOKE USAGE ON SEQUENCE public.waitlist_id_seq FROM anon, authenticated');
+        for (const role of ['anon', 'authenticated']) {
+          assert.equal((await client.query("SELECT has_sequence_privilege($1,'public.waitlist_id_seq','USAGE') AS allowed", [role])).rows[0].allowed, false);
+        }
+      } finally { await client.query('ROLLBACK'); client.release(); }
+    });
     await t.test('PR view preserves public reads but follows caller row policies', async () => {
       const client = await pool.connect();
       try {

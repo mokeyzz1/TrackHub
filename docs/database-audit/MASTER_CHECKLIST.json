@@ -722,11 +722,12 @@
         "SEC-01"
       ],
       "evidence": [
-        "EXTENDED_SCHEMA_COVERAGE_20260905.md"
+        "EXTENDED_SCHEMA_COVERAGE_20260905.md",
+        "WAITLIST_SEQUENCE_ACCESS_20260905.md"
       ],
-      "verification": "Read last_value/is_called without nextval; next allocation exceeds maximum stored ID and is within bounds.",
-      "rollback": "No mutation; preserve existing sequence state.",
-      "appliedLive": false,
+      "verification": "Live narrow USAGE grant verified; both public-role signup and denial tests plus revoke rollback pass. Sequence allocation state unchanged.",
+      "rollback": "REVOKE USAGE ON SEQUENCE public.waitlist_id_seq FROM anon, authenticated; never reset sequence values.",
+      "appliedLive": true,
       "metadata": {
         "name": "waitlist_id_seq",
         "type": "integer",
@@ -11835,23 +11836,24 @@
       "name": "waitlist_id_seq",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Captured extended catalog object; semantic/access review remains explicit work.",
-      "problems": "Not yet assessed; no automatic cleanup is authorized by this inventory.",
-      "proposedImprovement": "Review ownership, consumers and security before changing this object.",
-      "status": "captured",
+      "purpose": "Permit existing public waitlist INSERT defaults while denying sequence reset and table reads.",
+      "problems": "Missing public sequence USAGE reproduced and repaired; broader RPC and abuse-control review remains separate.",
+      "proposedImprovement": "Preserve narrow USAGE grant and regression-test public insertion without granting table reads.",
+      "status": "verified",
       "dependencies": [
         "SAFE-01",
         "MODEL-01",
         "SEC-01"
       ],
       "evidence": [
-        "EXTENDED_SCHEMA_COVERAGE_20260905.md"
+        "EXTENDED_SCHEMA_COVERAGE_20260905.md",
+        "WAITLIST_SEQUENCE_ACCESS_20260905.md"
       ],
-      "verification": null,
-      "rollback": null,
-      "appliedLive": false,
+      "verification": "Live narrow USAGE grant verified; both public-role signup and denial tests plus revoke rollback pass. Sequence allocation state unchanged.",
+      "rollback": "REVOKE USAGE ON SEQUENCE public.waitlist_id_seq FROM anon, authenticated; never reset sequence values.",
+      "appliedLive": true,
       "metadata": {
-        "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+        "acl": "{postgres=rwU/postgres,service_role=rwU/postgres,anon=U/postgres,authenticated=U/postgres}",
         "kind": "S",
         "name": "waitlist_id_seq",
         "owner": "postgres",

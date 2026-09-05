@@ -2,6 +2,14 @@
   "snapshotDate": "2026-09-05",
   "entries": [
     {
+      "file": "20260905195401_restore_waitlist_sequence_usage.sql",
+      "version": "20260905195401",
+      "name": "restore_waitlist_sequence_usage",
+      "localSha256": "e87a5d19f40b45754f726d487e7ab20c2b312418a8b3f7a7e9109950813b08f3",
+      "ledgerFingerprint": "f94dad15b330cbe632dae2da8422c4dc1ac48c2a4b4a02dee5a6da7403a0929b",
+      "review": "Live sequence-only USAGE grant; positive/negative role and rollback tests; WAITLIST_SEQUENCE_ACCESS_20260905.md"
+    },
+    {
       "file": "20260905190400_count_distinct_team_summary_athletes.sql",
       "version": "20260905190400",
       "name": "count_distinct_team_summary_athletes",
