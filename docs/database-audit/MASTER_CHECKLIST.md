@@ -21,6 +21,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 |---|---|---|---|---|
 | TRACK-01 | P0 | Exhaustive object register, ordered queue, explicit evidence and completion gates; automated coverage check | None | Complete: register and coverage tests |
 | TRACK-02 | P0 | Add defaults, sequences, effective grants, enums, extensions, publication/event triggers and scheduler-presence evidence to the register | TRACK-01 | Complete: EXTENDED_SCHEMA_COVERAGE_20260905.md; object review still open |
+| TRACK-03 | P0 | Prove aggregate column profiling handles wide tables and state its measured scope accurately | TRACK-02 | Complete: WIDE_COLUMN_PROFILER_20260905.md; isolated 70-column regression, no claim of new full live profiling |
 | SAFE-01 | P0 | Recheck backup availability/hashes; identify restore-tested scope and managed-platform limitations; require fresh before-images for each mutation | TRACK-01 | Complete: PRESERVATION_RECHECK_20260905.md |
 | MIG-01 | P0 | Reconcile local and live migration versions/statements; classify every unmatched entry; prove a safe deployment path without replaying applied SQL | SAFE-01 | Open |
 | MIG-01a | P0 | Align the two recent local filenames after full SQL comparison with recorded live versions; no SQL replay | SAFE-01 | Complete: MIGRATION_ALIGNMENT_20260905.md |

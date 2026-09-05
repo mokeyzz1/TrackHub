@@ -22,11 +22,11 @@ BEGIN
   FOR r IN
     SELECT c.table_schema, c.table_name,
            string_agg(
-             format('%L, jsonb_build_object(''nulls'', %s, ''empty_strings'', %s)',
+             format('jsonb_build_object(%L, jsonb_build_object(''nulls'', %s, ''empty_strings'', %s))',
                     c.column_name,
                     format('count(*) FILTER (WHERE %I IS NULL)', c.column_name),
                     format('count(*) FILTER (WHERE %I IS NOT NULL AND %I::text = '''')', c.column_name, c.column_name)),
-             ', ' ORDER BY c.ordinal_position
+             ' || ' ORDER BY c.ordinal_position
            ) AS metrics
       FROM information_schema.columns c
       JOIN pg_class pc ON pc.relname = c.table_name
@@ -38,7 +38,8 @@ BEGIN
   LOOP
     sql := format($q$
       WITH stats AS (
-        SELECT count(*)::bigint AS total, jsonb_build_object(%s) AS metrics
+        -- Separate small objects avoid PostgreSQL's 100-argument function limit.
+        SELECT count(*)::bigint AS total, (%s) AS metrics
           FROM %I.%I
       )
       INSERT INTO column_profile
@@ -53,10 +54,11 @@ BEGIN
   END LOOP;
 END $$;
 
--- Exact profile for every column.
+-- Exact null/empty-string counts for public/ingest ordinary-table columns only.
+-- Distinct values are deliberately not calculated; NULL means unmeasured, not zero.
 SELECT * FROM column_profile ORDER BY schema_name, table_name, column_name;
 
--- High-signal missingness and constant-column candidates.
+-- High-signal missingness candidates, not evidence that sparse columns should be removed.
 SELECT *, round(nulls * 100.0 / NULLIF(total, 0), 2) AS null_rate_pct
   FROM column_profile
  WHERE total > 0

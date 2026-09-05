@@ -275,6 +275,26 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
         assert.deepEqual((await client.query('SELECT mark_raw FROM public.v_athlete_prs WHERE athlete_id=1 AND event_type_id=2')).rows, oldPoints.rows);
       } finally { await client.query('ROLLBACK'); client.release(); }
     });
+    await t.test('column profiling handles wide tables and returns counts, not row values', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query(`CREATE TABLE public.test_wide_profile (${Array.from({ length: 70 }, (_, i) => `c${i} text`).join(',')})`);
+        await client.query('INSERT INTO public.test_wide_profile DEFAULT VALUES');
+        await client.query("INSERT INTO public.test_wide_profile (c0,c69) VALUES ('','private fixture content')");
+        await client.query(fs.readFileSync(path.join(__dirname, '../../docs/database-audit/quality_scan.sql'), 'utf8'));
+        const rows = (await client.query("SELECT * FROM column_profile WHERE table_name='test_wide_profile' ORDER BY column_name")).rows;
+        assert.equal(rows.length, 70);
+        assert.deepEqual(rows.find(r => r.column_name === 'c0'), {
+          schema_name: 'public', table_name: 'test_wide_profile', column_name: 'c0',
+          total: '2', nulls: '1', empty_strings: '1', distinct_values: null,
+        });
+        assert.equal(rows.find(r => r.column_name === 'c69').empty_strings, '0');
+        assert.ok(!JSON.stringify(rows).includes('private fixture content'));
+      } finally {
+        await client.query('RESET statement_timeout');
+        client.release();
+      }
+    });
     await t.test('PR view preserves public reads but follows caller row policies', async () => {
       const client = await pool.connect();
       try {
