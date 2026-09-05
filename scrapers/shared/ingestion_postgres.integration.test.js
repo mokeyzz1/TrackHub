@@ -346,6 +346,20 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
         }
       } finally { await client.query('ROLLBACK'); client.release(); }
     });
+    await t.test('foreign-key audit distinguishes orphans, MATCH FULL partial nulls and valid null references', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query('CREATE TABLE public.audit_parent(a integer,b integer,PRIMARY KEY(a,b)); CREATE TABLE public.audit_child(a integer,b integer); INSERT INTO public.audit_parent VALUES(1,1); INSERT INTO public.audit_child VALUES(1,1),(2,2),(1,NULL),(NULL,NULL); ALTER TABLE public.audit_child ADD CONSTRAINT audit_full_fk FOREIGN KEY(a,b) REFERENCES public.audit_parent(a,b) MATCH FULL NOT VALID');
+        await client.query(fs.readFileSync(path.join(__dirname, '../../docs/database-audit/foreign_key_scan.sql'), 'utf8'));
+        const row = (await client.query("SELECT * FROM foreign_key_profile WHERE constraint_name='audit_full_fk'")).rows[0];
+        assert.equal(row.orphan_rows, '1');
+        assert.equal(row.partial_null_rows, '1');
+        assert.equal(row.validated, false);
+        assert.equal(row.error_code, null);
+        assert.equal((await client.query('SELECT count(*)::int AS n FROM public.audit_child')).rows[0].n, 4);
+      } finally { await client.query('ROLLBACK'); client.release(); }
+    });
     await t.test('PR view preserves public reads but follows caller row policies', async () => {
       const client = await pool.connect();
       try {

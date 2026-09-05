@@ -4,7 +4,22 @@ const { buildChecklist } = require('./build_master_checklist');
 const saved = require('./MASTER_CHECKLIST.json');
 const profile = require('./column_profile_20260905.json');
 const otherProfile = require('./platform_archive_column_profile_20260905.json');
+const references = require('./foreign_key_profile_20260905.json');
 require('./extended_checklist.test');
+
+test('reference scan covers every registered foreign key with no skipped or dangling references', () => {
+  const actual = references.profile.map(i => `relationship:${i.schema_name}:${i.table_name}:${i.constraint_name}`).sort();
+  const expected = saved.items.filter(i => i.kind === 'relationship').map(i => i.id).sort();
+  assert.equal(actual.length, 75);
+  assert.equal(new Set(actual).size, 75);
+  assert.deepEqual(actual, expected);
+  for (const row of references.profile) {
+    assert.equal(row.error_code, null);
+    assert.equal(row.orphan_rows, 0);
+    assert.equal(row.partial_null_rows, 0);
+    assert.equal(row.validated, true);
+  }
+});
 
 test('combined aggregate profiles cover all registered table columns, including managed and archive tables', () => {
   const tables = new Set(saved.items.filter(i => i.kind === 'table').map(i => `${i.schema}:${i.name}`));
