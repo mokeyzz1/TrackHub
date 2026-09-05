@@ -209,6 +209,24 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
       assert.equal((await pool.query("SELECT count(*)::int AS n FROM ingest.source_records sr JOIN ingest.source_links sl USING(source_record_id) WHERE sr.source_record_key='failing-write'")).rows[0].n, 0);
       assert.equal((await pool.query("SELECT count(*)::int AS n FROM pg_locks WHERE locktype='advisory' AND database=(SELECT oid FROM pg_database WHERE datname=current_database())")).rows[0].n, 0);
     });
+    await t.test('team summary counts people once without removing season history', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query("INSERT INTO public.teams(team_id,school_id,gender) VALUES(2,1,'F')");
+        await client.query("INSERT INTO public.athlete_team_seasons(athlete_id,team_id,season_code) VALUES(1,1,'2025'),(1,1,'2026')");
+        assert.equal((await client.query('SELECT athlete_count FROM public.teams_summary WHERE team_id=1')).rows[0].athlete_count, '2');
+        await client.query(fs.readFileSync(path.join(__dirname, '../../supabase/migrations/20260905190400_count_distinct_team_summary_athletes.sql'), 'utf8'));
+        await client.query('SET LOCAL ROLE service_role');
+        assert.deepEqual((await client.query('SELECT athlete_count FROM public.teams_summary ORDER BY team_id')).rows, [{ athlete_count: '1' }, { athlete_count: '0' }]);
+        await client.query('RESET ROLE');
+        assert.equal((await client.query('SELECT count(*)::int AS n FROM public.athlete_team_seasons')).rows[0].n, 2);
+        assert.equal((await client.query("SELECT has_table_privilege('anon','public.teams_summary','SELECT') AS access")).rows[0].access, false);
+        const rollback = fs.readFileSync(path.join(__dirname, '../../docs/database-audit/rollback_team_summary_count_20260905.sql'), 'utf8');
+        await client.query(rollback.replace(/^BEGIN;$/m, '').replace(/^COMMIT;$/m, ''));
+        assert.equal((await client.query('SELECT athlete_count FROM public.teams_summary WHERE team_id=1')).rows[0].athlete_count, '2');
+      } finally { await client.query('ROLLBACK'); client.release(); }
+    });
     await t.test('PR view selects supplied overall points and excludes component marks', async () => {
       const client = await pool.connect();
       try {

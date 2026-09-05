@@ -23770,18 +23770,20 @@
       "name": "athlete_count",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Count distinct athletes across the team's stored seasons, not season rows or current-roster membership.",
+      "problems": "Historical affiliation-row overcount fixed without deleting history.",
+      "proposedImprovement": "Preserve historical seasons; use explicit season filters for current roster metrics.",
+      "status": "verified",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
-      "appliedLive": false,
+      "evidence": [
+        "TEAM_SUMMARY_COUNTS_20260905.md"
+      ],
+      "verification": "19 isolated PostgreSQL tests; all 3,516 team counts agree with live affiliation grouping; 127,357 affiliations retained.",
+      "rollback": "Tested rollback_team_summary_count_20260905.sql restores count expression while retaining invoker security and all rows.",
+      "appliedLive": true,
       "metadata": {
         "kind": "v",
         "type": "bigint",
@@ -49431,23 +49433,26 @@
       "name": "teams_summary",
       "ownership": "application",
       "priority": "P1",
-      "purpose": "Pending semantic review; catalog definition is evidence, not an inferred purpose.",
-      "problems": "Not yet assessed against current data and consumers.",
-      "proposedImprovement": "Review necessity and semantics before proposing a change.",
-      "status": "captured",
+      "purpose": "Summarize each team with its school context and distinct athletes across stored seasons.",
+      "problems": "Historical affiliation-row overcount fixed without deleting history.",
+      "proposedImprovement": "Preserve historical seasons; use explicit season filters for current roster metrics.",
+      "status": "reviewed",
       "dependencies": [
         "SAFE-01",
         "MIG-01"
       ],
-      "evidence": [],
-      "verification": null,
-      "rollback": null,
-      "appliedLive": false,
+      "evidence": [
+        "TEAM_SUMMARY_COUNTS_20260905.md"
+      ],
+      "verification": "19 isolated PostgreSQL tests; all 3,516 team counts agree with live affiliation grouping; 127,357 affiliations retained.",
+      "rollback": "Tested rollback_team_summary_count_20260905.sql restores count expression while retaining invoker security and all rows.",
+      "appliedLive": true,
       "metadata": {
         "rls": false,
         "kind": "v",
         "name": "teams_summary",
-        "schema": "public"
+        "schema": "public",
+        "security_invoker": true
       }
     },
     {

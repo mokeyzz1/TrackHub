@@ -2,6 +2,14 @@
   "snapshotDate": "2026-09-05",
   "entries": [
     {
+      "file": "20260905190400_count_distinct_team_summary_athletes.sql",
+      "version": "20260905190400",
+      "name": "count_distinct_team_summary_athletes",
+      "localSha256": "d9cd096e4393642ce61ec1acf87ca7f414b12428c06c1401c40c29077f1ecb0c",
+      "ledgerFingerprint": "082e9c34dc89797de73323e35fec939d3e6d5221f3f5b261d3544a22f155614f",
+      "review": "All-team live count parity and preserved affiliations; isolated role/rollback tests. TEAM_SUMMARY_COUNTS_20260905.md"
+    },
+    {
       "file": "20260905185312_enforce_source_link_target_kind.sql",
       "version": "20260905185312",
       "name": "enforce_source_link_target_kind",
