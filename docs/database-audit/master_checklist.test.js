@@ -64,9 +64,25 @@ test('live aggregate profile covers every captured public/ingest ordinary-table 
 
 test('master register covers every captured object exactly once', () => {
   const expected = buildChecklist();
-  assert.equal(expected.items.length, 2279);
+  assert.equal(expected.items.length, 2766);
   assert.equal(new Set(saved.items.map(i => i.id)).size, saved.items.length);
   assert.deepEqual(saved.items.map(i => i.id).sort(), expected.items.map(i => i.id).sort());
+});
+
+test('configuration inventory retains names and scope without exporting unreviewed values', () => {
+  const config = require('./settings_catalog_20260905.json');
+  assert.equal(config.settings.length, 478);
+  assert.equal(config.override_scopes.length, 9);
+  assert.equal(config.settings.filter(s => !s.value_redacted).length, 21);
+  for (const setting of config.settings) {
+    if (setting.value_redacted) assert.equal(setting.value, null);
+    assert.equal(Object.hasOwn(setting, 'sourcefile'), false);
+  }
+  for (const scope of config.override_scopes) {
+    assert.equal(scope.values_redacted, true);
+    assert.deepEqual(Object.keys(scope).sort(), ['database', 'role', 'setting_names', 'values_redacted'].sort());
+    assert.ok(scope.setting_names.every(name => !name.includes('=')));
+  }
 });
 
 test('every object has an explicit purpose, review, improvement and completion state', () => {

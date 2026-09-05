@@ -35,6 +35,7 @@ function buildChecklist() {
   items.push(...require('./source_evidence_objects_20260905.json').items);
   items.push(...require('./source_link_objects_20260905.json').items);
   items.push(...require('./build_extended_checklist').buildExtendedChecklist());
+  items.push(...require('./build_settings_checklist').buildSettingsChecklist());
   items.sort((a, b) => a.id.localeCompare(b.id));
   return { snapshotDate: '2026-09-05', purpose: 'Object-level register for MASTER_CHECKLIST.md', items };
 }

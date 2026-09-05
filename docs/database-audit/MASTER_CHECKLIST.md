@@ -25,6 +25,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | TRACK-04 | P0 | Refresh aggregate profiles for every public/ingest ordinary-table column and prove coverage against the object register | TRACK-03 | Complete: COLUMN_PROFILE_RECHECK_20260905.md; 359 columns / 31 tables; semantic decisions and other schemas remain open |
 | TRACK-05 | P0 | Expand aggregate profiles to archive/platform and partitioned tables; prove combined register coverage | TRACK-04 | Complete: ALL_TABLE_COLUMN_COVERAGE_20260905.md; all 872 table columns / 76 tables; view columns and semantic signoff remain open |
 | TRACK-06 | P0 | Check every declared foreign key for orphan and invalid partial-null references with explicit coverage/error accounting | TRACK-05 | Complete: FOREIGN_KEY_RECHECK_20260905.md; all 75 checked, zero dangling references; identity correctness remains separate |
+| TRACK-07 | P0 | Inventory visible database settings and persistent role/database override scopes without exporting secret values | TRACK-06 | Complete: SETTINGS_COVERAGE_20260905.md; 478 settings + nine override scopes captured; effective-role and semantic review remain open |
 | SAFE-01 | P0 | Recheck backup availability/hashes; identify restore-tested scope and managed-platform limitations; require fresh before-images for each mutation | TRACK-01 | Complete: PRESERVATION_RECHECK_20260905.md |
 | MIG-01 | P0 | Reconcile local and live migration versions/statements; classify every unmatched entry; prove a safe deployment path without replaying applied SQL | SAFE-01 | Open |
 | MIG-01a | P0 | Align the two recent local filenames after full SQL comparison with recorded live versions; no SQL replay | SAFE-01 | Complete: MIGRATION_ALIGNMENT_20260905.md |
@@ -69,7 +70,7 @@ as current verification. ING-01 was already implemented before this queue was co
 
 ## Per-object tracking
 
-The JSON register contains 2,279 individually addressable entries. The original classes cover 76 tables, seven views,
+The JSON register contains 2,766 individually addressable entries. The original classes cover 76 tables, seven views,
 977 columns, 271 constraints (foreign keys tracked as relationships), 246 indexes, 22 policies,
 114 functions and 12 user-defined triggers. Internal FK triggers are represented by their parent
 constraints. Each entry has purpose, problems, proposed improvement, priority, dependencies,
@@ -87,8 +88,9 @@ Every one of the 872 table-column entries and 75 foreign-key entries now links t
 aggregate profile. These 947 evidence links do not advance semantic review statuses; coverage tests
 verify both the profile membership and the individual register links.
 Archive data and platform functions remain included; neither is automatically marked complete.
-Database settings, external schedulers and remaining type/dependency catalog classes still need
-coverage under MODEL-01/SEC-01 before CLOSE-01. PostgreSQL cron is absent at this checkpoint; this
+The settings catalog adds 478 settings and nine override scopes with secret values redacted.
+External scheduler state and remaining type/dependency catalog classes still need coverage;
+effective settings and semantic review remain under MODEL-01/SEC-01 before CLOSE-01. PostgreSQL cron is absent at this checkpoint; this
 does not prove no GitHub, host or provider scheduler exists. Captured objects are not semantic signoff.
 
 ## Completion and commit rules
