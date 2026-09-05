@@ -2,6 +2,14 @@
   "snapshotDate": "2026-09-05",
   "entries": [
     {
+      "file": "20260905183823_preserve_ingestion_source_versions.sql",
+      "version": "20260905183823",
+      "name": "preserve_ingestion_source_versions",
+      "localSha256": "75e46e5509de07320df1acd40a6742d176371e48e099f848a8a493f4c64e6240",
+      "ledgerFingerprint": "c898b42dd4aaad3b7f3da1b74ba2f445e207e216486cdcae0344f76d17d212d6",
+      "review": "Isolated migration/rollback and ingestion contracts passed; targeted live apply and catalog/ACL verification. SOURCE_EVIDENCE_VERSIONS_20260905.md"
+    },
+    {
       "file": "20260122075100_live_results_schema.sql",
       "version": "20260122075100",
       "name": "live_results_schema",

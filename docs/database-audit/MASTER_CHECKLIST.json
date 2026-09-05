@@ -3,6 +3,396 @@
   "purpose": "Object-level register for MASTER_CHECKLIST.md",
   "items": [
     {
+      "id": "table:ingest:source_record_versions",
+      "kind": "table",
+      "schema": "ingest",
+      "relation": null,
+      "name": "source_record_versions",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Store one immutable evidence version per source record and canonical content hash.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "column:ingest:observations:source_snapshot_hash",
+      "kind": "column",
+      "schema": "ingest",
+      "relation": "observations",
+      "name": "source_snapshot_hash",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Reference the exact evidence consumed; NULL explicitly means unavailable historical snapshot.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "column:ingest:source_record_versions:source_record_id",
+      "kind": "column",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "source_record_id",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Link evidence to the existing provider-qualified source identity.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "column:ingest:source_record_versions:snapshot_hash",
+      "kind": "column",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "snapshot_hash",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Deduplicate canonical JSON evidence with SHA-256.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "column:ingest:source_record_versions:payload",
+      "kind": "column",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "payload",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Preserve the exact raw JSON consumed by normalization and promotion.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "column:ingest:source_record_versions:source_url",
+      "kind": "column",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "source_url",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Preserve the source URL supplied with this evidence version.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "column:ingest:source_record_versions:source_meet_key",
+      "kind": "column",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "source_meet_key",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Preserve the provider meet locator supplied with this evidence version.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "column:ingest:source_record_versions:source_event_key",
+      "kind": "column",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "source_event_key",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Preserve the provider event locator supplied with this evidence version.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "column:ingest:source_record_versions:created_at",
+      "kind": "column",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "created_at",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Record first storage time of this evidence version, not event occurrence time.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "constraint:ingest:source_record_versions:source_record_versions_snapshot_hash_check",
+      "kind": "constraint",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "source_record_versions_snapshot_hash_check",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Require a lowercase 64-character SHA-256 representation.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "constraint:ingest:source_record_versions:source_record_versions_pkey",
+      "kind": "constraint",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "source_record_versions_pkey",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Allow one version for each source identity and evidence hash.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "relationship:ingest:source_record_versions:source_record_versions_source_record_id_fkey",
+      "kind": "relationship",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "source_record_versions_source_record_id_fkey",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Retain the source identity while evidence references it; no cascade deletion.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "relationship:ingest:observations:observations_source_snapshot_fkey",
+      "kind": "relationship",
+      "schema": "ingest",
+      "relation": "observations",
+      "name": "observations_source_snapshot_fkey",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Prevent observations from referencing absent evidence or another source identity.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "index:ingest:source_record_versions:source_record_versions_pkey",
+      "kind": "index",
+      "schema": "ingest",
+      "relation": "source_record_versions",
+      "name": "source_record_versions_pkey",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Support exact version lookup and enforce composite uniqueness.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
+      "id": "index:ingest:observations:observations_source_snapshot_idx",
+      "kind": "index",
+      "schema": "ingest",
+      "relation": "observations",
+      "name": "observations_source_snapshot_idx",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Support referencing-row lookups without indexing unknown legacy snapshots.",
+      "problems": "Legacy evidence is unavailable; automatic correction of previously linked public facts remains out of scope.",
+      "proposedImprovement": "Preserve versions and require explicit correction review; audit remaining direct writers.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02b"
+      ],
+      "evidence": [
+        "SOURCE_EVIDENCE_VERSIONS_20260905.md",
+        "supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql"
+      ],
+      "verification": "Live catalog/ACL/FK postconditions and isolated PostgreSQL regression tests passed.",
+      "rollback": "Revert worker code while retaining evidence schema and populated versions; no destructive down migration.",
+      "appliedLive": true,
+      "metadata": {
+        "migrationVersion": "20260905183823"
+      }
+    },
+    {
       "id": "column:archive:athletes_empty_backup:athlete_id",
       "kind": "column",
       "schema": "archive",

@@ -31,6 +31,8 @@ function buildChecklist() {
   for (const p of columns.policies) add('policy', p.schemaname, p.policyname, p, p.tablename);
   for (const f of objects.functions) add('function', f.schema, `${f.name}(${f.arguments})`, f);
   for (const t of objects.triggers) add('trigger', t.schema, t.name, t, t.relation);
+  // Verified additive live migration after the baseline catalog; preserve the dated baseline.
+  items.push(...require('./source_evidence_objects_20260905.json').items);
   items.sort((a, b) => a.id.localeCompare(b.id));
   return { snapshotDate: '2026-09-05', purpose: 'Object-level register for MASTER_CHECKLIST.md', items };
 }

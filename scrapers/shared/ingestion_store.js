@@ -8,6 +8,7 @@
 
 const { Pool } = require('pg');
 const { keyForSourceRecord } = require('./result_matcher');
+const { sourceEvidence } = require('./source_evidence');
 
 const BATCH_SIZE = 500;
 const DEFAULT_QUERY_TIMEOUT_MS = 30000;
@@ -107,6 +108,7 @@ class IngestionStore {
 
       for (const batch of chunk(records)) {
         const sourceRows = batch.map(record => ({
+          ...sourceEvidence(record.sourceRecord),
           source: record.sourceRecord.source,
           source_record_key: record.sourceRecord.source_record_key,
           source_meet_key: record.sourceRecord.source_meet_key || null,
@@ -143,9 +145,22 @@ class IngestionStore {
           [JSON.stringify(sourceRows)]
         );
 
-        const observationRows = batch.map(record => {
+        await client.query(
+          `INSERT INTO ingest.source_record_versions
+             (source_record_id, snapshot_hash, payload, source_url, source_meet_key, source_event_key)
+           SELECT sr.source_record_id, i.snapshot_hash, i.payload, i.source_url,
+                  i.source_meet_key, i.source_event_key
+           FROM jsonb_to_recordset($1::jsonb) AS i(source text, source_record_key text,
+             snapshot_hash text, payload jsonb, source_url text, source_meet_key text, source_event_key text)
+           JOIN ingest.source_records sr USING (source, source_record_key)
+           ON CONFLICT (source_record_id, snapshot_hash) DO NOTHING`,
+          [JSON.stringify(sourceRows)]
+        );
+
+        const observationRows = batch.map((record, index) => {
           const validationErrors = json(record.observation.validation_errors, []);
           return {
+            source_snapshot_hash: sourceRows[index].snapshot_hash,
             source: record.observation.source,
             source_record_key: record.observation.source_record_key,
             entity_type: record.observation.entity_type,
@@ -177,6 +192,7 @@ class IngestionStore {
              FROM jsonb_to_recordset($1::jsonb) AS x(
                source text,
                source_record_key text,
+               source_snapshot_hash text,
                entity_type text,
                target_meet_id integer,
                target_athlete_id bigint,
@@ -200,11 +216,11 @@ class IngestionStore {
              )
            )
            INSERT INTO ingest.observations AS existing
-             (run_id, source_record_id, source, entity_type, target_meet_id, target_athlete_id,
+             (run_id, source_record_id, source_snapshot_hash, source, entity_type, target_meet_id, target_athlete_id,
               target_team_id, event_type_id, raw_event_name, measure, mark_raw, mark_seconds,
               mark_meters, points, place, round, result_date, performance_key, canonical_key,
               decision, decision_reason, confidence, validation_errors)
-           SELECT $2, sr.source_record_id, i.source, i.entity_type, i.target_meet_id, i.target_athlete_id,
+           SELECT $2, sr.source_record_id, i.source_snapshot_hash, i.source, i.entity_type, i.target_meet_id, i.target_athlete_id,
                   i.target_team_id, i.event_type_id, i.raw_event_name, i.measure, i.mark_raw, i.mark_seconds,
                   i.mark_meters, i.points, i.place, i.round, i.result_date, i.performance_key, i.canonical_key,
                   i.decision, i.decision_reason, i.confidence, i.validation_errors
@@ -213,14 +229,14 @@ class IngestionStore {
              ON sr.source = i.source AND sr.source_record_key = i.source_record_key
            ON CONFLICT (run_id, source_record_id) DO UPDATE
              SET source_record_id = existing.source_record_id
-           WHERE (existing.source, existing.entity_type, existing.target_meet_id,
+           WHERE (existing.source_snapshot_hash, existing.source, existing.entity_type, existing.target_meet_id,
                   existing.target_athlete_id, existing.target_team_id, existing.event_type_id,
                   existing.raw_event_name, existing.measure, existing.mark_raw,
                   existing.mark_seconds, existing.mark_meters, existing.points, existing.place,
                   existing.round, existing.result_date, existing.performance_key,
                   existing.canonical_key, existing.validation_errors)
              IS NOT DISTINCT FROM
-                 (EXCLUDED.source, EXCLUDED.entity_type, EXCLUDED.target_meet_id,
+                 (EXCLUDED.source_snapshot_hash, EXCLUDED.source, EXCLUDED.entity_type, EXCLUDED.target_meet_id,
                   EXCLUDED.target_athlete_id, EXCLUDED.target_team_id, EXCLUDED.event_type_id,
                   EXCLUDED.raw_event_name, EXCLUDED.measure, EXCLUDED.mark_raw,
                   EXCLUDED.mark_seconds, EXCLUDED.mark_meters, EXCLUDED.points, EXCLUDED.place,

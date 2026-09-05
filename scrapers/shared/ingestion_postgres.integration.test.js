@@ -29,6 +29,15 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
     pool = new Pool({ ...config, database, max: 5 });
     const empty = await pool.query('SELECT EXISTS(SELECT 1 FROM public.results) OR EXISTS(SELECT 1 FROM public.athletes) AS populated');
     assert.equal(empty.rows[0].populated, false, 'Template must be a schema-only fixture');
+    // Candidate migration is installed only in this disposable database, never the template.
+    const evidenceMigration = fs.readFileSync(path.join(__dirname, '../../supabase/migrations/20260905183823_preserve_ingestion_source_versions.sql'), 'utf8');
+    await pool.query('BEGIN');
+    await pool.query(evidenceMigration);
+    await pool.query('ROLLBACK');
+    assert.equal((await pool.query("SELECT to_regclass('ingest.source_record_versions') AS relation")).rows[0].relation, null);
+    await pool.query('BEGIN');
+    await pool.query(evidenceMigration);
+    await pool.query('COMMIT');
     await pool.query("INSERT INTO public.schools(school_id,official_name) VALUES(1,'Synthetic Test School'); INSERT INTO public.teams(team_id,school_id,gender) VALUES(1,1,'M'); INSERT INTO public.athletes(athlete_id,school_id,full_name,gender) VALUES(1,1,'Synthetic Runner','M'); INSERT INTO public.meets(meet_id,name,date) VALUES(1,'Synthetic Meet','2026-09-01'); INSERT INTO public.event_types(event_type_id,code,measure,environment_scope) VALUES(1,'100m','time','both')");
     const store = new IngestionStore({ pool });
     const record = (key, overrides = {}) => normalizeObservation({
@@ -58,6 +67,46 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
       })]), /conflicting observation/);
       const result = await pool.query("SELECT o.mark_raw,sr.payload->>'source_mark' AS source_mark FROM ingest.observations o JOIN ingest.source_records sr USING(source_record_id) WHERE o.run_id=$1", [run]);
       assert.deepEqual(result.rows, [{ mark_raw: '10.50', source_mark: '10.50' }]);
+    });
+    await t.test('payload-only restaging conflicts and later runs retain independent evidence', async () => {
+      const firstRun = await store.startRun({ source: 'tfrrs', mode: 'commit', parserVersion: 'test' });
+      const first = record('versioned', { payload: { wind: '+1.1' }, mark_raw: '10.81' });
+      const changed = record('versioned', { payload: { wind: '+2.2' }, mark_raw: '10.81' });
+      await store.persistObservations(firstRun, [first]);
+      await assert.rejects(store.persistObservations(firstRun, [changed]), /conflicting observation/);
+      const secondRun = await store.startRun({ source: 'tfrrs', mode: 'commit', parserVersion: 'test' });
+      await store.persistObservations(secondRun, [changed]);
+      const thirdRun = await store.startRun({ source: 'tfrrs', mode: 'commit', parserVersion: 'test' });
+      await store.persistObservations(thirdRun, [changed]);
+      const evidence = await pool.query("SELECT o.run_id,sv.payload->>'wind' AS wind FROM ingest.observations o JOIN ingest.source_record_versions sv ON sv.source_record_id=o.source_record_id AND sv.snapshot_hash=o.source_snapshot_hash WHERE o.run_id=ANY($1::uuid[])", [[firstRun, secondRun, thirdRun]]);
+      assert.equal(evidence.rows.find(row => row.run_id === firstRun).wind, '+1.1');
+      assert.equal(evidence.rows.find(row => row.run_id === secondRun).wind, '+2.2');
+      assert.equal((await pool.query("SELECT count(*)::int AS n FROM ingest.source_record_versions sv JOIN ingest.source_records sr USING(source_record_id) WHERE sr.source_record_key='versioned'")).rows[0].n, 2);
+      const { CanonicalFactWriter } = require('./canonical_fact_writer');
+      await new CanonicalFactWriter({ pool }).commitRun(firstRun);
+      assert.equal((await pool.query("SELECT wind FROM public.results WHERE mark_raw='10.81'")).rows[0].wind, '+1.1');
+    });
+    await t.test('unknown historical snapshots are held without using the latest payload', async () => {
+      const run = await store.startRun({ source: 'tfrrs', mode: 'commit', parserVersion: 'test' });
+      await store.persistObservations(run, [record('legacy-no-snapshot', { mark_raw: '10.82' })]);
+      await pool.query('UPDATE ingest.observations SET source_snapshot_hash=NULL WHERE run_id=$1', [run]);
+      const { CanonicalFactWriter } = require('./canonical_fact_writer');
+      const result = await new CanonicalFactWriter({ pool }).commitRun(run);
+      assert.equal(result.quarantined, 1);
+      assert.equal((await pool.query('SELECT reason_code FROM ingest.quarantine q JOIN ingest.observations o USING(observation_id) WHERE run_id=$1', [run])).rows[0].reason_code, 'missing_source_snapshot');
+      assert.equal((await pool.query("SELECT count(*)::int AS n FROM public.results WHERE mark_raw='10.82'")).rows[0].n, 0);
+    });
+    await t.test('evidence privileges are append-only and snapshot references are enforced', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query('SET LOCAL ROLE service_role');
+        await client.query('SELECT * FROM ingest.source_record_versions LIMIT 1');
+        await assert.rejects(client.query('UPDATE ingest.source_record_versions SET payload=payload'), { code: '42501' });
+        await client.query('ROLLBACK');
+        await client.query('BEGIN');
+        await assert.rejects(client.query("UPDATE ingest.observations SET source_snapshot_hash=repeat('a',64) WHERE source_snapshot_hash IS NOT NULL"), { code: '23503' });
+      } finally { await client.query('ROLLBACK'); client.release(); }
     });
     await t.test('sequential replay and cross-provider duplicate resolve to one fact', async () => {
       const first = await promote([record('replay')]);

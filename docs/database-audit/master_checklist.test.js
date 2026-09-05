@@ -5,7 +5,7 @@ const saved = require('./MASTER_CHECKLIST.json');
 
 test('master register covers every captured object exactly once', () => {
   const expected = buildChecklist();
-  assert.equal(expected.items.length, 1709);
+  assert.equal(expected.items.length, 1724);
   assert.equal(new Set(saved.items.map(i => i.id)).size, saved.items.length);
   assert.deepEqual(saved.items.map(i => i.id).sort(), expected.items.map(i => i.id).sort());
 });

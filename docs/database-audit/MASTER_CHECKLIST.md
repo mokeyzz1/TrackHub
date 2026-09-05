@@ -34,7 +34,8 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | ING-02 | P1 | Prove replay, concurrency, payload changes, source-link consistency and rollback using isolated PostgreSQL integration tests | MIG-01, ID-01, ING-01 | Open |
 | ING-02a | P1 | Reproduce and fix shared promotion race; verify seven synthetic PostgreSQL scenarios without production writes | SAFE-01, ING-01; isolated tests only | Complete: INGESTION_POSTGRES_CONCURRENCY_20260905.md |
 | ING-02b | P1 | Reject conflicting normalized restages within a run; preserve exact-retry decisions; prove transaction rollback | ING-02a | Complete: INGESTION_RESTAGE_CONTRACT_20260905.md |
-| ING-02c | P1 | Model immutable per-run source payloads and explicit source corrections; measure historical ambiguity without fabricating payload versions | MODEL-01, ING-02b | Open; current shared raw payload remains mutable across runs |
+| ING-02c | P1 | Model immutable per-run source payloads and explicit source corrections; measure historical ambiguity without fabricating payload versions | MODEL-01, ING-02b | Open; version preservation implemented, correction workflow/direct-writer review and historical recovery remain |
+| ING-02c1 | P1 | Add versioned raw evidence, bind staged observations, reject payload-only restages, hold unknown legacy evidence, verify migration and permissions | ING-02b, MIG-01e1; targeted additive deployment only | Complete: SOURCE_EVIDENCE_VERSIONS_20260905.md; private migration live, no public repairs |
 | DATA-01 | P1 | Apply source-backed repairs with exact before-images, affected-ID assertions and postconditions; ambiguous groups explicitly held | ID-01, ING-02 | Open |
 | API-01 | P1 | Verify all views/RPCs and application reads against meet/team/athlete/relay/multi-event contracts; fix measured relationship/count defects | MODEL-01 | Open |
 | SEC-01 | P1 | Object-level grants/RLS/policies/functions/triggers review with positive and negative role tests | SAFE-01, MIG-01 | Open |
@@ -47,11 +48,13 @@ as current verification. ING-01 was already implemented before this queue was co
 
 ## Per-object tracking
 
-The JSON register contains 1,709 individually addressable entries: 75 tables, seven views,
-969 columns, 266 constraints (foreign keys tracked as relationships), 244 indexes, 22 policies,
+The JSON register contains 1,724 individually addressable entries: 76 tables, seven views,
+977 columns, 270 constraints (foreign keys tracked as relationships), 246 indexes, 22 policies,
 114 functions and 12 user-defined triggers. Internal FK triggers are represented by their parent
 constraints. Each entry has purpose, problems, proposed improvement, priority, dependencies,
 ownership, status, evidence, verification, rollback, live-application state and catalog metadata.
+The source-evidence migration adds 15 verified entries in `source_evidence_objects_20260905.json`
+without rewriting the earlier baseline catalog or marking unrelated entries complete.
 
 An explicit pending purpose is an unanswered review item, not a finding that the object is
 unnecessary. Previously completed audit packets must be reconciled into these entries individually.

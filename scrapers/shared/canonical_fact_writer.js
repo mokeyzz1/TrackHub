@@ -163,7 +163,7 @@ class CanonicalFactWriter {
       }
 
       const { rows } = await client.query(
-        `SELECT o.*, sr.source_record_id, sr.source_record_key, sr.payload,
+        `SELECT o.*, sr.source_record_id, sr.source_record_key, sv.payload,
                 et.code AS event_code,
                 m.name AS meet_name,
                 m.date AS meet_canonical_date,
@@ -171,6 +171,8 @@ class CanonicalFactWriter {
                 sl.relay_result_id AS linked_relay_result_id
            FROM ingest.observations o
            JOIN ingest.source_records sr ON sr.source_record_id = o.source_record_id
+           LEFT JOIN ingest.source_record_versions sv
+             ON sv.source_record_id = o.source_record_id AND sv.snapshot_hash = o.source_snapshot_hash
            LEFT JOIN public.event_types et ON et.event_type_id = o.event_type_id
            LEFT JOIN public.meets m ON m.meet_id = o.target_meet_id
            LEFT JOIN ingest.source_links sl ON sl.source_record_id = o.source_record_id
@@ -187,8 +189,24 @@ class CanonicalFactWriter {
         return stats;
       }
 
+      // Legacy observations have no provable raw snapshot. Keep prior fact links, but never
+      // reconstruct a result or relay lineup from another run's mutable latest payload.
+      for (let index = rows.length - 1; index >= 0; index--) {
+        const row = rows[index];
+        if (row.source_snapshot_hash !== null) continue;
+        if (row.linked_result_id || row.linked_relay_result_id) {
+          await this.markObservation(client, row.observation_id, 'skip_duplicate',
+            'source_record_already_linked', 1, row.linked_result_id || null, row.linked_relay_result_id || null);
+          stats.skipped++;
+        } else {
+          await this.quarantine(client, row.observation_id, 'missing_source_snapshot', null);
+          stats.quarantined++;
+        }
+        rows.splice(index, 1);
+      }
+
       const preclassifiedQuarantines = rows.filter(row => row.decision === 'quarantine');
-      stats.quarantined = await this.quarantineExistingRows(client, preclassifiedQuarantines);
+      stats.quarantined += await this.quarantineExistingRows(client, preclassifiedQuarantines);
 
       const meetIds = [...new Set(rows.map(r => r.target_meet_id).filter(Boolean))];
       const athleteIds = [...new Set(rows.map(r => r.target_athlete_id).filter(Boolean))];
