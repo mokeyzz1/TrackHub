@@ -32,6 +32,8 @@ class EventResolver {
 
   /** Load the full event_aliases table into memory. Returns the alias count. */
   async load(supabase) {
+    // A failed reload must never expose a partially loaded catalog as ready.
+    this.loaded = false;
     this.map.clear();
     this.catalog.clear();
     let from = 0;
@@ -40,10 +42,17 @@ class EventResolver {
       const { data, error } = await supabase
         .from('event_aliases')
         .select('raw_name, event_type_id')
+        .order('raw_name', { ascending: true })
         .range(from, from + page - 1);
       if (error) throw new Error(`event_aliases load failed: ${error.message}`);
       if (!data || data.length === 0) break;
-      for (const a of data) this.map.set(this._key(a.raw_name), a.event_type_id);
+      for (const a of data) {
+        const key = this._key(a.raw_name);
+        if (this.map.has(key) && this.map.get(key) !== a.event_type_id) {
+          throw new Error(`Conflicting normalized event alias: ${key}`);
+        }
+        this.map.set(key, a.event_type_id);
+      }
       if (data.length < page) break;
       from += page;
     }
@@ -55,6 +64,7 @@ class EventResolver {
       const { data, error } = await supabase
         .from('event_types')
         .select('event_type_id, code, category, measure, environment_scope')
+        .order('event_type_id', { ascending: true })
         .range(from, from + page - 1);
       if (error) throw new Error(`event_types load failed: ${error.message}`);
       if (!data || data.length === 0) break;
@@ -62,6 +72,9 @@ class EventResolver {
       if (data.length < page) break;
     }
 
+    for (const [alias, id] of this.map) {
+      if (!this.catalog.has(id)) throw new Error(`Event alias has no loaded catalog target: ${alias}`);
+    }
     this.loaded = true;
     return this.map.size;
   }
