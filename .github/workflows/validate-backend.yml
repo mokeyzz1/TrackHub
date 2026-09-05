@@ -33,6 +33,13 @@ jobs:
       - name: Run ingestion contract tests
         run: npm run test:ingestion
 
+      - name: Validate schema tracking and source safeguards
+        run: |
+          npm run test:database-history
+          npm run test:source-evidence
+          npm run test:source-corrections
+          npm run test:workflow-safety
+
       - name: Parse every scraper module
         run: |
           find scrapers -type f -name '*.js' -not -path '*/node_modules/*' -print0 \
@@ -40,3 +47,31 @@ jobs:
 
       - name: Check patch whitespace
         run: git diff --check
+
+  postgres-contracts:
+    runs-on: ubuntu-latest
+    container: postgres:17.11-bookworm
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: scrapers/package-lock.json
+      - name: Install scraper dependencies
+        working-directory: scrapers
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+        run: npm ci
+      - name: Run isolated PostgreSQL contracts without production credentials
+        run: bash docs/database-audit/run_isolated_postgres_tests.sh

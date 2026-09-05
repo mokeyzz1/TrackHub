@@ -55,6 +55,7 @@ jobs:
 
       - name: Sync weekend results
         env:
+          LOOKBACK_DAYS: ${{ github.event.inputs.days || '7' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           INGEST_DATABASE_URL: ${{ secrets.INGEST_DATABASE_URL }}
@@ -65,7 +66,7 @@ jobs:
           fi
           cd scrapers/tfrrs/meet-scraper
           set -o pipefail
-          node sync-weekend-results.js --days ${{ github.event.inputs.days || '7' }} --commit --control-plane 2>&1 | tee sync.log
+          node sync-weekend-results.js --days "$LOOKBACK_DAYS" --commit --control-plane 2>&1 | tee sync.log
 
       - name: Upload logs
         uses: actions/upload-artifact@v4

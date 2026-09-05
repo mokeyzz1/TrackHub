@@ -29,6 +29,8 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | MIG-01d | P0 | Preserve 39 non-deployable files outside automatic discovery; enforce reviewed history and report untracked SQL | MIG-01c | Complete: MIGRATION_DEPLOYMENT_BOUNDARY_20260905.md; 18 tests pass |
 | MIG-01e | P0 | Prove isolated schema/test baseline and deployment behavior; resolve unreviewed active SQL before any production push | MIG-01d | Open; unrelated untracked LAI file blocks current-worktree push |
 | MIG-01e1 | P0 | Capture and strictly restore current application schema; rerun PostgreSQL contracts against it | SAFE-01, MIG-01d | Complete: CURRENT_SCHEMA_TEST_BASELINE_20260905.md; no live changes |
+| MIG-01e2 | P0 | Make the PostgreSQL regression fixture reproducible without private backups or production credentials | MIG-01e1 | Complete: REPRODUCIBLE_DATABASE_TESTS_20260905.md; fresh-cluster local run passes |
+| MIG-01e3 | P0 | Confirm the configured PostgreSQL job on hosted CI after branch publication | MIG-01e2 | Open; no push or remote workflow dispatch performed |
 | ING-01 | P1 | Provider-qualified replay keys; whole-call duplicate/provenance validation; regression tests; measure existing cross-provider key collisions | TRACK-01 | Complete: 233 ingestion / 65 shared tests pass; zero live cross-provider key groups |
 | MODEL-01 | P1 | Review each application table/column purpose, actual values, readers/writers and reference relationships; decide preserve, improve or retire | SAFE-01 for read-only review; MIG-01 for deployment | Open |
 | ID-01 | P1 | Review canonical identity constraints, reviewed aliases and uncertainty handling; verify prior repairs against alias history | MODEL-01 | Open |
@@ -44,6 +46,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | API-01 | P1 | Verify all views/RPCs and application reads against meet/team/athlete/relay/multi-event contracts; fix measured relationship/count defects | MODEL-01 | Open |
 | SEC-01 | P1 | Object-level grants/RLS/policies/functions/triggers review with positive and negative role tests | SAFE-01, MIG-01 | Open |
 | SEC-01a | P0 | Restore PR-view caller-policy boundary without altering base permissions or result selection | SAFE-01, MIG-01e1; targeted metadata-only migration | Complete: PR_VIEW_SECURITY_20260905.md; live option/advisor and role tests verified |
+| SEC-01b | P1 | Pass manual scheduler inputs as quoted data; validate lookback integers; capture scheduler entry points | TRACK-02 | Complete in branch: REPRODUCIBLE_DATABASE_TESTS_20260905.md; remote deployment not claimed |
 | API-01a | P1 | Align points filtering/extraction whitespace handling; preserve supplied scores and invoker security | SEC-01a | Complete: PR_POINTS_WHITESPACE_20260905.md; live view hardened, zero measured current extraction differences |
 | API-01b | P1 | Count distinct team athletes across stored seasons, retain every historical affiliation, verify all-team parity | MIG-01e1, MODEL-01 team/affiliation review | Complete: TEAM_SUMMARY_COUNTS_20260905.md; 1,795 team counts corrected, no rows deleted |
 | PERF-01 | P2 | Measure query plans and workload before index changes; retain necessary FK and uniqueness support | API-01, ING-02 | Open |

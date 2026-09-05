@@ -173,8 +173,12 @@ function shouldScrapeEvent(event, eventCode = null) {
 }
 
 // Parse command line args
-function parseArgs() {
-  const args = process.argv.slice(2);
+function parseArgs(args = process.argv.slice(2)) {
+  const daysIndex = args.indexOf('--days');
+  const rawDays = daysIndex < 0 ? '7' : args[daysIndex + 1];
+  if (!/^[1-9]\d*$/.test(rawDays || '') || !Number.isSafeInteger(Number(rawDays))) {
+    throw new Error('--days requires a positive whole number');
+  }
   const eventCode = args.find((a, i) => args[i - 1] === '--event-code') || null;
   const sourceUrl = args.find((a, i) => args[i - 1] === '--source-url') || null;
   if (eventCode && eventCode !== '4x100m') {
@@ -190,7 +194,7 @@ function parseArgs() {
     legacyDirectWrite: args.includes('--legacy-direct-write'),
     eventCode,
     sourceUrl,
-    days: parseInt(args.find((a, i) => args[i-1] === '--days') || '7'),
+    days: Number(rawDays),
     // --meet <id>: run against ONE meet regardless of the date window. Use this to verify the
     // engine end-to-end before pointing it at a batch (it writes results).
     meetId: args.find((a, i) => args[i-1] === '--meet') || null

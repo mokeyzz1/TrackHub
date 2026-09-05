@@ -52,11 +52,12 @@ jobs:
 
       - name: Run meets scraper
         env:
+          MEET_SCRAPE_SCOPE: ${{ github.event.inputs.scope || 'all' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
           cd scrapers/meets
-          node scrape_meets_github.js ${{ github.event.inputs.scope || 'all' }}
+          node scrape_meets_github.js "$MEET_SCRAPE_SCOPE"
 
       - name: Upload logs
         uses: actions/upload-artifact@v4

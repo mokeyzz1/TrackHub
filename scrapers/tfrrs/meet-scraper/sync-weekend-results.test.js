@@ -16,6 +16,15 @@ const {
   parseArgs,
 } = require('./sync-weekend-results');
 
+test('lookback days reject malformed or missing arguments instead of partially parsing', () => {
+  assert.equal(parseArgs([]).days, 7);
+  assert.equal(parseArgs(['--days', '30']).days, 30);
+  for (const value of ['', '0', '-1', '7abc', '7; exit 42', '1.5', '9007199254740992']) {
+    assert.throws(() => parseArgs(['--days', value]), /positive whole number/);
+  }
+  assert.throws(() => parseArgs(['--days']), /positive whole number/);
+});
+
 test('accepts an explicit TFRRS source URL for a single-meet recovery', () => {
   const original = process.argv;
   process.argv = ['node', 'sync-weekend-results.js', '--meet', '13048', '--source-url', 'https://www.tfrrs.org/results/96496'];
