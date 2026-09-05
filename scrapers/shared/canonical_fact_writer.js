@@ -9,6 +9,7 @@
 const { matchObservation, keyForSourceRecord } = require('./result_matcher');
 const { Pool } = require('pg');
 const { queryTimeoutFromEnv } = require('./ingestion_store');
+const { sourceCorrectionFields } = require('./source_correction');
 
 function connectionStringFromEnv(env = process.env) {
   // Canonical fact writes require an explicit private ingestion connection. Never infer the
@@ -168,7 +169,11 @@ class CanonicalFactWriter {
                 m.name AS meet_name,
                 m.date AS meet_canonical_date,
                 sl.result_id AS linked_result_id,
-                sl.relay_result_id AS linked_relay_result_id
+                sl.entity_type AS linked_entity_type,
+                sl.relay_result_id AS linked_relay_result_id,
+                CASE WHEN sl.result_id IS NOT NULL THEN to_jsonb(linked_individual)
+                     WHEN sl.relay_result_id IS NOT NULL THEN to_jsonb(linked_relay)
+                END AS linked_fact
            FROM ingest.observations o
            JOIN ingest.source_records sr ON sr.source_record_id = o.source_record_id
            LEFT JOIN ingest.source_record_versions sv
@@ -176,6 +181,8 @@ class CanonicalFactWriter {
            LEFT JOIN public.event_types et ON et.event_type_id = o.event_type_id
            LEFT JOIN public.meets m ON m.meet_id = o.target_meet_id
            LEFT JOIN ingest.source_links sl ON sl.source_record_id = o.source_record_id
+           LEFT JOIN public.results linked_individual ON linked_individual.result_id = sl.result_id
+           LEFT JOIN public.relay_results linked_relay ON linked_relay.relay_result_id = sl.relay_result_id
           WHERE o.run_id = $1
             AND o.decision IN ('pending', 'insert', 'claim', 'quarantine')
           ORDER BY o.observation_id
@@ -207,6 +214,18 @@ class CanonicalFactWriter {
 
       const preclassifiedQuarantines = rows.filter(row => row.decision === 'quarantine');
       stats.quarantined += await this.quarantineExistingRows(client, preclassifiedQuarantines);
+
+      // A source identity is not proof that a changed performance is an exact replay. Keep
+      // the linked public fact and both evidence versions; require explicit correction review.
+      for (let index = rows.length - 1; index >= 0; index--) {
+        const row = rows[index];
+        if (row.decision === 'quarantine' || !(row.linked_result_id || row.linked_relay_result_id)) continue;
+        const differences = sourceCorrectionFields(row);
+        if (!differences.length) continue;
+        await this.quarantine(client, row.observation_id, 'source_correction_required', 0);
+        stats.quarantined++;
+        rows.splice(index, 1);
+      }
 
       const meetIds = [...new Set(rows.map(r => r.target_meet_id).filter(Boolean))];
       const athleteIds = [...new Set(rows.map(r => r.target_athlete_id).filter(Boolean))];
@@ -1035,7 +1054,7 @@ class CanonicalFactWriter {
     await client.query(
       `INSERT INTO ingest.quarantine (observation_id, reason_code, status)
        SELECT observation_id,
-              COALESCE(validation_errors->0->>'code', 'validation_failed'),
+              COALESCE(validation_errors->0->>'code', decision_reason, 'validation_failed'),
               'open'
          FROM ingest.observations
         WHERE observation_id = ANY($1::bigint[])

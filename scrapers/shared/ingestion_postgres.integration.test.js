@@ -127,6 +127,21 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
       const result = await pool.query("SELECT count(DISTINCT rr.relay_result_id)::int AS parents,count(DISTINCT sl.source_record_id)::int AS links FROM public.relay_results rr JOIN ingest.source_links sl USING(relay_result_id) JOIN ingest.source_records sr USING(source_record_id) WHERE sr.source_record_key='synthetic-relay'");
       assert.deepEqual(result.rows[0], { parents: 1, links: 1 });
     });
+    await t.test('changed linked source performance is held without rewriting the existing fact', async () => {
+      await promote([record('corrected-source', { mark_raw: '11.70' })]);
+      const changed = await promote([record('corrected-source', { mark_raw: '11.80' })]);
+      assert.equal(changed.quarantined, 1);
+      const linked = await pool.query("SELECT r.mark_raw FROM ingest.source_records sr JOIN ingest.source_links sl USING(source_record_id) JOIN public.results r USING(result_id) WHERE sr.source_record_key='corrected-source'");
+      assert.equal(linked.rows[0].mark_raw, '11.70');
+      assert.equal((await pool.query("SELECT count(*)::int AS n FROM public.results WHERE mark_raw='11.80'")).rows[0].n, 0);
+      const { CanonicalFactWriter } = require('./canonical_fact_writer');
+      await new CanonicalFactWriter({ pool }).commitRun(changed.runId);
+      assert.equal((await pool.query('SELECT q.reason_code FROM ingest.quarantine q JOIN ingest.observations o USING(observation_id) WHERE o.run_id=$1', [changed.runId])).rows[0].reason_code, 'source_correction_required');
+      const relayChange = await promote([record('synthetic-relay', { entity_type: 'relay_result', target_athlete_id: null,
+        event_type_id: 3, raw_event_name: '4x100m', mark_raw: '42.00', payload: { relay_athletes: [] } })]);
+      assert.equal(relayChange.quarantined, 1);
+      assert.equal((await pool.query("SELECT count(*)::int AS n FROM public.relay_results WHERE mark_raw='42.00'")).rows[0].n, 0);
+    });
     await t.test('source link target kind rejects crossed parent/individual targets and preserves legacy legs', async () => {
       const client = await pool.connect();
       try {

@@ -8,6 +8,7 @@
     "test:database-history": "node --test docs/database-audit/master_checklist.test.js docs/database-audit/reconcile_migrations.test.js docs/database-audit/migration_preflight.test.js",
     "test:ingestion-postgres": "node --test scrapers/shared/ingestion_postgres.integration.test.js",
     "test:source-evidence": "node --test scrapers/shared/source_evidence.test.js",
+    "test:source-corrections": "node --test scrapers/shared/source_correction.test.js",
     "test:shared": "node --test scrapers/shared/*.test.js",
     "gen:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > types/database.ts && cp types/database.ts frontend/types/database.ts",
     "db:types": "npm run gen:types",
