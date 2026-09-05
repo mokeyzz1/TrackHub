@@ -80,6 +80,11 @@ are in `docs/DATA_ISSUES_TRACKER.md`.
 
 ## Current next gate
 
+Superseded on 2026-09-05 by `SCHEMA_COVERAGE_20260905.md`: resume the whole-schema column and
+consumer review. The live catalog includes 75 tables, including the previously omitted partitioned
+`realtime.messages`, and seven views. All 969 relation columns are enumerated. Inventory coverage
+does not imply semantic review is complete. The individual relay repair work is not the next priority.
+
 The next safe action is to map the relay parent/leg cohorts back to private source records and raw
 observations, then review small source-owned batches. The repeated-leg gate proved that the 459
 rows are not exact same-slot duplicates, so no deletion or leg collapse is justified. The function-
