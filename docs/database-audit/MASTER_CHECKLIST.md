@@ -23,6 +23,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | SAFE-01 | P0 | Recheck backup availability/hashes; identify restore-tested scope and managed-platform limitations; require fresh before-images for each mutation | TRACK-01 | Complete: PRESERVATION_RECHECK_20260905.md |
 | MIG-01 | P0 | Reconcile local and live migration versions/statements; classify every unmatched entry; prove a safe deployment path without replaying applied SQL | SAFE-01 | Open |
 | MIG-01a | P0 | Align the two recent local filenames after full SQL comparison with recorded live versions; no SQL replay | SAFE-01 | Complete: MIGRATION_ALIGNMENT_20260905.md |
+| MIG-01b | P0 | Compare all migration SQL, align 27 verified filenames, and restore the original quarantine-refresh migration history with regression tests | MIG-01a | Complete: MIGRATION_RECONCILIATION_CHECKPOINT_20260905.md |
 | ING-01 | P1 | Provider-qualified replay keys; whole-call duplicate/provenance validation; regression tests; measure existing cross-provider key collisions | TRACK-01 | Complete: 233 ingestion / 65 shared tests pass; zero live cross-provider key groups |
 | MODEL-01 | P1 | Review each application table/column purpose, actual values, readers/writers and reference relationships; decide preserve, improve or retire | SAFE-01, MIG-01 | Open |
 | ID-01 | P1 | Review canonical identity constraints, reviewed aliases and uncertainty handling; verify prior repairs against alias history | MODEL-01 | Open |

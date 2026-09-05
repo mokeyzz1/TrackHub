@@ -31,12 +31,12 @@ BEGIN
   ), target_meets AS (
     SELECT m.meet_id,
            CASE
-             WHEN m.tfrrs_url ~* '(tfrrs\.org|tfrrs)' THEN m.tfrrs_url
-             WHEN m.tfrrs_url IS NULL AND m.meet_url ~* '(tfrrs\.org|tfrrs)' THEN m.meet_url
+             WHEN m.tfrrs_url ~* '(tfrrs\\.org|tfrrs)' THEN m.tfrrs_url
+             WHEN m.tfrrs_url IS NULL AND m.meet_url ~* '(tfrrs\\.org|tfrrs)' THEN m.meet_url
            END AS tfrrs_url,
            CASE
-             WHEN m.athletic_net_results_url ~* '(athletic\.net|anet\.live)' THEN m.athletic_net_results_url
-             WHEN m.athletic_net_results_url IS NULL AND m.meet_url ~* '(athletic\.net|anet\.live)' THEN m.meet_url
+             WHEN m.athletic_net_results_url ~* '(athletic\\.net|anet\\.live)' THEN m.athletic_net_results_url
+             WHEN m.athletic_net_results_url IS NULL AND m.meet_url ~* '(athletic\\.net|anet\\.live)' THEN m.meet_url
            END AS athletic_net_results_url,
            m.wa_results_url,
            m.meet_url,
@@ -133,6 +133,7 @@ BEGIN
   RETURN changed_rows;
 END;
 $$;
+
 REVOKE ALL ON FUNCTION ingest.refresh_recovery_queue(text, date, date) FROM PUBLIC;
 
 DO $$

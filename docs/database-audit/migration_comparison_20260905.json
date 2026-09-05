@@ -1,0 +1,1478 @@
+{
+  "method": "Conservative lexical comparison; quoted/function bodies preserved; not semantic proof or replay authorization.",
+  "localCount": 124,
+  "liveCount": 85,
+  "files": [
+    {
+      "file": "20260122075100_live_results_schema.sql",
+      "version": "20260122075100",
+      "name": "live_results_schema",
+      "tracked": true,
+      "fingerprint": "d996d8efe7bc320d8952229a11e1b250661ec65655add4c2d45721c2740dc6ee",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260122075100"
+      ]
+    },
+    {
+      "file": "20260123120000_fix_waitlist_policy.sql",
+      "version": "20260123120000",
+      "name": "fix_waitlist_policy",
+      "tracked": true,
+      "fingerprint": "d1d157244a166092064a315757cd7ba8e19ef294868f148d9ce9d91262171e53",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260123120000"
+      ]
+    },
+    {
+      "file": "20260201_create_athlete_prs.sql",
+      "version": "20260201",
+      "name": "create_athlete_prs",
+      "tracked": true,
+      "fingerprint": "698ff85a5bcd2552784879197db1cfbb822ee83852e1f7226333600281064e35",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260201"
+      ]
+    },
+    {
+      "file": "20260205181259_add_meet_event_ids.sql",
+      "version": "20260205181259",
+      "name": "add_meet_event_ids",
+      "tracked": true,
+      "fingerprint": "9ab334d5160450f17137b647cbd1b43e40a12a2b7bc04fdb04b4c5ef445a157b",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260205181259"
+      ]
+    },
+    {
+      "file": "20260205183000_fix_athlete_sequence.sql",
+      "version": "20260205183000",
+      "name": "fix_athlete_sequence",
+      "tracked": true,
+      "fingerprint": "4e0043fb19ee434b810d84f50ff60b74f09484239e908cc3103d2ab1c916f558",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260205183000"
+      ]
+    },
+    {
+      "file": "20260205194604_add_relay_tables.sql",
+      "version": "20260205194604",
+      "name": "add_relay_tables",
+      "tracked": true,
+      "fingerprint": "82e569abdc9ed60d99f8fd623a1c59b401920f766672cab3d22f62cc58275e8d",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260205194604"
+      ]
+    },
+    {
+      "file": "20260206_add_tfrrs_meet_id.sql",
+      "version": "20260206",
+      "name": "add_tfrrs_meet_id",
+      "tracked": true,
+      "fingerprint": "cfd3dd1cd4d2b497ec80deb8f300cf0a8ebc1b3c5ad93cb5ed6e6c9a888ad678",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260206"
+      ]
+    },
+    {
+      "file": "20260210_top_performances_function.sql",
+      "version": "20260210",
+      "name": "top_performances_function",
+      "tracked": true,
+      "fingerprint": "d152ab5d7559058509c1e0b524c16c7041ff2fbe330f6d1585e1e8fd2a89ee95",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260210"
+      ]
+    },
+    {
+      "file": "20260210_top_performances_with_scoring.sql",
+      "version": "20260210",
+      "name": "top_performances_with_scoring",
+      "tracked": true,
+      "fingerprint": "49b64e6d6d8b92617e7ea3b0cf3f1a94c5213d96971dc0d1c61f046d55718290",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260211_fix_event_name_matching.sql",
+      "version": "20260211",
+      "name": "fix_event_name_matching",
+      "tracked": true,
+      "fingerprint": "91020bf09079c595cfc27d05ccf4cc40a0ebf5db906973c3589316376d4acb92",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260211_fix_weight_throw_scoring.sql",
+      "version": "20260211",
+      "name": "fix_weight_throw_scoring",
+      "tracked": true,
+      "fingerprint": "a71ef5809e74dafaa913481150869a9eafdc4b0b1b45859e18e823810d6cef60",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260211_indoor_outdoor_scoring.sql",
+      "version": "20260211",
+      "name": "indoor_outdoor_scoring",
+      "tracked": true,
+      "fingerprint": "4f1edd36948882e1e548365a93bb5979f2f8573b315c9783452fb861b73315b6",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260216_add_meet_end_date.sql",
+      "version": "20260216",
+      "name": "add_meet_end_date",
+      "tracked": true,
+      "fingerprint": "c1615deb52c0895dd6607016ec040cb202d9972f053d6a56eba67d56af005ed3",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260216_add_performance_indexes.sql",
+      "version": "20260216",
+      "name": "add_performance_indexes",
+      "tracked": true,
+      "fingerprint": "7a991af931ab044c61a58a3eb8a51e924a78f74009d0c2e4682f4e12a157f42b",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260216_normalized_event_names.sql",
+      "version": "20260216",
+      "name": "normalized_event_names",
+      "tracked": true,
+      "fingerprint": "13aa853c40aa3a9f81e939a29e90402c84e441dbd81e06624dc2203a1f546b29",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260220_normalize_event_names.sql",
+      "version": "20260220",
+      "name": "normalize_event_names",
+      "tracked": true,
+      "fingerprint": "f201ed36502f1e807ba0372fcb1a20b35bc901957397e5e409f22b7eb5093a19",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260220_push_tokens.sql",
+      "version": "20260220",
+      "name": "push_tokens",
+      "tracked": true,
+      "fingerprint": "2e9cc4cc1887ed5beef846c54180eb5bbc31c1784205112f7e35abf713cc4cfe",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260221_comprehensive_event_normalization.sql",
+      "version": "20260221",
+      "name": "comprehensive_event_normalization",
+      "tracked": true,
+      "fingerprint": "d042c79f57b82673a60d056e638f1e6154312c89f350273aa655f7161af55c79",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260221_event_normalization_batched.sql",
+      "version": "20260221",
+      "name": "event_normalization_batched",
+      "tracked": true,
+      "fingerprint": "4b9f0cf0136170e7249e8c4c91e2349c3168173c8bb65fae48d4973ba927fceb",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260223_wa_scoring_with_bounds.sql",
+      "version": "20260223",
+      "name": "wa_scoring_with_bounds",
+      "tracked": true,
+      "fingerprint": "3ce30cb75b9d82deb4db44a18b654ca911120c0b83045348c827c06edfd84653",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260527_expand_timing_platform_detection.sql",
+      "version": "20260527",
+      "name": "expand_timing_platform_detection",
+      "tracked": true,
+      "fingerprint": "1a645eafc32d20230811bfa8824a2d7a592f3b69b34f12583c2aef9221817439",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260528_add_final_result_links.sql",
+      "version": "20260528",
+      "name": "add_final_result_links",
+      "tracked": true,
+      "fingerprint": "801de3c818bf4e0791f21cf9cb1d25286968af03ab1dcf322ac59936070bd2ef",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260528"
+      ]
+    },
+    {
+      "file": "20260714_create_event_types_and_aliases.sql",
+      "version": "20260714",
+      "name": "create_event_types_and_aliases",
+      "tracked": true,
+      "fingerprint": "6e441e07228ec65d34b04dfb333554685cafeae9ec1e131ec3cd0d6162a6d9de",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260710063357"
+      ]
+    },
+    {
+      "file": "20260714_drop_duplicate_indexes.sql",
+      "version": "20260714",
+      "name": "drop_duplicate_indexes",
+      "tracked": true,
+      "fingerprint": "3c1ad92443e89efdd2ca9b4b0b348e84d55065398c28c94479f33e5a81c65871",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260714_enable_rls_relay_tables.sql",
+      "version": "20260714",
+      "name": "enable_rls_relay_tables",
+      "tracked": true,
+      "fingerprint": "2a4b28b6af48ff75f843c4424afd607cf352019d1ebb350c25cbda02a9c626a2",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260714_recompute_meet_seasons.sql",
+      "version": "20260714",
+      "name": "recompute_meet_seasons",
+      "tracked": true,
+      "fingerprint": "770310c66f7c9c90c311bcd1014ac2c9bbdc54693e5f1ae1f9e2a49a0568bd2c",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260714_seed_event_catalog.sql",
+      "version": "20260714",
+      "name": "seed_event_catalog",
+      "tracked": true,
+      "fingerprint": "e1d146a07448d1ad426d09d563dc54250a66912a5b4747ce086e04bddc258e8b",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260715_add_meet_id_fks.sql",
+      "version": "20260715",
+      "name": "add_meet_id_fks",
+      "tracked": true,
+      "fingerprint": "504f35bccb374bfd457bdcb1124d741f176960f07f418322b763c7f1011ae8c7",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260715_computed_athlete_prs.sql",
+      "version": "20260715",
+      "name": "computed_athlete_prs",
+      "tracked": true,
+      "fingerprint": "78b42faf035cc31cfc67b45e855bd80165f928ad615025b4d07794593b8c36a4",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260806182647"
+      ]
+    },
+    {
+      "file": "20260715_create_divisions_dimension.sql",
+      "version": "20260715",
+      "name": "create_divisions_dimension",
+      "tracked": true,
+      "fingerprint": "21125c53fc8ad904819efc4645a459d7ab68afb718ddec306a7acd37a23a9fe2",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260715201807"
+      ]
+    },
+    {
+      "file": "20260715_drop_dead_tables.sql",
+      "version": "20260715",
+      "name": "drop_dead_tables",
+      "tracked": true,
+      "fingerprint": "50bab9f83f1ff59fdcba088c8e3545bdfa2554979030c51a6f33cdbf4db19c49",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260715_relay_event_normalization.sql",
+      "version": "20260715",
+      "name": "relay_event_normalization",
+      "tracked": true,
+      "fingerprint": "621d4a7cd3367c3b580b2534480437bcb4c690bd3d4f95575d87892e4054264f",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260716_add_results_source_tracking.sql",
+      "version": "20260716",
+      "name": "add_results_source_tracking",
+      "tracked": true,
+      "fingerprint": "13f93289b270e43e401ee2210980be5471d2b964b9b538d3fb92b70031679568",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260716201815"
+      ]
+    },
+    {
+      "file": "20260719_athletic_net_event_aliases.sql",
+      "version": "20260719",
+      "name": "athletic_net_event_aliases",
+      "tracked": true,
+      "fingerprint": "311d8ee72aa0923d8eaec47542cc562754f3ab1758cca776f4cb187cfedb8693",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260719_backfill_results_source_tfrrs.sql",
+      "version": "20260719",
+      "name": "backfill_results_source_tfrrs",
+      "tracked": true,
+      "fingerprint": "3fab807b52f1376c01dc51bdbc8400482b916d95ae9f4fdab7ebfb991ba51671",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260719_refresh_athlete_current_school.sql",
+      "version": "20260719",
+      "name": "refresh_athlete_current_school",
+      "tracked": true,
+      "fingerprint": "d41c1d8f7b4b6cc1c80bf5bf3bdd42cb7648e8829a24bd4ab7e250d33ef34201",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260809_index_results_team_id.sql",
+      "version": "20260809",
+      "name": "index_results_team_id",
+      "tracked": true,
+      "fingerprint": "6154993cf508001d87f260293b9c3227baadd0901245cd6efcb5f3abef81f6ee",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260819204028_create_ingestion_control_plane.sql",
+      "version": "20260819204028",
+      "name": "create_ingestion_control_plane",
+      "tracked": true,
+      "fingerprint": "23bd95cecea4c5eed11ebcd4f817509a6d975def538927afb5c588810fa2e500",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260819204028"
+      ]
+    },
+    {
+      "file": "20260819204123_add_ingestion_control_plane_indexes.sql",
+      "version": "20260819204123",
+      "name": "add_ingestion_control_plane_indexes",
+      "tracked": true,
+      "fingerprint": "24f58622acb70bf1eb011059ebdb77f23ee948ccbca6f161ca22741bb87108cf",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260819204123"
+      ]
+    },
+    {
+      "file": "20260819205735_harden_public_data_access.sql",
+      "version": "20260819205735",
+      "name": "harden_public_data_access",
+      "tracked": true,
+      "fingerprint": "ad2c079afcd4c5263dd2456c3d1efdab4abae4beef0dcac7366f22195ebec05e",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260819205735"
+      ]
+    },
+    {
+      "file": "20260819210753_harden_ingest_link_invariants.sql",
+      "version": "20260819210753",
+      "name": "harden_ingest_link_invariants",
+      "tracked": true,
+      "fingerprint": "c1751448ac3a0a23fe1a9ecbe9c64691a9d9a3d2c815a41def59a2206615744f",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260819210753"
+      ]
+    },
+    {
+      "file": "20260819211753_reconcile_meets_sequence.sql",
+      "version": "20260819211753",
+      "name": "reconcile_meets_sequence",
+      "tracked": true,
+      "fingerprint": "0a0cc620f120d890bdeab6fbac2f6d10798f3f1b52b8bf0a862b8d1796a8b7e3",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260819211753"
+      ]
+    },
+    {
+      "file": "20260819212203_create_recovery_queue.sql",
+      "version": "20260819212203",
+      "name": "create_recovery_queue",
+      "tracked": true,
+      "fingerprint": "16c185537c81f6bd9e5f1fd51e15894d2066dd1e98f2a419eb1a8cc954d99d25",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260819212203"
+      ]
+    },
+    {
+      "file": "20260819212404_refine_recovery_queue_sources.sql",
+      "version": "20260819212404",
+      "name": "refine_recovery_queue_sources",
+      "tracked": true,
+      "fingerprint": "8db9fdbad553f473923dc31af41be9955aa5ae5f75aaa4dab7589d9181fc1dd0",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260819212404"
+      ]
+    },
+    {
+      "file": "20260820020100_refine_recovery_queue_source_hosts.sql",
+      "version": "20260820020100",
+      "name": "refine_recovery_queue_source_hosts",
+      "tracked": true,
+      "fingerprint": "42d44ec1a464c5f8dc2c760754c7e1abc5ecf560de6257661a452f4ea07743c4",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260820020220"
+      ]
+    },
+    {
+      "file": "20260820020319_reconcile_recovery_queue_invalid_sources.sql",
+      "version": "20260820020319",
+      "name": "reconcile_recovery_queue_invalid_sources",
+      "tracked": true,
+      "fingerprint": "d9d87e1c192a18f28fdf37844fa29790730c00de8c0b488794b7da49e8e309d2",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260820020401"
+      ]
+    },
+    {
+      "file": "20260820020659_index_recovery_queue_last_run_id.sql",
+      "version": "20260820020659",
+      "name": "index_recovery_queue_last_run_id",
+      "tracked": true,
+      "fingerprint": "346e506487432aa70593ae1383c2649eb2bce90b3d2ad9f022c2c3779d90d8bc",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260820020709"
+      ]
+    },
+    {
+      "file": "20260820025004_clear_recovery_queue_error_on_complete.sql",
+      "version": "20260820025004",
+      "name": "clear_recovery_queue_error_on_complete",
+      "tracked": true,
+      "fingerprint": "40fa85a1aaf940dc570a64071fd23a1d7acee445db673c4cf2b84c84451ea096",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260820025023"
+      ]
+    },
+    {
+      "file": "20260820032000_track_relay_source_coverage.sql",
+      "version": "20260820032000",
+      "name": "track_relay_source_coverage",
+      "tracked": true,
+      "fingerprint": "0d10f52036b5adb1260c28286e955ca2bb9bbc164175f0769a9f5c79cd4012a9",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260820054037_team_aliases.sql",
+      "version": "20260820054037",
+      "name": "team_aliases",
+      "tracked": true,
+      "fingerprint": "d5ceca5b2dacc2ba8fb6dabc65a92242835eec26458f562cdde9fa3ee110242b",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260820054321"
+      ]
+    },
+    {
+      "file": "20260820055613_california_junior_college_team_entities.sql",
+      "version": "20260820055613",
+      "name": "california_junior_college_team_entities",
+      "tracked": true,
+      "fingerprint": "f2e75b60f5e646e7dbabf74671d7599bc18af3bd39eed4886c05641f9aba90b7",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260820055917"
+      ]
+    },
+    {
+      "file": "20260820060951_athlete_aliases.sql",
+      "version": "20260820060951",
+      "name": "athlete_aliases",
+      "tracked": true,
+      "fingerprint": "f77225c8b6eb67de1c4dfbd1926ba15526b8552af2affdf04d446fb3e247a90a",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260820061042"
+      ]
+    },
+    {
+      "file": "20260820073500_athletic_net_kirtland_team_alias.sql",
+      "version": "20260820073500",
+      "name": "athletic_net_kirtland_team_alias",
+      "tracked": true,
+      "fingerprint": "7da1380b196d84758503a9853f3db29cc96d478996e9c8aaea84dfc6899138e0",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260820070559"
+      ]
+    },
+    {
+      "file": "20260820074000_refine_athletic_net_kirtland_team_alias.sql",
+      "version": "20260820074000",
+      "name": "refine_athletic_net_kirtland_team_alias",
+      "tracked": true,
+      "fingerprint": "fd35f65879c80709252979de28db51040b3d225fdd299dcf18be0e0105664860",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260820070638"
+      ]
+    },
+    {
+      "file": "20260821005928_preserve_partial_recovery_queue_state.sql",
+      "version": "20260821005928",
+      "name": "preserve_partial_recovery_queue_state",
+      "tracked": true,
+      "fingerprint": "0a4a0da6ff447ea56527d82ebf2c5423c3103faf74edc82a2d0091e0e999e3b1",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821005928"
+      ]
+    },
+    {
+      "file": "20260821010233_preserve_partial_recovery_queue_relay_probe.sql",
+      "version": "20260821010233",
+      "name": "preserve_partial_recovery_queue_relay_probe",
+      "tracked": true,
+      "fingerprint": "822615fb5f80484df5bf8258e75ae2247a8b26bfed5bf5e18e11f27805e2a2c5",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821010233"
+      ]
+    },
+    {
+      "file": "20260821033001_add_4000m_distance_medley_alias.sql",
+      "version": "20260821033001",
+      "name": "add_4000m_distance_medley_alias",
+      "tracked": true,
+      "fingerprint": "fa66f42870a34e4637d1c3e5a3767e79fea491aa35b1a16a58450ccf461de375",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821033030"
+      ]
+    },
+    {
+      "file": "20260821033750_add_college_relay_event_aliases.sql",
+      "version": "20260821033750",
+      "name": "add_college_relay_event_aliases",
+      "tracked": true,
+      "fingerprint": "af77336cc2eaa9a0885b11cac8f44c60d4e5d41a778264d5f2ffbd2b38dc37a6",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821033805"
+      ]
+    },
+    {
+      "file": "20260821034555_add_tfrs_qualified_event_aliases.sql",
+      "version": "20260821034555",
+      "name": "add_tfrs_qualified_event_aliases",
+      "tracked": true,
+      "fingerprint": "e34271a894bd999ea195c58d09f5f404b2919f34159412ff5063c0b0ff10a120",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821034630"
+      ]
+    },
+    {
+      "file": "20260821035607_add_tfrs_high_school_mile_alias.sql",
+      "version": "20260821035607",
+      "name": "add_tfrs_high_school_mile_alias",
+      "tracked": true,
+      "fingerprint": "ff97809d17a94fc14da8b82ba772e47b948ae8ff5f6d021ac58d472984d9512a",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821035620"
+      ]
+    },
+    {
+      "file": "20260821040050_add_tfrs_wheelchair_event_aliases.sql",
+      "version": "20260821040050",
+      "name": "add_tfrs_wheelchair_event_aliases",
+      "tracked": true,
+      "fingerprint": "86eb0034429bfca8bd751e634f191061bc87acc42033939d65d5e236a4f21daa",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821040105"
+      ]
+    },
+    {
+      "file": "20260821041716_add_athleticlive_collegiate_event_aliases.sql",
+      "version": "20260821041716",
+      "name": "add_athleticlive_collegiate_event_aliases",
+      "tracked": true,
+      "fingerprint": "37e9de08fd79f0584e2616ec67d838f6486753f8ff007b53ab5480a710e39cbe",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821041804"
+      ]
+    },
+    {
+      "file": "20260821041930_add_mixed_4x400m_event_type.sql",
+      "version": "20260821041930",
+      "name": "add_mixed_4x400m_event_type",
+      "tracked": true,
+      "fingerprint": "ecf8d9373512b618b86750329aa12b5e61b3fd444d91c7c4c25a903b94e5230f",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821041943"
+      ]
+    },
+    {
+      "file": "20260821042746_add_athleticlive_punctuated_relay_aliases.sql",
+      "version": "20260821042746",
+      "name": "add_athleticlive_punctuated_relay_aliases",
+      "tracked": true,
+      "fingerprint": "30c99ee466e722f1d879a30eb6b94c489e361090d6ba3534c464fb44814249d3",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821042759"
+      ]
+    },
+    {
+      "file": "20260821043621_add_athleticlive_invitational_relay_alias.sql",
+      "version": "20260821043621",
+      "name": "add_athleticlive_invitational_relay_alias",
+      "tracked": true,
+      "fingerprint": "8f8fca0326af06447b87bbf513e471037e608eb17755c6c9824522b93ffa2bab",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821043633"
+      ]
+    },
+    {
+      "file": "20260821115738_recompute_open_recovery_quarantines.sql",
+      "version": "20260821115738",
+      "name": "recompute_open_recovery_quarantines",
+      "tracked": true,
+      "fingerprint": "1766707a79ed5ce686018b0c7f6ac2a890641b0c22c90226e73268c75de2c56e",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821115931"
+      ]
+    },
+    {
+      "file": "20260821115931_fix_recovery_queue_source_regex.sql",
+      "version": "20260821115931",
+      "name": "fix_recovery_queue_source_regex",
+      "tracked": true,
+      "fingerprint": "1766707a79ed5ce686018b0c7f6ac2a890641b0c22c90226e73268c75de2c56e",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821115931"
+      ]
+    },
+    {
+      "file": "20260821130000_add_trackscoreboard_ingestion_source.sql",
+      "version": "20260821130000",
+      "name": "add_trackscoreboard_ingestion_source",
+      "tracked": true,
+      "fingerprint": "9cab15bc903d85f7682cf448fdf3650330bc485dd3f5254abce4870713a88582",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821132606"
+      ]
+    },
+    {
+      "file": "20260821130001_add_lai_relay_event_aliases.sql",
+      "version": "20260821130001",
+      "name": "add_lai_relay_event_aliases",
+      "tracked": true,
+      "fingerprint": "ebbebae1ffbde86abb257366aa03e739660db9442f3edba5c9938929b21470a3",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260821132619"
+      ]
+    },
+    {
+      "file": "20260828233203_recovery_queue_canonical_meet_target.sql",
+      "version": "20260828233203",
+      "name": "recovery_queue_canonical_meet_target",
+      "tracked": true,
+      "fingerprint": "7b9fa6b74470d36f3cc7cfd57fd49716314183cf84550f8b8348aeb941a07f39",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260828233616"
+      ]
+    },
+    {
+      "file": "20260829083609_add_athleticlive_pentathlon_sub_event_aliases.sql",
+      "version": "20260829083609",
+      "name": "add_athleticlive_pentathlon_sub_event_aliases",
+      "tracked": true,
+      "fingerprint": "1d82515b2038eb9212535406a6c65183de9812df1f10f4c8309f2a86563c51df",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829084952_add_athleticlive_college_event_aliases.sql",
+      "version": "20260829084952",
+      "name": "add_athleticlive_college_event_aliases",
+      "tracked": true,
+      "fingerprint": "605c461300dd259bc5b1d8c136b9d8061f786485fd3f7a8e78a707bc4bf2fc91",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829085632_add_athleticlive_racewalk_masters_aliases.sql",
+      "version": "20260829085632",
+      "name": "add_athleticlive_racewalk_masters_aliases",
+      "tracked": true,
+      "fingerprint": "63fbfe956e67e72d593a896b9e73115eda3aa09b1e518f46f1f940c6bf0b87b2",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829090000_add_cccaa_and_missing_junior_college_teams.sql",
+      "version": "20260829090000",
+      "name": "add_cccaa_and_missing_junior_college_teams",
+      "tracked": true,
+      "fingerprint": "306e67c2b2aa319b7ecafda9522f2280bf261b9d72bb91718e2ce336dbd178f7",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260829031927"
+      ]
+    },
+    {
+      "file": "20260829090319_add_athleticlive_pentathlon_mile_aliases.sql",
+      "version": "20260829090319",
+      "name": "add_athleticlive_pentathlon_mile_aliases",
+      "tracked": true,
+      "fingerprint": "a5241feef43295916a4a1a5700cefc8449d3f892537d2a01d9a85aad20b57cc8",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829091856_add_athleticlive_punctuated_seeded_event_aliases.sql",
+      "version": "20260829091856",
+      "name": "add_athleticlive_punctuated_seeded_event_aliases",
+      "tracked": true,
+      "fingerprint": "2ddb1a9773e23b677e98189e94c6a429d4fa874aebea682343cc6da5272dbf90",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829093000_add_glendale_ca_tfrrs_alias.sql",
+      "version": "20260829093000",
+      "name": "add_glendale_ca_tfrrs_alias",
+      "tracked": true,
+      "fingerprint": "1a65cb7eac935ec361330bb75846ee7bc783bd01d53a60cd87197877bc77583f",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260829032324"
+      ]
+    },
+    {
+      "file": "20260829110000_add_lai_puerto_rico_team_entities.sql",
+      "version": "20260829110000",
+      "name": "add_lai_puerto_rico_team_entities",
+      "tracked": true,
+      "fingerprint": "40cb7160ef03e6ca3edc9e4908be3550fa4cb8c3c53b37ec63c7d522601e9c29",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829130000_add_tfrrs_unattached_team_aliases.sql",
+      "version": "20260829130000",
+      "name": "add_tfrrs_unattached_team_aliases",
+      "tracked": true,
+      "fingerprint": "54e56636d812d013799dee5dc39f9f1939532027838ba2dd2e12c25eac91a1c4",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829140000_add_hammer_throw_event_alias.sql",
+      "version": "20260829140000",
+      "name": "add_hammer_throw_event_alias",
+      "tracked": true,
+      "fingerprint": "ab6e67ad16fb700805f6d0563259549a09a3c2c36a5678febb28a7df4b1fc216",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829150000_add_ccbc_catonsville_athletic_net_alias.sql",
+      "version": "20260829150000",
+      "name": "add_ccbc_catonsville_athletic_net_alias",
+      "tracked": true,
+      "fingerprint": "1ace6f07bfee33aecd51ca910a917aa4b54af291c80b298408506b404a5c266f",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829160000_add_semifinal_event_aliases.sql",
+      "version": "20260829160000",
+      "name": "add_semifinal_event_aliases",
+      "tracked": true,
+      "fingerprint": "5f551a7cd6b9d828b5cef769492ed02141fa79a68c0b06998dfa4cea90d7146f",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829170000_add_athleticlive_3000m_racewalk_alias.sql",
+      "version": "20260829170000",
+      "name": "add_athleticlive_3000m_racewalk_alias",
+      "tracked": true,
+      "fingerprint": "fde9376f26fef8da80bf260dee93cc0659febd187d9d91df9f667f1f30a4bdbe",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829180000_add_lai_athletic_net_team_aliases.sql",
+      "version": "20260829180000",
+      "name": "add_lai_athletic_net_team_aliases",
+      "tracked": false,
+      "fingerprint": "4a4951da6ceed2854dcc68c4c24cae57289c040f3f9f2bb6748b5aee6ee30d5d",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829220000_repair_big12_cross_meet_relays.sql",
+      "version": "20260829220000",
+      "name": "repair_big12_cross_meet_relays",
+      "tracked": true,
+      "fingerprint": "7628cef92afc057b429be42dd0ce51cd99114b3d8584b504bbc5762f75c935cb",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260829220000"
+      ]
+    },
+    {
+      "file": "20260829224504_create_4x100_recovery_jobs.sql",
+      "version": "20260829224504",
+      "name": "create_4x100_recovery_jobs",
+      "tracked": true,
+      "fingerprint": "419c431549df963ff1d822401997ea44a161dc1c01260d0e7512454c2fcb85e1",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260829224504"
+      ]
+    },
+    {
+      "file": "20260829230000_normalize_ed_daniels_relay_statuses.sql",
+      "version": "20260829230000",
+      "name": "normalize_ed_daniels_relay_statuses",
+      "tracked": true,
+      "fingerprint": "fd38d12034b7d3b7bea8852de14353dd7e8f78603fa7acfb73e7fd3fca06cc08",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260829230000"
+      ]
+    },
+    {
+      "file": "20260829230411_refine_4x100_recovery_claim_filters.sql",
+      "version": "20260829230411",
+      "name": "refine_4x100_recovery_claim_filters",
+      "tracked": true,
+      "fingerprint": "f075d71bb8b096b5bff18be21930a03f6e50bec0495ba42e2168abe54a1697a3",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260829230411"
+      ]
+    },
+    {
+      "file": "20260829231000_repair_njcaa_cross_meet_relays.sql",
+      "version": "20260829231000",
+      "name": "repair_njcaa_cross_meet_relays",
+      "tracked": true,
+      "fingerprint": "bdee7c94f4c6847d8d5229e88f018d894cc359e007f4a1cf25ec047218a2ee40",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260829231000"
+      ]
+    },
+    {
+      "file": "20260830023000_preserve_4x100_discovered_sources.sql",
+      "version": "20260830023000",
+      "name": "preserve_4x100_discovered_sources",
+      "tracked": true,
+      "fingerprint": "72c98e8f865e2e41e54e1d00b78de0ed1058f4ade5b3105ea133db44ca307e2a",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260830023000"
+      ]
+    },
+    {
+      "file": "20260830024500_only_queue_usable_4x100_sources.sql",
+      "version": "20260830024500",
+      "name": "only_queue_usable_4x100_sources",
+      "tracked": true,
+      "fingerprint": "8e6c7d3a8d40bec36068a0c7161d5178187e5f70b5dcce8be262559806d515d4",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260830024500"
+      ]
+    },
+    {
+      "file": "20260830031500_scope_4x100_refresh_by_season.sql",
+      "version": "20260830031500",
+      "name": "scope_4x100_refresh_by_season",
+      "tracked": true,
+      "fingerprint": "94c8607d14a7808815e9da27e585f1f08d618b2c28236ae724719112ca6fc84f",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260830031500"
+      ]
+    },
+    {
+      "file": "20260831090000_bound_4x100_retry_claims.sql",
+      "version": "20260831090000",
+      "name": "bound_4x100_retry_claims",
+      "tracked": true,
+      "fingerprint": "9082ce1ecdf7218c7e8e9310587f425927fe16ba0b812ef33b38c0c5e38c1118",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260831090000"
+      ]
+    },
+    {
+      "file": "20260831162736_route_4x100_meet_url_sources.sql",
+      "version": "20260831162736",
+      "name": "route_4x100_meet_url_sources",
+      "tracked": true,
+      "fingerprint": "05b8e7ebc1f5e767a1f2944d1f65a1fddc4ab97d5584e4c8754f6c140afecdb4",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260831162736"
+      ]
+    },
+    {
+      "file": "20260831163739_repair_4x100_meet_url_host_routing.sql",
+      "version": "20260831163739",
+      "name": "repair_4x100_meet_url_host_routing",
+      "tracked": true,
+      "fingerprint": "fd06ba02f2a7568e50f5b29808a240eb91ae192efb4af2c6ce89d699db91371d",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260831163739"
+      ]
+    },
+    {
+      "file": "20260831164109_bound_4x100_queued_attempt_claims.sql",
+      "version": "20260831164109",
+      "name": "bound_4x100_queued_attempt_claims",
+      "tracked": true,
+      "fingerprint": "9d7d09fe648d70a5e9d0599d58902b481b1f9f2a2cb575fb2b2d098dddfeecdd",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260831164109"
+      ]
+    },
+    {
+      "file": "20260831164350_reset_4x100_rerouted_source_budget_v2.sql",
+      "version": "20260831164350",
+      "name": "reset_4x100_rerouted_source_budget_v2",
+      "tracked": true,
+      "fingerprint": "6c45fe9cb16c59a222ddbba4feb702fd34d6c8539b14dc64baae832061c5fbad",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260831164350"
+      ]
+    },
+    {
+      "file": "20260831171555_add_timing_provider_ingestion_sources.sql",
+      "version": "20260831171555",
+      "name": "add_timing_provider_ingestion_sources",
+      "tracked": true,
+      "fingerprint": "cfd5a9ad65e9adeaa6ca391564df444b2207269c96159fb214cc3af1a3075736",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260831171555"
+      ]
+    },
+    {
+      "file": "20260831200000_reconcile_partial_event_queue_status.sql",
+      "version": "20260831200000",
+      "name": "reconcile_partial_event_queue_status",
+      "tracked": true,
+      "fingerprint": "60d7d40e60d5d4dd624475b2c4653afe858738dc6cfdc0d4da4816f25fe162e3",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260901210719_create_outdoor_2026_4x100_reconciliation_jobs.sql",
+      "version": "20260901210719",
+      "name": "create_outdoor_2026_4x100_reconciliation_jobs",
+      "tracked": true,
+      "fingerprint": "bdf22e4e46c2a37124a380b1e1e5782412e548649594d5e8842a6f46007d245f",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260901210719"
+      ]
+    },
+    {
+      "file": "20260901233750_consolidate_outdoor_2026_4x100_into_event_recovery_queue.sql",
+      "version": "20260901233750",
+      "name": "consolidate_outdoor_2026_4x100_into_event_recovery_queue",
+      "tracked": true,
+      "fingerprint": "4199943ef5cd9d29f6dcd7f8761a7501d4b328e697787520d2d20053550b3aa9",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260901233750"
+      ]
+    },
+    {
+      "file": "20260902100000_split_invalid_history_claims.sql",
+      "version": "20260902100000",
+      "name": "split_invalid_history_claims",
+      "tracked": true,
+      "fingerprint": "743933576998b926bfe47b64ff9dd2813818eb1fe2fbaeb7943884a5aeec21e0",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260902120000_consolidate_reviewed_school_duplicates.sql",
+      "version": "20260902120000",
+      "name": "consolidate_reviewed_school_duplicates",
+      "tracked": true,
+      "fingerprint": "126cdd5092bac3d6c62d168545c4b92f00d9e5b006ccb0419d3b2e35c79b59bf",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260902120000"
+      ]
+    },
+    {
+      "file": "20260902130000_remove_reviewed_empty_school_duplicates.sql",
+      "version": "20260902130000",
+      "name": "remove_reviewed_empty_school_duplicates",
+      "tracked": true,
+      "fingerprint": "53f0965309c5e189511d71853946aff58f232a0adb52bc848a986f60cb0658bf",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260902130000"
+      ]
+    },
+    {
+      "file": "20260902140000_repair_aug18_tfrrs_edition_contamination.sql",
+      "version": "20260902140000",
+      "name": "repair_aug18_tfrrs_edition_contamination",
+      "tracked": true,
+      "fingerprint": "9218d2c21b89ea2be742e8bbcb4f2e1e2aee64ceb1c2555b03f6eddf234592f3",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260902140000"
+      ]
+    },
+    {
+      "file": "20260902144458_preserve_reviewed_secondary_athlete_identities.sql",
+      "version": "20260902144458",
+      "name": "preserve_reviewed_secondary_athlete_identities",
+      "tracked": true,
+      "fingerprint": "1241bd9169336fcc1e0577d2d995059d3dd76e70af34bce4127b0dd70775d29b",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260902144458"
+      ]
+    },
+    {
+      "file": "20260902170615_consolidate_reviewed_athlete_duplicates.sql",
+      "version": "20260902170615",
+      "name": "consolidate_reviewed_athlete_duplicates",
+      "tracked": true,
+      "fingerprint": "e12c4eee6be65af0255905927aa9634adb2ce704bd62e03cffa185f4c0044e47",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260902170615"
+      ]
+    },
+    {
+      "file": "20260903180000_add_explicit_team_affiliation_fields.sql",
+      "version": "20260903180000",
+      "name": "add_explicit_team_affiliation_fields",
+      "tracked": true,
+      "fingerprint": "7905d326352a91decb0479c734bed0b3b7a7a2fcfd8b53fc4e732d584d0845b3",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260903180000"
+      ]
+    },
+    {
+      "file": "20260903200000_apply_reviewed_4x100_team_links.sql",
+      "version": "20260903200000",
+      "name": "apply_reviewed_4x100_team_links",
+      "tracked": true,
+      "fingerprint": "5f1c6c6799ee7b0af978132b8b0dc583bdaf78563e29bd24e4920f79a42c33e2",
+      "status": "no_ledger_match",
+      "liveVersions": []
+    },
+    {
+      "file": "20260903212617_teams_summary_prefers_explicit_affiliation.sql",
+      "version": "20260903212617",
+      "name": "teams_summary_prefers_explicit_affiliation",
+      "tracked": true,
+      "fingerprint": "40419e8182a4487c3c6689eb767f1c6f4c1d92fa76aa66ce83533effaa260ee3",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260903212617"
+      ]
+    },
+    {
+      "file": "20260904004321_backfill_reviewed_explicit_team_affiliations.sql",
+      "version": "20260904004321",
+      "name": "backfill_reviewed_explicit_team_affiliations",
+      "tracked": true,
+      "fingerprint": "6026e3cc79072920dd82d8271c7780262aa825836eee541859f9fffdc7f83d2b",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260904004321"
+      ]
+    },
+    {
+      "file": "20260904020412_remove_reviewed_dawgs_logo_association.sql",
+      "version": "20260904020412",
+      "name": "remove_reviewed_dawgs_logo_association",
+      "tracked": true,
+      "fingerprint": "94dedcb223b49b1c563028ffddbdfc60db210cb72b562cc9e168ce833e7fe5b9",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260904020412"
+      ]
+    },
+    {
+      "file": "20260904073101_classify_all_other_schools.sql",
+      "version": "20260904073101",
+      "name": "classify_all_other_schools",
+      "tracked": true,
+      "fingerprint": "63fd30f2c233efb01bdd32d9d95fdae207c918dfb18b2e90dc3bbd0018bba2e9",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260904073101"
+      ]
+    },
+    {
+      "file": "20260904074416_consolidate_exact_conference_duplicates.sql",
+      "version": "20260904074416",
+      "name": "consolidate_exact_conference_duplicates",
+      "tracked": true,
+      "fingerprint": "1b40fbd28c2758e5891559d5c386baef5442681bd1a36135b1e1078e2f9025ff",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260904074416"
+      ]
+    },
+    {
+      "file": "20260904075925_restore_conference_source_urls.sql",
+      "version": "20260904075925",
+      "name": "restore_conference_source_urls",
+      "tracked": true,
+      "fingerprint": "b6a7381c0dda0c53ce0cf494509c8373d17af5e86747e5de5b10b5e2bb5b5913",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260904075925"
+      ]
+    },
+    {
+      "file": "20260904082945_reconcile_primary_conference_catalog.sql",
+      "version": "20260904082945",
+      "name": "reconcile_primary_conference_catalog",
+      "tracked": true,
+      "fingerprint": "8a6814cb8329f9d2e986082965384f3a8f55841587477d9f0454b7237bf9bf64",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260904082945"
+      ]
+    },
+    {
+      "file": "20260904094906_add_canonical_fact_lookup_indexes.sql",
+      "version": "20260904094906",
+      "name": "add_canonical_fact_lookup_indexes",
+      "tracked": true,
+      "fingerprint": "3d2a5288fcaae36d9570e29ed258be3029d2c7d026f455faa1c1eab425b4bdaf",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260904094906"
+      ]
+    },
+    {
+      "file": "20260904095259_drop_unhelpful_relay_fact_lookup_index.sql",
+      "version": "20260904095259",
+      "name": "drop_unhelpful_relay_fact_lookup_index",
+      "tracked": true,
+      "fingerprint": "01ed4079ed1f8e527bbb3d74413e87c400180a9043dd9a89dc8df752e31c648e",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260904095259"
+      ]
+    },
+    {
+      "file": "20260904133353_move_backup_tables_to_private_archive.sql",
+      "version": "20260904133353",
+      "name": "move_backup_tables_to_private_archive",
+      "tracked": true,
+      "fingerprint": "3ef67bdc6ac36361c838cc6dcaa507c5d117a0781ec875dcbb8ecd8908de4eec",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260904133353"
+      ]
+    },
+    {
+      "file": "20260904135909_remove_superseded_lookup_indexes.sql",
+      "version": "20260904135909",
+      "name": "remove_superseded_lookup_indexes",
+      "tracked": true,
+      "fingerprint": "e57c3fb04c9c48b480a5c8f9add8335627810810641a1cef783d40df5c0b65ef",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260904135909"
+      ]
+    },
+    {
+      "file": "20260904141650_retire_empty_events_table.sql",
+      "version": "20260904141650",
+      "name": "retire_empty_events_table",
+      "tracked": true,
+      "fingerprint": "6e5027dbbe1fb71780b58192829bdc46b8de2f92e0f6866e5de4c95896ba2ce4",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260904141650"
+      ]
+    },
+    {
+      "file": "20260904195352_fix_v_athlete_prs_points_source.sql",
+      "version": "20260904195352",
+      "name": "fix_v_athlete_prs_points_source",
+      "tracked": true,
+      "fingerprint": "d888c4cd6cc535959928f93b79b08b9dda414d5d51b4c91bdf63e51c376448f2",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260904195352"
+      ]
+    },
+    {
+      "file": "20260904220438_repair_source_backed_relay_athlete_links.sql",
+      "version": "20260904220438",
+      "name": "repair_source_backed_relay_athlete_links",
+      "tracked": true,
+      "fingerprint": "ef9707f8e2987f0aa520d8f1292022ab5e66a57dd7502140b0b85171cad23825",
+      "status": "same_name_review_required",
+      "liveVersions": [
+        "20260904220438"
+      ]
+    },
+    {
+      "file": "20260904221054_harden_trigger_helper_execute_acl.sql",
+      "version": "20260904221054",
+      "name": "harden_trigger_helper_execute_acl",
+      "tracked": true,
+      "fingerprint": "f5946421eee59e3bc077e8425cfbe352867807e8912278228252388a084a5e25",
+      "status": "lexical_match",
+      "liveVersions": [
+        "20260904221054"
+      ]
+    }
+  ],
+  "duplicateLocalVersions": [
+    "20260210",
+    "20260211",
+    "20260216",
+    "20260220",
+    "20260221",
+    "20260714",
+    "20260715",
+    "20260719"
+  ],
+  "unmatchedLive": [
+    {
+      "version": "20260122075100",
+      "name": "live_results_schema",
+      "fingerprint": "e2c556b8ff591fe4ab6d6481deb6cf24ac8da5faf74a1f501eb3c4a8f1c8b631"
+    },
+    {
+      "version": "20260123120000",
+      "name": "fix_waitlist_policy",
+      "fingerprint": "d3f0fb6ecc289fdb110c16b3b84893096e0f55d1933def685418b23c9b8fa1f9"
+    },
+    {
+      "version": "20260201",
+      "name": "create_athlete_prs",
+      "fingerprint": "758424bcf33a4efa06aa48e27547eab642531d793f5db6e16f88a92b9f8f1963"
+    },
+    {
+      "version": "20260205181259",
+      "name": "add_meet_event_ids",
+      "fingerprint": "6cbde48b393674aec57b4de4347ece4660ac2276ab64adf94e54596c57686d1f"
+    },
+    {
+      "version": "20260205183000",
+      "name": "fix_athlete_sequence",
+      "fingerprint": "b727929700b4699d562422f2908e2d535615d9beba4a8e102878593347261cad"
+    },
+    {
+      "version": "20260205194604",
+      "name": "add_relay_tables",
+      "fingerprint": "b0384647ec7c52fb75a3873ec430770fc3b92ca2603b3540fd7c976db7b45642"
+    },
+    {
+      "version": "20260206",
+      "name": "add_tfrrs_meet_id",
+      "fingerprint": "48a13768aac323151c1bf267ee63095712342edb37239d60a6d91a23da68c450"
+    },
+    {
+      "version": "20260210",
+      "name": "top_performances_function",
+      "fingerprint": "891fe60ebb36a134e220ab28606da9c8cb333b73588d136ed18b2d98df23609a"
+    },
+    {
+      "version": "20260528",
+      "name": "add_final_result_links",
+      "fingerprint": "3321fb622b9018331127073bb2020abefefede66cd2d6beb0fca5a4b141de8f7"
+    },
+    {
+      "version": "20260810125242",
+      "name": "20260810_map_remaining_event_aliases",
+      "fingerprint": "8cb6546070b98037ec286e6602f8f883d2032d9dd7347ab7d2a5fc80f2ed5488"
+    },
+    {
+      "version": "20260821115738",
+      "name": "recompute_open_recovery_quarantines",
+      "fingerprint": "453785f18fbb49cae7ca7827e7ea073e8518f3870066d37e59813c484a0bf288"
+    },
+    {
+      "version": "20260829220000",
+      "name": "repair_big12_cross_meet_relays",
+      "fingerprint": "8f31fcc917b7df70a58c923e98f8c9347c23f5e34a6349a6d169eccdac2e791e"
+    },
+    {
+      "version": "20260829224504",
+      "name": "create_4x100_recovery_jobs",
+      "fingerprint": "5bad55bf98e3a9da7bd899423b2d92f15bd7858bc487d75072d4cf159a1648da"
+    },
+    {
+      "version": "20260829230000",
+      "name": "normalize_ed_daniels_relay_statuses",
+      "fingerprint": "c5eb7d9824503ad5e0f44c04a644d7288cc44c3d33fc67e6bfdb68f08184d218"
+    },
+    {
+      "version": "20260829230411",
+      "name": "refine_4x100_recovery_claim_filters",
+      "fingerprint": "d50134a3cecca93f3889ec6be4a94a7218c7a08375312c6d8da6471706f47ee2"
+    },
+    {
+      "version": "20260829231000",
+      "name": "repair_njcaa_cross_meet_relays",
+      "fingerprint": "b168eb6c336de653058b06a9ae1b96f632057e9c748cc9b659aefd0206de6c47"
+    },
+    {
+      "version": "20260830023000",
+      "name": "preserve_4x100_discovered_sources",
+      "fingerprint": "d2a7b22bd5c06bda67ff05e20ec21962f332c3fcb9bb0bdc206791fc47b6f723"
+    },
+    {
+      "version": "20260830024500",
+      "name": "only_queue_usable_4x100_sources",
+      "fingerprint": "b2c01ce545e213eda1d30ab52d827d4d5bc60c51ce118fd8902913b9fb2cd255"
+    },
+    {
+      "version": "20260831090000",
+      "name": "bound_4x100_retry_claims",
+      "fingerprint": "3e300e8c2a8b1e5b958a814e05599bb6924f7f9e8b73a781415b6d44249caa3f"
+    },
+    {
+      "version": "20260831162736",
+      "name": "route_4x100_meet_url_sources",
+      "fingerprint": "9128f023052d1b55065cbb428bf27040476553798f420685948f808ac07bfa0d"
+    },
+    {
+      "version": "20260901210719",
+      "name": "create_outdoor_2026_4x100_reconciliation_jobs",
+      "fingerprint": "007adb1d43b5bb89ee01842cf4c3488ef7bf60c770ef8f347602117fad46da2f"
+    },
+    {
+      "version": "20260901233750",
+      "name": "consolidate_outdoor_2026_4x100_into_event_recovery_queue",
+      "fingerprint": "41fabe0bbf0012aca8e812cac7fcb424d4e86de7ce7393f716bc9264efa254c9"
+    },
+    {
+      "version": "20260902120000",
+      "name": "consolidate_reviewed_school_duplicates",
+      "fingerprint": "b586963b67a3b90111cd6708e8d5d05693120a9a9409495fa3dc32552e252e38"
+    },
+    {
+      "version": "20260902130000",
+      "name": "remove_reviewed_empty_school_duplicates",
+      "fingerprint": "15ab388597048ce95753071a80452cbdfd8ff2c471d302ee1cd4f941e0a0474c"
+    },
+    {
+      "version": "20260902140000",
+      "name": "repair_aug18_tfrrs_edition_contamination",
+      "fingerprint": "777e2ee2fd6864e4691cc006268f34b9d615cc05500473bd9f5dc38fe507ef3b"
+    },
+    {
+      "version": "20260902144458",
+      "name": "preserve_reviewed_secondary_athlete_identities",
+      "fingerprint": "36b59855d78ddf3e2952e57929294cc55cafef32258879853e0c9159c3b34de2"
+    },
+    {
+      "version": "20260902170615",
+      "name": "consolidate_reviewed_athlete_duplicates",
+      "fingerprint": "4939a077fa3b674d769fda0aa399613a8aa0a748f4522143034a4d55f6e4a09e"
+    },
+    {
+      "version": "20260903180000",
+      "name": "add_explicit_team_affiliation_fields",
+      "fingerprint": "faf1a4b033861e68a92a9dd8e8254a94d1bac4101d22fec31dd6bacb1b60ebe4"
+    },
+    {
+      "version": "20260903212617",
+      "name": "teams_summary_prefers_explicit_affiliation",
+      "fingerprint": "70566b265419033efa00b72590cea9c3733049fae3eaee992a75c5748f441175"
+    },
+    {
+      "version": "20260904004321",
+      "name": "backfill_reviewed_explicit_team_affiliations",
+      "fingerprint": "971ac1c6ca053b15e7096bb68e7002d86968d88d7da957405968d70d7d319951"
+    },
+    {
+      "version": "20260904020412",
+      "name": "remove_reviewed_dawgs_logo_association",
+      "fingerprint": "0c837ce6c149007bba00449c6e3637d9c33c9d1ad057df06d73aa3494af09e2d"
+    },
+    {
+      "version": "20260904094906",
+      "name": "add_canonical_fact_lookup_indexes",
+      "fingerprint": "47d9bb5731a1078c2dd3d4958cfda7314fb75e01badd0a4a738abda90ac2b833"
+    },
+    {
+      "version": "20260904095259",
+      "name": "drop_unhelpful_relay_fact_lookup_index",
+      "fingerprint": "08c978cb78755fefeceb7e5893a4ad802049a9b4fffe8379e6a43ed16d00e7de"
+    },
+    {
+      "version": "20260904135909",
+      "name": "remove_superseded_lookup_indexes",
+      "fingerprint": "9eb351e9784c2f57c5572de0e41d0b3ae51f3b68628363c080f7055a6e144cb7"
+    },
+    {
+      "version": "20260904220438",
+      "name": "repair_source_backed_relay_athlete_links",
+      "fingerprint": "c3b8ebd86b0c266568068d61b9610f9a0f1bbe3ba818150fcdd65cea7b0a3723"
+    }
+  ]
+}

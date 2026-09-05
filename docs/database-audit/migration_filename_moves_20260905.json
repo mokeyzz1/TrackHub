@@ -1,0 +1,137 @@
+[
+  {
+    "from": "20260714_create_event_types_and_aliases.sql",
+    "to": "20260710063357_create_event_types_and_aliases.sql",
+    "sha256": "a5e4de57ef1a2eeaeb343cb8f0bc7bab6febcaafd17f3f39e8f91c8084b6ba4c"
+  },
+  {
+    "from": "20260715_computed_athlete_prs.sql",
+    "to": "20260806182647_create_v_athlete_prs.sql",
+    "sha256": "3d0a44c4bf9da10fd5e95962826751646f6e7d32f52dba62bd3fc585d3c8aa50"
+  },
+  {
+    "from": "20260715_create_divisions_dimension.sql",
+    "to": "20260715201807_create_divisions_dimension.sql",
+    "sha256": "49c803255fd25e96ca4ea1dc4225dd58edf61c0e9fd5cd06d82bc64e12ab3e0f"
+  },
+  {
+    "from": "20260716_add_results_source_tracking.sql",
+    "to": "20260716201815_add_results_source_tracking.sql",
+    "sha256": "22fd92835b6833a78cb50a5d63e3a8f0a486df2f14baa00a79187e2ff98a65dd"
+  },
+  {
+    "from": "20260820020100_refine_recovery_queue_source_hosts.sql",
+    "to": "20260820020220_refine_recovery_queue_source_hosts.sql",
+    "sha256": "3a5b877ac9627e9e761317c0d1d202950b27a68e6cf8a227a20569d408a45946"
+  },
+  {
+    "from": "20260820020319_reconcile_recovery_queue_invalid_sources.sql",
+    "to": "20260820020401_reconcile_recovery_queue_invalid_sources.sql",
+    "sha256": "e15fd7613ae6c5563732b58ea0c10772ea7887c2f6337a15bb8562542fd0434f"
+  },
+  {
+    "from": "20260820020659_index_recovery_queue_last_run_id.sql",
+    "to": "20260820020709_index_recovery_queue_last_run_id.sql",
+    "sha256": "ee29a91d0fdc4b0a047b12e46ba6fcfbef05c1f24d56870e60646aec9cf8d080"
+  },
+  {
+    "from": "20260820025004_clear_recovery_queue_error_on_complete.sql",
+    "to": "20260820025023_clear_recovery_queue_error_on_complete.sql",
+    "sha256": "ef997916339d477464831384b8a7125eaa9b0e0d8077ac3d1a3fab3b70c67428"
+  },
+  {
+    "from": "20260820054037_team_aliases.sql",
+    "to": "20260820054321_team_aliases.sql",
+    "sha256": "ced3368f4fca17b8b1c529b0df6e8dc13e031f0384ebf0145fd36107aaa7b862"
+  },
+  {
+    "from": "20260820055613_california_junior_college_team_entities.sql",
+    "to": "20260820055917_california_junior_college_team_entities.sql",
+    "sha256": "009c1ca358293f03a0d11f697c6eace02dd27573c8bffb06d73aa5b5a9426adb"
+  },
+  {
+    "from": "20260820060951_athlete_aliases.sql",
+    "to": "20260820061042_athlete_aliases.sql",
+    "sha256": "2fa3f3902f6254ca52113c7cbe23998f0b318b781837a2d3492fd173e0679fc7"
+  },
+  {
+    "from": "20260820073500_athletic_net_kirtland_team_alias.sql",
+    "to": "20260820070559_athletic_net_kirtland_team_alias.sql",
+    "sha256": "edf51b208ab64bf29074a69f2413faeb36272a88426d0a24d049fffa45795f74"
+  },
+  {
+    "from": "20260820074000_refine_athletic_net_kirtland_team_alias.sql",
+    "to": "20260820070638_refine_athletic_net_kirtland_team_alias.sql",
+    "sha256": "5d6268ee66a95fa35c8e50179776fbd2b7608240608018aa5c80feaaf789da02"
+  },
+  {
+    "from": "20260821033001_add_4000m_distance_medley_alias.sql",
+    "to": "20260821033030_add_4000m_distance_medley_alias.sql",
+    "sha256": "d4635ddde900ab7c3a22c31022b4587e014acf99960be6e4ccfe0670f09b59e7"
+  },
+  {
+    "from": "20260821033750_add_college_relay_event_aliases.sql",
+    "to": "20260821033805_add_college_relay_event_aliases.sql",
+    "sha256": "75848d624799288f354a16c18b81ba61451c9c090d733c8a9e6d5a1648d11cb7"
+  },
+  {
+    "from": "20260821034555_add_tfrs_qualified_event_aliases.sql",
+    "to": "20260821034630_add_tfrs_qualified_event_aliases.sql",
+    "sha256": "30fb122b716828dada147a8b10a2087aaf87ef14aabd0436ba993118b93ffaec"
+  },
+  {
+    "from": "20260821035607_add_tfrs_high_school_mile_alias.sql",
+    "to": "20260821035620_add_tfrs_high_school_mile_alias.sql",
+    "sha256": "00b43a9026368ae8d80f3cf935908a27a734409a93b025082bb88f99b2d0c45b"
+  },
+  {
+    "from": "20260821040050_add_tfrs_wheelchair_event_aliases.sql",
+    "to": "20260821040105_add_tfrs_wheelchair_event_aliases.sql",
+    "sha256": "c79537f9a44fe1178dec166261ea34eabb2906b73f5d43fe0396af8a714aca3b"
+  },
+  {
+    "from": "20260821041716_add_athleticlive_collegiate_event_aliases.sql",
+    "to": "20260821041804_add_athleticlive_collegiate_event_aliases.sql",
+    "sha256": "4a5250195ff9d11feea21191492f678a49697f2fb21684bb19ea88c2fd01915e"
+  },
+  {
+    "from": "20260821041930_add_mixed_4x400m_event_type.sql",
+    "to": "20260821041943_add_mixed_4x400m_event_type.sql",
+    "sha256": "9096ab12cda0f253e2374297d0052abd6b8866b9c280ddb858af619bf533c350"
+  },
+  {
+    "from": "20260821042746_add_athleticlive_punctuated_relay_aliases.sql",
+    "to": "20260821042759_add_athleticlive_punctuated_relay_aliases.sql",
+    "sha256": "459dcd643b1ba07528e4310237b89988e6f7ce269fbcd448d7f0ce92a6227a0a"
+  },
+  {
+    "from": "20260821043621_add_athleticlive_invitational_relay_alias.sql",
+    "to": "20260821043633_add_athleticlive_invitational_relay_alias.sql",
+    "sha256": "2dd7deba789996aa763a1f8ca141ba1680b68668e4eef635c4594c2563ab571d"
+  },
+  {
+    "from": "20260821130000_add_trackscoreboard_ingestion_source.sql",
+    "to": "20260821132606_add_trackscoreboard_ingestion_source.sql",
+    "sha256": "cefde167ff87f04527585b6d13858c2bbc70ed684bcebb85daf4abcf10c563d9"
+  },
+  {
+    "from": "20260821130001_add_lai_relay_event_aliases.sql",
+    "to": "20260821132619_add_lai_relay_event_aliases.sql",
+    "sha256": "daf5a0acde0c909c293e3b17cb3d2cb1275e29fd43a304d8e528c3dd0bf83b85"
+  },
+  {
+    "from": "20260828233203_recovery_queue_canonical_meet_target.sql",
+    "to": "20260828233616_recovery_queue_canonical_meet_target.sql",
+    "sha256": "e337f218f4f3f0169051e2558af7d51a498d0bf811927f3059cc615374a3f215"
+  },
+  {
+    "from": "20260829090000_add_cccaa_and_missing_junior_college_teams.sql",
+    "to": "20260829031927_add_cccaa_and_missing_junior_college_teams.sql",
+    "sha256": "ff7f4741cd2cb0ecf2103cbca654ea721a1a2037feeeafb45277b81090878ea6"
+  },
+  {
+    "from": "20260829093000_add_glendale_ca_tfrrs_alias.sql",
+    "to": "20260829032324_add_glendale_ca_tfrrs_alias.sql",
+    "sha256": "665e15f00881be4a7f06d896fb16e16880258f32ba7f18c1c0c85abc0e048540"
+  }
+]
