@@ -14,6 +14,8 @@ test('reference scan covers every registered foreign key with no skipped or dang
   assert.equal(new Set(actual).size, 75);
   assert.deepEqual(actual, expected);
   for (const row of references.profile) {
+    const item = saved.items.find(i => i.id === `relationship:${row.schema_name}:${row.table_name}:${row.constraint_name}`);
+    assert.ok(item.evidence.includes('foreign_key_profile_20260905.json'));
     assert.equal(row.error_code, null);
     assert.equal(row.orphan_rows, 0);
     assert.equal(row.partial_null_rows, 0);
@@ -30,6 +32,11 @@ test('combined aggregate profiles cover all registered table columns, including 
   assert.equal(new Set(actual).size, actual.length);
   assert.deepEqual(actual, expected);
   assert.equal(new Set(rows.map(i => `${i.schema_name}:${i.table_name}`)).size, 76);
+  for (const row of rows) {
+    const item = saved.items.find(i => i.id === `column:${row.schema_name}:${row.table_name}:${row.column_name}`);
+    const evidence = ['public', 'ingest'].includes(row.schema_name) ? 'column_profile_20260905.json' : 'platform_archive_column_profile_20260905.json';
+    assert.ok(item.evidence.includes(evidence));
+  }
   for (const row of otherProfile.profile) {
     for (const key of ['total', 'nulls', 'empty_strings']) assert.ok(Number.isSafeInteger(row[key]) && row[key] >= 0);
     assert.ok(row.nulls + row.empty_strings <= row.total);

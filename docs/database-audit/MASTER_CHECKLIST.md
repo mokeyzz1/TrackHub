@@ -83,6 +83,9 @@ one publication and six event triggers. An ACL set preserves each grant in its c
 
 An explicit pending purpose is an unanswered review item, not a finding that the object is
 unnecessary. Previously completed audit packets must be reconciled into these entries individually.
+Every one of the 872 table-column entries and 75 foreign-key entries now links to its measured
+aggregate profile. These 947 evidence links do not advance semantic review statuses; coverage tests
+verify both the profile membership and the individual register links.
 Archive data and platform functions remain included; neither is automatically marked complete.
 Database settings, external schedulers and remaining type/dependency catalog classes still need
 coverage under MODEL-01/SEC-01 before CLOSE-01. PostgreSQL cron is absent at this checkpoint; this
