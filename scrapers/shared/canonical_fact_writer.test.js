@@ -1,7 +1,17 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { CanonicalFactWriter, linkedTarget, nullableInteger } = require('./canonical_fact_writer');
+const { CanonicalFactWriter, linkedTarget, nullableInteger, promotionLockKeys } = require('./canonical_fact_writer');
+
+test('promotion locks cover source replay, same-meet facts and cross-meet history claims', () => {
+  const row = { source_record_id: 7, target_meet_id: 10, target_athlete_id: 20, event_type_id: 3 };
+  const keys = promotionLockKeys([row, row]);
+  assert.equal(keys.length, 3);
+  assert.deepEqual(keys, promotionLockKeys([row]).sort());
+  assert.ok(keys.includes('trackhub:fact:athlete:20:event:3'));
+  assert.ok(promotionLockKeys([{ ...row, target_meet_id: 11 }]).includes('trackhub:fact:athlete:20:event:3'));
+  assert.deepEqual(promotionLockKeys([{}]), []);
+});
 
 test('does not put source-specific string event codes into integer legacy event_id columns', () => {
   assert.equal(nullableInteger('4x100m'), null);

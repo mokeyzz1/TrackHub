@@ -36,6 +36,19 @@ function rememberLinkedSource(set, row) {
   set.add(keyForSourceRecord(row));
 }
 
+function promotionLockKeys(rows) {
+  const keys = new Set();
+  for (const row of rows) {
+    if (row.source_record_id) keys.add(`trackhub:fact:source:${row.source_record_id}`);
+    if (row.target_meet_id) keys.add(`trackhub:fact:meet:${row.target_meet_id}`);
+    // History claims can compete across meets, so a meet lock alone is insufficient.
+    if (row.target_athlete_id && row.event_type_id) {
+      keys.add(`trackhub:fact:athlete:${row.target_athlete_id}:event:${row.event_type_id}`);
+    }
+  }
+  return [...keys].sort();
+}
+
 function sourcePayload(row) {
   return row.payload && typeof row.payload === 'object' ? row.payload : {};
 }
@@ -130,6 +143,23 @@ class CanonicalFactWriter {
         // The value is validated as an integer before interpolation. SET LOCAL keeps the
         // longer budget scoped to this atomic promotion transaction only.
         await client.query(`SET LOCAL statement_timeout = ${this.statementTimeoutMs}`);
+      }
+
+      const scope = await client.query(
+        `SELECT source_record_id, target_meet_id, target_athlete_id, event_type_id
+           FROM ingest.observations WHERE run_id = $1
+            AND decision IN ('pending', 'insert', 'claim', 'quarantine')`, [runId]
+      );
+      const lockKeys = promotionLockKeys(scope.rows);
+      if (lockKeys.length) {
+        // Acquire in numeric hash order in one round trip. Both the candidate reads and source
+        // link reads below must happen AFTER the lock wait, under READ COMMITTED snapshots.
+        await client.query(
+          `SELECT pg_advisory_xact_lock(lock_id)
+             FROM (SELECT DISTINCT hashtextextended(scope, 0) AS lock_id
+                     FROM unnest($1::text[]) AS scopes(scope)) AS locks
+            ORDER BY lock_id`, [lockKeys]
+        );
       }
 
       const { rows } = await client.query(
@@ -1005,4 +1035,4 @@ class CanonicalFactWriter {
   }
 }
 
-module.exports = { CanonicalFactWriter, chunk, linkedTarget, nullableInteger };
+module.exports = { CanonicalFactWriter, chunk, linkedTarget, nullableInteger, promotionLockKeys };

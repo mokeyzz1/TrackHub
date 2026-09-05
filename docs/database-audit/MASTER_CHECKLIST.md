@@ -31,6 +31,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | MODEL-01 | P1 | Review each application table/column purpose, actual values, readers/writers and reference relationships; decide preserve, improve or retire | SAFE-01 for read-only review; MIG-01 for deployment | Open |
 | ID-01 | P1 | Review canonical identity constraints, reviewed aliases and uncertainty handling; verify prior repairs against alias history | MODEL-01 | Open |
 | ING-02 | P1 | Prove replay, concurrency, payload changes, source-link consistency and rollback using isolated PostgreSQL integration tests | MIG-01, ID-01, ING-01 | Open |
+| ING-02a | P1 | Reproduce and fix shared promotion race; verify seven synthetic PostgreSQL scenarios without production writes | SAFE-01, ING-01; isolated tests only | Complete: INGESTION_POSTGRES_CONCURRENCY_20260905.md |
 | DATA-01 | P1 | Apply source-backed repairs with exact before-images, affected-ID assertions and postconditions; ambiguous groups explicitly held | ID-01, ING-02 | Open |
 | API-01 | P1 | Verify all views/RPCs and application reads against meet/team/athlete/relay/multi-event contracts; fix measured relationship/count defects | MODEL-01 | Open |
 | SEC-01 | P1 | Object-level grants/RLS/policies/functions/triggers review with positive and negative role tests | SAFE-01, MIG-01 | Open |
