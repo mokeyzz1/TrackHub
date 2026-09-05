@@ -2,6 +2,14 @@
   "snapshotDate": "2026-09-05",
   "entries": [
     {
+      "file": "20260905185312_enforce_source_link_target_kind.sql",
+      "version": "20260905185312",
+      "name": "enforce_source_link_target_kind",
+      "localSha256": "9a7d97722741baee478aa742c2eba0e4fad55070c27d5209dea0f082d3a38548",
+      "ledgerFingerprint": "b8f79263891d0d550cae44bec1422cfb35cf437f3cd69c612519e6b40815dc28",
+      "review": "Live validation, synthetic target-kind/replay/rollback tests; SOURCE_LINK_TARGET_KIND_20260905.md"
+    },
+    {
       "file": "20260905184656_fix_pr_view_supplied_points_filter.sql",
       "version": "20260905184656",
       "name": "fix_pr_view_supplied_points_filter",

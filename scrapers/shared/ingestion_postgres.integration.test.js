@@ -37,6 +37,7 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
     assert.equal((await pool.query("SELECT to_regclass('ingest.source_record_versions') AS relation")).rows[0].relation, null);
     await pool.query('BEGIN');
     await pool.query(evidenceMigration);
+    await pool.query(fs.readFileSync(path.join(__dirname, '../../supabase/migrations/20260905185312_enforce_source_link_target_kind.sql'), 'utf8'));
     await pool.query('COMMIT');
     await pool.query("INSERT INTO public.schools(school_id,official_name) VALUES(1,'Synthetic Test School'); INSERT INTO public.teams(team_id,school_id,gender) VALUES(1,1,'M'); INSERT INTO public.athletes(athlete_id,school_id,full_name,gender) VALUES(1,1,'Synthetic Runner','M'); INSERT INTO public.meets(meet_id,name,date) VALUES(1,'Synthetic Meet','2026-09-01'); INSERT INTO public.event_types(event_type_id,code,measure,environment_scope) VALUES(1,'100m','time','both')");
     const store = new IngestionStore({ pool });
@@ -116,6 +117,30 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
       await promote([record('replay', { source: 'athletic_net' })]);
       const result = await pool.query("SELECT count(DISTINCT r.result_id)::int AS facts,count(DISTINCT sl.source_record_id)::int AS links FROM public.results r JOIN ingest.source_links sl ON sl.result_id=r.result_id WHERE r.mark_raw='10.50'");
       assert.deepEqual(result.rows[0], { facts: 1, links: 2 });
+    });
+    await t.test('relay parent promotion and replay retain one team performance', async () => {
+      await pool.query("INSERT INTO public.event_types(event_type_id,code,measure,environment_scope) VALUES(3,'4x100m','time','both')");
+      const parent = record('synthetic-relay', { entity_type: 'relay_result', target_athlete_id: null,
+        event_type_id: 3, raw_event_name: '4x100m', mark_raw: '41.00', payload: { relay_athletes: [] } });
+      await promote([parent]);
+      await promote([parent]);
+      const result = await pool.query("SELECT count(DISTINCT rr.relay_result_id)::int AS parents,count(DISTINCT sl.source_record_id)::int AS links FROM public.relay_results rr JOIN ingest.source_links sl USING(relay_result_id) JOIN ingest.source_records sr USING(source_record_id) WHERE sr.source_record_key='synthetic-relay'");
+      assert.deepEqual(result.rows[0], { parents: 1, links: 1 });
+    });
+    await t.test('source link target kind rejects crossed parent/individual targets and preserves legacy legs', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        for (const [existing, replacement] of [['individual_result', 'relay_result'], ['relay_result', 'individual_result']]) {
+          await client.query('SAVEPOINT target_kind');
+          await assert.rejects(client.query('UPDATE ingest.source_links SET entity_type=$1 WHERE source_record_id=(SELECT source_record_id FROM ingest.source_links WHERE entity_type=$2 AND link_status=\'linked\' LIMIT 1)', [replacement, existing]), { code: '23514' });
+          await client.query('ROLLBACK TO SAVEPOINT target_kind');
+        }
+        const compatible = await client.query("UPDATE ingest.source_links SET entity_type='relay_leg' WHERE source_record_id=(SELECT source_record_id FROM ingest.source_links WHERE entity_type='individual_result' AND link_status='linked' LIMIT 1)");
+        assert.equal(compatible.rowCount, 1);
+        await client.query('ALTER TABLE ingest.source_links DROP CONSTRAINT source_links_target_kind_ck');
+        assert.equal((await client.query("UPDATE ingest.source_links SET entity_type='individual_result' WHERE entity_type='relay_result'")).rowCount, 1, 'Metadata-only rollback removes the new rule without deleting links');
+      } finally { await client.query('ROLLBACK'); client.release(); }
     });
     await t.test('invalid observations stay quarantined without public facts', async () => {
       const result = await promote([record('unknown-athlete', { target_athlete_id: null, mark_raw: '12.30' })]);
