@@ -1,0 +1,152 @@
+[
+  {
+    "sequence": "ingest.team_aliases_team_alias_id_seq",
+    "last_value": "133",
+    "is_called": true,
+    "maximum_id": "133"
+  },
+  {
+    "sequence": "ingest.athlete_aliases_athlete_alias_id_seq",
+    "last_value": "1342",
+    "is_called": true,
+    "maximum_id": "1342"
+  },
+  {
+    "sequence": "ingest.fact_cleanup_archive_archive_id_seq",
+    "last_value": "143951",
+    "is_called": true,
+    "maximum_id": "143951"
+  },
+  {
+    "sequence": "ingest.event_recovery_queue_job_id_seq",
+    "last_value": "74309",
+    "is_called": true,
+    "maximum_id": "74309"
+  },
+  {
+    "sequence": "public.regions_region_id_seq",
+    "last_value": "101",
+    "is_called": false,
+    "maximum_id": "100"
+  },
+  {
+    "sequence": "public.conferences_conference_id_seq",
+    "last_value": "1162",
+    "is_called": true,
+    "maximum_id": "1162"
+  },
+  {
+    "sequence": "public.schools_school_id_seq",
+    "last_value": "1879",
+    "is_called": true,
+    "maximum_id": "1879"
+  },
+  {
+    "sequence": "public.conference_memberships_membership_id_seq",
+    "last_value": "1",
+    "is_called": false,
+    "maximum_id": null
+  },
+  {
+    "sequence": "public.teams_team_id_seq",
+    "last_value": "3700",
+    "is_called": true,
+    "maximum_id": "3700"
+  },
+  {
+    "sequence": "public.athletes_athlete_id_seq",
+    "last_value": "206968",
+    "is_called": true,
+    "maximum_id": "206968"
+  },
+  {
+    "sequence": "public.athlete_team_seasons_ats_id_seq",
+    "last_value": "130279",
+    "is_called": true,
+    "maximum_id": "130279"
+  },
+  {
+    "sequence": "public.results_result_id_seq",
+    "last_value": "8047451",
+    "is_called": true,
+    "maximum_id": "8047451"
+  },
+  {
+    "sequence": "public.external_ids_external_id_seq",
+    "last_value": "357",
+    "is_called": true,
+    "maximum_id": "357"
+  },
+  {
+    "sequence": "public.live_results_live_result_id_seq",
+    "last_value": "164",
+    "is_called": true,
+    "maximum_id": "48"
+  },
+  {
+    "sequence": "public.meets_meet_id_seq",
+    "last_value": "95243",
+    "is_called": true,
+    "maximum_id": "95243"
+  },
+  {
+    "sequence": "public.event_types_event_type_id_seq",
+    "last_value": "67",
+    "is_called": true,
+    "maximum_id": "67"
+  },
+  {
+    "sequence": "public.waitlist_id_seq",
+    "last_value": "9",
+    "is_called": true,
+    "maximum_id": "4"
+  },
+  {
+    "sequence": "public.divisions_division_id_seq",
+    "last_value": "26",
+    "is_called": true,
+    "maximum_id": "26"
+  },
+  {
+    "sequence": "ingest.source_records_source_record_id_seq",
+    "last_value": "156918",
+    "is_called": true,
+    "maximum_id": "156918"
+  },
+  {
+    "sequence": "ingest.observations_observation_id_seq",
+    "last_value": "156918",
+    "is_called": true,
+    "maximum_id": "156918"
+  },
+  {
+    "sequence": "public.athlete_prs_id_seq",
+    "last_value": "479656",
+    "is_called": true,
+    "maximum_id": "479656"
+  },
+  {
+    "sequence": "ingest.quarantine_quarantine_id_seq",
+    "last_value": "10401",
+    "is_called": true,
+    "maximum_id": "10401"
+  },
+  {
+    "sequence": "ingest.recovery_queue_queue_id_seq",
+    "last_value": "90055",
+    "is_called": true,
+    "maximum_id": "2573"
+  },
+  {
+    "sequence": "public.relay_results_relay_result_id_seq",
+    "last_value": "246920",
+    "is_called": true,
+    "maximum_id": "246920"
+  },
+  {
+    "sequence": "public.relay_athletes_relay_athlete_id_seq",
+    "last_value": "560103",
+    "is_called": true,
+    "maximum_id": "560103"
+  }
+]

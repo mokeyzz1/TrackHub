@@ -2,10 +2,11 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { buildChecklist } = require('./build_master_checklist');
 const saved = require('./MASTER_CHECKLIST.json');
+require('./extended_checklist.test');
 
 test('master register covers every captured object exactly once', () => {
   const expected = buildChecklist();
-  assert.equal(expected.items.length, 1725);
+  assert.equal(expected.items.length, 2279);
   assert.equal(new Set(saved.items.map(i => i.id)).size, saved.items.length);
   assert.deepEqual(saved.items.map(i => i.id).sort(), expected.items.map(i => i.id).sort());
 });

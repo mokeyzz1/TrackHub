@@ -20,6 +20,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | ID | Priority | Work / completion criteria | Dependencies | Status |
 |---|---|---|---|---|
 | TRACK-01 | P0 | Exhaustive object register, ordered queue, explicit evidence and completion gates; automated coverage check | None | Complete: register and coverage tests |
+| TRACK-02 | P0 | Add defaults, sequences, effective grants, enums, extensions, publication/event triggers and scheduler-presence evidence to the register | TRACK-01 | Complete: EXTENDED_SCHEMA_COVERAGE_20260905.md; object review still open |
 | SAFE-01 | P0 | Recheck backup availability/hashes; identify restore-tested scope and managed-platform limitations; require fresh before-images for each mutation | TRACK-01 | Complete: PRESERVATION_RECHECK_20260905.md |
 | MIG-01 | P0 | Reconcile local and live migration versions/statements; classify every unmatched entry; prove a safe deployment path without replaying applied SQL | SAFE-01 | Open |
 | MIG-01a | P0 | Align the two recent local filenames after full SQL comparison with recorded live versions; no SQL replay | SAFE-01 | Complete: MIGRATION_ALIGNMENT_20260905.md |
@@ -54,7 +55,7 @@ as current verification. ING-01 was already implemented before this queue was co
 
 ## Per-object tracking
 
-The JSON register contains 1,725 individually addressable entries: 76 tables, seven views,
+The JSON register contains 2,279 individually addressable entries. The original classes cover 76 tables, seven views,
 977 columns, 271 constraints (foreign keys tracked as relationships), 246 indexes, 22 policies,
 114 functions and 12 user-defined triggers. Internal FK triggers are represented by their parent
 constraints. Each entry has purpose, problems, proposed improvement, priority, dependencies,
@@ -62,13 +63,16 @@ ownership, status, evidence, verification, rollback, live-application state and 
 The source-evidence migration adds 15 verified entries in `source_evidence_objects_20260905.json`
 without rewriting the earlier baseline catalog or marking unrelated entries complete.
 `source_link_objects_20260905.json` adds the separately verified target-kind constraint.
+The extended catalog adds 27 sequences, 243 defaults/identity definitions, 11 schema grant sets,
+110 relation grant sets, 114 function grant sets, 25 default-privilege sets, 12 enums, five extensions,
+one publication and six event triggers. An ACL set preserves each grant in its catalog metadata.
 
 An explicit pending purpose is an unanswered review item, not a finding that the object is
 unnecessary. Previously completed audit packets must be reconciled into these entries individually.
 Archive data and platform functions remain included; neither is automatically marked complete.
-Sequences, extensions, grants, defaults, publications, scheduled jobs and database settings must
-also be inventoried under MODEL-01/SEC-01 before CLOSE-01; the current object totals do not claim
-coverage of those additional catalog classes.
+Database settings, external schedulers and remaining type/dependency catalog classes still need
+coverage under MODEL-01/SEC-01 before CLOSE-01. PostgreSQL cron is absent at this checkpoint; this
+does not prove no GitHub, host or provider scheduler exists. Captured objects are not semantic signoff.
 
 ## Completion and commit rules
 
