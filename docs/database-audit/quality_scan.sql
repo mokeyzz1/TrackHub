@@ -1,5 +1,7 @@
 -- Read-only live database quality scan. Run with psql against the project database.
 -- It creates only temporary tables in the current session.
+-- Optional session-local scope: SET LOCAL trackhub.audit_schemas = 'archive,auth,...';
+-- Default stays public/ingest. Never sum parent and partition counts as distinct data.
 
 SET statement_timeout = '15min';
 
@@ -31,8 +33,9 @@ BEGIN
       FROM information_schema.columns c
       JOIN pg_class pc ON pc.relname = c.table_name
       JOIN pg_namespace pn ON pn.oid = pc.relnamespace AND pn.nspname = c.table_schema
-     WHERE c.table_schema IN ('public', 'ingest')
-       AND pc.relkind = 'r'
+     WHERE c.table_schema = ANY(string_to_array(
+             coalesce(nullif(current_setting('trackhub.audit_schemas', true), ''), 'public,ingest'), ','))
+       AND pc.relkind IN ('r', 'p')
      GROUP BY c.table_schema, c.table_name
      ORDER BY c.table_schema, c.table_name
   LOOP
@@ -54,7 +57,7 @@ BEGIN
   END LOOP;
 END $$;
 
--- Exact null/empty-string counts for public/ingest ordinary-table columns only.
+-- Exact null/empty-string counts for the selected ordinary/partitioned table columns.
 -- Distinct values are deliberately not calculated; NULL means unmeasured, not zero.
 SELECT * FROM column_profile ORDER BY schema_name, table_name, column_name;
 

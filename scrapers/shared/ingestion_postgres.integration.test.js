@@ -295,6 +295,19 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
         client.release();
       }
     });
+    await t.test('column profiling honors explicit schema scope and includes partitioned parents', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query('DROP TABLE IF EXISTS pg_temp.column_profile');
+        await client.query("CREATE SCHEMA audit_fixture; CREATE TABLE audit_fixture.parent(id integer, label text) PARTITION BY RANGE(id); CREATE TABLE audit_fixture.child PARTITION OF audit_fixture.parent FOR VALUES FROM (0) TO (10); INSERT INTO audit_fixture.parent VALUES(1,''); SET LOCAL trackhub.audit_schemas='audit_fixture'");
+        await client.query(fs.readFileSync(path.join(__dirname, '../../docs/database-audit/quality_scan.sql'), 'utf8'));
+        const rows = (await client.query('SELECT * FROM column_profile')).rows;
+        assert.equal(rows.length, 4);
+        assert.ok(rows.every(r => r.schema_name === 'audit_fixture' && r.total === '1'));
+        assert.deepEqual([...new Set(rows.map(r => r.table_name))].sort(), ['child', 'parent']);
+      } finally { await client.query('ROLLBACK'); client.release(); }
+    });
     await t.test('PR view preserves public reads but follows caller row policies', async () => {
       const client = await pool.connect();
       try {
