@@ -139,7 +139,9 @@ class CanonicalFactWriter {
     };
 
     try {
-      await client.query('BEGIN');
+      // Lock-wait followers must take fresh statement snapshots after the winner commits.
+      // Do not inherit a session default that pins an older repeatable-read snapshot.
+      await client.query('BEGIN ISOLATION LEVEL READ COMMITTED');
       if (this.statementTimeoutMs != null) {
         // The value is validated as an integer before interpolation. SET LOCAL keeps the
         // longer budget scoped to this atomic promotion transaction only.

@@ -185,6 +185,27 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
         await assert.rejects(client.query('SELECT payload FROM ingest.source_records'), { code: '42501' });
       } finally { await client.query('ROLLBACK'); client.release(); }
     });
+    await t.test('promotion pins read-committed isolation instead of inheriting session defaults', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query("SET default_transaction_isolation='repeatable read'");
+        const guardedPool = { async connect() { return {
+          async query(sql, parameters) {
+            const result = await client.query(sql, parameters);
+            if (/^BEGIN/.test(sql)) assert.equal((await client.query('SHOW transaction_isolation')).rows[0].transaction_isolation, 'read committed');
+            return result;
+          }, release() {},
+        }; } };
+        const run = await store.startRun({ source: 'tfrrs', mode: 'commit', parserVersion: 'test' });
+        await store.persistObservations(run, [record('isolation-default', { mark_raw: '11.99' })]);
+        const { CanonicalFactWriter } = require('./canonical_fact_writer');
+        await new CanonicalFactWriter({ pool: guardedPool }).commitRun(run);
+      } finally {
+        await client.query('ROLLBACK');
+        await client.query('RESET default_transaction_isolation');
+        client.release();
+      }
+    });
     await t.test('two concurrent providers link one fact without quarantining the loser', async () => {
       // A bounded insert delay exposes the stale-candidate race deterministically in this fixture.
       await pool.query("CREATE FUNCTION public.test_delay_insert() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN PERFORM pg_sleep(0.2); RETURN NEW; END $$; CREATE TRIGGER test_delay_insert BEFORE INSERT ON public.results FOR EACH ROW EXECUTE FUNCTION public.test_delay_insert()");

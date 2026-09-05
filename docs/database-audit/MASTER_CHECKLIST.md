@@ -42,6 +42,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | ING-02d | P1 | Enforce individual/relay-parent source-link target kinds while preserving legacy relay-leg compatibility; test parent replay and rollback | ING-02c1 | Complete: SOURCE_LINK_TARGET_KIND_20260905.md; constraint live, no rows rewritten |
 | ING-02c2 | P1 | Hold changed linked-source performances for correction review without overwriting canonical facts; preserve retry reasons | ING-02c1, ING-02d | Complete: SOURCE_CORRECTION_GUARD_20260905.md; shared worker code tested, no live ingestion run |
 | ING-02e | P1 | Reproduce and eliminate reversed-batch source-staging deadlocks with whole-call deterministic lock order | ING-02c2 | Complete: SOURCE_STAGING_LOCK_ORDER_20260905.md; code-only, isolated regression verified |
+| ING-02f | P1 | Pin promotion isolation required by lock-wait candidate rereads; do not inherit arbitrary session defaults | ING-02e | Complete: PROMOTION_ISOLATION_20260905.md; code-only, alternate-default regression verified |
 | DATA-01 | P1 | Apply source-backed repairs with exact before-images, affected-ID assertions and postconditions; ambiguous groups explicitly held | ID-01, ING-02 | Open |
 | API-01 | P1 | Verify all views/RPCs and application reads against meet/team/athlete/relay/multi-event contracts; fix measured relationship/count defects | MODEL-01 | Open |
 | SEC-01 | P1 | Object-level grants/RLS/policies/functions/triggers review with positive and negative role tests | SAFE-01, MIG-01 | Open |
