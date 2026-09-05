@@ -171,7 +171,7 @@ class IngestionStore {
           };
         });
 
-        await client.query(
+        const persisted = await client.query(
           `WITH incoming AS (
              SELECT *
              FROM jsonb_to_recordset($1::jsonb) AS x(
@@ -199,7 +199,7 @@ class IngestionStore {
                validation_errors jsonb
              )
            )
-           INSERT INTO ingest.observations
+           INSERT INTO ingest.observations AS existing
              (run_id, source_record_id, source, entity_type, target_meet_id, target_athlete_id,
               target_team_id, event_type_id, raw_event_name, measure, mark_raw, mark_seconds,
               mark_meters, points, place, round, result_date, performance_key, canonical_key,
@@ -212,12 +212,28 @@ class IngestionStore {
            JOIN ingest.source_records sr
              ON sr.source = i.source AND sr.source_record_key = i.source_record_key
            ON CONFLICT (run_id, source_record_id) DO UPDATE
-             SET decision = EXCLUDED.decision,
-                 decision_reason = EXCLUDED.decision_reason,
-                 confidence = EXCLUDED.confidence,
-                 validation_errors = EXCLUDED.validation_errors`,
+             SET source_record_id = existing.source_record_id
+           WHERE (existing.source, existing.entity_type, existing.target_meet_id,
+                  existing.target_athlete_id, existing.target_team_id, existing.event_type_id,
+                  existing.raw_event_name, existing.measure, existing.mark_raw,
+                  existing.mark_seconds, existing.mark_meters, existing.points, existing.place,
+                  existing.round, existing.result_date, existing.performance_key,
+                  existing.canonical_key, existing.validation_errors)
+             IS NOT DISTINCT FROM
+                 (EXCLUDED.source, EXCLUDED.entity_type, EXCLUDED.target_meet_id,
+                  EXCLUDED.target_athlete_id, EXCLUDED.target_team_id, EXCLUDED.event_type_id,
+                  EXCLUDED.raw_event_name, EXCLUDED.measure, EXCLUDED.mark_raw,
+                  EXCLUDED.mark_seconds, EXCLUDED.mark_meters, EXCLUDED.points, EXCLUDED.place,
+                  EXCLUDED.round, EXCLUDED.result_date, EXCLUDED.performance_key,
+                  EXCLUDED.canonical_key, EXCLUDED.validation_errors)`,
           [JSON.stringify(observationRows), runId]
         );
+
+        // Exact retries preserve the writer's decision/canonical links. A changed observation
+        // needs a new run and review; roll back the source payload upsert as well on conflict.
+        if (persisted.rowCount !== batch.length) {
+          throw new Error('conflicting observation restaged in the same run');
+        }
 
         sourceRecords += batch.length;
         observations += batch.length;

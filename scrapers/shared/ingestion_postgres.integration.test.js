@@ -46,8 +46,21 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
       const result = await pool.query("SELECT count(*)::int AS n FROM ingest.source_records WHERE source_record_key='bad-fk'");
       assert.equal(result.rows[0].n, 0);
     });
+    await t.test('same-run restaging is idempotent but conflicting normalized content rolls back', async () => {
+      const run = await store.startRun({ source: 'tfrrs', mode: 'commit', parserVersion: 'test' });
+      const first = record('immutable-observation', { payload: { source_mark: '10.50' } });
+      await store.persistObservations(run, [first]);
+      await store.persistObservations(run, [first]);
+      await assert.rejects(store.persistObservations(run, [record('immutable-observation', {
+        mark_raw: '10.70', payload: { source_mark: '10.70' },
+      })]), /conflicting observation/);
+      const result = await pool.query("SELECT o.mark_raw,sr.payload->>'source_mark' AS source_mark FROM ingest.observations o JOIN ingest.source_records sr USING(source_record_id) WHERE o.run_id=$1", [run]);
+      assert.deepEqual(result.rows, [{ mark_raw: '10.50', source_mark: '10.50' }]);
+    });
     await t.test('sequential replay and cross-provider duplicate resolve to one fact', async () => {
-      await promote([record('replay')]);
+      const first = await promote([record('replay')]);
+      await store.persistObservations(first.runId, [record('replay')]);
+      assert.equal((await pool.query('SELECT decision FROM ingest.observations WHERE run_id=$1', [first.runId])).rows[0].decision, 'insert');
       await promote([record('replay')]);
       await promote([record('replay', { source: 'athletic_net' })]);
       const result = await pool.query("SELECT count(DISTINCT r.result_id)::int AS facts,count(DISTINCT sl.source_record_id)::int AS links FROM public.results r JOIN ingest.source_links sl ON sl.result_id=r.result_id WHERE r.mark_raw='10.50'");

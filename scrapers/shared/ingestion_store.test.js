@@ -38,7 +38,7 @@ test('keeps same local ID from different providers and commits both observations
   const calls = [];
   let released = false;
   const store = new IngestionStore({ pool: { async connect() {
-    return { async query(sql, params) { calls.push({ sql, params }); },
+    return { async query(sql, params) { calls.push({ sql, params }); return { rowCount: params ? JSON.parse(params[0]).length : 0 }; },
       release() { released = true; } };
   } } });
   assert.deepEqual(await store.persistObservations('run', [record('7'), record('7', 'athletic_net')]),
