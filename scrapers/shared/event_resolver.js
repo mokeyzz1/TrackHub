@@ -118,25 +118,33 @@ class EventResolver {
   async flushUnmapped(supabase) {
     const entries = [...this.unmapped.entries()];
     for (const [raw_name, count] of entries) {
-      const { data: existing } = await supabase
+      const { data: existing, error: readError } = await supabase
         .from('unmapped_events')
         .select('seen_count')
         .eq('raw_name', raw_name)
         .maybeSingle();
+      if (readError) throw new Error(`unmapped_events lookup failed: ${readError.message}`);
+      let write;
       if (existing) {
-        await supabase
+        const nextCount = Number(existing.seen_count) + count;
+        if (!Number.isSafeInteger(nextCount) || nextCount < count) throw new Error('Invalid unmapped event count');
+        write = await supabase
           .from('unmapped_events')
-          .update({ seen_count: existing.seen_count + count })
+          .update({ seen_count: nextCount })
           .eq('raw_name', raw_name);
       } else {
-        await supabase
+        write = await supabase
           .from('unmapped_events')
           .insert({ raw_name, seen_count: count });
       }
+      if (write.error) throw new Error(`unmapped_events write failed: ${write.error.message}`);
+      // Remove only acknowledged counts. Retain later entries after a partial failure,
+      // and preserve new misses recorded while this flush was awaiting the database.
+      const remaining = (this.unmapped.get(raw_name) || 0) - count;
+      if (remaining > 0) this.unmapped.set(raw_name, remaining);
+      else this.unmapped.delete(raw_name);
     }
-    const flushed = this.unmapped.size;
-    this.unmapped.clear();
-    return flushed;
+    return entries.length;
   }
 }
 

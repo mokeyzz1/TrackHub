@@ -40,3 +40,52 @@ test('a failed catalog reload cannot leave the resolver marked ready', async () 
   assert.throws(() => resolver.details('100m'), /before load/);
   assert.throws(() => resolver.detailsById(1), /before load/);
 });
+
+function queueSource({ lookup = async () => ({ data: null }), write = async () => ({ error: null }) } = {}) {
+  return { from() { return {
+    select() { return this; },
+    eq(_key, value) {
+      if (this.pending) return write(this.pending);
+      this.key = value;
+      return this;
+    },
+    maybeSingle() { return lookup(this.key); },
+    update(value) { this.pending = value; return this; },
+    insert(value) { return write(value); },
+  }; } };
+}
+
+test('unmapped lookup errors preserve review evidence and never attempt a write', async () => {
+  const resolver = new EventResolver();
+  resolver.unmapped.set('Unfamiliar event', 2);
+  await assert.rejects(resolver.flushUnmapped(queueSource({
+    lookup: async () => ({ error: { message: 'offline' } }),
+    write: async () => { assert.fail('must not write after lookup failure'); },
+  })), /lookup failed: offline/);
+  assert.equal(resolver.unmapped.get('Unfamiliar event'), 2);
+});
+
+test('partial unmapped flush retains failed and unattempted entries without replaying acknowledged counts', async () => {
+  const resolver = new EventResolver();
+  resolver.unmapped = new Map([['first', 1], ['second', 2], ['third', 3]]);
+  await assert.rejects(resolver.flushUnmapped(queueSource({
+    write: async row => ({ error: row.raw_name === 'second' ? { message: 'write failed' } : null }),
+  })), /write failed/);
+  assert.deepEqual([...resolver.unmapped], [['second', 2], ['third', 3]]);
+  assert.equal(await resolver.flushUnmapped(queueSource()), 2);
+  assert.equal(resolver.unmapped.size, 0);
+});
+
+test('unmapped flush adds numeric counts and preserves misses arriving during the write', async () => {
+  const resolver = new EventResolver();
+  resolver.unmapped.set('new event', 2);
+  await resolver.flushUnmapped(queueSource({
+    lookup: async () => ({ data: { seen_count: '10' } }),
+    write: async row => {
+      assert.equal(row.seen_count, 12);
+      resolver.unmapped.set('new event', 3);
+      return { error: null };
+    },
+  }));
+  assert.equal(resolver.unmapped.get('new event'), 1);
+});
