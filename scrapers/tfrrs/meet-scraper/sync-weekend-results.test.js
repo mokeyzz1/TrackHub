@@ -14,7 +14,35 @@ const {
   tfrrsApiEventUrl,
   shouldScrapeEvent,
   parseArgs,
+  parseDate,
+  scrapeMeet,
 } = require('./sync-weekend-results');
+
+test('meet page dates support full month names and multi-day ranges without inventing invalid dates', () => {
+  assert.equal(parseDate('April 23-25, 2026'), '2026-04-23');
+  assert.equal(parseDate('Apr 23–25, 2026'), '2026-04-23');
+  assert.equal(parseDate('February 29, 2024'), '2024-02-29');
+  assert.equal(parseDate('February 29, 2025'), null);
+  assert.equal(parseDate('April 31, 2026'), null);
+  assert.equal(parseDate('Results pending'), null);
+});
+
+test('a conflicting source year stops scraping before any event request', async t => {
+  const axios = require('axios');
+  let requests = 0;
+  t.mock.method(axios, 'get', async () => {
+    requests++;
+    return { data: '<h3 class="panel-title">Annual Meet</h3><div class="panel-heading-normal-text">February 7, 2026</div><a href="/results/999999/12345/Annual/100">100 Meters</a>' };
+  });
+  await assert.rejects(scrapeMeet('https://www.tfrrs.org/results/999999/year-guard-fixture', 42, 'Annual Meet', '2023-02-07'), { code: 'TFRRS_MEET_YEAR_MISMATCH' });
+  assert.equal(requests, 1);
+});
+
+test('same-year multi-day differences are not rejected by the year guard', async t => {
+  const axios = require('axios');
+  t.mock.method(axios, 'get', async () => ({ data: '<h3 class="panel-title">Penn Relays</h3><div class="panel-heading-normal-text">April 23-25, 2026</div>' }));
+  assert.deepEqual(await scrapeMeet('https://www.tfrrs.org/results/999998/range-fixture', 43, 'Penn Relays', '2026-04-25'), []);
+});
 
 test('lookback days reject malformed or missing arguments instead of partially parsing', () => {
   assert.equal(parseArgs([]).days, 7);

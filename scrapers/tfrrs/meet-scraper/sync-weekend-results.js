@@ -444,11 +444,13 @@ function parseDate(dateStr) {
     'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'
   };
 
-  const match = dateStr.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})(?:-\d{1,2})?,?\s*(\d{4})/i);
+  const match = dateStr.match(/\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{1,2})(?:\s*[-–]\s*\d{1,2})?,?\s+(\d{4})\b/i);
   if (match) {
-    const month = months[match[1].toLowerCase()];
+    const month = months[match[1].slice(0, 3).toLowerCase()];
     const day = match[2].padStart(2, '0');
-    return `${match[3]}-${month}-${day}`;
+    const date = `${match[3]}-${month}-${day}`;
+    const parsed = new Date(`${date}T00:00:00Z`);
+    return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date ? date : null;
   }
 
   return null;
@@ -1177,6 +1179,15 @@ async function scrapeMeet(meetUrl, dbMeetId, dbMeetName, dbMeetDate, eventCode =
   if (!meetData) {
     console.log('  Failed to fetch meet page');
     return [];
+  }
+
+  // A stored source URL is evidence, not permission to relabel another year's results.
+  // Same-year schedule differences and multi-day meets require separate identity review.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dbMeetDate || '') && meetData.meetDate
+      && dbMeetDate.slice(0, 4) !== meetData.meetDate.slice(0, 4)) {
+    const error = new Error(`TFRRS source year ${meetData.meetDate.slice(0, 4)} conflicts with database meet ${dbMeetId} date ${dbMeetDate}`);
+    error.code = 'TFRRS_MEET_YEAR_MISMATCH';
+    throw error;
   }
 
   const meetDate = dbMeetDate || meetData.meetDate;
@@ -2277,6 +2288,7 @@ module.exports = {
   parseMultiEventSummary,
   normalizeEventName,
   parseArgs,
+  parseDate,
   parseMeetId,
   parseRelayAthleteNames,
   run4x100Recovery,
