@@ -1,0 +1,685 @@
+{
+  "snapshotDate": "2026-09-05",
+  "entries": [
+    {
+      "file": "20260122075100_live_results_schema.sql",
+      "version": "20260122075100",
+      "name": "live_results_schema",
+      "localSha256": "691178d720ef616810a9ffa002b4a042b32b7f50050d78126dfa39fcb497fd35",
+      "ledgerFingerprint": "d996d8efe7bc320d8952229a11e1b250661ec65655add4c2d45721c2740dc6ee",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260123120000_fix_waitlist_policy.sql",
+      "version": "20260123120000",
+      "name": "fix_waitlist_policy",
+      "localSha256": "bce7ff276e84af55f90d5eca2a4d69140b528041d380812fe9eaa30fe7ce4288",
+      "ledgerFingerprint": "d1d157244a166092064a315757cd7ba8e19ef294868f148d9ce9d91262171e53",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260201_create_athlete_prs.sql",
+      "version": "20260201",
+      "name": "create_athlete_prs",
+      "localSha256": "1d018038b1e0c635c89f53e613b7acf30aa239abab40a3d3a5b1a3c6122ccea3",
+      "ledgerFingerprint": "698ff85a5bcd2552784879197db1cfbb822ee83852e1f7226333600281064e35",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260205181259_add_meet_event_ids.sql",
+      "version": "20260205181259",
+      "name": "add_meet_event_ids",
+      "localSha256": "d4c2747fa1b7c95ecb5f262755d60e07ce603955a8fcfd9b1c62bb12b725648c",
+      "ledgerFingerprint": "9ab334d5160450f17137b647cbd1b43e40a12a2b7bc04fdb04b4c5ef445a157b",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260205183000_fix_athlete_sequence.sql",
+      "version": "20260205183000",
+      "name": "fix_athlete_sequence",
+      "localSha256": "b9d7e9c65bf98bdf1739ca3c697665aa865197952e59ad0bbd9745871848d6d8",
+      "ledgerFingerprint": "4e0043fb19ee434b810d84f50ff60b74f09484239e908cc3103d2ab1c916f558",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260205194604_add_relay_tables.sql",
+      "version": "20260205194604",
+      "name": "add_relay_tables",
+      "localSha256": "0c4c7c01bb6e8219fa7f626ccdb1dd490a19e018bba044f29e4947efe0ff07db",
+      "ledgerFingerprint": "82e569abdc9ed60d99f8fd623a1c59b401920f766672cab3d22f62cc58275e8d",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260206_add_tfrrs_meet_id.sql",
+      "version": "20260206",
+      "name": "add_tfrrs_meet_id",
+      "localSha256": "ce36ff835633909e2d5794732ff20cc7f5dbe706bb2837a97652d6e3f7553c0c",
+      "ledgerFingerprint": "cfd3dd1cd4d2b497ec80deb8f300cf0a8ebc1b3c5ad93cb5ed6e6c9a888ad678",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260210_top_performances_function.sql",
+      "version": "20260210",
+      "name": "top_performances_function",
+      "localSha256": "21e4850c0339979cc95ea0b4ea737df79258da09e752d36a24182d5fd2ea8a67",
+      "ledgerFingerprint": "d152ab5d7559058509c1e0b524c16c7041ff2fbe330f6d1585e1e8fd2a89ee95",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260528_add_final_result_links.sql",
+      "version": "20260528",
+      "name": "add_final_result_links",
+      "localSha256": "06acaec4fa9d476811d378140be505d8ac4c4ab4d50c4af3deaddb848781e87d",
+      "ledgerFingerprint": "801de3c818bf4e0791f21cf9cb1d25286968af03ab1dcf322ac59936070bd2ef",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260710063357_create_event_types_and_aliases.sql",
+      "version": "20260710063357",
+      "name": "create_event_types_and_aliases",
+      "localSha256": "a5e4de57ef1a2eeaeb343cb8f0bc7bab6febcaafd17f3f39e8f91c8084b6ba4c",
+      "ledgerFingerprint": "6e441e07228ec65d34b04dfb333554685cafeae9ec1e131ec3cd0d6162a6d9de",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260715201807_create_divisions_dimension.sql",
+      "version": "20260715201807",
+      "name": "create_divisions_dimension",
+      "localSha256": "49c803255fd25e96ca4ea1dc4225dd58edf61c0e9fd5cd06d82bc64e12ab3e0f",
+      "ledgerFingerprint": "21125c53fc8ad904819efc4645a459d7ab68afb718ddec306a7acd37a23a9fe2",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260716201815_add_results_source_tracking.sql",
+      "version": "20260716201815",
+      "name": "add_results_source_tracking",
+      "localSha256": "22fd92835b6833a78cb50a5d63e3a8f0a486df2f14baa00a79187e2ff98a65dd",
+      "ledgerFingerprint": "13f93289b270e43e401ee2210980be5471d2b964b9b538d3fb92b70031679568",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260806182647_create_v_athlete_prs.sql",
+      "version": "20260806182647",
+      "name": "create_v_athlete_prs",
+      "localSha256": "3d0a44c4bf9da10fd5e95962826751646f6e7d32f52dba62bd3fc585d3c8aa50",
+      "ledgerFingerprint": "78b42faf035cc31cfc67b45e855bd80165f928ad615025b4d07794593b8c36a4",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260810125242_20260810_map_remaining_event_aliases.sql",
+      "version": "20260810125242",
+      "name": "20260810_map_remaining_event_aliases",
+      "localSha256": "e4fe1889dbf815e911ad8e21ba1d635140e1f6cf71052c4ce0c981ff53a54a00",
+      "ledgerFingerprint": "8cb6546070b98037ec286e6602f8f883d2032d9dd7347ab7d2a5fc80f2ed5488",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260819204028_create_ingestion_control_plane.sql",
+      "version": "20260819204028",
+      "name": "create_ingestion_control_plane",
+      "localSha256": "20d5a866b2a96b53aab2380947423d842633348a62d44d0cd84e5e194000bd91",
+      "ledgerFingerprint": "23bd95cecea4c5eed11ebcd4f817509a6d975def538927afb5c588810fa2e500",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260819204123_add_ingestion_control_plane_indexes.sql",
+      "version": "20260819204123",
+      "name": "add_ingestion_control_plane_indexes",
+      "localSha256": "721aa6ef7cd091a5b130531045dfea33ad6471fcf3e6a81dd0a05617c5dd1d51",
+      "ledgerFingerprint": "24f58622acb70bf1eb011059ebdb77f23ee948ccbca6f161ca22741bb87108cf",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260819205735_harden_public_data_access.sql",
+      "version": "20260819205735",
+      "name": "harden_public_data_access",
+      "localSha256": "b64259c5bf8faf3c782d6f91c0ac307c84703e811fe0324be902a11321841b36",
+      "ledgerFingerprint": "ad2c079afcd4c5263dd2456c3d1efdab4abae4beef0dcac7366f22195ebec05e",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260819210753_harden_ingest_link_invariants.sql",
+      "version": "20260819210753",
+      "name": "harden_ingest_link_invariants",
+      "localSha256": "e809e27269ea3cf31e421af1e6b623064c063dcbe88cc5ab0f71e4d59374d75e",
+      "ledgerFingerprint": "c1751448ac3a0a23fe1a9ecbe9c64691a9d9a3d2c815a41def59a2206615744f",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260819211753_reconcile_meets_sequence.sql",
+      "version": "20260819211753",
+      "name": "reconcile_meets_sequence",
+      "localSha256": "f7b409dc45a6322a165d3a8af298dd4471c81e08f66bfa21b056e23c4faa7cf7",
+      "ledgerFingerprint": "0a0cc620f120d890bdeab6fbac2f6d10798f3f1b52b8bf0a862b8d1796a8b7e3",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260819212203_create_recovery_queue.sql",
+      "version": "20260819212203",
+      "name": "create_recovery_queue",
+      "localSha256": "6bd4909f28f09718b4b8a014ee2cc912a54bd607dee1f03e7f5e40ba01513d84",
+      "ledgerFingerprint": "16c185537c81f6bd9e5f1fd51e15894d2066dd1e98f2a419eb1a8cc954d99d25",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260819212404_refine_recovery_queue_sources.sql",
+      "version": "20260819212404",
+      "name": "refine_recovery_queue_sources",
+      "localSha256": "649a99eb89854932951791cd1a93f4bd577cdd457a550a44ae1f7618af9d65e2",
+      "ledgerFingerprint": "8db9fdbad553f473923dc31af41be9955aa5ae5f75aaa4dab7589d9181fc1dd0",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260820020220_refine_recovery_queue_source_hosts.sql",
+      "version": "20260820020220",
+      "name": "refine_recovery_queue_source_hosts",
+      "localSha256": "3a5b877ac9627e9e761317c0d1d202950b27a68e6cf8a227a20569d408a45946",
+      "ledgerFingerprint": "42d44ec1a464c5f8dc2c760754c7e1abc5ecf560de6257661a452f4ea07743c4",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260820020401_reconcile_recovery_queue_invalid_sources.sql",
+      "version": "20260820020401",
+      "name": "reconcile_recovery_queue_invalid_sources",
+      "localSha256": "e15fd7613ae6c5563732b58ea0c10772ea7887c2f6337a15bb8562542fd0434f",
+      "ledgerFingerprint": "d9d87e1c192a18f28fdf37844fa29790730c00de8c0b488794b7da49e8e309d2",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260820020709_index_recovery_queue_last_run_id.sql",
+      "version": "20260820020709",
+      "name": "index_recovery_queue_last_run_id",
+      "localSha256": "ee29a91d0fdc4b0a047b12e46ba6fcfbef05c1f24d56870e60646aec9cf8d080",
+      "ledgerFingerprint": "346e506487432aa70593ae1383c2649eb2bce90b3d2ad9f022c2c3779d90d8bc",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260820025023_clear_recovery_queue_error_on_complete.sql",
+      "version": "20260820025023",
+      "name": "clear_recovery_queue_error_on_complete",
+      "localSha256": "ef997916339d477464831384b8a7125eaa9b0e0d8077ac3d1a3fab3b70c67428",
+      "ledgerFingerprint": "40fa85a1aaf940dc570a64071fd23a1d7acee445db673c4cf2b84c84451ea096",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260820054321_team_aliases.sql",
+      "version": "20260820054321",
+      "name": "team_aliases",
+      "localSha256": "ced3368f4fca17b8b1c529b0df6e8dc13e031f0384ebf0145fd36107aaa7b862",
+      "ledgerFingerprint": "d5ceca5b2dacc2ba8fb6dabc65a92242835eec26458f562cdde9fa3ee110242b",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260820055917_california_junior_college_team_entities.sql",
+      "version": "20260820055917",
+      "name": "california_junior_college_team_entities",
+      "localSha256": "009c1ca358293f03a0d11f697c6eace02dd27573c8bffb06d73aa5b5a9426adb",
+      "ledgerFingerprint": "f2e75b60f5e646e7dbabf74671d7599bc18af3bd39eed4886c05641f9aba90b7",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260820061042_athlete_aliases.sql",
+      "version": "20260820061042",
+      "name": "athlete_aliases",
+      "localSha256": "2fa3f3902f6254ca52113c7cbe23998f0b318b781837a2d3492fd173e0679fc7",
+      "ledgerFingerprint": "f77225c8b6eb67de1c4dfbd1926ba15526b8552af2affdf04d446fb3e247a90a",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260820070559_athletic_net_kirtland_team_alias.sql",
+      "version": "20260820070559",
+      "name": "athletic_net_kirtland_team_alias",
+      "localSha256": "edf51b208ab64bf29074a69f2413faeb36272a88426d0a24d049fffa45795f74",
+      "ledgerFingerprint": "7da1380b196d84758503a9853f3db29cc96d478996e9c8aaea84dfc6899138e0",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260820070638_refine_athletic_net_kirtland_team_alias.sql",
+      "version": "20260820070638",
+      "name": "refine_athletic_net_kirtland_team_alias",
+      "localSha256": "5d6268ee66a95fa35c8e50179776fbd2b7608240608018aa5c80feaaf789da02",
+      "ledgerFingerprint": "fd35f65879c80709252979de28db51040b3d225fdd299dcf18be0e0105664860",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821005928_preserve_partial_recovery_queue_state.sql",
+      "version": "20260821005928",
+      "name": "preserve_partial_recovery_queue_state",
+      "localSha256": "7e229a8d9b0c8f77e5cd161bad027f3e4c76352d129a3e415cbdc64bc42437a8",
+      "ledgerFingerprint": "0a4a0da6ff447ea56527d82ebf2c5423c3103faf74edc82a2d0091e0e999e3b1",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821010233_preserve_partial_recovery_queue_relay_probe.sql",
+      "version": "20260821010233",
+      "name": "preserve_partial_recovery_queue_relay_probe",
+      "localSha256": "0d06b514528c4cf8e69f79d15dedf41c325b8893aa80b251b35275a999d2b896",
+      "ledgerFingerprint": "822615fb5f80484df5bf8258e75ae2247a8b26bfed5bf5e18e11f27805e2a2c5",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821033030_add_4000m_distance_medley_alias.sql",
+      "version": "20260821033030",
+      "name": "add_4000m_distance_medley_alias",
+      "localSha256": "d4635ddde900ab7c3a22c31022b4587e014acf99960be6e4ccfe0670f09b59e7",
+      "ledgerFingerprint": "fa66f42870a34e4637d1c3e5a3767e79fea491aa35b1a16a58450ccf461de375",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821033805_add_college_relay_event_aliases.sql",
+      "version": "20260821033805",
+      "name": "add_college_relay_event_aliases",
+      "localSha256": "75848d624799288f354a16c18b81ba61451c9c090d733c8a9e6d5a1648d11cb7",
+      "ledgerFingerprint": "af77336cc2eaa9a0885b11cac8f44c60d4e5d41a778264d5f2ffbd2b38dc37a6",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821034630_add_tfrs_qualified_event_aliases.sql",
+      "version": "20260821034630",
+      "name": "add_tfrs_qualified_event_aliases",
+      "localSha256": "30fb122b716828dada147a8b10a2087aaf87ef14aabd0436ba993118b93ffaec",
+      "ledgerFingerprint": "e34271a894bd999ea195c58d09f5f404b2919f34159412ff5063c0b0ff10a120",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821035620_add_tfrs_high_school_mile_alias.sql",
+      "version": "20260821035620",
+      "name": "add_tfrs_high_school_mile_alias",
+      "localSha256": "00b43a9026368ae8d80f3cf935908a27a734409a93b025082bb88f99b2d0c45b",
+      "ledgerFingerprint": "ff97809d17a94fc14da8b82ba772e47b948ae8ff5f6d021ac58d472984d9512a",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821040105_add_tfrs_wheelchair_event_aliases.sql",
+      "version": "20260821040105",
+      "name": "add_tfrs_wheelchair_event_aliases",
+      "localSha256": "c79537f9a44fe1178dec166261ea34eabb2906b73f5d43fe0396af8a714aca3b",
+      "ledgerFingerprint": "86eb0034429bfca8bd751e634f191061bc87acc42033939d65d5e236a4f21daa",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821041804_add_athleticlive_collegiate_event_aliases.sql",
+      "version": "20260821041804",
+      "name": "add_athleticlive_collegiate_event_aliases",
+      "localSha256": "4a5250195ff9d11feea21191492f678a49697f2fb21684bb19ea88c2fd01915e",
+      "ledgerFingerprint": "37e9de08fd79f0584e2616ec67d838f6486753f8ff007b53ab5480a710e39cbe",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821041943_add_mixed_4x400m_event_type.sql",
+      "version": "20260821041943",
+      "name": "add_mixed_4x400m_event_type",
+      "localSha256": "9096ab12cda0f253e2374297d0052abd6b8866b9c280ddb858af619bf533c350",
+      "ledgerFingerprint": "ecf8d9373512b618b86750329aa12b5e61b3fd444d91c7c4c25a903b94e5230f",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821042759_add_athleticlive_punctuated_relay_aliases.sql",
+      "version": "20260821042759",
+      "name": "add_athleticlive_punctuated_relay_aliases",
+      "localSha256": "459dcd643b1ba07528e4310237b89988e6f7ce269fbcd448d7f0ce92a6227a0a",
+      "ledgerFingerprint": "30c99ee466e722f1d879a30eb6b94c489e361090d6ba3534c464fb44814249d3",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821043633_add_athleticlive_invitational_relay_alias.sql",
+      "version": "20260821043633",
+      "name": "add_athleticlive_invitational_relay_alias",
+      "localSha256": "2dd7deba789996aa763a1f8ca141ba1680b68668e4eef635c4594c2563ab571d",
+      "ledgerFingerprint": "8f8fca0326af06447b87bbf513e471037e608eb17755c6c9824522b93ffa2bab",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821115738_recompute_open_recovery_quarantines.sql",
+      "version": "20260821115738",
+      "name": "recompute_open_recovery_quarantines",
+      "localSha256": "c0b4060e504825e5889edd5f167af3b4f0e6b780e644c637ac37d81a4fcfc86f",
+      "ledgerFingerprint": "453785f18fbb49cae7ca7827e7ea073e8518f3870066d37e59813c484a0bf288",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821115931_fix_recovery_queue_source_regex.sql",
+      "version": "20260821115931",
+      "name": "fix_recovery_queue_source_regex",
+      "localSha256": "7abb36e04af83158c31cf46d9b4210cd5016ecfd56e332a6959902dfed27e291",
+      "ledgerFingerprint": "1766707a79ed5ce686018b0c7f6ac2a890641b0c22c90226e73268c75de2c56e",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821132606_add_trackscoreboard_ingestion_source.sql",
+      "version": "20260821132606",
+      "name": "add_trackscoreboard_ingestion_source",
+      "localSha256": "cefde167ff87f04527585b6d13858c2bbc70ed684bcebb85daf4abcf10c563d9",
+      "ledgerFingerprint": "9cab15bc903d85f7682cf448fdf3650330bc485dd3f5254abce4870713a88582",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260821132619_add_lai_relay_event_aliases.sql",
+      "version": "20260821132619",
+      "name": "add_lai_relay_event_aliases",
+      "localSha256": "daf5a0acde0c909c293e3b17cb3d2cb1275e29fd43a304d8e528c3dd0bf83b85",
+      "ledgerFingerprint": "ebbebae1ffbde86abb257366aa03e739660db9442f3edba5c9938929b21470a3",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260828233616_recovery_queue_canonical_meet_target.sql",
+      "version": "20260828233616",
+      "name": "recovery_queue_canonical_meet_target",
+      "localSha256": "e337f218f4f3f0169051e2558af7d51a498d0bf811927f3059cc615374a3f215",
+      "ledgerFingerprint": "7b9fa6b74470d36f3cc7cfd57fd49716314183cf84550f8b8348aeb941a07f39",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260829031927_add_cccaa_and_missing_junior_college_teams.sql",
+      "version": "20260829031927",
+      "name": "add_cccaa_and_missing_junior_college_teams",
+      "localSha256": "ff7f4741cd2cb0ecf2103cbca654ea721a1a2037feeeafb45277b81090878ea6",
+      "ledgerFingerprint": "306e67c2b2aa319b7ecafda9522f2280bf261b9d72bb91718e2ce336dbd178f7",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260829032324_add_glendale_ca_tfrrs_alias.sql",
+      "version": "20260829032324",
+      "name": "add_glendale_ca_tfrrs_alias",
+      "localSha256": "665e15f00881be4a7f06d896fb16e16880258f32ba7f18c1c0c85abc0e048540",
+      "ledgerFingerprint": "1a65cb7eac935ec361330bb75846ee7bc783bd01d53a60cd87197877bc77583f",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260829220000_repair_big12_cross_meet_relays.sql",
+      "version": "20260829220000",
+      "name": "repair_big12_cross_meet_relays",
+      "localSha256": "3f551aa2d08390dd7a4a5c16cb6b6383fc2472a47835ddac252d0fa4faedb9ed",
+      "ledgerFingerprint": "7628cef92afc057b429be42dd0ce51cd99114b3d8584b504bbc5762f75c935cb",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260829224504_create_4x100_recovery_jobs.sql",
+      "version": "20260829224504",
+      "name": "create_4x100_recovery_jobs",
+      "localSha256": "b75919f66d568dd8f86e9bf2a0f6c98523f1f85606c51cc0c341a38dbff883d0",
+      "ledgerFingerprint": "945ab734b99ce9538c79d8be665a847e7e51eaa1a53e75631f49420cac50b656",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260829230000_normalize_ed_daniels_relay_statuses.sql",
+      "version": "20260829230000",
+      "name": "normalize_ed_daniels_relay_statuses",
+      "localSha256": "72b40aa822515d69b092a984105fad124b48f6e1d4c9a7a8b64e70cf6ecbf239",
+      "ledgerFingerprint": "fd38d12034b7d3b7bea8852de14353dd7e8f78603fa7acfb73e7fd3fca06cc08",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260829230411_refine_4x100_recovery_claim_filters.sql",
+      "version": "20260829230411",
+      "name": "refine_4x100_recovery_claim_filters",
+      "localSha256": "2318feeaa1b4d2421758f95496247eead5ad9e233550c782690f9a991e6d131d",
+      "ledgerFingerprint": "f075d71bb8b096b5bff18be21930a03f6e50bec0495ba42e2168abe54a1697a3",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260829231000_repair_njcaa_cross_meet_relays.sql",
+      "version": "20260829231000",
+      "name": "repair_njcaa_cross_meet_relays",
+      "localSha256": "83fa52d6c0709f690b294b6dc5ad92d97eb3b4ad54ebde8ac427923ea9c0acf3",
+      "ledgerFingerprint": "bdee7c94f4c6847d8d5229e88f018d894cc359e007f4a1cf25ec047218a2ee40",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260830023000_preserve_4x100_discovered_sources.sql",
+      "version": "20260830023000",
+      "name": "preserve_4x100_discovered_sources",
+      "localSha256": "ae8b42087ee11ec277daaa818f558672433a0b6a8913e4138a0e639c9e05fa29",
+      "ledgerFingerprint": "3073114312b2e307178eec5797507ae29a379bece4afd179dcdd6afc4f370f2e",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260830024500_only_queue_usable_4x100_sources.sql",
+      "version": "20260830024500",
+      "name": "only_queue_usable_4x100_sources",
+      "localSha256": "52ba73c733afda0628e5ea8a60d53c176be90165bac30bd48778b805cdbe3927",
+      "ledgerFingerprint": "8e6c7d3a8d40bec36068a0c7161d5178187e5f70b5dcce8be262559806d515d4",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260830031500_scope_4x100_refresh_by_season.sql",
+      "version": "20260830031500",
+      "name": "scope_4x100_refresh_by_season",
+      "localSha256": "97d689479068d48c19f3770acb9442dd0d92c47404d8c04d3eb29b3d9d39e83f",
+      "ledgerFingerprint": "94c8607d14a7808815e9da27e585f1f08d618b2c28236ae724719112ca6fc84f",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260831090000_bound_4x100_retry_claims.sql",
+      "version": "20260831090000",
+      "name": "bound_4x100_retry_claims",
+      "localSha256": "54637d8724c5ee4bb2549fa4667d2c9bf7a09d237aeb041d7995b69e45b57f08",
+      "ledgerFingerprint": "3e300e8c2a8b1e5b958a814e05599bb6924f7f9e8b73a781415b6d44249caa3f",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260831162736_route_4x100_meet_url_sources.sql",
+      "version": "20260831162736",
+      "name": "route_4x100_meet_url_sources",
+      "localSha256": "64bf7198fee537151491deed8715c511571ce6523cc05daa318830156fce31f7",
+      "ledgerFingerprint": "9128f023052d1b55065cbb428bf27040476553798f420685948f808ac07bfa0d",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260831163739_repair_4x100_meet_url_host_routing.sql",
+      "version": "20260831163739",
+      "name": "repair_4x100_meet_url_host_routing",
+      "localSha256": "59f8bb2e30dfef0421b5d8a0a40128c607598446a1e7d5bddae9868199d7b016",
+      "ledgerFingerprint": "fd06ba02f2a7568e50f5b29808a240eb91ae192efb4af2c6ce89d699db91371d",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260831164109_bound_4x100_queued_attempt_claims.sql",
+      "version": "20260831164109",
+      "name": "bound_4x100_queued_attempt_claims",
+      "localSha256": "3b9f056c5aefa932c5a12345e5dba860bb9cb283c618fb08eb46f693ec507722",
+      "ledgerFingerprint": "9d7d09fe648d70a5e9d0599d58902b481b1f9f2a2cb575fb2b2d098dddfeecdd",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260831164350_reset_4x100_rerouted_source_budget_v2.sql",
+      "version": "20260831164350",
+      "name": "reset_4x100_rerouted_source_budget_v2",
+      "localSha256": "fa8ebabe15e2c5b7440c9e001efd2412c99f9ef7ae3742d6979e61d6c99397d5",
+      "ledgerFingerprint": "6c45fe9cb16c59a222ddbba4feb702fd34d6c8539b14dc64baae832061c5fbad",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260831171555_add_timing_provider_ingestion_sources.sql",
+      "version": "20260831171555",
+      "name": "add_timing_provider_ingestion_sources",
+      "localSha256": "bf7bbfebcc7197fad10f5c6c04927042d1946fd550764a46182b1795f76c5e6d",
+      "ledgerFingerprint": "cfd5a9ad65e9adeaa6ca391564df444b2207269c96159fb214cc3af1a3075736",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260901210719_create_outdoor_2026_4x100_reconciliation_jobs.sql",
+      "version": "20260901210719",
+      "name": "create_outdoor_2026_4x100_reconciliation_jobs",
+      "localSha256": "3fd446538a1d43a93817842522469fbf6e40ae1366338751dc28ce2a40ffbaea",
+      "ledgerFingerprint": "bdf22e4e46c2a37124a380b1e1e5782412e548649594d5e8842a6f46007d245f",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260901233750_consolidate_outdoor_2026_4x100_into_event_recovery_queue.sql",
+      "version": "20260901233750",
+      "name": "consolidate_outdoor_2026_4x100_into_event_recovery_queue",
+      "localSha256": "c7defcdcacf091da26e54541e16c43ae051174e19c3d1e40b9c72adf332d6f99",
+      "ledgerFingerprint": "4199943ef5cd9d29f6dcd7f8761a7501d4b328e697787520d2d20053550b3aa9",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260902120000_consolidate_reviewed_school_duplicates.sql",
+      "version": "20260902120000",
+      "name": "consolidate_reviewed_school_duplicates",
+      "localSha256": "2ae5169bb6bae612d690c22b9a066a808197996c75f0258033c614a102f357c4",
+      "ledgerFingerprint": "126cdd5092bac3d6c62d168545c4b92f00d9e5b006ccb0419d3b2e35c79b59bf",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260902130000_remove_reviewed_empty_school_duplicates.sql",
+      "version": "20260902130000",
+      "name": "remove_reviewed_empty_school_duplicates",
+      "localSha256": "a59a63b5077112c33c7c88334875ecf376f469a001477a3c5978bd67c819c162",
+      "ledgerFingerprint": "53f0965309c5e189511d71853946aff58f232a0adb52bc848a986f60cb0658bf",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260902140000_repair_aug18_tfrrs_edition_contamination.sql",
+      "version": "20260902140000",
+      "name": "repair_aug18_tfrrs_edition_contamination",
+      "localSha256": "6f8ea23243b6f09ede5ed4daf94e7638070032ac01694ed246dc73788447d318",
+      "ledgerFingerprint": "9218d2c21b89ea2be742e8bbcb4f2e1e2aee64ceb1c2555b03f6eddf234592f3",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260902144458_preserve_reviewed_secondary_athlete_identities.sql",
+      "version": "20260902144458",
+      "name": "preserve_reviewed_secondary_athlete_identities",
+      "localSha256": "6c244bd2b0c5958976dc4d3044f232317928ae5dbb812f39e28dd42ae2964429",
+      "ledgerFingerprint": "1241bd9169336fcc1e0577d2d995059d3dd76e70af34bce4127b0dd70775d29b",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260902170615_consolidate_reviewed_athlete_duplicates.sql",
+      "version": "20260902170615",
+      "name": "consolidate_reviewed_athlete_duplicates",
+      "localSha256": "5ff46207442e280eb855b66d5a9b9cd93482c208ea978dd9c497002750500369",
+      "ledgerFingerprint": "e12c4eee6be65af0255905927aa9634adb2ce704bd62e03cffa185f4c0044e47",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260903180000_add_explicit_team_affiliation_fields.sql",
+      "version": "20260903180000",
+      "name": "add_explicit_team_affiliation_fields",
+      "localSha256": "86c10d3cf667f7df4ea3dd3cf2d3b6a026ebaeac6df14f0ac33e7086afbcc985",
+      "ledgerFingerprint": "7905d326352a91decb0479c734bed0b3b7a7a2fcfd8b53fc4e732d584d0845b3",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260903212617_teams_summary_prefers_explicit_affiliation.sql",
+      "version": "20260903212617",
+      "name": "teams_summary_prefers_explicit_affiliation",
+      "localSha256": "8144af0f33f2c28781830e7075e6dd52bf95f92fa9a379ad9d0abf916f6f00d0",
+      "ledgerFingerprint": "40419e8182a4487c3c6689eb767f1c6f4c1d92fa76aa66ce83533effaa260ee3",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904004321_backfill_reviewed_explicit_team_affiliations.sql",
+      "version": "20260904004321",
+      "name": "backfill_reviewed_explicit_team_affiliations",
+      "localSha256": "2738d87e40ddd2658171ed5dd2033357428be6862f395d7dc7c1be7bff081e06",
+      "ledgerFingerprint": "6026e3cc79072920dd82d8271c7780262aa825836eee541859f9fffdc7f83d2b",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904020412_remove_reviewed_dawgs_logo_association.sql",
+      "version": "20260904020412",
+      "name": "remove_reviewed_dawgs_logo_association",
+      "localSha256": "87360f65991c3f9f2d5015d9c410d28766f54138b4c18cf8d2852c580b548ab8",
+      "ledgerFingerprint": "94dedcb223b49b1c563028ffddbdfc60db210cb72b562cc9e168ce833e7fe5b9",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904073101_classify_all_other_schools.sql",
+      "version": "20260904073101",
+      "name": "classify_all_other_schools",
+      "localSha256": "99cc1070979146d338d80e0fe13aae4316e24de9e386fcbf46f4f4e8fa0c4b43",
+      "ledgerFingerprint": "63fd30f2c233efb01bdd32d9d95fdae207c918dfb18b2e90dc3bbd0018bba2e9",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904074416_consolidate_exact_conference_duplicates.sql",
+      "version": "20260904074416",
+      "name": "consolidate_exact_conference_duplicates",
+      "localSha256": "25eb53b75915882ea3f3c8432eb65ad16ca3bcba6ffeca620330e9485d8eac2b",
+      "ledgerFingerprint": "1b40fbd28c2758e5891559d5c386baef5442681bd1a36135b1e1078e2f9025ff",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904075925_restore_conference_source_urls.sql",
+      "version": "20260904075925",
+      "name": "restore_conference_source_urls",
+      "localSha256": "b5afce71a7bac78ea68ab31dbdc1101b57b0ada63f67394190023af139909cc2",
+      "ledgerFingerprint": "b6a7381c0dda0c53ce0cf494509c8373d17af5e86747e5de5b10b5e2bb5b5913",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904082945_reconcile_primary_conference_catalog.sql",
+      "version": "20260904082945",
+      "name": "reconcile_primary_conference_catalog",
+      "localSha256": "ed276cf64d0cff5d8e11cf594f71b2cd695cc3c5451e0d7c80a31b5461a89e08",
+      "ledgerFingerprint": "8a6814cb8329f9d2e986082965384f3a8f55841587477d9f0454b7237bf9bf64",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904094906_add_canonical_fact_lookup_indexes.sql",
+      "version": "20260904094906",
+      "name": "add_canonical_fact_lookup_indexes",
+      "localSha256": "d063dda9b70041e0c77a968235aa9397683a0bd35632f22fa40a26d9d0b29dfa",
+      "ledgerFingerprint": "3d2a5288fcaae36d9570e29ed258be3029d2c7d026f455faa1c1eab425b4bdaf",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904095259_drop_unhelpful_relay_fact_lookup_index.sql",
+      "version": "20260904095259",
+      "name": "drop_unhelpful_relay_fact_lookup_index",
+      "localSha256": "62c81e06ff95684fab615b156e813feda453c5977cbb19dc17cef4ef55692bad",
+      "ledgerFingerprint": "01ed4079ed1f8e527bbb3d74413e87c400180a9043dd9a89dc8df752e31c648e",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904133353_move_backup_tables_to_private_archive.sql",
+      "version": "20260904133353",
+      "name": "move_backup_tables_to_private_archive",
+      "localSha256": "3da8fbb733dd7507e92c554442be76f49e56e5caf7bff645936d1a9da353babb",
+      "ledgerFingerprint": "3ef67bdc6ac36361c838cc6dcaa507c5d117a0781ec875dcbb8ecd8908de4eec",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904135909_remove_superseded_lookup_indexes.sql",
+      "version": "20260904135909",
+      "name": "remove_superseded_lookup_indexes",
+      "localSha256": "d7506ddf59fef48bf1d5bca0473234d1407cf382d0dcd56161cbca951c8c9cb4",
+      "ledgerFingerprint": "e57c3fb04c9c48b480a5c8f9add8335627810810641a1cef783d40df5c0b65ef",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904141650_retire_empty_events_table.sql",
+      "version": "20260904141650",
+      "name": "retire_empty_events_table",
+      "localSha256": "bef4d7c85d9dc7039d3f2b62bc3aba2543c0c0786e433b98cbbf84cb75bfc078",
+      "ledgerFingerprint": "6e5027dbbe1fb71780b58192829bdc46b8de2f92e0f6866e5de4c95896ba2ce4",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904195352_fix_v_athlete_prs_points_source.sql",
+      "version": "20260904195352",
+      "name": "fix_v_athlete_prs_points_source",
+      "localSha256": "32df269715394dc6dc9f700a19dce3d376791c593f9d26a81e4404e2a33a1d3e",
+      "ledgerFingerprint": "d888c4cd6cc535959928f93b79b08b9dda414d5d51b4c91bdf63e51c376448f2",
+      "review": "Statement-aware lexical match"
+    },
+    {
+      "file": "20260904220438_repair_source_backed_relay_athlete_links.sql",
+      "version": "20260904220438",
+      "name": "repair_source_backed_relay_athlete_links",
+      "localSha256": "fc66a61044ebb34a62fd9d383c46a76dc91c64b144239b2db4cce8f1d12edf68",
+      "ledgerFingerprint": "c3b8ebd86b0c266568068d61b9610f9a0f1bbe3ba818150fcdd65cea7b0a3723",
+      "review": "Comment-only body difference reviewed in MIG-01a"
+    },
+    {
+      "file": "20260904221054_harden_trigger_helper_execute_acl.sql",
+      "version": "20260904221054",
+      "name": "harden_trigger_helper_execute_acl",
+      "localSha256": "5d06d5793156feb83bec1d986bfea1a41dcb391cd5548ad917ace2a40b5eb235",
+      "ledgerFingerprint": "f5946421eee59e3bc077e8425cfbe352867807e8912278228252388a084a5e25",
+      "review": "Statement-aware lexical match"
+    }
+  ]
+}

@@ -25,8 +25,10 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | MIG-01a | P0 | Align the two recent local filenames after full SQL comparison with recorded live versions; no SQL replay | SAFE-01 | Complete: MIGRATION_ALIGNMENT_20260905.md |
 | MIG-01b | P0 | Compare all migration SQL, align 27 verified filenames, and restore the original quarantine-refresh migration history with regression tests | MIG-01a | Complete: MIGRATION_RECONCILIATION_CHECKPOINT_20260905.md |
 | MIG-01c | P0 | Respect ledger statement boundaries, restore four rewritten historical migrations and one missing local migration; preserve later fixes | MIG-01b | Complete: MIGRATION_STATEMENT_REVIEW_20260905.md; 13 tests pass |
+| MIG-01d | P0 | Preserve 39 non-deployable files outside automatic discovery; enforce reviewed history and report untracked SQL | MIG-01c | Complete: MIGRATION_DEPLOYMENT_BOUNDARY_20260905.md; 18 tests pass |
+| MIG-01e | P0 | Prove isolated schema/test baseline and deployment behavior; resolve unreviewed active SQL before any production push | MIG-01d | Open; unrelated untracked LAI file blocks current-worktree push |
 | ING-01 | P1 | Provider-qualified replay keys; whole-call duplicate/provenance validation; regression tests; measure existing cross-provider key collisions | TRACK-01 | Complete: 233 ingestion / 65 shared tests pass; zero live cross-provider key groups |
-| MODEL-01 | P1 | Review each application table/column purpose, actual values, readers/writers and reference relationships; decide preserve, improve or retire | SAFE-01, MIG-01 | Open |
+| MODEL-01 | P1 | Review each application table/column purpose, actual values, readers/writers and reference relationships; decide preserve, improve or retire | SAFE-01 for read-only review; MIG-01 for deployment | Open |
 | ID-01 | P1 | Review canonical identity constraints, reviewed aliases and uncertainty handling; verify prior repairs against alias history | MODEL-01 | Open |
 | ING-02 | P1 | Prove replay, concurrency, payload changes, source-link consistency and rollback using isolated PostgreSQL integration tests | MIG-01, ID-01, ING-01 | Open |
 | DATA-01 | P1 | Apply source-backed repairs with exact before-images, affected-ID assertions and postconditions; ambiguous groups explicitly held | ID-01, ING-02 | Open |
