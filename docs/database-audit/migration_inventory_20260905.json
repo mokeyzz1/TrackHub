@@ -1,0 +1,1188 @@
+{
+  "date": "2026-09-05",
+  "method": "Exact MD5 of file bytes against ledger statements joined by newline. Hash mismatch is not proof of different SQL. Includes untracked local SQL; no migration replay or ledger changes.",
+  "localCount": 124,
+  "liveCount": 85,
+  "local": [
+    {
+      "file": "20260122075100_live_results_schema.sql",
+      "version": "20260122075100",
+      "name": "live_results_schema",
+      "sql_md5": "aa1c1369d56fdfd47e06fb259c34d128",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260122075100"
+      ]
+    },
+    {
+      "file": "20260123120000_fix_waitlist_policy.sql",
+      "version": "20260123120000",
+      "name": "fix_waitlist_policy",
+      "sql_md5": "ca687468f514e62788495468f803a7f1",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260123120000"
+      ]
+    },
+    {
+      "file": "20260201_create_athlete_prs.sql",
+      "version": "20260201",
+      "name": "create_athlete_prs",
+      "sql_md5": "cc8a4934247731af524d27f5a5b37b09",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260201"
+      ]
+    },
+    {
+      "file": "20260205181259_add_meet_event_ids.sql",
+      "version": "20260205181259",
+      "name": "add_meet_event_ids",
+      "sql_md5": "a7af4c184c479b620a77bcefbee0948d",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260205181259"
+      ]
+    },
+    {
+      "file": "20260205183000_fix_athlete_sequence.sql",
+      "version": "20260205183000",
+      "name": "fix_athlete_sequence",
+      "sql_md5": "24ef7ce4e41b7ae37eae066b75746357",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260205183000"
+      ]
+    },
+    {
+      "file": "20260205194604_add_relay_tables.sql",
+      "version": "20260205194604",
+      "name": "add_relay_tables",
+      "sql_md5": "f4c72364827cb2ae667e18c8cf910dc2",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260205194604"
+      ]
+    },
+    {
+      "file": "20260206_add_tfrrs_meet_id.sql",
+      "version": "20260206",
+      "name": "add_tfrrs_meet_id",
+      "sql_md5": "d2f2053d25a890d78fee5600959af2ce",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260206"
+      ]
+    },
+    {
+      "file": "20260210_top_performances_function.sql",
+      "version": "20260210",
+      "name": "top_performances_function",
+      "sql_md5": "d4eea1a8381a863e2c51872ca7c06a50",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260210"
+      ]
+    },
+    {
+      "file": "20260210_top_performances_with_scoring.sql",
+      "version": "20260210",
+      "name": "top_performances_with_scoring",
+      "sql_md5": "4d3339d6147b301ddcb737bed869edb5",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260211_fix_event_name_matching.sql",
+      "version": "20260211",
+      "name": "fix_event_name_matching",
+      "sql_md5": "d5fd552813d2558a92bbab2a66d8b863",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260211_fix_weight_throw_scoring.sql",
+      "version": "20260211",
+      "name": "fix_weight_throw_scoring",
+      "sql_md5": "e3297e91bc5bfa7c4eedd4cba4e719e5",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260211_indoor_outdoor_scoring.sql",
+      "version": "20260211",
+      "name": "indoor_outdoor_scoring",
+      "sql_md5": "2cb235018faabf04d6b7c0c4da2451b2",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260216_add_meet_end_date.sql",
+      "version": "20260216",
+      "name": "add_meet_end_date",
+      "sql_md5": "2089c9c7550aad6989bd9488758b22ea",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260216_add_performance_indexes.sql",
+      "version": "20260216",
+      "name": "add_performance_indexes",
+      "sql_md5": "600a11065bf84fed10acddedbae3133c",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260216_normalized_event_names.sql",
+      "version": "20260216",
+      "name": "normalized_event_names",
+      "sql_md5": "d6ffdcd0783b586371002d62d89026a9",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260220_normalize_event_names.sql",
+      "version": "20260220",
+      "name": "normalize_event_names",
+      "sql_md5": "8fc87c9f7a4c4228345fc3d7ce1f88a6",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260220_push_tokens.sql",
+      "version": "20260220",
+      "name": "push_tokens",
+      "sql_md5": "bee7497d7c958fb8a2b654cc2b2fd0de",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260221_comprehensive_event_normalization.sql",
+      "version": "20260221",
+      "name": "comprehensive_event_normalization",
+      "sql_md5": "6e5da4bdad0eed6891ea71ad31b6e831",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260221_event_normalization_batched.sql",
+      "version": "20260221",
+      "name": "event_normalization_batched",
+      "sql_md5": "25f622f245fbbb2c99dd8f8b59496fd4",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260223_wa_scoring_with_bounds.sql",
+      "version": "20260223",
+      "name": "wa_scoring_with_bounds",
+      "sql_md5": "7bf0530a06d954abb810ca77fea4ae90",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260527_expand_timing_platform_detection.sql",
+      "version": "20260527",
+      "name": "expand_timing_platform_detection",
+      "sql_md5": "aed213a5634f3eda094ecd87752bff8e",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260528_add_final_result_links.sql",
+      "version": "20260528",
+      "name": "add_final_result_links",
+      "sql_md5": "5387f898f43efa947f606cd5fe305459",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260528"
+      ]
+    },
+    {
+      "file": "20260714_create_event_types_and_aliases.sql",
+      "version": "20260714",
+      "name": "create_event_types_and_aliases",
+      "sql_md5": "0f232c806f94b2284b328ec8a2274616",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260710063357"
+      ]
+    },
+    {
+      "file": "20260714_drop_duplicate_indexes.sql",
+      "version": "20260714",
+      "name": "drop_duplicate_indexes",
+      "sql_md5": "5f2b3a9b0e503e72628db6d8dc93e483",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260714_enable_rls_relay_tables.sql",
+      "version": "20260714",
+      "name": "enable_rls_relay_tables",
+      "sql_md5": "087f24f86631a68810b510ffe569522b",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260714_recompute_meet_seasons.sql",
+      "version": "20260714",
+      "name": "recompute_meet_seasons",
+      "sql_md5": "81bca1910b677efcf10a6f9e831125e1",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260714_seed_event_catalog.sql",
+      "version": "20260714",
+      "name": "seed_event_catalog",
+      "sql_md5": "c14ef6347a6c5947e78d2ffb974662b3",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260715_add_meet_id_fks.sql",
+      "version": "20260715",
+      "name": "add_meet_id_fks",
+      "sql_md5": "a432baa23c692eaf915b2e251ec93fc9",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260715_computed_athlete_prs.sql",
+      "version": "20260715",
+      "name": "computed_athlete_prs",
+      "sql_md5": "7b398c78f6dc4eaefc7729bae7cbe121",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260715_create_divisions_dimension.sql",
+      "version": "20260715",
+      "name": "create_divisions_dimension",
+      "sql_md5": "999eb428935c3d075ceb4039dcbc70c4",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260715201807"
+      ]
+    },
+    {
+      "file": "20260715_drop_dead_tables.sql",
+      "version": "20260715",
+      "name": "drop_dead_tables",
+      "sql_md5": "a15a6c50286f99e41fa2d353cb7605b5",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260715_relay_event_normalization.sql",
+      "version": "20260715",
+      "name": "relay_event_normalization",
+      "sql_md5": "ae7efeeb7da7fdc9746bbd49c7782b38",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260716_add_results_source_tracking.sql",
+      "version": "20260716",
+      "name": "add_results_source_tracking",
+      "sql_md5": "3d384ec536e1297142a2ade550f2984e",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260716201815"
+      ]
+    },
+    {
+      "file": "20260719_athletic_net_event_aliases.sql",
+      "version": "20260719",
+      "name": "athletic_net_event_aliases",
+      "sql_md5": "395f0c40e0b9da0d0647724bd9a44204",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260719_backfill_results_source_tfrrs.sql",
+      "version": "20260719",
+      "name": "backfill_results_source_tfrrs",
+      "sql_md5": "9c02d16d73b07235c85ea1a2b2e450ed",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260719_refresh_athlete_current_school.sql",
+      "version": "20260719",
+      "name": "refresh_athlete_current_school",
+      "sql_md5": "44cf8bcf3d0b7f62ddcff43f7859a542",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260809_index_results_team_id.sql",
+      "version": "20260809",
+      "name": "index_results_team_id",
+      "sql_md5": "18ef5802994785109d74ac528480a374",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260819204028_create_ingestion_control_plane.sql",
+      "version": "20260819204028",
+      "name": "create_ingestion_control_plane",
+      "sql_md5": "52e368fd660473b6c310f2df64b23a74",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260819204028"
+      ]
+    },
+    {
+      "file": "20260819204123_add_ingestion_control_plane_indexes.sql",
+      "version": "20260819204123",
+      "name": "add_ingestion_control_plane_indexes",
+      "sql_md5": "2acbf31cee3aa29077403354435deb97",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260819204123"
+      ]
+    },
+    {
+      "file": "20260819205735_harden_public_data_access.sql",
+      "version": "20260819205735",
+      "name": "harden_public_data_access",
+      "sql_md5": "ffade399930c8828f5a8a5ec2af7bd48",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260819205735"
+      ]
+    },
+    {
+      "file": "20260819210753_harden_ingest_link_invariants.sql",
+      "version": "20260819210753",
+      "name": "harden_ingest_link_invariants",
+      "sql_md5": "b64e7010a8e67e8c57a7e04bba39d91d",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260819210753"
+      ]
+    },
+    {
+      "file": "20260819211753_reconcile_meets_sequence.sql",
+      "version": "20260819211753",
+      "name": "reconcile_meets_sequence",
+      "sql_md5": "f1b44352e657b072ca5c8e1be7cb4a51",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260819211753"
+      ]
+    },
+    {
+      "file": "20260819212203_create_recovery_queue.sql",
+      "version": "20260819212203",
+      "name": "create_recovery_queue",
+      "sql_md5": "4af26d10acee4e6a88ea6b8c6ede7cd6",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260819212203"
+      ]
+    },
+    {
+      "file": "20260819212404_refine_recovery_queue_sources.sql",
+      "version": "20260819212404",
+      "name": "refine_recovery_queue_sources",
+      "sql_md5": "c3b241eb2f037dfd4638fe1458270b93",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260819212404"
+      ]
+    },
+    {
+      "file": "20260820020100_refine_recovery_queue_source_hosts.sql",
+      "version": "20260820020100",
+      "name": "refine_recovery_queue_source_hosts",
+      "sql_md5": "580ee4c0ddb07edaead1e443359cd5fb",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260820020220"
+      ]
+    },
+    {
+      "file": "20260820020319_reconcile_recovery_queue_invalid_sources.sql",
+      "version": "20260820020319",
+      "name": "reconcile_recovery_queue_invalid_sources",
+      "sql_md5": "3b8632089e7ff961f05b72497f4f3fb1",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260820020401"
+      ]
+    },
+    {
+      "file": "20260820020659_index_recovery_queue_last_run_id.sql",
+      "version": "20260820020659",
+      "name": "index_recovery_queue_last_run_id",
+      "sql_md5": "a52baa49fe7b8a3d866a4613e52a5dac",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260820020709"
+      ]
+    },
+    {
+      "file": "20260820025004_clear_recovery_queue_error_on_complete.sql",
+      "version": "20260820025004",
+      "name": "clear_recovery_queue_error_on_complete",
+      "sql_md5": "c5183bdcbaf0c0eb1ae6a89a52b285e1",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260820025023"
+      ]
+    },
+    {
+      "file": "20260820032000_track_relay_source_coverage.sql",
+      "version": "20260820032000",
+      "name": "track_relay_source_coverage",
+      "sql_md5": "e2b19217c7ef6a0bd3da827e68577671",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260820054037_team_aliases.sql",
+      "version": "20260820054037",
+      "name": "team_aliases",
+      "sql_md5": "5074016ebc8bb0be492d70455aca43b9",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260820054321"
+      ]
+    },
+    {
+      "file": "20260820055613_california_junior_college_team_entities.sql",
+      "version": "20260820055613",
+      "name": "california_junior_college_team_entities",
+      "sql_md5": "26010fd8d52434fcd87f5491350750ad",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260820055917"
+      ]
+    },
+    {
+      "file": "20260820060951_athlete_aliases.sql",
+      "version": "20260820060951",
+      "name": "athlete_aliases",
+      "sql_md5": "c91244315891af2301063f8e84bb25e0",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260820061042"
+      ]
+    },
+    {
+      "file": "20260820073500_athletic_net_kirtland_team_alias.sql",
+      "version": "20260820073500",
+      "name": "athletic_net_kirtland_team_alias",
+      "sql_md5": "9ede2fd465000ef64f7d4958cdaa9961",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260820070559"
+      ]
+    },
+    {
+      "file": "20260820074000_refine_athletic_net_kirtland_team_alias.sql",
+      "version": "20260820074000",
+      "name": "refine_athletic_net_kirtland_team_alias",
+      "sql_md5": "bef2971d409acac616da1312186a57ce",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260820070638"
+      ]
+    },
+    {
+      "file": "20260821005928_preserve_partial_recovery_queue_state.sql",
+      "version": "20260821005928",
+      "name": "preserve_partial_recovery_queue_state",
+      "sql_md5": "1dcc3213729b727129716033a5fd6cc0",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260821005928"
+      ]
+    },
+    {
+      "file": "20260821010233_preserve_partial_recovery_queue_relay_probe.sql",
+      "version": "20260821010233",
+      "name": "preserve_partial_recovery_queue_relay_probe",
+      "sql_md5": "642ec43560fa4b5f0e571d6e8b80bccf",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260821010233"
+      ]
+    },
+    {
+      "file": "20260821033001_add_4000m_distance_medley_alias.sql",
+      "version": "20260821033001",
+      "name": "add_4000m_distance_medley_alias",
+      "sql_md5": "91a985a0efbcc690b4365ebef0bcaad3",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821033030"
+      ]
+    },
+    {
+      "file": "20260821033750_add_college_relay_event_aliases.sql",
+      "version": "20260821033750",
+      "name": "add_college_relay_event_aliases",
+      "sql_md5": "7a4f2859d0cdb47b18c3aba6be8277db",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821033805"
+      ]
+    },
+    {
+      "file": "20260821034555_add_tfrs_qualified_event_aliases.sql",
+      "version": "20260821034555",
+      "name": "add_tfrs_qualified_event_aliases",
+      "sql_md5": "72595592fc4b596f6c6dedabe91cbf10",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821034630"
+      ]
+    },
+    {
+      "file": "20260821035607_add_tfrs_high_school_mile_alias.sql",
+      "version": "20260821035607",
+      "name": "add_tfrs_high_school_mile_alias",
+      "sql_md5": "34c10568b2b314a2280ac8321aeda4eb",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821035620"
+      ]
+    },
+    {
+      "file": "20260821040050_add_tfrs_wheelchair_event_aliases.sql",
+      "version": "20260821040050",
+      "name": "add_tfrs_wheelchair_event_aliases",
+      "sql_md5": "7849285b16bd72658194d772c2a30de6",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821040105"
+      ]
+    },
+    {
+      "file": "20260821041716_add_athleticlive_collegiate_event_aliases.sql",
+      "version": "20260821041716",
+      "name": "add_athleticlive_collegiate_event_aliases",
+      "sql_md5": "c43951525c463239567f5cb6106f641b",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821041804"
+      ]
+    },
+    {
+      "file": "20260821041930_add_mixed_4x400m_event_type.sql",
+      "version": "20260821041930",
+      "name": "add_mixed_4x400m_event_type",
+      "sql_md5": "61d3af13ce3063d4709242d1917fff81",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821041943"
+      ]
+    },
+    {
+      "file": "20260821042746_add_athleticlive_punctuated_relay_aliases.sql",
+      "version": "20260821042746",
+      "name": "add_athleticlive_punctuated_relay_aliases",
+      "sql_md5": "9cc7a7869e04e1d1cf83fe04016f7a22",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821042759"
+      ]
+    },
+    {
+      "file": "20260821043621_add_athleticlive_invitational_relay_alias.sql",
+      "version": "20260821043621",
+      "name": "add_athleticlive_invitational_relay_alias",
+      "sql_md5": "b304620998c59545721a1d55f87df8d0",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821043633"
+      ]
+    },
+    {
+      "file": "20260821115738_recompute_open_recovery_quarantines.sql",
+      "version": "20260821115738",
+      "name": "recompute_open_recovery_quarantines",
+      "sql_md5": "59e2403c56899cbd3777eb169265d05c",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821115738"
+      ]
+    },
+    {
+      "file": "20260821115931_fix_recovery_queue_source_regex.sql",
+      "version": "20260821115931",
+      "name": "fix_recovery_queue_source_regex",
+      "sql_md5": "59e2403c56899cbd3777eb169265d05c",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821115931"
+      ]
+    },
+    {
+      "file": "20260821130000_add_trackscoreboard_ingestion_source.sql",
+      "version": "20260821130000",
+      "name": "add_trackscoreboard_ingestion_source",
+      "sql_md5": "893e46ee01e673231858b4e2b25d52e1",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821132606"
+      ]
+    },
+    {
+      "file": "20260821130001_add_lai_relay_event_aliases.sql",
+      "version": "20260821130001",
+      "name": "add_lai_relay_event_aliases",
+      "sql_md5": "67952a5be410db85b52d0f6e867e514f",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260821132619"
+      ]
+    },
+    {
+      "file": "20260828233203_recovery_queue_canonical_meet_target.sql",
+      "version": "20260828233203",
+      "name": "recovery_queue_canonical_meet_target",
+      "sql_md5": "d8ce856c19ad23c44b32ee5eddff2f02",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260828233616"
+      ]
+    },
+    {
+      "file": "20260829083609_add_athleticlive_pentathlon_sub_event_aliases.sql",
+      "version": "20260829083609",
+      "name": "add_athleticlive_pentathlon_sub_event_aliases",
+      "sql_md5": "2ba5bb532a5e1ce6641c41be35ddcea8",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829084952_add_athleticlive_college_event_aliases.sql",
+      "version": "20260829084952",
+      "name": "add_athleticlive_college_event_aliases",
+      "sql_md5": "55c5cc1dc4de2864c3b15270c3008866",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829085632_add_athleticlive_racewalk_masters_aliases.sql",
+      "version": "20260829085632",
+      "name": "add_athleticlive_racewalk_masters_aliases",
+      "sql_md5": "815235fa3b3d3c1962263d7e113a6f31",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829090000_add_cccaa_and_missing_junior_college_teams.sql",
+      "version": "20260829090000",
+      "name": "add_cccaa_and_missing_junior_college_teams",
+      "sql_md5": "7b207058f0ca04d0f58a601dcaa6b379",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260829031927"
+      ]
+    },
+    {
+      "file": "20260829090319_add_athleticlive_pentathlon_mile_aliases.sql",
+      "version": "20260829090319",
+      "name": "add_athleticlive_pentathlon_mile_aliases",
+      "sql_md5": "f3cc2390af2062ce41f06a50816a5b8c",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829091856_add_athleticlive_punctuated_seeded_event_aliases.sql",
+      "version": "20260829091856",
+      "name": "add_athleticlive_punctuated_seeded_event_aliases",
+      "sql_md5": "14ace2b8f5dade11f435acff8be45de9",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829093000_add_glendale_ca_tfrrs_alias.sql",
+      "version": "20260829093000",
+      "name": "add_glendale_ca_tfrrs_alias",
+      "sql_md5": "c879ef2d8b8b4c958a8694811d0e5b6e",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260829032324"
+      ]
+    },
+    {
+      "file": "20260829110000_add_lai_puerto_rico_team_entities.sql",
+      "version": "20260829110000",
+      "name": "add_lai_puerto_rico_team_entities",
+      "sql_md5": "f318669a8d03fae306cd38fa2141d514",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829130000_add_tfrrs_unattached_team_aliases.sql",
+      "version": "20260829130000",
+      "name": "add_tfrrs_unattached_team_aliases",
+      "sql_md5": "d9ea1bcb8afa36ee87e59add26b1cbb5",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829140000_add_hammer_throw_event_alias.sql",
+      "version": "20260829140000",
+      "name": "add_hammer_throw_event_alias",
+      "sql_md5": "c4227a8ebdb0f6d34392fc610fe5dd6f",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829150000_add_ccbc_catonsville_athletic_net_alias.sql",
+      "version": "20260829150000",
+      "name": "add_ccbc_catonsville_athletic_net_alias",
+      "sql_md5": "652486f7e522808ccc2d41158ce05bc6",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829160000_add_semifinal_event_aliases.sql",
+      "version": "20260829160000",
+      "name": "add_semifinal_event_aliases",
+      "sql_md5": "cc08cc19b88169939c08416ce9a6e336",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829170000_add_athleticlive_3000m_racewalk_alias.sql",
+      "version": "20260829170000",
+      "name": "add_athleticlive_3000m_racewalk_alias",
+      "sql_md5": "e3d7b8ce2fe5b8ba270eff97a637232e",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829180000_add_lai_athletic_net_team_aliases.sql",
+      "version": "20260829180000",
+      "name": "add_lai_athletic_net_team_aliases",
+      "sql_md5": "ce1a413242def1b4d95e15fda7447fd2",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260829220000_repair_big12_cross_meet_relays.sql",
+      "version": "20260829220000",
+      "name": "repair_big12_cross_meet_relays",
+      "sql_md5": "ae80482ff238780cb92ecac895af0ef1",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260829220000"
+      ]
+    },
+    {
+      "file": "20260829224504_create_4x100_recovery_jobs.sql",
+      "version": "20260829224504",
+      "name": "create_4x100_recovery_jobs",
+      "sql_md5": "f1a1a0a128a070f26e608a5e8c7a2ba8",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260829224504"
+      ]
+    },
+    {
+      "file": "20260829230000_normalize_ed_daniels_relay_statuses.sql",
+      "version": "20260829230000",
+      "name": "normalize_ed_daniels_relay_statuses",
+      "sql_md5": "a4523f1ea5aba0cc945858a3ae07dc19",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260829230000"
+      ]
+    },
+    {
+      "file": "20260829230411_refine_4x100_recovery_claim_filters.sql",
+      "version": "20260829230411",
+      "name": "refine_4x100_recovery_claim_filters",
+      "sql_md5": "3703e696ba0f9151128994cafa3bc9e7",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260829230411"
+      ]
+    },
+    {
+      "file": "20260829231000_repair_njcaa_cross_meet_relays.sql",
+      "version": "20260829231000",
+      "name": "repair_njcaa_cross_meet_relays",
+      "sql_md5": "a679985954d58904977f385a316d579e",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260829231000"
+      ]
+    },
+    {
+      "file": "20260830023000_preserve_4x100_discovered_sources.sql",
+      "version": "20260830023000",
+      "name": "preserve_4x100_discovered_sources",
+      "sql_md5": "f6a0d6ae160d2e62fff1285f858d6248",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260830023000"
+      ]
+    },
+    {
+      "file": "20260830024500_only_queue_usable_4x100_sources.sql",
+      "version": "20260830024500",
+      "name": "only_queue_usable_4x100_sources",
+      "sql_md5": "f8c26d0c13478179cce584dcfcc3fca0",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260830024500"
+      ]
+    },
+    {
+      "file": "20260830031500_scope_4x100_refresh_by_season.sql",
+      "version": "20260830031500",
+      "name": "scope_4x100_refresh_by_season",
+      "sql_md5": "3442e90bc6743bfcb6c30b84231f7e1c",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260830031500"
+      ]
+    },
+    {
+      "file": "20260831090000_bound_4x100_retry_claims.sql",
+      "version": "20260831090000",
+      "name": "bound_4x100_retry_claims",
+      "sql_md5": "b37d5fd023befa7af7a250d34b2d948c",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260831090000"
+      ]
+    },
+    {
+      "file": "20260831162736_route_4x100_meet_url_sources.sql",
+      "version": "20260831162736",
+      "name": "route_4x100_meet_url_sources",
+      "sql_md5": "a9a2133dcda3c2c7ede0e8fa044fd421",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260831162736"
+      ]
+    },
+    {
+      "file": "20260831163739_repair_4x100_meet_url_host_routing.sql",
+      "version": "20260831163739",
+      "name": "repair_4x100_meet_url_host_routing",
+      "sql_md5": "0b25c20db59909efc37ccd5c2dbb549b",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260831163739"
+      ]
+    },
+    {
+      "file": "20260831164109_bound_4x100_queued_attempt_claims.sql",
+      "version": "20260831164109",
+      "name": "bound_4x100_queued_attempt_claims",
+      "sql_md5": "78528036b65a2530d71c58f941338c55",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260831164109"
+      ]
+    },
+    {
+      "file": "20260831164350_reset_4x100_rerouted_source_budget_v2.sql",
+      "version": "20260831164350",
+      "name": "reset_4x100_rerouted_source_budget_v2",
+      "sql_md5": "c7d54ed28f4d4f920f40ef94b6676cca",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260831164350"
+      ]
+    },
+    {
+      "file": "20260831171555_add_timing_provider_ingestion_sources.sql",
+      "version": "20260831171555",
+      "name": "add_timing_provider_ingestion_sources",
+      "sql_md5": "978010ad7837043c05b07c2638168b81",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260831171555"
+      ]
+    },
+    {
+      "file": "20260831200000_reconcile_partial_event_queue_status.sql",
+      "version": "20260831200000",
+      "name": "reconcile_partial_event_queue_status",
+      "sql_md5": "eb4315933c8f221774fb244722bc116c",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260901210719_create_outdoor_2026_4x100_reconciliation_jobs.sql",
+      "version": "20260901210719",
+      "name": "create_outdoor_2026_4x100_reconciliation_jobs",
+      "sql_md5": "c03f8c99da94c0531dbf87f45941bac0",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260901210719"
+      ]
+    },
+    {
+      "file": "20260901233750_consolidate_outdoor_2026_4x100_into_event_recovery_queue.sql",
+      "version": "20260901233750",
+      "name": "consolidate_outdoor_2026_4x100_into_event_recovery_queue",
+      "sql_md5": "97b4cdac2b09a65c996d7dac1a2efaf2",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260901233750"
+      ]
+    },
+    {
+      "file": "20260902100000_split_invalid_history_claims.sql",
+      "version": "20260902100000",
+      "name": "split_invalid_history_claims",
+      "sql_md5": "0da0bcb8f5ec8f7007a51852c12c054a",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260902120000_consolidate_reviewed_school_duplicates.sql",
+      "version": "20260902120000",
+      "name": "consolidate_reviewed_school_duplicates",
+      "sql_md5": "f433932a1fbefc1bb42ebfe50d5d11bc",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260902120000"
+      ]
+    },
+    {
+      "file": "20260902130000_remove_reviewed_empty_school_duplicates.sql",
+      "version": "20260902130000",
+      "name": "remove_reviewed_empty_school_duplicates",
+      "sql_md5": "6d9d06450026f1d72dee8857c11a7451",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260902130000"
+      ]
+    },
+    {
+      "file": "20260902140000_repair_aug18_tfrrs_edition_contamination.sql",
+      "version": "20260902140000",
+      "name": "repair_aug18_tfrrs_edition_contamination",
+      "sql_md5": "7b7ce760647c84683503e61a254e0cca",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260902140000"
+      ]
+    },
+    {
+      "file": "20260902144458_preserve_reviewed_secondary_athlete_identities.sql",
+      "version": "20260902144458",
+      "name": "preserve_reviewed_secondary_athlete_identities",
+      "sql_md5": "75aea304c2a185d7b0932fbc5be1c402",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260902144458"
+      ]
+    },
+    {
+      "file": "20260902170615_consolidate_reviewed_athlete_duplicates.sql",
+      "version": "20260902170615",
+      "name": "consolidate_reviewed_athlete_duplicates",
+      "sql_md5": "16e12e33bc14e299a17ee54856edeb0f",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260902170615"
+      ]
+    },
+    {
+      "file": "20260903180000_add_explicit_team_affiliation_fields.sql",
+      "version": "20260903180000",
+      "name": "add_explicit_team_affiliation_fields",
+      "sql_md5": "2991d5996541f95ec8b6711cd6ef30e1",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260903180000"
+      ]
+    },
+    {
+      "file": "20260903200000_apply_reviewed_4x100_team_links.sql",
+      "version": "20260903200000",
+      "name": "apply_reviewed_4x100_team_links",
+      "sql_md5": "b2bfff05483eb2889dd4e73923f3c397",
+      "status": "local_only_requires_review",
+      "liveVersions": []
+    },
+    {
+      "file": "20260903212617_teams_summary_prefers_explicit_affiliation.sql",
+      "version": "20260903212617",
+      "name": "teams_summary_prefers_explicit_affiliation",
+      "sql_md5": "49e816e7c2f04825df9b8ee8a3eb42f2",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260903212617"
+      ]
+    },
+    {
+      "file": "20260904004321_backfill_reviewed_explicit_team_affiliations.sql",
+      "version": "20260904004321",
+      "name": "backfill_reviewed_explicit_team_affiliations",
+      "sql_md5": "48aff14c49b6feec0fedcfecf23ece60",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904004321"
+      ]
+    },
+    {
+      "file": "20260904020412_remove_reviewed_dawgs_logo_association.sql",
+      "version": "20260904020412",
+      "name": "remove_reviewed_dawgs_logo_association",
+      "sql_md5": "058e8328d60aa7c80ea8b53966ea53f1",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904020412"
+      ]
+    },
+    {
+      "file": "20260904073101_classify_all_other_schools.sql",
+      "version": "20260904073101",
+      "name": "classify_all_other_schools",
+      "sql_md5": "e26a656c7b822e24ef667d956ac00320",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260904073101"
+      ]
+    },
+    {
+      "file": "20260904074416_consolidate_exact_conference_duplicates.sql",
+      "version": "20260904074416",
+      "name": "consolidate_exact_conference_duplicates",
+      "sql_md5": "c3d6fe114326dc09db6178c4c02fc9e7",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260904074416"
+      ]
+    },
+    {
+      "file": "20260904075925_restore_conference_source_urls.sql",
+      "version": "20260904075925",
+      "name": "restore_conference_source_urls",
+      "sql_md5": "520d3edfd4a27a3b7cf5f8919c0348ea",
+      "status": "exact_sql_present",
+      "liveVersions": [
+        "20260904075925"
+      ]
+    },
+    {
+      "file": "20260904082945_reconcile_primary_conference_catalog.sql",
+      "version": "20260904082945",
+      "name": "reconcile_primary_conference_catalog",
+      "sql_md5": "1897bc892b9ba342975bcd32d8c81cd9",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904082945"
+      ]
+    },
+    {
+      "file": "20260904094906_add_canonical_fact_lookup_indexes.sql",
+      "version": "20260904094906",
+      "name": "add_canonical_fact_lookup_indexes",
+      "sql_md5": "e13f0b9edc3b9a53093b3a8d311833dd",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904094906"
+      ]
+    },
+    {
+      "file": "20260904095259_drop_unhelpful_relay_fact_lookup_index.sql",
+      "version": "20260904095259",
+      "name": "drop_unhelpful_relay_fact_lookup_index",
+      "sql_md5": "123105ec0d0ece6155b60d549dc8afa8",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904095259"
+      ]
+    },
+    {
+      "file": "20260904133353_move_backup_tables_to_private_archive.sql",
+      "version": "20260904133353",
+      "name": "move_backup_tables_to_private_archive",
+      "sql_md5": "34889576d513c7cf1bb89baa3cddf2a9",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904133353"
+      ]
+    },
+    {
+      "file": "20260904135909_remove_superseded_lookup_indexes.sql",
+      "version": "20260904135909",
+      "name": "remove_superseded_lookup_indexes",
+      "sql_md5": "ae83e14de30ba30e38571ef13d50fa6f",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904135909"
+      ]
+    },
+    {
+      "file": "20260904141650_retire_empty_events_table.sql",
+      "version": "20260904141650",
+      "name": "retire_empty_events_table",
+      "sql_md5": "5c3ddc925af8f65f4c44c6556f7b2ff3",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904141650"
+      ]
+    },
+    {
+      "file": "20260904195352_fix_v_athlete_prs_points_source.sql",
+      "version": "20260904195352",
+      "name": "fix_v_athlete_prs_points_source",
+      "sql_md5": "540b05259f6523ff302b34828cff1f25",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904195352"
+      ]
+    },
+    {
+      "file": "20260904210000_repair_source_backed_relay_athlete_links.sql",
+      "version": "20260904210000",
+      "name": "repair_source_backed_relay_athlete_links",
+      "sql_md5": "3cde5ce567301a123742d3f5601b6bda",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904220438"
+      ]
+    },
+    {
+      "file": "20260904230000_harden_trigger_helper_execute_acl.sql",
+      "version": "20260904230000",
+      "name": "harden_trigger_helper_execute_acl",
+      "sql_md5": "f8367b6095d90557b4ff8ef6d39f132e",
+      "status": "name_present_sql_requires_review",
+      "liveVersions": [
+        "20260904221054"
+      ]
+    }
+  ],
+  "liveWithoutLocalName": [
+    {
+      "version": "20260806182647",
+      "name": "create_v_athlete_prs",
+      "sql_md5": "494fb54aa56987069660711fa641a2a4"
+    },
+    {
+      "version": "20260810125242",
+      "name": "20260810_map_remaining_event_aliases",
+      "sql_md5": "0ec97b8e1c48b7063e2a41514245d795"
+    }
+  ],
+  "duplicateLocalVersions": [
+    "20260210",
+    "20260211",
+    "20260216",
+    "20260220",
+    "20260221",
+    "20260714",
+    "20260715",
+    "20260719"
+  ]
+}
