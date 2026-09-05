@@ -6,6 +6,7 @@ const {
   IngestionStore,
   connectionStringFromEnv,
   queryTimeoutFromEnv,
+  orderedRecords,
 } = require('./ingestion_store');
 const { CanonicalFactWriter } = require('./canonical_fact_writer');
 
@@ -13,6 +14,18 @@ function record(key, source = 'tfrrs') {
   const identity = { source, source_record_key: key };
   return { sourceRecord: { ...identity }, observation: { ...identity } };
 }
+
+test('source staging uses global byte order without mutating caller records', () => {
+  const rows = Array.from({ length: 501 }, (_, i) => record(String(i).padStart(4, '0'))).reverse();
+  rows.push(record('z', 'athletic_net'));
+  const ordered = orderedRecords(rows);
+  assert.equal(ordered[0].sourceRecord.source, 'athletic_net');
+  assert.equal(ordered[1].sourceRecord.source_record_key, '0000');
+  assert.equal(ordered.at(-1).sourceRecord.source_record_key, '0500');
+  assert.equal(rows[0].sourceRecord.source_record_key, '0500');
+  const unicode = orderedRecords([record('\u{10000}'), record('\ue000')]);
+  assert.equal(unicode[0].sourceRecord.source_record_key, '\ue000', 'UTF-8 byte order, not UTF-16 or locale order');
+});
 
 test('rejects duplicates across SQL chunk boundaries before connecting', async () => {
   const store = new IngestionStore({ pool: {

@@ -39,6 +39,14 @@ function json(value, fallback) {
   return value === undefined || value === null ? fallback : value;
 }
 
+function orderedRecords(records) {
+  // Match PostgreSQL COLLATE "C" byte ordering, independent of locale and input/chunk order.
+  const compare = (left, right) => Buffer.compare(Buffer.from(String(left)), Buffer.from(String(right)));
+  return records.slice().sort((left, right) =>
+    compare(left.sourceRecord.source, right.sourceRecord.source)
+    || compare(left.sourceRecord.source_record_key, right.sourceRecord.source_record_key));
+}
+
 class IngestionStore {
   constructor({ pool, env = process.env } = {}) {
     this.env = env;
@@ -106,7 +114,7 @@ class IngestionStore {
     try {
       await client.query('BEGIN');
 
-      for (const batch of chunk(records)) {
+      for (const batch of chunk(orderedRecords(records))) {
         const sourceRows = batch.map(record => ({
           ...sourceEvidence(record.sourceRecord),
           source: record.sourceRecord.source,
@@ -135,6 +143,7 @@ class IngestionStore {
              (source, source_record_key, source_meet_key, source_event_key, source_url, payload_hash, payload)
            SELECT source, source_record_key, source_meet_key, source_event_key, source_url, payload_hash, payload
            FROM incoming
+           ORDER BY source COLLATE "C", source_record_key COLLATE "C"
            ON CONFLICT (source, source_record_key) DO UPDATE
              SET source_meet_key = COALESCE(EXCLUDED.source_meet_key, sr.source_meet_key),
                  source_event_key = COALESCE(EXCLUDED.source_event_key, sr.source_event_key),
@@ -275,5 +284,6 @@ module.exports = {
   IngestionStore,
   connectionStringFromEnv,
   chunk,
+  orderedRecords,
   queryTimeoutFromEnv
 };

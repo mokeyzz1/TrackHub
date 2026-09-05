@@ -58,6 +58,21 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
       const result = await pool.query("SELECT count(*)::int AS n FROM ingest.source_records WHERE source_record_key='bad-fk'");
       assert.equal(result.rows[0].n, 0);
     });
+    await t.test('opposite source batch orders cannot deadlock staging', async () => {
+      await pool.query("CREATE FUNCTION ingest.test_stage_delay() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN PERFORM pg_sleep(0.05); RETURN NEW; END $$; CREATE TRIGGER test_stage_delay BEFORE INSERT ON ingest.source_records FOR EACH ROW EXECUTE FUNCTION ingest.test_stage_delay()");
+      try {
+        const run1 = await store.startRun({ source: 'tfrrs', mode: 'commit', parserVersion: 'test' });
+        const run2 = await store.startRun({ source: 'tfrrs', mode: 'commit', parserVersion: 'test' });
+        const left = record('ordered-a');
+        const right = record('ordered-b');
+        const outcomes = await Promise.allSettled([
+          store.persistObservations(run1, [left, right]), store.persistObservations(run2, [right, left]),
+        ]);
+        assert.deepEqual(outcomes.map(x => x.status), ['fulfilled', 'fulfilled'], outcomes.map(x => x.reason?.code).join(','));
+      } finally {
+        await pool.query('DROP TRIGGER test_stage_delay ON ingest.source_records; DROP FUNCTION ingest.test_stage_delay()');
+      }
+    });
     await t.test('same-run restaging is idempotent but conflicting normalized content rolls back', async () => {
       const run = await store.startRun({ source: 'tfrrs', mode: 'commit', parserVersion: 'test' });
       const first = record('immutable-observation', { payload: { source_mark: '10.50' } });
