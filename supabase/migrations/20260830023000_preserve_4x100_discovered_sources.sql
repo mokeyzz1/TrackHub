@@ -112,11 +112,7 @@ BEGIN
           WHEN q.status = 'needs_review' THEN 'needs_review'
           WHEN q.status = 'exhausted' THEN 'exhausted'
           WHEN q.status = 'not_found' THEN 'not_found'
-          WHEN NULLIF(EXCLUDED.source_candidates->>'tfrrs_url', '') IS NOT NULL
-            OR NULLIF(EXCLUDED.source_candidates->>'athletic_net_results_url', '') IS NOT NULL
-            OR NULLIF(q.source_candidates->>'tfrrs_url', '') IS NOT NULL
-            OR NULLIF(q.source_candidates->>'athletic_net_results_url', '') IS NOT NULL THEN 'queued'
-          ELSE 'blocked'
+          WHEN (EXCLUDED.source_candidates || q.source_candidates) = '{}'::jsonb THEN 'blocked'
           ELSE 'queued'
         END,
         updated_at = now();
@@ -124,4 +120,5 @@ BEGIN
   GET DIAGNOSTICS changed_rows = ROW_COUNT;
   RETURN changed_rows;
 END;
-$$;
+$$
+;

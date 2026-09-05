@@ -55,8 +55,18 @@ function fingerprint(sql) {
   return crypto.createHash('sha256').update(JSON.stringify(tokens(sql))).digest('hex');
 }
 
+function ledgerFingerprint(statements) {
+  // The CLI can store each statement without its terminator. Preserve array boundaries:
+  // joining by newline alone incorrectly combines adjacent SQL commands.
+  const combined = statements.flatMap(sql => {
+    const parts = tokens(sql);
+    return parts.length && parts.at(-1) !== ';' ? [...parts, ';'] : parts;
+  });
+  return crypto.createHash('sha256').update(JSON.stringify(combined)).digest('hex');
+}
+
 function reconcile(local, live) {
-  const remote = live.map(r => ({ ...r, fingerprint: fingerprint((r.statements || []).join('\n')) }));
+  const remote = live.map(r => ({ ...r, fingerprint: ledgerFingerprint(r.statements || []) }));
   const files = local.map(l => {
     const hash = fingerprint(l.sql);
     const matches = remote.filter(r => r.fingerprint === hash);
@@ -79,7 +89,7 @@ function reconcile(local, live) {
   };
 }
 
-module.exports = { tokens, fingerprint, reconcile };
+module.exports = { tokens, fingerprint, ledgerFingerprint, reconcile };
 if (require.main === module) {
   if (!process.argv[2]) throw new Error('Provide a local JSON ledger export; no database connection is made.');
   const root = path.resolve(__dirname, '../..');

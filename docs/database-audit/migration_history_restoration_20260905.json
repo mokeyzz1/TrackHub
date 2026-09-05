@@ -1,0 +1,38 @@
+{
+  "restored": [
+    {
+      "file": "20260829224504_create_4x100_recovery_jobs.sql",
+      "ledgerFingerprint": "945ab734b99ce9538c79d8be665a847e7e51eaa1a53e75631f49420cac50b656",
+      "beforeSha256": "8644cca0b5f25ca931368496eeb1cc86b1c8ee12f51a6d0b5f7d779967d278cb"
+    },
+    {
+      "file": "20260830023000_preserve_4x100_discovered_sources.sql",
+      "ledgerFingerprint": "3073114312b2e307178eec5797507ae29a379bece4afd179dcdd6afc4f370f2e",
+      "beforeSha256": "6942976b2d4b0e7880c5f7759eee5501f7cf11d6661e4725417c7c963541038b"
+    },
+    {
+      "file": "20260831090000_bound_4x100_retry_claims.sql",
+      "ledgerFingerprint": "3e300e8c2a8b1e5b958a814e05599bb6924f7f9e8b73a781415b6d44249caa3f",
+      "beforeSha256": "f746087b66e580690668385335a094dc35f8272456aaa27aaac41bfc2f16d8f0"
+    },
+    {
+      "file": "20260831162736_route_4x100_meet_url_sources.sql",
+      "ledgerFingerprint": "9128f023052d1b55065cbb428bf27040476553798f420685948f808ac07bfa0d",
+      "beforeSha256": "2d3251d64f80e22b5fd9d4cb1133a88f46f8897518c6abd8d55b98e6178a743e"
+    }
+  ],
+  "preservedCorrections": [
+    {
+      "file": "20260830024500_only_queue_usable_4x100_sources.sql",
+      "sha256": "52ba73c733afda0628e5ea8a60d53c176be90165bac30bd48778b805cdbe3927"
+    },
+    {
+      "file": "20260831164109_bound_4x100_queued_attempt_claims.sql",
+      "sha256": "3b9f056c5aefa932c5a12345e5dba860bb9cb283c618fb08eb46f693ec507722"
+    },
+    {
+      "file": "20260831163739_repair_4x100_meet_url_host_routing.sql",
+      "sha256": "59f8bb2e30dfef0421b5d8a0a40128c607598446a1e7d5bddae9868199d7b016"
+    }
+  ]
+}

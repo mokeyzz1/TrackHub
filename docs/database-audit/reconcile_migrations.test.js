@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { fingerprint, reconcile } = require('./reconcile_migrations');
+const { fingerprint, ledgerFingerprint, reconcile } = require('./reconcile_migrations');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
@@ -27,6 +27,31 @@ test('quarantine refresh and its later regex fix match their distinct ledger sna
 
 test('ignores outer whitespace and nested comments', () => {
   assert.equal(fingerprint('SELECT /* a /* nested */ b */ 1; -- note'), fingerprint(' SELECT 1; '));
+});
+
+test('ledger array boundaries restore omitted statement terminators', () => {
+  assert.equal(ledgerFingerprint(['SELECT 1', 'SELECT 2 -- comment']), fingerprint('SELECT 1; SELECT 2;'));
+  assert.equal(ledgerFingerprint(['SELECT 1;', 'SELECT 2;']), fingerprint('SELECT 1; SELECT 2;'));
+  assert.equal(ledgerFingerprint(['-- comment only', 'DO $$ BEGIN PERFORM 1; END $$']),
+    fingerprint('DO $$ BEGIN PERFORM 1; END $$;'));
+  assert.notEqual(ledgerFingerprint(['SELECT 1', 'SELECT 2']), fingerprint('SELECT 1 SELECT 2;'));
+});
+
+test('restored history matches recorded SQL while subsequent corrections remain unchanged', () => {
+  const evidence = require('./migration_history_restoration_20260905.json');
+  const dir = path.resolve(__dirname, '../../supabase/migrations');
+  assert.equal(evidence.restored.length, 4);
+  for (const row of evidence.restored) {
+    assert.equal(fingerprint(fs.readFileSync(path.join(dir, row.file), 'utf8')), row.ledgerFingerprint, row.file);
+  }
+  for (const row of evidence.preservedCorrections) {
+    assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(dir, row.file))).digest('hex'), row.sha256, row.file);
+  }
+});
+
+test('recovered missing migration matches its existing live ledger entry', () => {
+  const sql = fs.readFileSync(path.resolve(__dirname, '../../supabase/migrations/20260810125242_20260810_map_remaining_event_aliases.sql'), 'utf8');
+  assert.equal(fingerprint(sql), '8cb6546070b98037ec286e6602f8f883d2032d9dd7347ab7d2a5fc80f2ed5488');
 });
 test('preserves data literals, quoted identifiers, and function bodies', () => {
   for (const [a, b] of [["SELECT 'a b'", "SELECT 'ab'"], ['SELECT "A"', 'SELECT "a"'],

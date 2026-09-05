@@ -66,12 +66,12 @@ BEGIN
            COALESCE(rc.numeric_parent_fact_count, 0)::bigint AS numeric_parent_fact_count,
            COALESCE(l.leg_fact_count, 0)::bigint AS leg_fact_count,
            CASE
-             WHEN m.tfrrs_url ~* '(tfrrs[.]org|tfrrs)' THEN m.tfrrs_url
-             WHEN m.meet_url ~* '(tfrrs[.]org|tfrrs)' THEN m.meet_url
+             WHEN m.tfrrs_url ~* '(tfrrs\\.org|tfrrs)' THEN m.tfrrs_url
+             WHEN m.meet_url ~* '(tfrrs\\.org|tfrrs)' THEN m.meet_url
            END AS tfrrs_url,
            CASE
-             WHEN m.athletic_net_results_url ~* '(athletic[.]net|athletic[.]live|anet[.]live|jdlfasttrack|blacksquirreltiming|mastiming[.]net|herostiming[.]com|mountaintiming[.]com)' THEN m.athletic_net_results_url
-             WHEN m.meet_url ~* '(athletic[.]net|athletic[.]live|anet[.]live|jdlfasttrack|blacksquirreltiming|mastiming[.]net|herostiming[.]com|mountaintiming[.]com)' THEN m.meet_url
+             WHEN m.athletic_net_results_url ~* '(athletic\\.net|athletic\\.live|anet\\.live|jdlfasttrack|blacksquirreltiming|mastiming\\.net|herostiming\\.com|mountaintiming\\.com)' THEN m.athletic_net_results_url
+             WHEN m.meet_url ~* '(athletic\\.net|athletic\\.live|anet\\.live|jdlfasttrack|blacksquirreltiming|mastiming\\.net|herostiming\\.com|mountaintiming\\.com)' THEN m.meet_url
            END AS athletic_net_results_url,
            m.meet_url,
            CASE

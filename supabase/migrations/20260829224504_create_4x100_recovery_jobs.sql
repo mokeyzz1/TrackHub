@@ -32,24 +32,34 @@ CREATE TABLE IF NOT EXISTS ingest.event_recovery_queue (
   created_at                     timestamptz NOT NULL DEFAULT now(),
   updated_at                     timestamptz NOT NULL DEFAULT now(),
   UNIQUE (scope_key, meet_id, event_type_id)
-);
+)
+;
 
 COMMENT ON TABLE ingest.event_recovery_queue IS
-  'Private, resumable event-level recovery jobs. It never directly writes public facts.';
+  'Private, resumable event-level recovery jobs. It never directly writes public facts.'
+;
 
 COMMENT ON COLUMN ingest.event_recovery_queue.source_candidates IS
-  'Verified source URLs for this meet. The 4x100 worker intentionally excludes generic timing sites.';
+  'Verified source URLs for this meet. The 4x100 worker intentionally excludes generic timing sites.'
+;
 
 CREATE INDEX IF NOT EXISTS ingest_event_recovery_queue_claim_idx
-  ON ingest.event_recovery_queue (scope_key, status, next_attempt_at, priority, meet_id);
+  ON ingest.event_recovery_queue (scope_key, status, next_attempt_at, priority, meet_id)
+;
 
 CREATE INDEX IF NOT EXISTS ingest_event_recovery_queue_lease_idx
   ON ingest.event_recovery_queue (scope_key, status, leased_until)
-  WHERE status = 'in_progress';
+  WHERE status = 'in_progress'
+;
 
-ALTER TABLE ingest.event_recovery_queue ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON ingest.event_recovery_queue FROM PUBLIC;
-REVOKE ALL ON SEQUENCE ingest.event_recovery_queue_job_id_seq FROM PUBLIC;
+ALTER TABLE ingest.event_recovery_queue ENABLE ROW LEVEL SECURITY
+;
+
+REVOKE ALL ON ingest.event_recovery_queue FROM PUBLIC
+;
+
+REVOKE ALL ON SEQUENCE ingest.event_recovery_queue_job_id_seq FROM PUBLIC
+;
 
 DO $$
 BEGIN
@@ -58,7 +68,8 @@ BEGIN
     GRANT USAGE, SELECT ON SEQUENCE ingest.event_recovery_queue_job_id_seq TO service_role;
   END IF;
 END
-$$;
+$$
+;
 
 CREATE OR REPLACE FUNCTION ingest.refresh_4x100_recovery_queue(
   p_scope_key text,
@@ -162,7 +173,7 @@ BEGIN
         parent_fact_count = EXCLUDED.parent_fact_count,
         numeric_parent_fact_count = EXCLUDED.numeric_parent_fact_count,
         leg_fact_count = EXCLUDED.leg_fact_count,
-        source_candidates = EXCLUDED.source_candidates || q.source_candidates,
+        source_candidates = EXCLUDED.source_candidates,
         priority = EXCLUDED.priority,
         status = CASE
           WHEN EXCLUDED.numeric_parent_fact_count > 0 THEN 'complete'
@@ -170,11 +181,7 @@ BEGIN
           WHEN q.status = 'needs_review' THEN 'needs_review'
           WHEN q.status = 'exhausted' THEN 'exhausted'
           WHEN q.status = 'not_found' THEN 'not_found'
-          WHEN NULLIF(EXCLUDED.source_candidates->>'tfrrs_url', '') IS NOT NULL
-            OR NULLIF(EXCLUDED.source_candidates->>'athletic_net_results_url', '') IS NOT NULL
-            OR NULLIF(q.source_candidates->>'tfrrs_url', '') IS NOT NULL
-            OR NULLIF(q.source_candidates->>'athletic_net_results_url', '') IS NOT NULL THEN 'queued'
-          ELSE 'blocked'
+          WHEN EXCLUDED.source_candidates = '{}'::jsonb THEN 'blocked'
           ELSE 'queued'
         END,
         updated_at = now();
@@ -182,7 +189,8 @@ BEGIN
   GET DIAGNOSTICS changed_rows = ROW_COUNT;
   RETURN changed_rows;
 END;
-$$;
+$$
+;
 
 CREATE OR REPLACE FUNCTION ingest.claim_4x100_recovery_job(
   p_scope_key text,
@@ -246,7 +254,8 @@ BEGIN
     FROM ingest.event_recovery_queue q
    WHERE q.job_id = selected_job.job_id;
 END;
-$$;
+$$
+;
 
 CREATE OR REPLACE FUNCTION ingest.record_4x100_recovery_run(
   p_job_id bigint,
@@ -283,7 +292,8 @@ BEGIN
      AND lease_token = p_lease_token;
   RETURN FOUND;
 END;
-$$;
+$$
+;
 
 CREATE OR REPLACE FUNCTION ingest.finish_4x100_recovery_job(
   p_job_id bigint,
@@ -332,12 +342,20 @@ BEGIN
      AND lease_token = p_lease_token;
   RETURN FOUND;
 END;
-$$;
+$$
+;
 
-REVOKE ALL ON FUNCTION ingest.refresh_4x100_recovery_queue(text, date, date) FROM PUBLIC;
-REVOKE ALL ON FUNCTION ingest.claim_4x100_recovery_job(text, integer, boolean) FROM PUBLIC;
-REVOKE ALL ON FUNCTION ingest.record_4x100_recovery_run(bigint, uuid, uuid, text, text, integer, integer, integer, text) FROM PUBLIC;
-REVOKE ALL ON FUNCTION ingest.finish_4x100_recovery_job(bigint, uuid, text, uuid, text, text, integer, integer, integer, text, integer) FROM PUBLIC;
+REVOKE ALL ON FUNCTION ingest.refresh_4x100_recovery_queue(text, date, date) FROM PUBLIC
+;
+
+REVOKE ALL ON FUNCTION ingest.claim_4x100_recovery_job(text, integer, boolean) FROM PUBLIC
+;
+
+REVOKE ALL ON FUNCTION ingest.record_4x100_recovery_run(bigint, uuid, uuid, text, text, integer, integer, integer, text) FROM PUBLIC
+;
+
+REVOKE ALL ON FUNCTION ingest.finish_4x100_recovery_job(bigint, uuid, text, uuid, text, text, integer, integer, integer, text, integer) FROM PUBLIC
+;
 
 DO $$
 BEGIN
@@ -348,4 +366,5 @@ BEGIN
     GRANT EXECUTE ON FUNCTION ingest.finish_4x100_recovery_job(bigint, uuid, text, uuid, text, text, integer, integer, integer, text, integer) TO service_role;
   END IF;
 END
-$$;
+$$
+;

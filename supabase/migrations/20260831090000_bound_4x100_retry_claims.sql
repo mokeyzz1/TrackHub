@@ -53,10 +53,7 @@ BEGIN
        OR (p_source = 'athletic_net' AND nullif(q.source_candidates->>'athletic_net_results_url', '') IS NOT NULL))
      AND q.next_attempt_at <= now()
      AND (
-       (
-         q.status = 'queued'
-         AND q.attempts < p_max_attempts
-       )
+       q.status = 'queued'
        OR (
          p_retry_failed
          AND q.status IN ('not_found', 'exhausted')
