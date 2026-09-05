@@ -1,0 +1,3239 @@
+{
+  "snapshotDate": "2026-09-05",
+  "scope": "public/ingest ordinary tables; exact per-table aggregate counts; not a cross-table snapshot or semantic signoff",
+  "tables": 31,
+  "columns": 359,
+  "profile": [
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "athlete_alias_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "created_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "match_method",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 32,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "notes",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "source",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "source_athlete_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "source_athlete_name",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "source_gender",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "status",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "target_athlete_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "updated_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1339,
+      "table_name": "athlete_aliases",
+      "column_name": "verified_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "attempts",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "created_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "event_code",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "event_type_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "individual_fact_count",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "job_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 8911,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "last_error",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "last_leg_count",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "last_numeric_parent_count",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "last_parent_count",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 9747,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "last_run_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 8210,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "last_source",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 8215,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "last_source_status",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 10508,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "lease_token",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 10509,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "leased_until",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "leg_fact_count",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "meet_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "next_attempt_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "numeric_parent_fact_count",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "parent_fact_count",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "priority",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "scope_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "source_candidates",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "status",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 10608,
+      "table_name": "event_recovery_queue",
+      "column_name": "updated_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 140209,
+      "table_name": "fact_cleanup_archive",
+      "column_name": "archive_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 140209,
+      "table_name": "fact_cleanup_archive",
+      "column_name": "archived_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 140209,
+      "table_name": "fact_cleanup_archive",
+      "column_name": "operation_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 140209,
+      "table_name": "fact_cleanup_archive",
+      "column_name": "row_data",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 140209,
+      "table_name": "fact_cleanup_archive",
+      "column_name": "source_pk",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 140209,
+      "table_name": "fact_cleanup_archive",
+      "column_name": "source_table",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 46035,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "canonical_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 148668,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "canonical_relay_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 98831,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "canonical_result_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 89345,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "confidence",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "created_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "decision",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 44527,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "decision_reason",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "entity_type",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2941,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "event_type_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 132927,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "mark_meters",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "mark_raw",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 43723,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "mark_seconds",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "measure",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "observation_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 43938,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "performance_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 20684,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "place",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 154836,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "points",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "raw_event_name",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "result_date",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 4051,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "round",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "run_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "source",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "source_record_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 156385,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "source_snapshot_hash",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 55877,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "target_athlete_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "target_meet_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31031,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "target_team_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 156385,
+      "table_name": "observations",
+      "column_name": "validation_errors",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 9648,
+      "table_name": "quarantine",
+      "column_name": "created_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 9648,
+      "table_name": "quarantine",
+      "column_name": "observation_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 9648,
+      "table_name": "quarantine",
+      "column_name": "quarantine_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 9648,
+      "table_name": "quarantine",
+      "column_name": "reason_code",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 4912,
+      "total": 9648,
+      "table_name": "quarantine",
+      "column_name": "resolution_note",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 4912,
+      "total": 9648,
+      "table_name": "quarantine",
+      "column_name": "resolved_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 9648,
+      "table_name": "quarantine",
+      "column_name": "status",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "attempts",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "canonical_match_evidence",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2572,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "canonical_match_method",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2572,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "canonical_match_notes",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2572,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "canonical_meet_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "coverage_status",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "created_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "individual_fact_count",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2445,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "last_error",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2082,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "last_run_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "meet_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "needs_individual",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "needs_relays",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "priority",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "quarantined_observation_count",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "queue_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2446,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "relay_checked_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "relay_coverage_status",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "relay_fact_count",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2446,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "relay_probe_run_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "scope_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "source_candidates",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "status",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 2573,
+      "table_name": "recovery_queue",
+      "column_name": "updated_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1497,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "code_revision",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "created_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1494,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "error_message",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "finished_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "metrics",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "mode",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "parser_version",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "run_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "scope",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "source",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "started_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1497,
+      "table_name": "runs",
+      "column_name": "status",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 41214,
+      "table_name": "source_links",
+      "column_name": "entity_type",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 41214,
+      "table_name": "source_links",
+      "column_name": "first_linked_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 41214,
+      "table_name": "source_links",
+      "column_name": "last_seen_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 41214,
+      "table_name": "source_links",
+      "column_name": "link_status",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 36115,
+      "total": 41214,
+      "table_name": "source_links",
+      "column_name": "relay_result_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 5116,
+      "total": 41214,
+      "table_name": "source_links",
+      "column_name": "result_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 41214,
+      "table_name": "source_links",
+      "column_name": "source_record_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "source_record_versions",
+      "column_name": "created_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "source_record_versions",
+      "column_name": "payload",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "source_record_versions",
+      "column_name": "snapshot_hash",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "source_record_versions",
+      "column_name": "source_event_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "source_record_versions",
+      "column_name": "source_meet_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "source_record_versions",
+      "column_name": "source_record_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "source_record_versions",
+      "column_name": "source_url",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 54518,
+      "table_name": "source_records",
+      "column_name": "first_seen_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 54518,
+      "table_name": "source_records",
+      "column_name": "last_seen_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 54518,
+      "table_name": "source_records",
+      "column_name": "payload",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 54518,
+      "total": 54518,
+      "table_name": "source_records",
+      "column_name": "payload_hash",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 54518,
+      "table_name": "source_records",
+      "column_name": "source",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 54518,
+      "table_name": "source_records",
+      "column_name": "source_event_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 54518,
+      "table_name": "source_records",
+      "column_name": "source_meet_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 54518,
+      "table_name": "source_records",
+      "column_name": "source_record_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 54518,
+      "table_name": "source_records",
+      "column_name": "source_record_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 30681,
+      "total": 54518,
+      "table_name": "source_records",
+      "column_name": "source_url",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "created_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "match_method",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "normalized_source_team_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "normalized_source_team_name",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "notes",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "source",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "source_gender",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "source_team_key",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "source_team_name",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "status",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "team_alias_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "team_id",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "updated_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 114,
+      "table_name": "team_aliases",
+      "column_name": "verified_at",
+      "schema_name": "ingest",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "athlete_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "event_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 385803,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "mark_meters",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "mark_raw",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 97663,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "mark_seconds",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 466965,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "meet_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "season",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 466997,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "set_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 475523,
+      "table_name": "athlete_prs",
+      "column_name": "updated_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 127357,
+      "table_name": "athlete_team_seasons",
+      "column_name": "athlete_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 127357,
+      "table_name": "athlete_team_seasons",
+      "column_name": "ats_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 127357,
+      "table_name": "athlete_team_seasons",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 127357,
+      "table_name": "athlete_team_seasons",
+      "column_name": "is_redshirt",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 127357,
+      "total": 127357,
+      "table_name": "athlete_team_seasons",
+      "column_name": "jersey_number",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 127357,
+      "table_name": "athlete_team_seasons",
+      "column_name": "season_code",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 127357,
+      "table_name": "athlete_team_seasons",
+      "column_name": "status",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 127357,
+      "table_name": "athlete_team_seasons",
+      "column_name": "team_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3876,
+      "total": 127357,
+      "table_name": "athlete_team_seasons",
+      "column_name": "year_in_school",
+      "schema_name": "public",
+      "empty_strings": 11920,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "athlete_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 51726,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "athletic_net_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 151537,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "bio",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 61973,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "class_year",
+      "schema_name": "public",
+      "empty_strings": 11746,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 118,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "first_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "full_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31211,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "gender",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 151537,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "grad_year",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 151537,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "high_school",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 151537,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "hometown",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "is_active",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 118,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "last_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 151537,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "primary_events",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 151537,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "profile_image_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "school_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 44786,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "tfrrs_athlete_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 60456,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "tfrrs_profile_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 151537,
+      "table_name": "athletes",
+      "column_name": "updated_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "conference_memberships",
+      "column_name": "conference_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "conference_memberships",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "conference_memberships",
+      "column_name": "end_year",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "conference_memberships",
+      "column_name": "membership_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "conference_memberships",
+      "column_name": "school_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "conference_memberships",
+      "column_name": "start_year",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 44,
+      "total": 118,
+      "table_name": "conferences",
+      "column_name": "abbreviation",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 118,
+      "table_name": "conferences",
+      "column_name": "conference_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 118,
+      "table_name": "conferences",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 118,
+      "table_name": "conferences",
+      "column_name": "division",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 118,
+      "table_name": "conferences",
+      "column_name": "division_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 118,
+      "table_name": "conferences",
+      "column_name": "name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 116,
+      "total": 118,
+      "table_name": "conferences",
+      "column_name": "region",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 118,
+      "table_name": "conferences",
+      "column_name": "updated_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 68,
+      "total": 118,
+      "table_name": "conferences",
+      "column_name": "website",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "divisions",
+      "column_name": "code",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "divisions",
+      "column_name": "display_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "divisions",
+      "column_name": "division_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "divisions",
+      "column_name": "governing_body",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "divisions",
+      "column_name": "sort_order",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1329,
+      "table_name": "event_aliases",
+      "column_name": "event_type_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1329,
+      "table_name": "event_aliases",
+      "column_name": "raw_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 67,
+      "table_name": "event_types",
+      "column_name": "category",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 67,
+      "table_name": "event_types",
+      "column_name": "code",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 67,
+      "table_name": "event_types",
+      "column_name": "environment_scope",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 67,
+      "table_name": "event_types",
+      "column_name": "event_type_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 67,
+      "table_name": "event_types",
+      "column_name": "measure",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "athlete_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 356,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "conference_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "external_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "external_key",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "external_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 282,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "external_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 356,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "school_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "source",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 356,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "team_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "updated_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 356,
+      "table_name": "external_ids",
+      "column_name": "verified",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 48,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "athlete_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "date",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "event_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "is_final",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "is_processed",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "live_result_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "mark_raw",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 16,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "mark_seconds",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 48,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "meet_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "meet_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "meet_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "participant_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 6,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "place",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "result_type",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "round",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "scraped_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "splits",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 48,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "team_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 48,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "team_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 48,
+      "table_name": "live_results",
+      "column_name": "updated_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12382,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "athletic_net_results_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "date",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "end_date",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11281,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "level",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11281,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "location",
+      "schema_name": "public",
+      "empty_strings": 1,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "meet_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11142,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "meet_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12970,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "results_error",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12670,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "results_imported_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 10693,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "results_last_checked_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1045,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "results_source",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "results_status",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "season",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12974,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "source_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "status",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12906,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "tfrrs_meet_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12513,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "tfrrs_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11358,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "timing_platform",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "updated_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12978,
+      "total": 12978,
+      "table_name": "meets",
+      "column_name": "wa_results_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "push_tokens",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "push_tokens",
+      "column_name": "expo_push_token",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "push_tokens",
+      "column_name": "id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "push_tokens",
+      "column_name": "is_active",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "push_tokens",
+      "column_name": "platform",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 27,
+      "table_name": "regions",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1,
+      "total": 27,
+      "table_name": "regions",
+      "column_name": "division_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 27,
+      "table_name": "regions",
+      "column_name": "region_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 27,
+      "table_name": "regions",
+      "column_name": "region_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3359,
+      "total": 450685,
+      "table_name": "relay_athletes",
+      "column_name": "athlete_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 292225,
+      "total": 450685,
+      "table_name": "relay_athletes",
+      "column_name": "athlete_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 450685,
+      "table_name": "relay_athletes",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 450685,
+      "table_name": "relay_athletes",
+      "column_name": "leg_order",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 450685,
+      "table_name": "relay_athletes",
+      "column_name": "relay_athlete_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 450685,
+      "table_name": "relay_athletes",
+      "column_name": "relay_result_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 317475,
+      "total": 450685,
+      "table_name": "relay_athletes",
+      "column_name": "tfrrs_athlete_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11153,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "date",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 165191,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "event_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "event_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "event_type_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 327,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "mark_raw",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 15113,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "mark_seconds",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 22865,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "meet_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 59,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "meet_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 19250,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "place",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "relay_result_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 161312,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "round",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31344,
+      "total": 200736,
+      "table_name": "relay_results",
+      "column_name": "team_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "athlete_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 422761,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "date",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 258521,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "environment",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2283713,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "event_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "event_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "event_type_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "is_pr",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "is_season_best",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3121692,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "mark_feet",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2542758,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "mark_meters",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "mark_raw",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1067872,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "mark_seconds",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 562033,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "meet_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3419121,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "meet_location",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 313152,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "meet_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 497870,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "place",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "result_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1247067,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "round",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3419178,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "season_code",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 401563,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "team_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3419178,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "total_competitors",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3148224,
+      "total": 3419178,
+      "table_name": "results",
+      "column_name": "wind",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1760,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "city",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 589,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "current_conference_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "division",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "division_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "is_active",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 27,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "logo_file_path",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 27,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "logo_source",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 26,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "logo_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1786,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "ncaa_region",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "official_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 666,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "region_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "school_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "short_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 167,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "state",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1786,
+      "table_name": "schools",
+      "column_name": "updated_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3516,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "athletic_net_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3516,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "coach_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "gender",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "is_active",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "school_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "team_id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3509,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "team_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 3509,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "team_type",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 335,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "tfrrs_team_url",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 3516,
+      "table_name": "teams",
+      "column_name": "updated_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 46,
+      "table_name": "unmapped_events",
+      "column_name": "first_seen",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 46,
+      "table_name": "unmapped_events",
+      "column_name": "raw_name",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 46,
+      "table_name": "unmapped_events",
+      "column_name": "seen_count",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "waitlist",
+      "column_name": "created_at",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "waitlist",
+      "column_name": "email",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "waitlist",
+      "column_name": "feature",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "waitlist",
+      "column_name": "id",
+      "schema_name": "public",
+      "empty_strings": 0,
+      "distinct_values": null
+    }
+  ]
+}
