@@ -62,6 +62,18 @@ any row that has acquired a later reference. Foreign keys are expected to block 
 never use `CASCADE`. A rollback-only replay of the forward migration and a post-apply idempotence
 replay both passed, proving the catalog can be reconstructed without touching fact data.
 
+### Confirmed collegiate profile repair — 2026-09-06
+
+Operation `20260906_confirmed_collegiate_profile_repair` changed only `athletes.school_id` for
+1,184 source-confirmed college athletes; four USSU women in the 1,188-athlete cohort were already
+correct. The existing athlete update trigger also advanced `updated_at`. All 1,184 complete athlete
+before-images are retained in `ingest.fact_cleanup_archive`. No result or club row changed; result
+coverage remained 8,566 total rows and 8,487 rows with no team affiliation.
+
+Run `node docs/database-audit/rollback_confirmed_collegiate_profiles.js` for a transactionally
+rolled-back rehearsal. Add `--commit` only to restore all 1,184 archived `school_id` values and
+remove this operation's archive rows. The runner refuses partial, duplicate, or diverged state.
+
 All rollback tables are preserved in the private `archive` schema. They are no longer part of the
 public API surface; `service_role` has read-only access and database-owner access is required to
 append or restore rows.
