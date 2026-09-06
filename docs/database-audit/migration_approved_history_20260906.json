@@ -1,0 +1,14 @@
+{
+  "snapshotDate": "2026-09-06",
+  "purpose": "Approved post-baseline migration addendum. The 2026-09-05 history remains immutable evidence.",
+  "entries": [
+    {
+      "file": "20260906072721_add_school_type_and_collegiate_history.sql",
+      "version": "20260906072721",
+      "name": "add_school_type_and_collegiate_history",
+      "localSha256": "3a99a1911883501e48a41aa5767c9ceeb6e08f1bec04bec49cb0c772f867211d",
+      "ledgerFingerprint": "e3a1f002d21c4c28765ec47f00e2e411a15369c7f6d936fd0478f55eea5a8eb4",
+      "review": "Additive school and governing classifications; internal collegiate-history view; live rollback rehearsal, six-case transactional contract, and post-apply ACL verification."
+    }
+  ]
+}

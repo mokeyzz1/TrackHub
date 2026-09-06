@@ -45,4 +45,5 @@ run_pg "$task_pg_bin/pg_ctl" -D "$task_fixture_root/pgdata" -l "$task_fixture_ro
 cd "$task_repo_root"
 TRACK_SCHEMA_TEST_SOCKET="$task_fixture_root" TRACK_SCHEMA_TEST_TEMPLATE=current_owner_schema npm run test:ingestion-postgres
 TRACK_SCHEMA_TEST_SOCKET="$task_fixture_root" node --test docs/database-audit/result_affiliation.integration.test.js
+TRACK_SCHEMA_TEST_SOCKET="$task_fixture_root" node --test docs/database-audit/athlete_collegiate_history.integration.test.js
 printf 'Verified isolated fixture retained at %s (server stops on exit).\n' "$task_fixture_root"

@@ -40,7 +40,10 @@ if (require.main === module) {
   const dir = path.resolve(__dirname, '../../supabase/migrations');
   const files = fs.readdirSync(dir).filter(f => f.endsWith('.sql')).map(file => ({ file, sql: fs.readFileSync(path.join(dir, file), 'utf8') }));
   const result = preflight(files, JSON.parse(fs.readFileSync(process.argv[2], 'utf8')),
-    require('./migration_approved_history_20260905.json').entries);
+    [
+      ...require('./migration_approved_history_20260905.json').entries,
+      ...require('./migration_approved_history_20260906.json').entries,
+    ]);
   process.stdout.write(JSON.stringify(result, null, 2) + '\n');
   process.exitCode = result.ok ? 0 : 1;
 }
