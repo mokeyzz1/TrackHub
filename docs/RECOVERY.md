@@ -40,6 +40,28 @@ Undo by restoring the four `athletes.school_id` and 27 `results.team_id` values
 from that operation's JSON before-images in one transaction. Keep the USSU
 school; remove the women's team/alias only when no later rows reference them.
 
+### Confirmed collegiate catalog onboarding — 2026-09-06
+
+Migration `20260906170106_onboard_confirmed_collegiate_schools.sql` is additive catalog work:
+49 schools, 87 gender-specific teams, and the NWAC association were added; the existing USSU
+school/team was reused. It did not update or delete any athlete, result, relay, meet, or other fact
+row. The exact 50-school plan and all 88 reviewed TFRRS team URLs are retained in
+`database-audit/collegiate_school_onboarding_20260906.json` and
+`database-audit/collegiate_source_team_review_20260906.json`.
+
+Four pre-existing aliases were corrected: the men's and women's `Clark_College` aliases no longer
+point to Clark University (Massachusetts), and the men's and women's `Lane_CC` aliases no longer
+point to Lane College (Tennessee). The migration asserts those exact old targets before changing
+them. Do not restore those known-wrong mappings during ordinary recovery.
+
+If this catalog must be removed, first reverse every later profile or result repair that references
+these schools or teams. In one transaction, delete only aliases whose reviewed source URLs are in
+the retained evidence file, then delete only now-unreferenced teams from those URLs, followed by
+the 49 newly added schools. Remove `NWAC` only if no school still references it. Preserve USSU and
+any row that has acquired a later reference. Foreign keys are expected to block an unsafe removal;
+never use `CASCADE`. A rollback-only replay of the forward migration and a post-apply idempotence
+replay both passed, proving the catalog can be reconstructed without touching fact data.
+
 All rollback tables are preserved in the private `archive` schema. They are no longer part of the
 public API surface; `service_role` has read-only access and database-owner access is required to
 append or restore rows.
