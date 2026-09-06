@@ -1,5 +1,10 @@
 # SEC-01a: restore the PR view's caller-policy boundary
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Live inspection found `v_athlete_prs.reloptions=NULL`, despite the August hardening migration
 setting `security_invoker=true`. A later replacement failed to preserve that boundary. The advisor
 flagged the view as security-definer. The base `results` and `event_types` tables have SELECT grants

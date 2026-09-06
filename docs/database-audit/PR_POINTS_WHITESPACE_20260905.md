@@ -1,5 +1,10 @@
 # API-01a: consistent supplied-points whitespace handling
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Applied live as `20260905184656_fix_pr_view_supplied_points_filter`. The view keeps its columns,
 invoker security, time/distance ranking, component exclusion and deterministic tie-breaking. Only
 the points token recognition/extraction changes to a shared POSIX whitespace convention. No source

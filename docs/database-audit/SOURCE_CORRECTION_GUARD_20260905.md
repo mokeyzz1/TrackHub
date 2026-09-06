@@ -1,5 +1,10 @@
 # ING-02c2: explicit changed-source performance review
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The linked-source fast path previously treated any later observation with the same provider key
 as an exact replay. The writer now loads the exact linked canonical fact under its existing
 promotion transaction and advisory locks. A changed entity kind, meet/event/actor, known team,

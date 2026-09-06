@@ -1,5 +1,10 @@
 # Public view contracts — 2026-09-05
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Live definitions inspected for all four public views. Repository search covered tracked-source
 JavaScript and TypeScript outside dependencies and generated scraper logs. No live changes applied.
 

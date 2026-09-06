@@ -1,5 +1,10 @@
 # ING-02e: deterministic source-staging lock order
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The real PostgreSQL test reproduced a `40P01` deadlock: two transactions staged the same source
 records in opposite input orders. Each acquired one identity's upsert lock and waited on the other.
 The canonical promotion advisory locks do not cover this earlier staging phase.

@@ -1,5 +1,10 @@
 # Affiliation evidence packet — 2026-09-03
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 This is a read-only evidence capture for the proposed affiliation review. It records how the
 current `Unattached` placeholder is used before any nullable-FK or team-type migration is designed.
 

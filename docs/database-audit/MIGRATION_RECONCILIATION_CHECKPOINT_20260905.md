@@ -1,5 +1,10 @@
 # MIG-01b: verified history alignment
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Completed scope: reusable read-only comparison, 27 content-preserving filename alignments,
 and restoration of one historical migration to its own ledger SQL. No production mutation.
 

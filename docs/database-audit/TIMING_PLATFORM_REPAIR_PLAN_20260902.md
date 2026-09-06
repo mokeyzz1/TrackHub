@@ -1,5 +1,10 @@
 # Timing-platform repair plan
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Date: 2026-09-02
 
 Status: applied and verified in production; 216 ambiguous rows remain held

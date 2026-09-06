@@ -1,5 +1,10 @@
 # API-01b: count athletes, not athlete-season rows
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 `teams_summary.athlete_count` used `count(ats.athlete_id)` across all stored seasons. A person with
 two team-season records counted twice. The read-only census confirmed overcounts on 1,795 teams,
 totaling 34,659 excess counts. Those affiliation rows are legitimate history, not duplicates to delete.

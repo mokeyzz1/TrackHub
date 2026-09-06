@@ -1,5 +1,10 @@
 # Reliable wide-table profiling
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The existing aggregate-only quality scan used one `jsonb_build_object` call with two arguments
 per column. A 70-column isolated fixture reproduced PostgreSQL error 54023, “cannot pass more
 than 100 arguments to a function.” The scan now combines small per-column JSON objects while

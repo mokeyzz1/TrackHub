@@ -1,5 +1,10 @@
 # Unused-index review — 2026-09-04
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 ## Observation window and rule
 
 The live PostgreSQL server started on 2026-09-01 at 19:26 UTC, so its index counters covered less

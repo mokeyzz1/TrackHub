@@ -1,5 +1,10 @@
 # Event catalog loading and measurement review
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The resolver now orders alias pages by their primary key and event pages by event ID. It
 rejects conflicting normalized aliases rather than silently selecting whichever arrived last.
 Same-target spelling/case variants remain valid. Failed reloads leave resolution disabled,

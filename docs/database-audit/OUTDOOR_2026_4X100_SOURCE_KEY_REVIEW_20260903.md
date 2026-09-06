@@ -1,5 +1,10 @@
 # Outdoor 2026 4×100 recovered source-key review
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Generated 2026-09-03 from a rate-limited, read-only re-fetch of all 227 TFRRS event pages behind
 the unresolved queue rows. The parser recovered an authoritative source team key for these three
 rows, and the existing active catalog resolved each by a unique canonical prefix.

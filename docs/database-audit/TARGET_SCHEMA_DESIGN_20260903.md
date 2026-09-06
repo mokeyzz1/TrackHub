@@ -1,5 +1,10 @@
 # Target schema design — 2026-09-03
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 This is the proposed destination for the database-wide cleanup. It is design-only: no DDL,
 backfill, or data mutation is included.
 

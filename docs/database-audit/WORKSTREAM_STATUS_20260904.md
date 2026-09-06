@@ -1,5 +1,10 @@
 # Database cleanup workstream status — 2026-09-04
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The active ordered queue is now `MASTER_CHECKLIST.md`, with individual object review states in
 `MASTER_CHECKLIST.json`. This file retains historical evidence; its older next-step sections do
 not override the master queue.

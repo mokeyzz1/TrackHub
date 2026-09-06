@@ -1,5 +1,10 @@
 # Current application-schema test baseline
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Read-only PostgreSQL 17 `pg_dump --schema-only` captured today's `public`, `ingest`, and `archive`
 schemas from the configured production project. No table data was copied and no live objects
 were changed. The configured password was passed privately through the process environment,

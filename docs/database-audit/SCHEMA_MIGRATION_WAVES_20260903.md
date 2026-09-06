@@ -1,5 +1,10 @@
 # Preservation-first schema migration waves — 2026-09-03
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 This is the proposed execution order for improving the live database. Each wave is independently
 dry-run, validated, archived, and reversible. No wave is authorized merely because it appears in
 this document.

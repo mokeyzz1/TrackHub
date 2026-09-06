@@ -1,5 +1,10 @@
 # ING-02b: immutable normalized observations within a run
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The real PostgreSQL regression reproduced silent mixed-version evidence: restaging the same
 run/source ID with a new mark updated the shared source payload, but left the old normalized mark
 on the observation. The previous upsert changed only decision fields and returned success.

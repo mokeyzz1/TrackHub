@@ -1,5 +1,10 @@
 # Foreign-key index review — 2026-09-04
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 ## Decision rule
 
 The Supabase `unindexed_foreign_keys` lint is an informational candidate list, not proof that every

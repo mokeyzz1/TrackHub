@@ -1,5 +1,10 @@
 # Invalid history-claim review — 2026-09-02
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 ## Decision
 
 Thirty legacy history rows were incorrectly claimed by newer meet observations before the

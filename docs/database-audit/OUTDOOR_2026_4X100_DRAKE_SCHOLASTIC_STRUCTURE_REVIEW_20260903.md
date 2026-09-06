@@ -1,5 +1,10 @@
 # Outdoor 2026 4x100 Drake Relays scholastic structure review
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Date: 2026-09-03  
 Scope: `outdoor-2026-4x100-source-reconciliation-v1`  
 Status: private review only; no public rows, aliases, or result facts changed.
@@ -52,4 +57,3 @@ Keep all 281 Drake actions in private `manual_review`. Add no aliases and no pub
 the label text alone. The next promotion review should work from the TFRRS division/section and
 then verify each campus against the school catalog; middle-school and program/squad records need
 an explicit model decision before any public promotion.
-

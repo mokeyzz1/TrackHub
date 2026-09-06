@@ -1,5 +1,10 @@
 # ING-02f: make promotion snapshot semantics explicit
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Canonical promotion now begins with `BEGIN ISOLATION LEVEL READ COMMITTED`. Its advisory-lock
 design requires candidate/source-link SELECTs after the lock wait to see the transaction that just
 committed. An inherited repeatable-read snapshot can violate that assumption. This is specific to

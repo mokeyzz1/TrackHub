@@ -1,5 +1,10 @@
 # Meet source-ownership candidate review — 2026-09-04
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 This read-only pass joins the existing private `ingest.source_links` records to the canonical meet
 parents in each known collision group. It measures current promotion/lineage, not an automatic truth
 judgment: an unlinked source record is not evidence that a meet has no source data, and a linked row

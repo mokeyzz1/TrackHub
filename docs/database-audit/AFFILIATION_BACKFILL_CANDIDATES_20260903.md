@@ -1,5 +1,10 @@
 # Explicit-affiliation backfill candidates — 2026-09-03
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 ## Read-only result
 
 The first candidate scan used only existing `schools.official_name`, `schools.division`, team

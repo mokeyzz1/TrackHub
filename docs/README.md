@@ -1,5 +1,10 @@
 # TrackHub docs — start here
 
+For the current whole-database improvement work, start with the
+[database master checklist](database-audit/MASTER_CHECKLIST.md). It is the only work queue
+for that scope. Other audit documents provide evidence and historical proposals, not separate
+priorities. Older priority documents below do not override this checklist for database work.
+
 **Everything lives under `docs/`.** Before 2026-08-14 it was 37 markdown files spread across
 `docs/`, `backend/`, `backend/scripts/`, `scrapers/tfrrs/`, and an agent-memory directory
 **outside the repo entirely** — which is why `CLAUDE.md` pointed at `memory/backend-rebuild-status.md`

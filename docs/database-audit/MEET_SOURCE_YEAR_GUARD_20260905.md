@@ -1,5 +1,10 @@
 # Meet-source year boundary
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The live `tfrrs_url` inventory contains 12 repeated source IDs on 27 meet rows. These are
 identity review groups, not permission to merge. Eight groups span different stored years:
 

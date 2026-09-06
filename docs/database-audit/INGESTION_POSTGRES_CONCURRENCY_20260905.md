@@ -1,5 +1,10 @@
 # ING-02a: real PostgreSQL promotion concurrency
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The isolated integration test reproduced a real defect: two providers promoting the same new
 performance concurrently created one fact but quarantined the second observation with an insert
 conflict. Sequential mocks did not expose the stale candidate read.

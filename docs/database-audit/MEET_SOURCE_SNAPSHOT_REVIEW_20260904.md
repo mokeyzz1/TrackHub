@@ -1,5 +1,10 @@
 # Meet source-page snapshot review — 2026-09-04
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 This is a source-page identity check for the ten duplicated TFRRS URL keys found in the live
 `public.meets` scan. The pages were checked on 2026-09-04 through TFRRS/DirectAthletics. A current
 page identity is evidence about URL reuse; it is not permission to merge or reassign historical

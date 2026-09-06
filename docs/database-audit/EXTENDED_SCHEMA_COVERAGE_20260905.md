@@ -1,5 +1,10 @@
 # TRACK-02: extend the schema register beyond tables and columns
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The master register now has 2,279 entries, adding 554 catalog objects to the existing 1,725.
 Read-only `schema_extended_scan.sql` captures defaults/identity definitions, sequence ownership,
 effective schema/relation/function ACLs, explicit column ACLs, default privileges, enums, extensions,

@@ -1,5 +1,10 @@
 # Run and observation relationship review
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Read-only live inspection on September 5; reproducible queries in `run_relationship_scan.sql`.
 No statuses, target IDs, source evidence or canonical results were changed.
 

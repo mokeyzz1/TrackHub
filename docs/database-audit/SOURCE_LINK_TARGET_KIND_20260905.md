@@ -1,5 +1,10 @@
 # ING-02d: source-link target-kind invariant
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The database already enforced at most one target and exactly one for a linked source, but allowed
 an individual source to target a relay parent or a relay-parent source to target an individual
 result. Added the narrowly scoped `source_links_target_kind_ck`, validated live in migration

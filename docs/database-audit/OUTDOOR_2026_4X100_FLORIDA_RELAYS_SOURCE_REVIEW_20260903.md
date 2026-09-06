@@ -1,5 +1,10 @@
 # Outdoor 2026 4x100 Florida Relays source-identity review
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Date: 2026-09-03  
 Scope: `outdoor-2026-4x100-source-reconciliation-v1`  
 Status: private review only; no public rows, aliases, or result facts changed.
@@ -52,4 +57,3 @@ Keep all 21 actions in private `manual_review`. The five school labels may be ma
 the canonical school catalog and campus are verified. Preserve “United States” as a non-school
 open/international identity; do not add it to `public.schools` or `public.teams`, and do not
 promote its results as collegiate or scholastic school results.
-

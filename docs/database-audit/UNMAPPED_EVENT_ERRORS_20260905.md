@@ -1,5 +1,10 @@
 # Preserve unmapped-event review evidence on database errors
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The resolver previously ignored lookup/insert/update errors and cleared every in-memory miss
 after attempting a flush. That could discard review evidence during a database failure.
 

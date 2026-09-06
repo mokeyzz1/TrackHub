@@ -1,5 +1,10 @@
 # School identity review — 2026-09-02
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 ## Decision
 
 Do not merge all equal normalized school names. The restored database contains 83 two-row

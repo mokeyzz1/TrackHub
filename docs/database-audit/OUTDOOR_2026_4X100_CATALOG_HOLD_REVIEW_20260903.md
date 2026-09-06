@@ -1,5 +1,10 @@
 # Outdoor 2026 4×100 catalog-hold review
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Generated 2026-09-03 from the private reconciliation queue. This is a read-only classification;
 it does not create teams, aliases, or public result changes.
 

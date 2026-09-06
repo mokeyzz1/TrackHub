@@ -1,5 +1,10 @@
 # ING-02c1: preserve the evidence each observation consumed
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Implemented and verified locally; additive private migration applied live as
 `20260905183823_preserve_ingestion_source_versions`. Shared worker code is updated in this
 checkout. No scraper run was launched, no public fact was changed, and no app deployment is claimed.

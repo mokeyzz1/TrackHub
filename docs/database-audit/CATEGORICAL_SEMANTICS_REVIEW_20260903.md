@@ -1,5 +1,10 @@
 # Categorical semantics review — 2026-09-03
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 This read-only profile evaluates the live values used to describe affiliation, meets, events,
 seasons, environments, and rounds. The goal is to distinguish real domain categories from scraper
 vocabulary drift.

@@ -1,5 +1,10 @@
 # Event catalog and alias review — 2026-09-04
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 ## Scope
 
 This is a read-only production review of the canonical `public.event_types` catalog and

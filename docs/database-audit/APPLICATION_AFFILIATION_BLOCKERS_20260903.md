@@ -1,5 +1,10 @@
 # Application affiliation blockers — 2026-09-03
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 This inventory is a code-level companion to the live `Unattached` evidence packet. It identifies
 where the current application treats `school_id` as the identity and where a nullable/typed
 affiliation change would otherwise break reads or writes.

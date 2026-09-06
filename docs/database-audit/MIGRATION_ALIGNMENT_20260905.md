@@ -1,5 +1,10 @@
 # Recent migration filename alignment
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 MIG-01a is complete. MIG-01 as a whole remains open.
 
 Full SQL diffs against the live ledger showed only three explanatory comment blocks omitted

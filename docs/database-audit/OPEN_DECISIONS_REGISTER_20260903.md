@@ -1,5 +1,10 @@
 # Whole-database open-decisions register — 2026-09-03
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The database audit is not complete merely because every table has a disposition. This register
 keeps every semantic or operational question visible, with the evidence required before a write
 can be approved. “Held” means no production mutation is authorized for that item yet.

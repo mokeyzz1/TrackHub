@@ -1,5 +1,10 @@
 # Restore the existing insert-only waitlist flow
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 ## Confirmed cause and change
 
 The frontend `addToWaitlist` inserts email/feature without supplying an ID. The table default

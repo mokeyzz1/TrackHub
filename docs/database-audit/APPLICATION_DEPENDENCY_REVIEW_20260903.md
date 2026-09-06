@@ -1,5 +1,10 @@
 # Application dependency review — 2026-09-03
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 ## Method
 
 The repository was searched for Supabase table calls (`.from('...')`), direct SQL references,

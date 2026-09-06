@@ -1,5 +1,10 @@
 # Historical result affiliation reads
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The two public performance functions now resolve school/division through `results.team_id` →
 `teams.school_id`, preserving NULL when a result has no represented team. They no longer attribute
 historical performances to `athletes.school_id`, which is a current/legacy person field.

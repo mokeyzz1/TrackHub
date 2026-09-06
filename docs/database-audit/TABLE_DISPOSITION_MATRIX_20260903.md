@@ -1,5 +1,10 @@
 # Complete table disposition matrix — 2026-09-03
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 This matrix assigns an initial status to every live table identified in the complete-instance
 catalog. It is a review artifact, not a deletion list. “Managed/leave untouched” means the object
 is owned by Supabase and must be documented rather than redesigned by the application cleanup.

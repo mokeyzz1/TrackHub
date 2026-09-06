@@ -1,5 +1,10 @@
 # Schema coverage register — 2026-09-05
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Live catalog reconciliation. Inventory coverage is not semantic approval. Every column is explicitly listed below; “review pending” means its purpose and reader/writer contract have not yet been individually closed in this register. Existing evidence packets remain supporting evidence, not automatic approval.
 
 Includes ordinary and partitioned tables, views, and materialized views. PostgreSQL system schemas are excluded. Managed schemas are inventoried but are not application redesign targets. No row values, tokens, or secrets are exported.
@@ -1480,4 +1485,3 @@ Includes ordinary and partitioned tables, views, and materialized views. Postgre
 ## Coverage correction
 
 The previous 74-table total omitted `realtime.messages`, a partitioned table. This is an inventory-query omission, not evidence that a new table was added. The live inventory here contains 75 tables (including that partitioned parent) and 7 views. Historical reports retain their original dated counts.
-

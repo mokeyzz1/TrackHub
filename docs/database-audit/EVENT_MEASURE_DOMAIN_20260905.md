@@ -1,5 +1,10 @@
 # Event measurement domain
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Migration `20260905201510_enforce_event_measure_domain.sql` constrains the existing
 `event_types.measure` column to time, distance, points or explicit unknown, and disallows NULL.
 No new table, scoring calculation, reclassification or performance rewrite is involved.

@@ -1,5 +1,10 @@
 # ING-02g: truthful orchestration error reporting
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The controlled ingestion orchestrator previously attempted to mark a run failed even when its
 canonical writer had returned successfully and only the status UPDATE failed. A failed error
 report could also replace the original exception. Run creation occurred outside the cleanup

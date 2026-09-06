@@ -1,5 +1,10 @@
 # Outdoor 2026 4×100 exact-round approval batch
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Generated 2026-09-03 from the private reconciliation queue. The 24 rows in this packet were
 applied by migration `899f78a` on 2026-09-03 after archival in `ingest.fact_cleanup_archive`.
 The packet remains the evidence record; it is not a general approval for other rows.

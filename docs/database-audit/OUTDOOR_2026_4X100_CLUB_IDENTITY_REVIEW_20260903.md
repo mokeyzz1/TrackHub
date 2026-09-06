@@ -1,5 +1,10 @@
 # Outdoor 2026 4×100 club and institution identity review
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Generated 2026-09-03. This is research and review material only; it does not create school/team
 rows, aliases, or public result changes.
 

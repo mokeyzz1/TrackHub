@@ -1,5 +1,10 @@
 # Athlete identity review
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Date: 2026-09-02
 
 Status: audit complete; importer hardening, secondary identity preservation, and guarded

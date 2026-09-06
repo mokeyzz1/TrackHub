@@ -43,6 +43,17 @@ either/or.
 
 ## Standing directions
 
+**Database work follows one master checklist (2026-09-05).** Use
+[MASTER_CHECKLIST.md](database-audit/MASTER_CHECKLIST.md) for current priorities and checkpoint
+status. Other audit documents are supporting evidence, not competing queues. The owner is
+monitoring progression; this supersedes the older “not reviewing changes individually” direction
+below for this workstream. Do not replace the checklist with an improvised list or unrelated tasks.
+
+**Preserve Unattached and the current school/roster structure (2026-09-05).** An athlete can
+belong to a college roster while competing Unattached at a particular meet. Preserve the source's
+competition affiliation; do not convert it to school representation from roster membership alone.
+An optional-school structural redesign is deferred, not the next authorized change.
+
 **Scrapers are the foundation — harden them so the DB never drifts back.** Fix the scraper first,
 *then* backfill. (2026-07-15)
 

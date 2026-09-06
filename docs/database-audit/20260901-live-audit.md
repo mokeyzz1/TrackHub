@@ -1,5 +1,10 @@
 # Live database audit — 2026-09-01
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 ## Scope and safety
 
 This was a read-only inspection of the live Supabase PostgreSQL database. No canonical

@@ -1,5 +1,10 @@
 # All registered table columns now have aggregate profiles
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The second live scan covered 513 columns across 45 tables in archive, auth, realtime, storage,
 supabase_migrations and vault. Combined with the application profile, automated comparison
 against the register accounts for all **872 table columns across 76 tables**. The 105 view

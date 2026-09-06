@@ -1,5 +1,10 @@
 # Outdoor 2026 4×100 unresolved source-team review
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Generated 2026-09-03 from the private reconciliation queue. This is a profiling report only; it
 does not create aliases or change public team/result rows.
 

@@ -1,5 +1,10 @@
 # MIG-01d: preserve unverified SQL outside automatic deployment
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 39 tracked local-only SQL files were moved byte-for-byte to `supabase/migrations-held/`.
 The manifest records their original paths, hashes, disposition, prior evidence and next action.
 This is a deployment-boundary change, not an assertion that every effect is applied or absent.

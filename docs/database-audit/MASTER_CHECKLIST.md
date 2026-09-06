@@ -1,5 +1,23 @@
 # Database engineering master checklist
 
+## Current focus and how to use this checklist
+
+Current focus: **MODEL-01 — review the entire application data model and its connections**.
+This remains open; completed sub-checkpoints do not mean the whole database is finished.
+Follow the checkpoint IDs below, with the owner's direction controlling progression. Do not
+substitute an ad hoc list or start unrelated feature work.
+
+This Markdown file controls work order and checkpoint status. [MASTER_CHECKLIST.json](MASTER_CHECKLIST.json)
+is the detailed object register, not a second work queue. Dated audit documents preserve evidence;
+their old “next steps” and proposed migration waves do not set current priorities. Update this
+checklist when verified work changes status; link supporting evidence here rather than creating
+another plan. Documentation organization alone does not advance any engineering checkpoint.
+
+Owner decision (2026-09-05): preserve the current Unattached representation and school/roster
+structure. Competition affiliation and roster membership can differ. Do not infer school
+representation from roster membership. A nullable-school redesign is not authorized as the next
+change; earlier proposals remain deferred. See [owner decisions](../OWNER_DECISIONS.md).
+
 This is the single ordered work queue. `MASTER_CHECKLIST.json` is its exhaustive object register;
 other audit documents are supporting evidence, not competing queues. Scope: every non-system
 schema exposed by the catalog, including platform-managed schemas. Application ownership does

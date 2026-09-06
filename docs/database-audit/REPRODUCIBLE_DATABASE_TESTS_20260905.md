@@ -1,5 +1,10 @@
 # MIG-01e2 / SEC-01b: repeatable tests and scheduler input safety
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 `npm run test:database-isolated` now provisions a fresh PostgreSQL 17 cluster, restores the committed
 schema-only fixture, runs all 19 PostgreSQL tests, and stops the server on exit. It uses a new private
 Unix socket with TCP disabled and explicit local connection arguments. No production URL, password,

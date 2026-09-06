@@ -1,5 +1,10 @@
 # Preservation gate recheck — 2026-09-05
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 SAFE-01 is complete for the baseline-availability gate, not a claim of a fresh production backup.
 
 - Owner-schema dump SHA-256 still matches `4cf900535e1558928926ef9a0855d0cfb89e45e9c178bd5728f6712155ef3de8`.

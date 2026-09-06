@@ -1,5 +1,10 @@
 # Application-column profile recheck
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The repaired `quality_scan.sql` completed against live data in approximately 20 seconds with a
 90-second statement timeout. Only session-local temporary metric storage was created; no
 permanent table, result or source row was changed. Saved aggregate evidence:

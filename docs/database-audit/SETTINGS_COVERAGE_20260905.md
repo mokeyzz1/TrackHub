@@ -1,5 +1,10 @@
 # Configuration coverage, without secret export
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 Captured all 478 entries visible in `pg_settings` and nine persistent database/role override
 scopes from `pg_db_role_setting`. Added 487 individually addressable register entries, bringing
 the object register to 2,766. Existing object review states were preserved. All new settings

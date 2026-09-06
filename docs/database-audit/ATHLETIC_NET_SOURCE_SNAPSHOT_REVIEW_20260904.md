@@ -1,5 +1,10 @@
 # Athletic.net source-page snapshot review — 2026-09-04
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 This is a read-only check of the five duplicated Athletic.net URL keys found in production. The
 live AthleticLIVE or Athletic.net page was opened on 2026-09-04 and its visible title, date, venue,
 and linked static meet (when present) were recorded. A page identity is evidence about source reuse;

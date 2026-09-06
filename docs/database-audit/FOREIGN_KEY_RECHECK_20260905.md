@@ -1,5 +1,10 @@
 # Declared reference integrity verified
 
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
 The read-only aggregate scanner checked all 75 non-system foreign keys: 18 auth, 23 ingest,
 29 public and five storage. All are validated. Live results: zero orphan rows, zero invalid
 MATCH FULL partial-null rows, zero unsupported operators/match modes and zero query errors.
