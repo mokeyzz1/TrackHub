@@ -10,6 +10,12 @@
     "SQL function bodies/dynamic SQL and external consumers need separate trace; pg_depend is not exhaustive for procedural code.",
     "Existing aggregate profiles are reused, not presented as new row-by-row semantic verification."
   ],
+  "semanticReview": {
+    "status": "complete for scoped semantic decision record; dependent implementation remains open",
+    "evidence": "MODEL_SEMANTIC_REVIEW_20260905.md",
+    "coverage": "35 relations, 404 columns, 52 touching foreign keys, 58 view dependencies, exact table value-shape profile, and repository reader/writer inventory",
+    "safety": "read-only live SQL and repository inspection; no DDL or DML"
+  },
   "relations": [
     {
       "name": "public.meets",

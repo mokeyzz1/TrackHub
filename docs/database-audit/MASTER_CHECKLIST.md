@@ -55,7 +55,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | MIG-01e2 | P0 | Make the PostgreSQL regression fixture reproducible without private backups or production credentials | MIG-01e1 | Complete: REPRODUCIBLE_DATABASE_TESTS_20260905.md; fresh-cluster local run passes |
 | MIG-01e3 | P0 | Confirm the configured PostgreSQL job on hosted CI after branch publication | MIG-01e2 | Open; no push or remote workflow dispatch performed |
 | ING-01 | P1 | Provider-qualified replay keys; whole-call duplicate/provenance validation; regression tests; measure existing cross-provider key collisions | TRACK-01 | Complete: 233 ingestion / 65 shared tests pass; zero live cross-provider key groups |
-| MODEL-01 | P1 | Review each application table/column purpose, actual values, readers/writers and reference relationships; decide preserve, improve or retire | SAFE-01 for read-only review; MIG-01 for deployment | Open |
+| MODEL-01 | P1 | Review each application table/column purpose, actual values, readers/writers and reference relationships; decide preserve, improve or retire | SAFE-01 for read-only review; MIG-01 for deployment | Complete: MODEL_SEMANTIC_REVIEW_20260905.md; 35 relations, 404 columns, 52 FK edges, 58 view dependencies, value-shape and source-reader/writer evidence |
 | ID-01 | P1 | Review canonical identity constraints, reviewed aliases and uncertainty handling; verify prior repairs against alias history | MODEL-01 | Open |
 | ID-01a | P1 | Reject explicit TFRRS source/database year conflicts before event scraping; retain same-year/multi-day identity review | MODEL-01 meet-source inspection | Complete in branch: MEET_SOURCE_YEAR_GUARD_20260905.md; 12 repeated source-ID groups remain unmerged |
 | ID-01b | P1 | Order event catalog pages, reject conflicting normalized aliases and fail closed on incomplete reloads | MODEL-01 event-catalog inspection | Complete in branch: EVENT_CATALOG_LOAD_20260905.md; catalog semantics and unmapped persistence remain open |
@@ -90,11 +90,13 @@ as current verification. ING-01 was already implemented before this queue was co
 
 ## Per-object tracking
 
-MODEL-01 structural first pass: `TABLE_STRUCTURE_REVIEW_20260903.md` (September 5 section) and
-`model_review_20260905.json` cover all 31 application tables, four views, 404 columns and 52
-touching foreign keys. Each scoped register entry links its purpose/disposition and remaining
-verification. This is not implementation or completion: reader/writer behavior and domain
-exceptions remain open. No unrelated product fixes are authorized by this review.
+MODEL-01 semantic review: [MODEL_SEMANTIC_REVIEW_20260905.md](MODEL_SEMANTIC_REVIEW_20260905.md)
+closes the decision record for all 31 application tables, four views, 404 columns, 52 touching
+foreign keys and 58 view dependencies. [model_review_20260905.json](model_review_20260905.json)
+retains the structural register and now points to the semantic-review closure. The review records
+observed value shapes and repository readers/writers without claiming that dependent identity,
+ingestion, API, security or performance changes are complete. No unrelated product fixes are
+authorized by this review.
 
 The JSON register contains 2,767 individually addressable entries. The original classes cover 76 tables, seven views,
 977 columns, 271 constraints (foreign keys tracked as relationships), 246 indexes, 22 policies,
