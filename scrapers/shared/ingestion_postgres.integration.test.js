@@ -360,6 +360,25 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
         assert.equal((await client.query('SELECT count(*)::int AS n FROM public.audit_child')).rows[0].n, 4);
       } finally { await client.query('ROLLBACK'); client.release(); }
     });
+    await t.test('event measurement domain preserves known kinds and explicit unknown while rejecting invalid catalog writes', async () => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const before = (await client.query('SELECT * FROM public.event_types ORDER BY event_type_id')).rows;
+        await client.query(fs.readFileSync(path.join(__dirname, '../../supabase/migrations/20260905201510_enforce_event_measure_domain.sql'), 'utf8'));
+        assert.deepEqual((await client.query('SELECT * FROM public.event_types ORDER BY event_type_id')).rows, before);
+        for (const measure of ['time', 'distance', 'points', 'unknown']) {
+          await client.query('INSERT INTO public.event_types(event_type_id,code,measure) VALUES($1,$2,$3)', [100 + ['time', 'distance', 'points', 'unknown'].indexOf(measure), `fixture ${measure}`, measure]);
+        }
+        for (const [measure, code] of [[null, '23502'], ['meters', '23514'], ['', '23514']]) {
+          await client.query('SAVEPOINT invalid_measure');
+          await assert.rejects(client.query('INSERT INTO public.event_types(event_type_id,code,measure) VALUES(200,$1,$2)', ['invalid fixture', measure]), { code });
+          await client.query('ROLLBACK TO SAVEPOINT invalid_measure');
+        }
+        await client.query('ALTER TABLE public.event_types DROP CONSTRAINT event_types_measure_check; ALTER TABLE public.event_types ALTER COLUMN measure DROP NOT NULL');
+        await client.query("INSERT INTO public.event_types(event_type_id,code,measure) VALUES(201,'rollback fixture',NULL)");
+      } finally { await client.query('ROLLBACK'); client.release(); }
+    });
     await t.test('PR view preserves public reads but follows caller row policies', async () => {
       const client = await pool.connect();
       try {

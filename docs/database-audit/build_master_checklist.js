@@ -34,6 +34,7 @@ function buildChecklist() {
   // Verified additive live migration after the baseline catalog; preserve the dated baseline.
   items.push(...require('./source_evidence_objects_20260905.json').items);
   items.push(...require('./source_link_objects_20260905.json').items);
+  items.push(...require('./event_measure_objects_20260905.json').items);
   items.push(...require('./build_extended_checklist').buildExtendedChecklist());
   items.push(...require('./build_settings_checklist').buildSettingsChecklist());
   items.sort((a, b) => a.id.localeCompare(b.id));

@@ -41,6 +41,8 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | ID-01 | P1 | Review canonical identity constraints, reviewed aliases and uncertainty handling; verify prior repairs against alias history | MODEL-01 | Open |
 | ID-01a | P1 | Reject explicit TFRRS source/database year conflicts before event scraping; retain same-year/multi-day identity review | MODEL-01 meet-source inspection | Complete in branch: MEET_SOURCE_YEAR_GUARD_20260905.md; 12 repeated source-ID groups remain unmerged |
 | ID-01b | P1 | Order event catalog pages, reject conflicting normalized aliases and fail closed on incomplete reloads | MODEL-01 event-catalog inspection | Complete in branch: EVENT_CATALOG_LOAD_20260905.md; catalog semantics and unmapped persistence remain open |
+| MODEL-01a | P1 | Enforce supported event measurement kinds without rewriting catalog rows | MODEL-01 event-catalog inspection, SAFE-01 | Complete: EVENT_MEASURE_DOMAIN_20260905.md; validated check and NOT NULL live; broader taxonomy remains open |
+| MODEL-01b | P1 | Attribute performance reads to the represented result team rather than current athlete school | MODEL-01, API-01 | Complete: RESULT_AFFILIATION_READS_20260905.md; both live performance functions corrected and rollback-tested |
 | ING-02i | P1 | Preserve unmapped-event review counts after explicit lookup/write failures and partial flushes | ID-01b | Complete in branch: UNMAPPED_EVENT_ERRORS_20260905.md; atomic cross-worker counters remain open |
 | ING-02 | P1 | Prove replay, concurrency, payload changes, source-link consistency and rollback using isolated PostgreSQL integration tests | MIG-01, ID-01, ING-01 | Open |
 | ING-02a | P1 | Reproduce and fix shared promotion race; verify seven synthetic PostgreSQL scenarios without production writes | SAFE-01, ING-01; isolated tests only | Complete: INGESTION_POSTGRES_CONCURRENCY_20260905.md |
@@ -70,7 +72,13 @@ as current verification. ING-01 was already implemented before this queue was co
 
 ## Per-object tracking
 
-The JSON register contains 2,766 individually addressable entries. The original classes cover 76 tables, seven views,
+MODEL-01 structural first pass: `TABLE_STRUCTURE_REVIEW_20260903.md` (September 5 section) and
+`model_review_20260905.json` cover all 31 application tables, four views, 404 columns and 52
+touching foreign keys. Each scoped register entry links its purpose/disposition and remaining
+verification. This is not implementation or completion: reader/writer behavior and domain
+exceptions remain open. No unrelated product fixes are authorized by this review.
+
+The JSON register contains 2,767 individually addressable entries. The original classes cover 76 tables, seven views,
 977 columns, 271 constraints (foreign keys tracked as relationships), 246 indexes, 22 policies,
 114 functions and 12 user-defined triggers. Internal FK triggers are represented by their parent
 constraints. Each entry has purpose, problems, proposed improvement, priority, dependencies,
@@ -78,6 +86,7 @@ ownership, status, evidence, verification, rollback, live-application state and 
 The source-evidence migration adds 15 verified entries in `source_evidence_objects_20260905.json`
 without rewriting the earlier baseline catalog or marking unrelated entries complete.
 `source_link_objects_20260905.json` adds the separately verified target-kind constraint.
+`event_measure_objects_20260905.json` adds the validated measurement-domain constraint.
 The extended catalog adds 27 sequences, 243 defaults/identity definitions, 11 schema grant sets,
 110 relation grant sets, 114 function grant sets, 25 default-privilege sets, 12 enums, five extensions,
 one publication and six event triggers. An ACL set preserves each grant in its catalog metadata.

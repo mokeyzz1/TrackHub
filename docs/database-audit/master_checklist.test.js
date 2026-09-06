@@ -64,7 +64,7 @@ test('live aggregate profile covers every captured public/ingest ordinary-table 
 
 test('master register covers every captured object exactly once', () => {
   const expected = buildChecklist();
-  assert.equal(expected.items.length, 2766);
+  assert.equal(expected.items.length, 2767);
   assert.equal(new Set(saved.items.map(i => i.id)).size, saved.items.length);
   assert.deepEqual(saved.items.map(i => i.id).sort(), expected.items.map(i => i.id).sort());
 });
