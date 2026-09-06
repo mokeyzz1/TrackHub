@@ -1,0 +1,3823 @@
+{
+  "operation": "20260906_ussu_affiliation_repair",
+  "athletes": [
+    {
+      "athlete_id": "153159",
+      "tfrrs_athlete_id": "9290226",
+      "name": "Jaquavius Johnson"
+    },
+    {
+      "athlete_id": "153161",
+      "tfrrs_athlete_id": "9290223",
+      "name": "Andrew White"
+    },
+    {
+      "athlete_id": "153162",
+      "tfrrs_athlete_id": "9048113",
+      "name": "Tyler Johnson"
+    },
+    {
+      "athlete_id": "153163",
+      "tfrrs_athlete_id": "9048116",
+      "name": "Cole Hayward"
+    },
+    {
+      "athlete_id": "153164",
+      "tfrrs_athlete_id": "9048115",
+      "name": "Devonte Cheffen"
+    },
+    {
+      "athlete_id": "153165",
+      "tfrrs_athlete_id": "9048112",
+      "name": "Jacob Hobson"
+    },
+    {
+      "athlete_id": "153166",
+      "tfrrs_athlete_id": "9290228",
+      "name": "Daylon Lett"
+    },
+    {
+      "athlete_id": "153167",
+      "tfrrs_athlete_id": "8983074",
+      "name": "Charles Young"
+    },
+    {
+      "athlete_id": "153168",
+      "tfrrs_athlete_id": "8372060",
+      "name": "Christian Aikens"
+    },
+    {
+      "athlete_id": "153174",
+      "tfrrs_athlete_id": "9048114",
+      "name": "Roderickas Burnett"
+    },
+    {
+      "athlete_id": "153176",
+      "tfrrs_athlete_id": "8983075",
+      "name": "Jasper Nero"
+    },
+    {
+      "athlete_id": "153177",
+      "tfrrs_athlete_id": "8983076",
+      "name": "Deshaun Williams"
+    },
+    {
+      "athlete_id": "153178",
+      "tfrrs_athlete_id": "9290225",
+      "name": "Hunter Hall"
+    },
+    {
+      "athlete_id": "153179",
+      "tfrrs_athlete_id": "9290224",
+      "name": "Jacob Hagan"
+    },
+    {
+      "athlete_id": "155806",
+      "tfrrs_athlete_id": "8897860",
+      "name": "Hamilton Washo"
+    },
+    {
+      "athlete_id": "161491",
+      "tfrrs_athlete_id": "9290227",
+      "name": "Ethan Bowie"
+    }
+  ],
+  "results": [
+    {
+      "result_id": "6683546",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5845257,
+      "source_url": "https://www.tfrrs.org/results/92628/5845257/South_Alabama_invitational/Mens-100-Meters",
+      "mark": "11.39",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "16",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "11.39",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6683551",
+      "athlete_id": "153161",
+      "source_athlete_id": "9290223",
+      "event_id": 5845257,
+      "source_url": "https://www.tfrrs.org/results/92628/5845257/South_Alabama_invitational/Mens-100-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Andrew White",
+          "FR-1",
+          "USSU",
+          "DNS",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "6683580",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5845258,
+      "source_url": "https://www.tfrrs.org/results/92628/5845258/South_Alabama_invitational/Mens-200-Meters",
+      "mark": "22.69",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "6",
+          "Tyler Johnson",
+          "SO-2",
+          "USSU",
+          "22.69",
+          "3",
+          "0.3"
+        ]
+      }
+    },
+    {
+      "result_id": "6683581",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5845258,
+      "source_url": "https://www.tfrrs.org/results/92628/5845258/South_Alabama_invitational/Mens-200-Meters",
+      "mark": "22.71",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "7",
+          "Cole Hayward",
+          "SO-2",
+          "USSU",
+          "22.71",
+          "2",
+          "1.0"
+        ]
+      }
+    },
+    {
+      "result_id": "6683583",
+      "athlete_id": "153164",
+      "source_athlete_id": "9048115",
+      "event_id": 5845258,
+      "source_url": "https://www.tfrrs.org/results/92628/5845258/South_Alabama_invitational/Mens-200-Meters",
+      "mark": "22.73",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "9",
+          "Devonte Cheffen",
+          "SO-2",
+          "USSU",
+          "22.73",
+          "-",
+          "+0.0"
+        ]
+      }
+    },
+    {
+      "result_id": "6683584",
+      "athlete_id": "153165",
+      "source_athlete_id": "9048112",
+      "event_id": 5845258,
+      "source_url": "https://www.tfrrs.org/results/92628/5845258/South_Alabama_invitational/Mens-200-Meters",
+      "mark": "22.81",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "10",
+          "Jacob Hobson",
+          "SR-4",
+          "USSU",
+          "22.81",
+          "-",
+          "1.0"
+        ]
+      }
+    },
+    {
+      "result_id": "6683587",
+      "athlete_id": "153166",
+      "source_athlete_id": "9290228",
+      "event_id": 5845258,
+      "source_url": "https://www.tfrrs.org/results/92628/5845258/South_Alabama_invitational/Mens-200-Meters",
+      "mark": "22.91",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "13",
+          "Daylon Lett",
+          "JR-3",
+          "USSU",
+          "22.91",
+          "-",
+          "0.3"
+        ]
+      }
+    },
+    {
+      "result_id": "6683590",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5845258,
+      "source_url": "https://www.tfrrs.org/results/92628/5845258/South_Alabama_invitational/Mens-200-Meters",
+      "mark": "23.14",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "16",
+          "Charles Young",
+          "SO-2",
+          "USSU",
+          "23.14",
+          "-",
+          "+0.0"
+        ]
+      }
+    },
+    {
+      "result_id": "6683594",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5845258,
+      "source_url": "https://www.tfrrs.org/results/92628/5845258/South_Alabama_invitational/Mens-200-Meters",
+      "mark": "23.56",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "20",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "23.56",
+          "-",
+          "0.3"
+        ]
+      }
+    },
+    {
+      "result_id": "6683596",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5845258,
+      "source_url": "https://www.tfrrs.org/results/92628/5845258/South_Alabama_invitational/Mens-200-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "DNS",
+          "",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6683626",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5845256,
+      "source_url": "https://www.tfrrs.org/results/92628/5845256/South_Alabama_invitational/Mens-400-Meters",
+      "mark": "48.76",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "48.76",
+          "8"
+        ]
+      }
+    },
+    {
+      "result_id": "6683628",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5845256,
+      "source_url": "https://www.tfrrs.org/results/92628/5845256/South_Alabama_invitational/Mens-400-Meters",
+      "mark": "49.93",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Tyler Johnson",
+          "SO-2",
+          "USSU",
+          "49.93",
+          "5"
+        ]
+      }
+    },
+    {
+      "result_id": "6683629",
+      "athlete_id": "153165",
+      "source_athlete_id": "9048112",
+      "event_id": 5845256,
+      "source_url": "https://www.tfrrs.org/results/92628/5845256/South_Alabama_invitational/Mens-400-Meters",
+      "mark": "50.21",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Jacob Hobson",
+          "SR-4",
+          "USSU",
+          "50.21",
+          "4"
+        ]
+      }
+    },
+    {
+      "result_id": "6683630",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5845256,
+      "source_url": "https://www.tfrrs.org/results/92628/5845256/South_Alabama_invitational/Mens-400-Meters",
+      "mark": "50.41",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "6",
+          "Cole Hayward",
+          "SO-2",
+          "USSU",
+          "50.41",
+          "3"
+        ]
+      }
+    },
+    {
+      "result_id": "6683631",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5845256,
+      "source_url": "https://www.tfrrs.org/results/92628/5845256/South_Alabama_invitational/Mens-400-Meters",
+      "mark": "50.43",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "7",
+          "Charles Young",
+          "SO-2",
+          "USSU",
+          "50.43",
+          "2"
+        ]
+      }
+    },
+    {
+      "result_id": "6683632",
+      "athlete_id": "153164",
+      "source_athlete_id": "9048115",
+      "event_id": 5845256,
+      "source_url": "https://www.tfrrs.org/results/92628/5845256/South_Alabama_invitational/Mens-400-Meters",
+      "mark": "50.57",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Devonte Cheffen",
+          "SO-2",
+          "USSU",
+          "50.57",
+          "1"
+        ]
+      }
+    },
+    {
+      "result_id": "6683634",
+      "athlete_id": "153166",
+      "source_athlete_id": "9290228",
+      "event_id": 5845256,
+      "source_url": "https://www.tfrrs.org/results/92628/5845256/South_Alabama_invitational/Mens-400-Meters",
+      "mark": "50.98",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "10",
+          "Daylon Lett",
+          "JR-3",
+          "USSU",
+          "50.98",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6683672",
+      "athlete_id": "153166",
+      "source_athlete_id": "9290228",
+      "event_id": 5845263,
+      "source_url": "https://www.tfrrs.org/results/92628/5845263/South_Alabama_invitational/Mens-800-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Daylon Lett",
+          "JR-3",
+          "USSU",
+          "DNS",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "6683767",
+      "athlete_id": "153174",
+      "source_athlete_id": "9048114",
+      "event_id": 5845254,
+      "source_url": "https://www.tfrrs.org/results/92628/5845254/South_Alabama_invitational/Mens-Long-Jump",
+      "mark": "NM",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Roderickas Burnett",
+          "SO-2",
+          "USSU",
+          "NM",
+          "NM",
+          "",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6683786",
+      "athlete_id": "153174",
+      "source_athlete_id": "9048114",
+      "event_id": 5845255,
+      "source_url": "https://www.tfrrs.org/results/92628/5845255/South_Alabama_invitational/Mens-Triple-Jump",
+      "mark": "14.31m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "3",
+          "Roderickas Burnett",
+          "SO-2",
+          "USSU",
+          "14.31m",
+          "46' 11.5\"",
+          "6",
+          "0.2"
+        ]
+      }
+    },
+    {
+      "result_id": "6683796",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5845237,
+      "source_url": "https://www.tfrrs.org/results/92628/5845237/South_Alabama_invitational/Mens-Shot-Put",
+      "mark": "13.51m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "3",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "13.51m",
+          "44' 4\"",
+          "6"
+        ]
+      }
+    },
+    {
+      "result_id": "6683797",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5845237,
+      "source_url": "https://www.tfrrs.org/results/92628/5845237/South_Alabama_invitational/Mens-Shot-Put",
+      "mark": "11.97m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "11.97m",
+          "39' 3.25\"",
+          "5"
+        ]
+      }
+    },
+    {
+      "result_id": "6683805",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5845235,
+      "source_url": "https://www.tfrrs.org/results/92628/5845235/South_Alabama_invitational/Mens-Discus",
+      "mark": "41.84m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "41.84m",
+          "137' 3\"",
+          "5"
+        ]
+      }
+    },
+    {
+      "result_id": "6683807",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5845235,
+      "source_url": "https://www.tfrrs.org/results/92628/5845235/South_Alabama_invitational/Mens-Discus",
+      "mark": "39.19m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "6",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "39.19m",
+          "128' 7\"",
+          "3"
+        ]
+      }
+    },
+    {
+      "result_id": "6683810",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5845235,
+      "source_url": "https://www.tfrrs.org/results/92628/5845235/South_Alabama_invitational/Mens-Discus",
+      "mark": "36.94m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "9",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "36.94m",
+          "121' 2\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6683814",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5845235,
+      "source_url": "https://www.tfrrs.org/results/92628/5845235/South_Alabama_invitational/Mens-Discus",
+      "mark": "NM",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "NM",
+          "NM",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "6683822",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5845250,
+      "source_url": "https://www.tfrrs.org/results/92628/5845250/South_Alabama_invitational/Mens-Hammer",
+      "mark": "41.51m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "41.51m",
+          "136' 2\"",
+          "1"
+        ]
+      }
+    },
+    {
+      "result_id": "6683823",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5845250,
+      "source_url": "https://www.tfrrs.org/results/92628/5845250/South_Alabama_invitational/Mens-Hammer",
+      "mark": "41.39m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "9",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "41.39m",
+          "135' 9\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6683825",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5845250,
+      "source_url": "https://www.tfrrs.org/results/92628/5845250/South_Alabama_invitational/Mens-Hammer",
+      "mark": "28.63m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "11",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "28.63m",
+          "93' 11\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6745334",
+      "athlete_id": "155806",
+      "source_athlete_id": "8897860",
+      "event_id": 5859995,
+      "source_url": "https://www.tfrrs.org/results/93602/5862492/Emory_Spring_Break_Classic_2026/Mens-10000-Meters",
+      "mark": "35:52.75",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Hamilton Washo",
+          "SO-2",
+          "USSU",
+          "35:52.75"
+        ]
+      }
+    },
+    {
+      "result_id": "6900856",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5869175,
+      "source_url": "https://www.tfrrs.org/results/96024/5869175/Terry_Long_Florida_State_Relays/Mens-100-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "DNS",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6900890",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5869181,
+      "source_url": "https://www.tfrrs.org/results/96024/5869181/Terry_Long_Florida_State_Relays/Mens-200-Meters",
+      "mark": "21.86",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "13",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "21.86",
+          "-1.4"
+        ]
+      }
+    },
+    {
+      "result_id": "6900897",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5869181,
+      "source_url": "https://www.tfrrs.org/results/96024/5869181/Terry_Long_Florida_State_Relays/Mens-200-Meters",
+      "mark": "22.36",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "21",
+          "Cole Hayward",
+          "SO-2",
+          "USSU",
+          "22.36",
+          "-0.9"
+        ]
+      }
+    },
+    {
+      "result_id": "6900926",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5869183,
+      "source_url": "https://www.tfrrs.org/results/96024/5869183/Terry_Long_Florida_State_Relays/Mens-400-Meters",
+      "mark": "50.88",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "11",
+          "Tyler Johnson",
+          "SO-2",
+          "USSU",
+          "50.88"
+        ]
+      }
+    },
+    {
+      "result_id": "6900928",
+      "athlete_id": "153166",
+      "source_athlete_id": "9290228",
+      "event_id": 5869183,
+      "source_url": "https://www.tfrrs.org/results/96024/5869183/Terry_Long_Florida_State_Relays/Mens-400-Meters",
+      "mark": "51.65",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "13",
+          "Daylon Lett",
+          "JR-3",
+          "USSU",
+          "51.65"
+        ]
+      }
+    },
+    {
+      "result_id": "6900929",
+      "athlete_id": "153164",
+      "source_athlete_id": "9048115",
+      "event_id": 5869183,
+      "source_url": "https://www.tfrrs.org/results/96024/5869183/Terry_Long_Florida_State_Relays/Mens-400-Meters",
+      "mark": "51.70",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "14",
+          "Devonte Cheffen",
+          "SO-2",
+          "USSU",
+          "51.70"
+        ]
+      }
+    },
+    {
+      "result_id": "6900932",
+      "athlete_id": "153165",
+      "source_athlete_id": "9048112",
+      "event_id": 5869183,
+      "source_url": "https://www.tfrrs.org/results/96024/5869183/Terry_Long_Florida_State_Relays/Mens-400-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Jacob Hobson",
+          "SR-4",
+          "USSU",
+          "DNS"
+        ]
+      }
+    },
+    {
+      "result_id": "6900937",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5869183,
+      "source_url": "https://www.tfrrs.org/results/96024/5869183/Terry_Long_Florida_State_Relays/Mens-400-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Charles Young",
+          "SO-2",
+          "USSU",
+          "DNS"
+        ]
+      }
+    },
+    {
+      "result_id": "6900972",
+      "athlete_id": "161491",
+      "source_athlete_id": "9290227",
+      "event_id": 5869189,
+      "source_url": "https://www.tfrrs.org/results/96024/5869189/Terry_Long_Florida_State_Relays/Mens-800-Meters",
+      "mark": "DNF",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Ethan Bowie",
+          "FR-1",
+          "USSU",
+          "DNF"
+        ]
+      }
+    },
+    {
+      "result_id": "6901002",
+      "athlete_id": "155806",
+      "source_athlete_id": "8897860",
+      "event_id": 5869179,
+      "source_url": "https://www.tfrrs.org/results/96024/5869179/Terry_Long_Florida_State_Relays/Mens-1500-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Hamilton Washo",
+          "SO-2",
+          "USSU",
+          "DNS"
+        ]
+      }
+    },
+    {
+      "result_id": "6901097",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5869203,
+      "source_url": "https://www.tfrrs.org/results/96024/5869203/Terry_Long_Florida_State_Relays/Mens-Shot-Put",
+      "mark": "13.40m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "13.40m",
+          "43' 11.75\"",
+          "1"
+        ]
+      }
+    },
+    {
+      "result_id": "6901098",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5869203,
+      "source_url": "https://www.tfrrs.org/results/96024/5869203/Terry_Long_Florida_State_Relays/Mens-Shot-Put",
+      "mark": "13.07m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "9",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "13.07m",
+          "42' 10.75\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6901108",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5869191,
+      "source_url": "https://www.tfrrs.org/results/96024/5869191/Terry_Long_Florida_State_Relays/Mens-Discus",
+      "mark": "42.95m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "42.95m",
+          "140' 11\""
+        ]
+      }
+    },
+    {
+      "result_id": "6901109",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5869191,
+      "source_url": "https://www.tfrrs.org/results/96024/5869191/Terry_Long_Florida_State_Relays/Mens-Discus",
+      "mark": "38.32m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "9",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "38.32m",
+          "125' 9\""
+        ]
+      }
+    },
+    {
+      "result_id": "6901127",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5869193,
+      "source_url": "https://www.tfrrs.org/results/96024/5869193/Terry_Long_Florida_State_Relays/Mens-Hammer",
+      "mark": "43.82m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "11",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "43.82m",
+          "143' 9\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6901128",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5869193,
+      "source_url": "https://www.tfrrs.org/results/96024/5869193/Terry_Long_Florida_State_Relays/Mens-Hammer",
+      "mark": "39.84m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "12",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "39.84m",
+          "130' 8\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "6915850",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5869207,
+      "source_url": "https://www.tfrrs.org/results/96024/5869207/Terry_Long_Florida_State_Relays/Mens-4-x-100-Relay",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "USSU",
+          "Charles Young, Christian Aikens, Cole Hayward, Jaquavius Johnson",
+          "DNS",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "6915851",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5869207,
+      "source_url": "https://www.tfrrs.org/results/96024/5869207/Terry_Long_Florida_State_Relays/Mens-4-x-100-Relay",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "USSU",
+          "Charles Young, Christian Aikens, Cole Hayward, Jaquavius Johnson",
+          "DNS",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "6915852",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5869207,
+      "source_url": "https://www.tfrrs.org/results/96024/5869207/Terry_Long_Florida_State_Relays/Mens-4-x-100-Relay",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "USSU",
+          "Charles Young, Christian Aikens, Cole Hayward, Jaquavius Johnson",
+          "DNS",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "6915853",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5869207,
+      "source_url": "https://www.tfrrs.org/results/96024/5869207/Terry_Long_Florida_State_Relays/Mens-4-x-100-Relay",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "USSU",
+          "Charles Young, Christian Aikens, Cole Hayward, Jaquavius Johnson",
+          "DNS",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "6915879",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5869209,
+      "source_url": "https://www.tfrrs.org/results/96024/5869209/Terry_Long_Florida_State_Relays/Mens-4-x-400-Relay",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "USSU",
+          "A",
+          "Tyler Johnson, Christian Aikens, Jacob Hobson, Cole Hayward",
+          "DNS"
+        ]
+      }
+    },
+    {
+      "result_id": "6915880",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5869209,
+      "source_url": "https://www.tfrrs.org/results/96024/5869209/Terry_Long_Florida_State_Relays/Mens-4-x-400-Relay",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "USSU",
+          "A",
+          "Tyler Johnson, Christian Aikens, Jacob Hobson, Cole Hayward",
+          "DNS"
+        ]
+      }
+    },
+    {
+      "result_id": "6915881",
+      "athlete_id": "153165",
+      "source_athlete_id": "9048112",
+      "event_id": 5869209,
+      "source_url": "https://www.tfrrs.org/results/96024/5869209/Terry_Long_Florida_State_Relays/Mens-4-x-400-Relay",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "USSU",
+          "A",
+          "Tyler Johnson, Christian Aikens, Jacob Hobson, Cole Hayward",
+          "DNS"
+        ]
+      }
+    },
+    {
+      "result_id": "6915882",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5869209,
+      "source_url": "https://www.tfrrs.org/results/96024/5869209/Terry_Long_Florida_State_Relays/Mens-4-x-400-Relay",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "USSU",
+          "A",
+          "Tyler Johnson, Christian Aikens, Jacob Hobson, Cole Hayward",
+          "DNS"
+        ]
+      }
+    },
+    {
+      "result_id": "7092809",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5918428,
+      "source_url": "https://www.tfrrs.org/results/92708/5918428/USSU_Eagles_Invitational_/Mens-100-Meters",
+      "mark": "10.51",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "3",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "10.51",
+          "6",
+          "+0.0"
+        ]
+      }
+    },
+    {
+      "result_id": "7092817",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5918428,
+      "source_url": "https://www.tfrrs.org/results/92708/5918428/USSU_Eagles_Invitational_/Mens-100-Meters",
+      "mark": "11.22",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "11",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "11.22",
+          "-",
+          "+0.0"
+        ]
+      }
+    },
+    {
+      "result_id": "7092818",
+      "athlete_id": "153161",
+      "source_athlete_id": "9290223",
+      "event_id": 5918428,
+      "source_url": "https://www.tfrrs.org/results/92708/5918428/USSU_Eagles_Invitational_/Mens-100-Meters",
+      "mark": "11.37",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "12",
+          "Andrew White",
+          "FR-1",
+          "USSU",
+          "11.37",
+          "-",
+          "0.2"
+        ]
+      }
+    },
+    {
+      "result_id": "7092845",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5918440,
+      "source_url": "https://www.tfrrs.org/results/92708/5918440/USSU_Eagles_Invitational_/Mens-200-Meters",
+      "mark": "21.13",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "21.13",
+          "10",
+          "0.2"
+        ]
+      }
+    },
+    {
+      "result_id": "7092855",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5918440,
+      "source_url": "https://www.tfrrs.org/results/92708/5918440/USSU_Eagles_Invitational_/Mens-200-Meters",
+      "mark": "22.93",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "11",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "22.93",
+          "-",
+          "0.2"
+        ]
+      }
+    },
+    {
+      "result_id": "7092864",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5918440,
+      "source_url": "https://www.tfrrs.org/results/92708/5918440/USSU_Eagles_Invitational_/Mens-200-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Charles Young",
+          "SO-2",
+          "USSU",
+          "DNS",
+          "",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7092885",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5918429,
+      "source_url": "https://www.tfrrs.org/results/92708/5918429/USSU_Eagles_Invitational_/Mens-400-Meters",
+      "mark": "49.73",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Cole Hayward",
+          "SO-2",
+          "USSU",
+          "49.73",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7092888",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5918429,
+      "source_url": "https://www.tfrrs.org/results/92708/5918429/USSU_Eagles_Invitational_/Mens-400-Meters",
+      "mark": "50.58",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Tyler Johnson",
+          "SO-2",
+          "USSU",
+          "50.58",
+          "5"
+        ]
+      }
+    },
+    {
+      "result_id": "7092889",
+      "athlete_id": "153164",
+      "source_athlete_id": "9048115",
+      "event_id": 5918429,
+      "source_url": "https://www.tfrrs.org/results/92708/5918429/USSU_Eagles_Invitational_/Mens-400-Meters",
+      "mark": "50.69",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Devonte Cheffen",
+          "SO-2",
+          "USSU",
+          "50.69",
+          "4"
+        ]
+      }
+    },
+    {
+      "result_id": "7092891",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5918429,
+      "source_url": "https://www.tfrrs.org/results/92708/5918429/USSU_Eagles_Invitational_/Mens-400-Meters",
+      "mark": "51.08",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "7",
+          "Charles Young",
+          "SO-2",
+          "USSU",
+          "51.08",
+          "2"
+        ]
+      }
+    },
+    {
+      "result_id": "7092939",
+      "athlete_id": "161491",
+      "source_athlete_id": "9290227",
+      "event_id": 5918437,
+      "source_url": "https://www.tfrrs.org/results/92708/5918437/USSU_Eagles_Invitational_/Mens-800-Meters",
+      "mark": "DNF",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Ethan Bowie",
+          "FR-1",
+          "USSU",
+          "DNF",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "7092976",
+      "athlete_id": "155806",
+      "source_athlete_id": "8897860",
+      "event_id": 5918438,
+      "source_url": "https://www.tfrrs.org/results/92708/5918438/USSU_Eagles_Invitational_/Mens-1500-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Hamilton Washo",
+          "SO-2",
+          "USSU",
+          "DNS",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "7092995",
+      "athlete_id": "155806",
+      "source_athlete_id": "8897860",
+      "event_id": 5918444,
+      "source_url": "https://www.tfrrs.org/results/92708/5918444/USSU_Eagles_Invitational_/Mens-5000-Meters",
+      "mark": "DNF",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Hamilton Washo",
+          "SO-2",
+          "USSU",
+          "DNF",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "7093042",
+      "athlete_id": "153174",
+      "source_athlete_id": "9048114",
+      "event_id": 5918446,
+      "source_url": "https://www.tfrrs.org/results/92708/5918446/USSU_Eagles_Invitational_/Mens-High-Jump",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Roderickas Burnett",
+          "SO-2",
+          "USSU",
+          "DNS",
+          "NH",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "7093051",
+      "athlete_id": "153174",
+      "source_athlete_id": "9048114",
+      "event_id": 5918424,
+      "source_url": "https://www.tfrrs.org/results/92708/5918424/USSU_Eagles_Invitational_/Mens-Long-Jump",
+      "mark": "6.59m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Roderickas Burnett",
+          "SO-2",
+          "USSU",
+          "6.59m",
+          "21' 7.5\"",
+          "5",
+          "1.7"
+        ]
+      }
+    },
+    {
+      "result_id": "7093059",
+      "athlete_id": "153161",
+      "source_athlete_id": "9290223",
+      "event_id": 5918424,
+      "source_url": "https://www.tfrrs.org/results/92708/5918424/USSU_Eagles_Invitational_/Mens-Long-Jump",
+      "mark": "5.71m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "12",
+          "Andrew White",
+          "FR-1",
+          "USSU",
+          "5.71m",
+          "18' 9\"",
+          "-",
+          "1.9"
+        ]
+      }
+    },
+    {
+      "result_id": "7093072",
+      "athlete_id": "153174",
+      "source_athlete_id": "9048114",
+      "event_id": 5918425,
+      "source_url": "https://www.tfrrs.org/results/92708/5918425/USSU_Eagles_Invitational_/Mens-Triple-Jump",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Roderickas Burnett",
+          "SO-2",
+          "USSU",
+          "DNS",
+          "NM",
+          "",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7093076",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5918447,
+      "source_url": "https://www.tfrrs.org/results/92708/5918447/USSU_Eagles_Invitational_/Mens-Shot-Put",
+      "mark": "12.74m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "12.74m",
+          "41' 9.75\"",
+          "8"
+        ]
+      }
+    },
+    {
+      "result_id": "7093077",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5918447,
+      "source_url": "https://www.tfrrs.org/results/92708/5918447/USSU_Eagles_Invitational_/Mens-Shot-Put",
+      "mark": "12.17m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "3",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "12.17m",
+          "39' 11.25\"",
+          "6"
+        ]
+      }
+    },
+    {
+      "result_id": "7093079",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5918447,
+      "source_url": "https://www.tfrrs.org/results/92708/5918447/USSU_Eagles_Invitational_/Mens-Shot-Put",
+      "mark": "10.98m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "6",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "10.98m",
+          "36' 0.25\"",
+          "4"
+        ]
+      }
+    },
+    {
+      "result_id": "7093081",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5918448,
+      "source_url": "https://www.tfrrs.org/results/92708/5918448/USSU_Eagles_Invitational_/Mens-Discus",
+      "mark": "46.33m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "46.33m",
+          "152' 0\"",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7093082",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5918448,
+      "source_url": "https://www.tfrrs.org/results/92708/5918448/USSU_Eagles_Invitational_/Mens-Discus",
+      "mark": "40.30m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "3",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "40.30m",
+          "132' 3\"",
+          "8"
+        ]
+      }
+    },
+    {
+      "result_id": "7093084",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5918448,
+      "source_url": "https://www.tfrrs.org/results/92708/5918448/USSU_Eagles_Invitational_/Mens-Discus",
+      "mark": "38.13m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "38.13m",
+          "125' 1\"",
+          "5"
+        ]
+      }
+    },
+    {
+      "result_id": "7093085",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5918448,
+      "source_url": "https://www.tfrrs.org/results/92708/5918448/USSU_Eagles_Invitational_/Mens-Discus",
+      "mark": "36.21m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "6",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "36.21m",
+          "118' 9\"",
+          "4"
+        ]
+      }
+    },
+    {
+      "result_id": "7093090",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5918423,
+      "source_url": "https://www.tfrrs.org/results/92708/5918423/USSU_Eagles_Invitational_/Mens-Hammer",
+      "mark": "146' 6\"",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "44.65m",
+          "146' 6\"",
+          "8"
+        ]
+      }
+    },
+    {
+      "result_id": "7093091",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5918423,
+      "source_url": "https://www.tfrrs.org/results/92708/5918423/USSU_Eagles_Invitational_/Mens-Hammer",
+      "mark": "117' 9\"",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "3",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "35.89m",
+          "117' 9\"",
+          "6"
+        ]
+      }
+    },
+    {
+      "result_id": "7093093",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5918423,
+      "source_url": "https://www.tfrrs.org/results/92708/5918423/USSU_Eagles_Invitational_/Mens-Hammer",
+      "mark": "104' 0\"",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "31.69m",
+          "104' 0\"",
+          "4"
+        ]
+      }
+    },
+    {
+      "result_id": "7093095",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5918423,
+      "source_url": "https://www.tfrrs.org/results/92708/5918423/USSU_Eagles_Invitational_/Mens-Hammer",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "DNS",
+          "NM",
+          ""
+        ]
+      }
+    },
+    {
+      "result_id": "7093101",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5918449,
+      "source_url": "https://www.tfrrs.org/results/92708/5918449/USSU_Eagles_Invitational_/Mens-Javelin",
+      "mark": "36.45m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "36.45m",
+          "119' 7\"",
+          "5"
+        ]
+      }
+    },
+    {
+      "result_id": "7127009",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5917426,
+      "source_url": "https://www.tfrrs.org/results/95245/5917426/Dick_Roberts_Seminole_Invitational/Mens-Shot-Put",
+      "mark": "48' 2.75\"",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "14.70m",
+          "48' 2.75\""
+        ]
+      }
+    },
+    {
+      "result_id": "7127011",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5917426,
+      "source_url": "https://www.tfrrs.org/results/95245/5917426/Dick_Roberts_Seminole_Invitational/Mens-Shot-Put",
+      "mark": "43' 7.25\"",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "13.29m",
+          "43' 7.25\""
+        ]
+      }
+    },
+    {
+      "result_id": "7127019",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5917418,
+      "source_url": "https://www.tfrrs.org/results/95245/5917418/Dick_Roberts_Seminole_Invitational/Mens-Hammer",
+      "mark": "41.79m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "41.79m",
+          "137' 1\""
+        ]
+      }
+    },
+    {
+      "result_id": "7127020",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5917418,
+      "source_url": "https://www.tfrrs.org/results/95245/5917418/Dick_Roberts_Seminole_Invitational/Mens-Hammer",
+      "mark": "39.80m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "39.80m",
+          "130' 7\""
+        ]
+      }
+    },
+    {
+      "result_id": "7127022",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5917418,
+      "source_url": "https://www.tfrrs.org/results/95245/5917418/Dick_Roberts_Seminole_Invitational/Mens-Hammer",
+      "mark": "33.04m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "7",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "33.04m",
+          "108' 5\""
+        ]
+      }
+    },
+    {
+      "result_id": "7180167",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5918456,
+      "source_url": "https://www.tfrrs.org/results/92708/5918456/USSU_Eagles_Invitational_/Mens-4-x-400-Relay",
+      "mark": "3:19.94",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Tyler Johnson, Christian Aikens, Devonte Cheffen, Cole Hayward",
+          "3:19.94",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7180168",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5918456,
+      "source_url": "https://www.tfrrs.org/results/92708/5918456/USSU_Eagles_Invitational_/Mens-4-x-400-Relay",
+      "mark": "3:19.94",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Tyler Johnson, Christian Aikens, Devonte Cheffen, Cole Hayward",
+          "3:19.94",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7180169",
+      "athlete_id": "153164",
+      "source_athlete_id": "9048115",
+      "event_id": 5918456,
+      "source_url": "https://www.tfrrs.org/results/92708/5918456/USSU_Eagles_Invitational_/Mens-4-x-400-Relay",
+      "mark": "3:19.94",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Tyler Johnson, Christian Aikens, Devonte Cheffen, Cole Hayward",
+          "3:19.94",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7180170",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5918456,
+      "source_url": "https://www.tfrrs.org/results/92708/5918456/USSU_Eagles_Invitational_/Mens-4-x-400-Relay",
+      "mark": "3:19.94",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Tyler Johnson, Christian Aikens, Devonte Cheffen, Cole Hayward",
+          "3:19.94",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7284093",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5938198,
+      "source_url": "https://www.tfrrs.org/results/94939/5938198/2026_Collegiate_Strawberry_Relays_/Mens-100-Meters",
+      "mark": "10.82",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "10.82",
+          "8",
+          "-0.6"
+        ]
+      }
+    },
+    {
+      "result_id": "7284100",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5938198,
+      "source_url": "https://www.tfrrs.org/results/94939/5938198/2026_Collegiate_Strawberry_Relays_/Mens-100-Meters",
+      "mark": "11.20",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "9",
+          "Cole Hayward",
+          "SO-2",
+          "USSU",
+          "11.20",
+          "-",
+          "-0.7"
+        ]
+      }
+    },
+    {
+      "result_id": "7284106",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5938198,
+      "source_url": "https://www.tfrrs.org/results/94939/5938198/2026_Collegiate_Strawberry_Relays_/Mens-100-Meters",
+      "mark": "11.41",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "16",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "11.41",
+          "-",
+          "-0.2"
+        ]
+      }
+    },
+    {
+      "result_id": "7284122",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5938198,
+      "source_url": "https://www.tfrrs.org/results/94939/5938198/2026_Collegiate_Strawberry_Relays_/Mens-100-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Tyler Johnson",
+          "SO-2",
+          "USSU",
+          "DNS",
+          "-",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7284124",
+      "athlete_id": "153161",
+      "source_athlete_id": "9290223",
+      "event_id": 5938198,
+      "source_url": "https://www.tfrrs.org/results/94939/5938198/2026_Collegiate_Strawberry_Relays_/Mens-100-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Andrew White",
+          "FR-1",
+          "USSU",
+          "DNS",
+          "-",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7284165",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5938204,
+      "source_url": "https://www.tfrrs.org/results/94939/5938204/2026_Collegiate_Strawberry_Relays_/Mens-200-Meters",
+      "mark": "22.68",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Tyler Johnson",
+          "SO-2",
+          "USSU",
+          "22.68",
+          "5",
+          "-1.1"
+        ]
+      }
+    },
+    {
+      "result_id": "7284168",
+      "athlete_id": "153164",
+      "source_athlete_id": "9048115",
+      "event_id": 5938204,
+      "source_url": "https://www.tfrrs.org/results/94939/5938204/2026_Collegiate_Strawberry_Relays_/Mens-200-Meters",
+      "mark": "22.80",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "7",
+          "Devonte Cheffen",
+          "SO-2",
+          "USSU",
+          "22.80",
+          "2",
+          "-1.1"
+        ]
+      }
+    },
+    {
+      "result_id": "7284171",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5938204,
+      "source_url": "https://www.tfrrs.org/results/94939/5938204/2026_Collegiate_Strawberry_Relays_/Mens-200-Meters",
+      "mark": "23.14",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "11",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "23.14",
+          "-",
+          "-1.1"
+        ]
+      }
+    },
+    {
+      "result_id": "7284228",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5938196,
+      "source_url": "https://www.tfrrs.org/results/94939/5938196/2026_Collegiate_Strawberry_Relays_/Mens-400-Meters",
+      "mark": "51.53",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Charles Young",
+          "SO-2",
+          "USSU",
+          "51.53",
+          "1"
+        ]
+      }
+    },
+    {
+      "result_id": "7284416",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5938183,
+      "source_url": "https://www.tfrrs.org/results/94939/5938183/2026_Collegiate_Strawberry_Relays_/Mens-Long-Jump",
+      "mark": "5.80m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "22",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "5.80m",
+          "19' 0.5\"",
+          "-",
+          "0.5"
+        ]
+      }
+    },
+    {
+      "result_id": "7284480",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5938177,
+      "source_url": "https://www.tfrrs.org/results/94939/5938177/2026_Collegiate_Strawberry_Relays_/Mens-Shot-Put",
+      "mark": "12.95m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "12.95m",
+          "42' 6\"",
+          "2"
+        ]
+      }
+    },
+    {
+      "result_id": "7284483",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5938177,
+      "source_url": "https://www.tfrrs.org/results/94939/5938177/2026_Collegiate_Strawberry_Relays_/Mens-Shot-Put",
+      "mark": "11.90m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "11",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "11.90m",
+          "39' 0.5\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7284529",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5938179,
+      "source_url": "https://www.tfrrs.org/results/94939/5938179/2026_Collegiate_Strawberry_Relays_/Mens-Discus",
+      "mark": "45.96m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "45.96m",
+          "150' 9\"",
+          "5"
+        ]
+      }
+    },
+    {
+      "result_id": "7284532",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5938179,
+      "source_url": "https://www.tfrrs.org/results/94939/5938179/2026_Collegiate_Strawberry_Relays_/Mens-Discus",
+      "mark": "41.83m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "41.83m",
+          "137' 3\"",
+          "3"
+        ]
+      }
+    },
+    {
+      "result_id": "7284546",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5938179,
+      "source_url": "https://www.tfrrs.org/results/94939/5938179/2026_Collegiate_Strawberry_Relays_/Mens-Discus",
+      "mark": "FOUL",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "FOUL",
+          "NM",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7284575",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5938175,
+      "source_url": "https://www.tfrrs.org/results/94939/5938175/2026_Collegiate_Strawberry_Relays_/Mens-Hammer",
+      "mark": "43.09m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "43.09m",
+          "141' 4\"",
+          "4"
+        ]
+      }
+    },
+    {
+      "result_id": "7284580",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5938175,
+      "source_url": "https://www.tfrrs.org/results/94939/5938175/2026_Collegiate_Strawberry_Relays_/Mens-Hammer",
+      "mark": "34.34m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "10",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "34.34m",
+          "112' 8\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7371422",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5960517,
+      "source_url": "https://www.tfrrs.org/results/96649/5960517/USCAA_Track__Field_National_Championships_2026/Mens-100-Meters",
+      "mark": "11.04",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "11.04",
+          "8"
+        ]
+      }
+    },
+    {
+      "result_id": "7371425",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5960517,
+      "source_url": "https://www.tfrrs.org/results/96649/5960517/USCAA_Track__Field_National_Championships_2026/Mens-100-Meters",
+      "mark": "11.58",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "11.58",
+          "4"
+        ]
+      }
+    },
+    {
+      "result_id": "7371428",
+      "athlete_id": "153166",
+      "source_athlete_id": "9290228",
+      "event_id": 5960517,
+      "source_url": "https://www.tfrrs.org/results/96649/5960517/USCAA_Track__Field_National_Championships_2026/Mens-100-Meters",
+      "mark": "12.84",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Daylon Lett",
+          "JR-3",
+          "USSU",
+          "12.84",
+          "1"
+        ]
+      }
+    },
+    {
+      "result_id": "7371429",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5960517,
+      "source_url": "https://www.tfrrs.org/results/96649/5960517/USCAA_Track__Field_National_Championships_2026/Mens-100-Meters",
+      "mark": "10.57",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "10.57",
+          "1.2"
+        ]
+      }
+    },
+    {
+      "result_id": "7371431",
+      "athlete_id": "153166",
+      "source_athlete_id": "9290228",
+      "event_id": 5960517,
+      "source_url": "https://www.tfrrs.org/results/96649/5960517/USCAA_Track__Field_National_Championships_2026/Mens-100-Meters",
+      "mark": "11.06",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "3",
+          "Daylon Lett",
+          "JR-3",
+          "USSU",
+          "11.06",
+          "3.7"
+        ]
+      }
+    },
+    {
+      "result_id": "7371432",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5960517,
+      "source_url": "https://www.tfrrs.org/results/96649/5960517/USCAA_Track__Field_National_Championships_2026/Mens-100-Meters",
+      "mark": "11.11",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "11.11",
+          "1.9"
+        ]
+      }
+    },
+    {
+      "result_id": "7371469",
+      "athlete_id": "153161",
+      "source_athlete_id": "9290223",
+      "event_id": 5960517,
+      "source_url": "https://www.tfrrs.org/results/96649/5960517/USCAA_Track__Field_National_Championships_2026/Mens-100-Meters",
+      "mark": "DQ",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Andrew White",
+          "FR-1",
+          "USSU",
+          "DQ",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7371511",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5960523,
+      "source_url": "https://www.tfrrs.org/results/96649/5960523/USCAA_Track__Field_National_Championships_2026/Mens-200-Meters",
+      "mark": "21.25",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "21.25",
+          "3.4"
+        ]
+      }
+    },
+    {
+      "result_id": "7371512",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5960523,
+      "source_url": "https://www.tfrrs.org/results/96649/5960523/USCAA_Track__Field_National_Championships_2026/Mens-200-Meters",
+      "mark": "22.42",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Cole Hayward",
+          "SO-2",
+          "USSU",
+          "22.42",
+          "1.9"
+        ]
+      }
+    },
+    {
+      "result_id": "7371515",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5960523,
+      "source_url": "https://www.tfrrs.org/results/96649/5960523/USCAA_Track__Field_National_Championships_2026/Mens-200-Meters",
+      "mark": "22.50",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "22.50",
+          "2.0"
+        ]
+      }
+    },
+    {
+      "result_id": "7371516",
+      "athlete_id": "153164",
+      "source_athlete_id": "9048115",
+      "event_id": 5960523,
+      "source_url": "https://www.tfrrs.org/results/96649/5960523/USCAA_Track__Field_National_Championships_2026/Mens-200-Meters",
+      "mark": "22.58",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "6",
+          "Devonte Cheffen",
+          "SO-2",
+          "USSU",
+          "22.58",
+          "1.3"
+        ]
+      }
+    },
+    {
+      "result_id": "7371517",
+      "athlete_id": "153166",
+      "source_athlete_id": "9290228",
+      "event_id": 5960523,
+      "source_url": "https://www.tfrrs.org/results/96649/5960523/USCAA_Track__Field_National_Championships_2026/Mens-200-Meters",
+      "mark": "22.63",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "7",
+          "Daylon Lett",
+          "JR-3",
+          "USSU",
+          "22.63",
+          "1.3"
+        ]
+      }
+    },
+    {
+      "result_id": "7371518",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5960523,
+      "source_url": "https://www.tfrrs.org/results/96649/5960523/USCAA_Track__Field_National_Championships_2026/Mens-200-Meters",
+      "mark": "22.66",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Tyler Johnson",
+          "SO-2",
+          "USSU",
+          "22.66",
+          "2.0"
+        ]
+      }
+    },
+    {
+      "result_id": "7371520",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5960523,
+      "source_url": "https://www.tfrrs.org/results/96649/5960523/USCAA_Track__Field_National_Championships_2026/Mens-200-Meters",
+      "mark": "22.98",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "10",
+          "Charles Young",
+          "SO-2",
+          "USSU",
+          "22.98",
+          "2.0"
+        ]
+      }
+    },
+    {
+      "result_id": "7371599",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5960527,
+      "source_url": "https://www.tfrrs.org/results/96649/5960527/USCAA_Track__Field_National_Championships_2026/Mens-400-Meters",
+      "mark": "49.98",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Cole Hayward",
+          "SO-2",
+          "USSU",
+          "49.98",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7371600",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5960527,
+      "source_url": "https://www.tfrrs.org/results/96649/5960527/USCAA_Track__Field_National_Championships_2026/Mens-400-Meters",
+      "mark": "50.68",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Tyler Johnson",
+          "SO-2",
+          "USSU",
+          "50.68",
+          "8"
+        ]
+      }
+    },
+    {
+      "result_id": "7371603",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5960527,
+      "source_url": "https://www.tfrrs.org/results/96649/5960527/USCAA_Track__Field_National_Championships_2026/Mens-400-Meters",
+      "mark": "51.59",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Charles Young",
+          "SO-2",
+          "USSU",
+          "51.59",
+          "4"
+        ]
+      }
+    },
+    {
+      "result_id": "7371605",
+      "athlete_id": "153164",
+      "source_athlete_id": "9048115",
+      "event_id": 5960527,
+      "source_url": "https://www.tfrrs.org/results/96649/5960527/USCAA_Track__Field_National_Championships_2026/Mens-400-Meters",
+      "mark": "53.09",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "7",
+          "Devonte Cheffen",
+          "SO-2",
+          "USSU",
+          "53.09",
+          "2"
+        ]
+      }
+    },
+    {
+      "result_id": "7371607",
+      "athlete_id": "153166",
+      "source_athlete_id": "9290228",
+      "event_id": 5960527,
+      "source_url": "https://www.tfrrs.org/results/96649/5960527/USCAA_Track__Field_National_Championships_2026/Mens-400-Meters",
+      "mark": "54.41",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "9",
+          "Daylon Lett",
+          "JR-3",
+          "USSU",
+          "54.41",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7371626",
+      "athlete_id": "153165",
+      "source_athlete_id": "9048112",
+      "event_id": 5960527,
+      "source_url": "https://www.tfrrs.org/results/96649/5960527/USCAA_Track__Field_National_Championships_2026/Mens-400-Meters",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Jacob Hobson",
+          "SR-4",
+          "USSU",
+          "DNS",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7371675",
+      "athlete_id": "153166",
+      "source_athlete_id": "9290228",
+      "event_id": 5960533,
+      "source_url": "https://www.tfrrs.org/results/96649/5960533/USCAA_Track__Field_National_Championships_2026/Mens-800-Meters",
+      "mark": "2:56.10",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "21",
+          "Daylon Lett",
+          "JR-3",
+          "USSU",
+          "2:56.10",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7371741",
+      "athlete_id": "155806",
+      "source_athlete_id": "8897860",
+      "event_id": 5960531,
+      "source_url": "https://www.tfrrs.org/results/96649/5960531/USCAA_Track__Field_National_Championships_2026/Mens-5000-Meters",
+      "mark": "17:42.74",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "3",
+          "Hamilton Washo",
+          "SO-2",
+          "USSU",
+          "17:42.74",
+          "6"
+        ]
+      }
+    },
+    {
+      "result_id": "7371755",
+      "athlete_id": "155806",
+      "source_athlete_id": "8897860",
+      "event_id": 5960515,
+      "source_url": "https://www.tfrrs.org/results/96649/5960515/USCAA_Track__Field_National_Championships_2026/Mens-10000-Meters",
+      "mark": "37:02.55",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Hamilton Washo",
+          "SO-2",
+          "USSU",
+          "37:02.55",
+          "8"
+        ]
+      }
+    },
+    {
+      "result_id": "7371771",
+      "athlete_id": "153165",
+      "source_athlete_id": "9048112",
+      "event_id": 5960519,
+      "source_url": "https://www.tfrrs.org/results/96649/5960519/USCAA_Track__Field_National_Championships_2026/Mens-110-Hurdles",
+      "mark": "20.86",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "7",
+          "Jacob Hobson",
+          "SR-4",
+          "USSU",
+          "20.86",
+          "2"
+        ]
+      }
+    },
+    {
+      "result_id": "7371780",
+      "athlete_id": "153164",
+      "source_athlete_id": "9048115",
+      "event_id": 5960529,
+      "source_url": "https://www.tfrrs.org/results/96649/5960529/USCAA_Track__Field_National_Championships_2026/Mens-400-Hurdles",
+      "mark": "1:10.27",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Devonte Cheffen",
+          "SO-2",
+          "USSU",
+          "1:10.27",
+          "1"
+        ]
+      }
+    },
+    {
+      "result_id": "7371782",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5960529,
+      "source_url": "https://www.tfrrs.org/results/96649/5960529/USCAA_Track__Field_National_Championships_2026/Mens-400-Hurdles",
+      "mark": "DQ",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Charles Young",
+          "SO-2",
+          "USSU",
+          "DQ",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7371783",
+      "athlete_id": "153165",
+      "source_athlete_id": "9048112",
+      "event_id": 5960529,
+      "source_url": "https://www.tfrrs.org/results/96649/5960529/USCAA_Track__Field_National_Championships_2026/Mens-400-Hurdles",
+      "mark": "DNS",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "",
+          "Jacob Hobson",
+          "SR-4",
+          "USSU",
+          "DNS",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7371809",
+      "athlete_id": "153174",
+      "source_athlete_id": "9048114",
+      "event_id": 5960539,
+      "source_url": "https://www.tfrrs.org/results/96649/5960539/USCAA_Track__Field_National_Championships_2026/Mens-High-Jump",
+      "mark": "1.50m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "7",
+          "Roderickas Burnett",
+          "SO-2",
+          "USSU",
+          "1.50m",
+          "4' 11\"",
+          "2"
+        ]
+      }
+    },
+    {
+      "result_id": "7371810",
+      "athlete_id": "153161",
+      "source_athlete_id": "9290223",
+      "event_id": 5960539,
+      "source_url": "https://www.tfrrs.org/results/96649/5960539/USCAA_Track__Field_National_Championships_2026/Mens-High-Jump",
+      "mark": "1.50m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Andrew White",
+          "FR-1",
+          "USSU",
+          "1.50m",
+          "4' 11\"",
+          "1"
+        ]
+      }
+    },
+    {
+      "result_id": "7371817",
+      "athlete_id": "153174",
+      "source_athlete_id": "9048114",
+      "event_id": 5960543,
+      "source_url": "https://www.tfrrs.org/results/96649/5960543/USCAA_Track__Field_National_Championships_2026/Mens-Long-Jump",
+      "mark": "7.10m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Roderickas Burnett",
+          "SO-2",
+          "USSU",
+          "7.10m",
+          "23' 3.5\"",
+          "10",
+          "-0.3"
+        ]
+      }
+    },
+    {
+      "result_id": "7371818",
+      "athlete_id": "153166",
+      "source_athlete_id": "9290228",
+      "event_id": 5960543,
+      "source_url": "https://www.tfrrs.org/results/96649/5960543/USCAA_Track__Field_National_Championships_2026/Mens-Long-Jump",
+      "mark": "6.84m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Daylon Lett",
+          "JR-3",
+          "USSU",
+          "6.84m",
+          "22' 5.25\"",
+          "8",
+          "0.8"
+        ]
+      }
+    },
+    {
+      "result_id": "7371824",
+      "athlete_id": "153161",
+      "source_athlete_id": "9290223",
+      "event_id": 5960543,
+      "source_url": "https://www.tfrrs.org/results/96649/5960543/USCAA_Track__Field_National_Championships_2026/Mens-Long-Jump",
+      "mark": "6.16m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "8",
+          "Andrew White",
+          "FR-1",
+          "USSU",
+          "6.16m",
+          "20' 2.5\"",
+          "1",
+          "+0.0"
+        ]
+      }
+    },
+    {
+      "result_id": "7371826",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5960543,
+      "source_url": "https://www.tfrrs.org/results/96649/5960543/USCAA_Track__Field_National_Championships_2026/Mens-Long-Jump",
+      "mark": "6.01m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "10",
+          "Christian Aikens",
+          "JR-3",
+          "USSU",
+          "6.01m",
+          "19' 8.75\"",
+          "-",
+          "0.1"
+        ]
+      }
+    },
+    {
+      "result_id": "7371869",
+      "athlete_id": "153174",
+      "source_athlete_id": "9048114",
+      "event_id": 5960549,
+      "source_url": "https://www.tfrrs.org/results/96649/5960549/USCAA_Track__Field_National_Championships_2026/Mens-Triple-Jump",
+      "mark": "13.29m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Roderickas Burnett",
+          "SO-2",
+          "USSU",
+          "13.29m",
+          "43' 7.25\"",
+          "10",
+          "0.1"
+        ]
+      }
+    },
+    {
+      "result_id": "7371877",
+      "athlete_id": "153161",
+      "source_athlete_id": "9290223",
+      "event_id": 5960549,
+      "source_url": "https://www.tfrrs.org/results/96649/5960549/USCAA_Track__Field_National_Championships_2026/Mens-Triple-Jump",
+      "mark": "11.55m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "9",
+          "Andrew White",
+          "FR-1",
+          "USSU",
+          "11.55m",
+          "37' 10.75\"",
+          "-",
+          "+0.0"
+        ]
+      }
+    },
+    {
+      "result_id": "7371882",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5960547,
+      "source_url": "https://www.tfrrs.org/results/96649/5960547/USCAA_Track__Field_National_Championships_2026/Mens-Shot-Put",
+      "mark": "14.32m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "14.32m",
+          "46' 11.75\"",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7371884",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5960547,
+      "source_url": "https://www.tfrrs.org/results/96649/5960547/USCAA_Track__Field_National_Championships_2026/Mens-Shot-Put",
+      "mark": "12.57m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "3",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "12.57m",
+          "41' 3\"",
+          "6"
+        ]
+      }
+    },
+    {
+      "result_id": "7371885",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5960547,
+      "source_url": "https://www.tfrrs.org/results/96649/5960547/USCAA_Track__Field_National_Championships_2026/Mens-Shot-Put",
+      "mark": "11.79m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "11.79m",
+          "38' 8.25\"",
+          "5"
+        ]
+      }
+    },
+    {
+      "result_id": "7371891",
+      "athlete_id": "153159",
+      "source_athlete_id": "9290226",
+      "event_id": 5960547,
+      "source_url": "https://www.tfrrs.org/results/96649/5960547/USCAA_Track__Field_National_Championships_2026/Mens-Shot-Put",
+      "mark": "9.98m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "10",
+          "Jaquavius Johnson",
+          "FR-1",
+          "USSU",
+          "9.98m",
+          "32' 9\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7371894",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5960547,
+      "source_url": "https://www.tfrrs.org/results/96649/5960547/USCAA_Track__Field_National_Championships_2026/Mens-Shot-Put",
+      "mark": "9.38m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "13",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "9.38m",
+          "30' 9.25\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7371907",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5960547,
+      "source_url": "https://www.tfrrs.org/results/96649/5960547/USCAA_Track__Field_National_Championships_2026/Mens-Shot-Put",
+      "mark": "46' 11.75\"",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "14.32m",
+          "46' 11.75\"",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7371909",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5960547,
+      "source_url": "https://www.tfrrs.org/results/96649/5960547/USCAA_Track__Field_National_Championships_2026/Mens-Shot-Put",
+      "mark": "38' 8.25\"",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "11.79m",
+          "38' 8.25\"",
+          "5"
+        ]
+      }
+    },
+    {
+      "result_id": "7371915",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5960547,
+      "source_url": "https://www.tfrrs.org/results/96649/5960547/USCAA_Track__Field_National_Championships_2026/Mens-Shot-Put",
+      "mark": "30' 9.25\"",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "13",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "9.38m",
+          "30' 9.25\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7371916",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5960535,
+      "source_url": "https://www.tfrrs.org/results/96649/5960535/USCAA_Track__Field_National_Championships_2026/Mens-Discus",
+      "mark": "45.63m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "45.63m",
+          "149' 8\"",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7371918",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5960535,
+      "source_url": "https://www.tfrrs.org/results/96649/5960535/USCAA_Track__Field_National_Championships_2026/Mens-Discus",
+      "mark": "40.75m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "3",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "40.75m",
+          "133' 8\"",
+          "6"
+        ]
+      }
+    },
+    {
+      "result_id": "7371920",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5960535,
+      "source_url": "https://www.tfrrs.org/results/96649/5960535/USCAA_Track__Field_National_Championships_2026/Mens-Discus",
+      "mark": "37.36m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "37.36m",
+          "122' 7\"",
+          "4"
+        ]
+      }
+    },
+    {
+      "result_id": "7371921",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5960535,
+      "source_url": "https://www.tfrrs.org/results/96649/5960535/USCAA_Track__Field_National_Championships_2026/Mens-Discus",
+      "mark": "37.32m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "6",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "37.32m",
+          "122' 5\"",
+          "3"
+        ]
+      }
+    },
+    {
+      "result_id": "7371954",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5960537,
+      "source_url": "https://www.tfrrs.org/results/96649/5960537/USCAA_Track__Field_National_Championships_2026/Mens-Hammer",
+      "mark": "45.28m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "45.28m",
+          "148' 7\"",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7371955",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5960537,
+      "source_url": "https://www.tfrrs.org/results/96649/5960537/USCAA_Track__Field_National_Championships_2026/Mens-Hammer",
+      "mark": "41.60m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "2",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "41.60m",
+          "136' 6\"",
+          "8"
+        ]
+      }
+    },
+    {
+      "result_id": "7371958",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5960537,
+      "source_url": "https://www.tfrrs.org/results/96649/5960537/USCAA_Track__Field_National_Championships_2026/Mens-Hammer",
+      "mark": "36.65m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "5",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "36.65m",
+          "120' 3\"",
+          "4"
+        ]
+      }
+    },
+    {
+      "result_id": "7371959",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5960537,
+      "source_url": "https://www.tfrrs.org/results/96649/5960537/USCAA_Track__Field_National_Championships_2026/Mens-Hammer",
+      "mark": "36.26m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "6",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "36.26m",
+          "118' 11\"",
+          "3"
+        ]
+      }
+    },
+    {
+      "result_id": "7371975",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5960541,
+      "source_url": "https://www.tfrrs.org/results/96649/5960541/USCAA_Track__Field_National_Championships_2026/Mens-Javelin",
+      "mark": "33.95m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "11",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "33.95m",
+          "111' 5\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7436023",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5960553,
+      "source_url": "https://www.tfrrs.org/results/96649/5960553/USCAA_Track__Field_National_Championships_2026/Mens-4-x-400-Relay",
+      "mark": "3:20.80",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Tyler Johnson, Christian Aikens, Devonte Cheffen, Cole Hayward",
+          "3:20.80",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7436024",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5960553,
+      "source_url": "https://www.tfrrs.org/results/96649/5960553/USCAA_Track__Field_National_Championships_2026/Mens-4-x-400-Relay",
+      "mark": "3:20.80",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Tyler Johnson, Christian Aikens, Devonte Cheffen, Cole Hayward",
+          "3:20.80",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7436025",
+      "athlete_id": "153164",
+      "source_athlete_id": "9048115",
+      "event_id": 5960553,
+      "source_url": "https://www.tfrrs.org/results/96649/5960553/USCAA_Track__Field_National_Championships_2026/Mens-4-x-400-Relay",
+      "mark": "3:20.80",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Tyler Johnson, Christian Aikens, Devonte Cheffen, Cole Hayward",
+          "3:20.80",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7436026",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5960553,
+      "source_url": "https://www.tfrrs.org/results/96649/5960553/USCAA_Track__Field_National_Championships_2026/Mens-4-x-400-Relay",
+      "mark": "3:20.80",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Tyler Johnson, Christian Aikens, Devonte Cheffen, Cole Hayward",
+          "3:20.80",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "7521909",
+      "athlete_id": "153176",
+      "source_athlete_id": "8983075",
+      "event_id": 5974429,
+      "source_url": "https://www.tfrrs.org/results/95542/5974429/Jaguar_Invitational/Mens-Shot-Put",
+      "mark": "14.22m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "4",
+          "Jasper Nero",
+          "SO-2",
+          "USSU",
+          "14.22m",
+          "46' 8\"",
+          "5"
+        ]
+      }
+    },
+    {
+      "result_id": "7521912",
+      "athlete_id": "153177",
+      "source_athlete_id": "8983076",
+      "event_id": 5974429,
+      "source_url": "https://www.tfrrs.org/results/95542/5974429/Jaguar_Invitational/Mens-Shot-Put",
+      "mark": "11.98m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "7",
+          "Deshaun Williams",
+          "SO-2",
+          "USSU",
+          "11.98m",
+          "39' 3.75\"",
+          "2"
+        ]
+      }
+    },
+    {
+      "result_id": "7521918",
+      "athlete_id": "153178",
+      "source_athlete_id": "9290225",
+      "event_id": 5974416,
+      "source_url": "https://www.tfrrs.org/results/95542/5974416/Jaguar_Invitational/Mens-Discus",
+      "mark": "44.78m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "6",
+          "Hunter Hall",
+          "JR-3",
+          "USSU",
+          "44.78m",
+          "146' 11\"",
+          "3"
+        ]
+      }
+    },
+    {
+      "result_id": "7521921",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5974416,
+      "source_url": "https://www.tfrrs.org/results/95542/5974416/Jaguar_Invitational/Mens-Discus",
+      "mark": "43.10m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "10",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "43.10m",
+          "141' 5\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "7521936",
+      "athlete_id": "153179",
+      "source_athlete_id": "9290224",
+      "event_id": 5974435,
+      "source_url": "https://www.tfrrs.org/results/95542/5974435/Jaguar_Invitational/Mens-Hammer",
+      "mark": "35.73m",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "11",
+          "Jacob Hagan",
+          "FR-1",
+          "USSU",
+          "35.73m",
+          "117' 3\"",
+          "-"
+        ]
+      }
+    },
+    {
+      "result_id": "8045104",
+      "athlete_id": "153167",
+      "source_athlete_id": "8983074",
+      "event_id": 5960551,
+      "source_url": "https://www.tfrrs.org/results/96649/5960551/USCAA_Track__Field_National_Championships_2026/Mens-4-x-100-Relay",
+      "mark": "42.63",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Charles Young, Christian Aikens, Cole Hayward, Tyler Johnson",
+          "42.63",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "8045105",
+      "athlete_id": "153168",
+      "source_athlete_id": "8372060",
+      "event_id": 5960551,
+      "source_url": "https://www.tfrrs.org/results/96649/5960551/USCAA_Track__Field_National_Championships_2026/Mens-4-x-100-Relay",
+      "mark": "42.63",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Charles Young, Christian Aikens, Cole Hayward, Tyler Johnson",
+          "42.63",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "8045106",
+      "athlete_id": "153163",
+      "source_athlete_id": "9048116",
+      "event_id": 5960551,
+      "source_url": "https://www.tfrrs.org/results/96649/5960551/USCAA_Track__Field_National_Championships_2026/Mens-4-x-100-Relay",
+      "mark": "42.63",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Charles Young, Christian Aikens, Cole Hayward, Tyler Johnson",
+          "42.63",
+          "10"
+        ]
+      }
+    },
+    {
+      "result_id": "8045107",
+      "athlete_id": "153162",
+      "source_athlete_id": "9048113",
+      "event_id": 5960551,
+      "source_url": "https://www.tfrrs.org/results/96649/5960551/USCAA_Track__Field_National_Championships_2026/Mens-4-x-100-Relay",
+      "mark": "42.63",
+      "status": "verified",
+      "evidence": {
+        "team": "USSU",
+        "team_url": "https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html",
+        "cells": [
+          "1",
+          "USSU",
+          "Charles Young, Christian Aikens, Cole Hayward, Tyler Johnson",
+          "42.63",
+          "10"
+        ]
+      }
+    }
+  ],
+  "relay_ids": [
+    210772,
+    210780,
+    215292,
+    220016,
+    240861
+  ]
+}

@@ -12,6 +12,27 @@ and nobody has noticed yet.
 
 ## Backups currently in the database (verified 2026-09-04)
 
+### USSU affiliation repair — 2026-09-06
+
+Operation `20260906_ussu_affiliation_repair` uses the existing private
+`ingest.fact_cleanup_archive`: 16 athlete before-images, 174 result before-images,
+5 relay before-images, and 4 legs of duplicate relay 240861 (199 rows).
+Exact source verification is in `database-audit/ussu_verified_results_20260906.json`.
+The runner defaults to a rollback rehearsal; `--commit` applies the checked set.
+It creates USSU's school and men's team plus its reviewed TFRRS alias. The current
+school classification is NAIA (effective July 2026); 2025–26 source competition
+history remains USCAA. No performance marks or dates change.
+
+To undo the affiliation changes, restore only `athletes.school_id`,
+`results.team_id`, and `relay_results.team_id` from this operation's archived
+JSON, joined by primary key. Restore relay 240861 using
+`jsonb_populate_record(NULL::public.relay_results,row_data)` and then its four
+archived `relay_athletes` rows. Restore the survivor's original NULL team first
+to avoid a duplicate-key collision. Perform restoration in one transaction and
+verify the archived counts and all post-repair values before updating.
+Keep the new school/team entities if subsequent ingestion has referenced them.
+No other archive operation should be replayed for this repair.
+
 All rollback tables are preserved in the private `archive` schema. They are no longer part of the
 public API surface; `service_role` has read-only access and database-owner access is required to
 append or restore rows.
