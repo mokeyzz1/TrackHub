@@ -5,10 +5,12 @@ const path = require('node:path');
 const { Client } = require('pg');
 const cheerio = require('cheerio');
 const env = require('dotenv').config({path:path.join(__dirname,'../../.env'),quiet:true}).parsed || {};
-const ids = [153161,153167,153168,153163,153166,153177,153164,161491,155806,153178,153179,153165,153159,153176,153174,153162];
+const ids = process.argv.includes('--women')
+  ? [153183,153184,153187,153189]
+  : [153161,153167,153168,153163,153166,153177,153164,161491,155806,153178,153179,153165,153159,153176,153174,153162];
 const teamUrl = 'https://www.tfrrs.org/teams/tf/AL_college_m_United_States_Sports_Academy.html';
 async function main() {
- const dir = fs.mkdtempSync('/tmp/ussu-affiliations-');
+ const dir = fs.mkdtempSync(process.argv.includes('--women')?'/tmp/ussu-women-affiliations-':'/tmp/ussu-affiliations-');
  const client = new Client({host:'aws-0-us-west-2.pooler.supabase.com',port:5432,user:'postgres.hunbahsnaeeztmzqpnrl',password:env.DB_PASSWORD,database:'postgres',ssl:{rejectUnauthorized:false},statement_timeout:20000});
  await client.connect();
  try {

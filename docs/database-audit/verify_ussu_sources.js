@@ -25,7 +25,7 @@ async function main(){
   const id=athletes.get(r.athlete_id).tfrrs_athlete_id;
   const rows=$('table tbody tr').toArray().filter(tr=>$(tr).find(`a[href*="/athletes/${id}/"]`).length);
   const evidence=rows.map(tr=>({team:$(tr).find('a[href*="/teams/"]').first().text().trim(),team_url:$(tr).find('a[href*="/teams/"]').first().attr('href'),cells:$(tr).find('td').toArray().filter(td=>!String($(td).attr('class')||'').split(/\s+/).some(c=>hidden.has(c))).map(td=>$(td).text().trim().replace(/\s+/g,' '))}));
-  const match=evidence.find(e=>e.team==='USSU'&&e.team_url.includes('AL_college_m_United_States_Sports_Academy')&&e.cells.includes(r.mark_raw));
+  const match=evidence.find(e=>e.team==='USSU'&&/AL_college_[mf]_United_States_Sports_Academy/.test(e.team_url)&&e.cells.includes(r.mark_raw));
   review.push({result_id:r.result_id,athlete_id:r.athlete_id,source_athlete_id:id,event_id:r.event_id,source_url:url,mark:r.mark_raw,status:match?'verified':'needs_review',evidence:match||evidence});
  }
  fs.writeFileSync(path.join(dir,'verification.json'),JSON.stringify(review,null,2));

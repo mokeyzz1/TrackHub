@@ -33,6 +33,13 @@ verify the archived counts and all post-repair values before updating.
 Keep the new school/team entities if subsequent ingestion has referenced them.
 No other archive operation should be replayed for this repair.
 
+The companion operation `20260906_ussu_women_affiliation_repair` added the
+women's team and its reviewed TFRRS alias, linked four verified athletes and 27
+verified results, and retained 31 before-images in the same private archive.
+Undo by restoring the four `athletes.school_id` and 27 `results.team_id` values
+from that operation's JSON before-images in one transaction. Keep the USSU
+school; remove the women's team/alias only when no later rows reference them.
+
 All rollback tables are preserved in the private `archive` schema. They are no longer part of the
 public API surface; `service_role` has read-only access and database-owner access is required to
 append or restore rows.
