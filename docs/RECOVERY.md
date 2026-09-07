@@ -8,6 +8,26 @@ Nothing here is theoretical. Several of these operations were wrong on the first
 corrected before running — but the assumption behind this file is that one of them is still wrong
 and nobody has noticed yet.
 
+### Competition hierarchy normalization — applied 2026-09-07
+
+Migration `20260907195650_normalize_collegiate_competition_hierarchy.sql` is primarily additive. It creates
+governing-organization, organization-scoped level, and school-membership tables while leaving the
+legacy `schools.division` and `schools.division_id` values available to current readers. It does
+not write athletes, results, relays, meets, or other fact tables. The migration also corrects school
+2134 (University of The Bahamas) from the previously mapped `NAIA` value to `INDEPENDENT`, based
+on the current NAIA membership listing; the school and all related facts are preserved.
+
+Two rollback-only runs of `node docs/database-audit/test_competition_hierarchy_migration.js`
+passed before deployment. The exact migration was then committed and version `20260907195650`
+recorded once in the migration ledger. Post-deployment verification found 12 organizations, six
+organization-scoped levels, and 1,844 current primary memberships for exactly 1,844 classified
+collegiate schools, with zero organization/level mismatches and zero invalid null organizations.
+All three new tables have RLS/read policies and the public profile view uses invoker security.
+If recovery is required after deployment, first confirm no reader depends on the new objects; then
+restore school 2134 to `division = 'NAIA'` and the `division_id` selected by code `NAIA`, which is
+the exact pre-migration state asserted by the migration. Remove only the new membership rows/tables
+in one reviewed transaction. Do not use `CASCADE` or delete fact rows.
+
 ---
 
 ## Backups currently in the database (verified 2026-09-04)
