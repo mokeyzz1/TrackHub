@@ -74,6 +74,21 @@ Run `node docs/database-audit/rollback_confirmed_collegiate_profiles.js` for a t
 rolled-back rehearsal. Add `--commit` only to restore all 1,184 archived `school_id` values and
 remove this operation's archive rows. The runner refuses partial, duplicate, or diverged state.
 
+### Clark/Lane collegiate result-affiliation repair — 2026-09-06
+
+Operation `20260906_clark_lane_collegiate_result_affiliation_repair` corrected 52 TFRRS-linked
+4x100 result legs and 13 relay parents from four known-wrong legacy teams (Clark University MA and
+Lane College TN) to the reviewed Clark College and Lane Community College teams. The four meets and
+all source result URLs, result IDs, relay IDs, and old/new team URLs are retained in
+`database-audit/clark_lane_collegiate_result_repair_20260906.json`. No marks, places, dates, event
+fields, relay legs, or source links changed. Exactly 65 complete before-images are in
+`ingest.fact_cleanup_archive` under the operation key.
+
+Run `node docs/database-audit/rollback_clark_lane_collegiate_results.js` for a transactionally
+rolled-back rehearsal. Add `--commit` only when intentionally restoring the old team assignments;
+the runner refuses a partial or diverged current state and removes the operation archive after a
+successful committed rollback. The known-wrong aliases should not be restored during normal use.
+
 All rollback tables are preserved in the private `archive` schema. They are no longer part of the
 public API surface; `service_role` has read-only access and database-owner access is required to
 append or restore rows.
