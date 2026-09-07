@@ -249,6 +249,16 @@ exists — that is the guard doing its job. To restore anyway, drop the index, i
 
 ---
 
+## Remaining verified collegiate profiles (2026-09-07) — 178 rows updated
+
+Operation key: `20260907_remaining_collegiate_profile_repair`.
+
+- The 178 exact pre-change athlete rows are retained in `ingest.fact_cleanup_archive`.
+- `node docs/database-audit/rollback_remaining_collegiate_profiles.js` rehearses the restore and rolls it back.
+- Add `--commit` only to intentionally restore all 178 profiles to their exact prior school and timestamp; the archive is removed only after that committed restore.
+- The catalog migration is `20260907183959_onboard_remaining_verified_collegiate_schools.sql` and its remote ledger version is marked applied.
+- Fourteen USMAPS prep-school athletes, all club athletes, and all result rows were unchanged.
+
 ## Where a mistake would hide
 
 Ranked by how long it would go unnoticed:

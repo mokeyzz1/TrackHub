@@ -1,0 +1,209 @@
+[
+  {
+    "source_name": "MCGILL",
+    "official_name": "McGill University",
+    "short_name": "McGill",
+    "city": "Montreal",
+    "state": "QC",
+    "division_code": "USPORTS",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/QC_college_f_McGill_QC.html",
+      "https://www.tfrrs.org/teams/tf/QC_college_m_McGill_QC.html"
+    ],
+    "evidence_urls": [
+      "https://mcgillathletics.ca/sports/track-and-field/schedule"
+    ]
+  },
+  {
+    "source_name": "U OF MANITOBA",
+    "official_name": "University of Manitoba",
+    "short_name": "Manitoba",
+    "city": "Winnipeg",
+    "state": "MB",
+    "division_code": "USPORTS",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/MB_college_m_U_of_Manitoba.html",
+      "https://www.tfrrs.org/teams/tf/MB_college_f_U_of_Manitoba.html"
+    ],
+    "evidence_urls": [
+      "https://gobisons.ca/sports/track-and-field"
+    ]
+  },
+  {
+    "source_name": "NEVADA_STATE_UNIVERSITY",
+    "official_name": "Nevada State University",
+    "short_name": "Nevada State",
+    "city": "Henderson",
+    "state": "NV",
+    "division_code": "INDEPENDENT",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/NV_college_m_Nevada_State_University.html"
+    ],
+    "evidence_urls": [
+      "https://nevadastate.edu/athletics/"
+    ]
+  },
+  {
+    "source_name": "MCMASTER",
+    "official_name": "McMaster University",
+    "short_name": "McMaster",
+    "city": "Hamilton",
+    "state": "ON",
+    "division_code": "USPORTS",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/ON_college_m_McMaster.html",
+      "https://www.tfrrs.org/teams/tf/ON_college_f_McMaster.html"
+    ],
+    "evidence_urls": [
+      "https://marauders.ca/sports/2011/3/26/eligibility.aspx?path=current"
+    ]
+  },
+  {
+    "source_name": "SC CENTRAL CHRISTIAN COLLEGE",
+    "official_name": "South Carolina Central Christian College",
+    "short_name": "SC Central Christian",
+    "city": "Columbia",
+    "state": "SC",
+    "division_code": "NSAC",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/SC_college_m_SC_Central_Christian_College.html",
+      "https://www.tfrrs.org/teams/tf/SC_college_f_SC_Central_Christian_College.html"
+    ],
+    "evidence_urls": [
+      "https://newsouthconference.com/track/category/sc-central/"
+    ]
+  },
+  {
+    "source_name": "UNIVERSITY OF THE BAHAMAS",
+    "official_name": "University of The Bahamas",
+    "short_name": "Bahamas",
+    "city": "Nassau",
+    "state": "The Bahamas",
+    "division_code": "NAIA",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/FL_college_f_University_of_The_Bahamas.html",
+      "https://www.tfrrs.org/teams/tf/FL_college_m_University_of_The_Bahamas.html"
+    ],
+    "evidence_urls": [
+      "https://www.ub.edu.bs/wp-content/uploads/TB_University-of-The-Bahamas-Student-Handbook-2024-2025.pdf"
+    ]
+  },
+  {
+    "source_name": "TECNOLOGICO DE MONTERREY CCM",
+    "official_name": "Tecnologico de Monterrey - Ciudad de Mexico",
+    "short_name": "Tecnologico de Monterrey CCM",
+    "city": "Mexico City",
+    "state": "CDMX",
+    "division_code": "CONADEIP",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/CA_college_m_TECNOLOGICO_DE_MONTERREY_CCM.html",
+      "https://www.tfrrs.org/teams/tf/CA_college_f_TECNOLOGICO_DE_MONTERREY_CCM.html"
+    ],
+    "evidence_urls": [
+      "https://tec.mx/es/borregos/about",
+      "https://tec.mx/es/borregos/ciudad-de-mexico"
+    ]
+  },
+  {
+    "source_name": "C.C.C TEXAS SPARTANS",
+    "official_name": "Community Christian College",
+    "short_name": "Community Christian College",
+    "city": null,
+    "state": null,
+    "division_code": "NJCAA",
+    "existing_school_id": 1656,
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/TX_jcollege_m_.html"
+    ],
+    "evidence_urls": [
+      "https://texasspartans.com/about-us/",
+      "https://www.njcaa.org/sports/wsoc/2025-26/teams/pearlrivercommunitycollege"
+    ]
+  },
+  {
+    "source_name": "PORTERVILLE",
+    "official_name": "Porterville College",
+    "short_name": "Porterville",
+    "city": "Porterville",
+    "state": "CA",
+    "division_code": "CCCAA",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/CA_jcollege_m_Porterville.html"
+    ],
+    "evidence_urls": [
+      "https://committees.portervillecollege.edu/_resources/assets/committee-documents/college-council/2025-03-03/Athletics_Program_Review_2024-2025.pdf"
+    ]
+  },
+  {
+    "source_name": "CERRO COSO",
+    "official_name": "Cerro Coso Community College",
+    "short_name": "Cerro Coso",
+    "city": "Ridgecrest",
+    "state": "CA",
+    "division_code": "CCCAA",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/CA_jcollege_m_Cerro_Coso.html"
+    ],
+    "evidence_urls": [
+      "https://www.cerrocoso.edu/enrollment-aid/outreach/getting-started-cc/be-coyote-and-join-pack.html"
+    ]
+  },
+  {
+    "source_name": "CEGEP DE TROIS-RIVIERES",
+    "official_name": "Cegep de Trois-Rivieres",
+    "short_name": "Cegep de Trois-Rivieres",
+    "city": "Trois-Rivieres",
+    "state": "QC",
+    "division_code": "RSEQ-COL",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/QC_college_m_.html"
+    ],
+    "evidence_urls": [
+      "https://rseq.ca/sports/cross-country/collegial/nord-est/nouvelles/r%C3%A9sultats-du-championnat-de-conf%C3%A9rence-coll%C3%A9gial-nord-est-2022-%281%29/"
+    ]
+  },
+  {
+    "source_name": "ALBIZU UNIVERISITY-MIAMI",
+    "official_name": "Albizu University - Miami",
+    "short_name": "Albizu Miami",
+    "city": "Miami",
+    "state": "FL",
+    "division_code": "INDEPENDENT",
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/FL_college_m_.html"
+    ],
+    "evidence_urls": [
+      "https://infocentral.albizu.edu/miami/albizu-university-expands-baccalaureate-catalog-with-four-new-programs-that-fully-align-with-current-workforce-needs/"
+    ]
+  },
+  {
+    "source_name": "UQAM",
+    "official_name": "Citadins de l'UQAM",
+    "short_name": "Citadins de l'UQAM",
+    "city": null,
+    "state": null,
+    "division_code": "USPORTS",
+    "existing_school_id": 1610,
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/QC_college_m_UQAM.html"
+    ],
+    "evidence_urls": [
+      "https://citadins.uqam.ca/nouvelles/2025/les-etoiles-academiques-24-25/"
+    ]
+  },
+  {
+    "source_name": "PENN STATE-ABILITY ATHLETICS",
+    "official_name": "Penn State",
+    "short_name": "Penn State",
+    "city": null,
+    "state": "PA",
+    "division_code": "DI",
+    "existing_school_id": 227,
+    "source_urls": [
+      "https://www.tfrrs.org/teams/tf/PA_college_f_Penn_State-Ability_Athletics.html"
+    ],
+    "evidence_urls": [
+      "https://www.psu.edu/news/academics/story/us-military-veteran-competes-win-penn-state-ability-athletics"
+    ]
+  }
+]
