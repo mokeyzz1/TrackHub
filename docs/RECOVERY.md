@@ -51,6 +51,27 @@ reviewed transaction without `CASCADE`. Keep `btree_gist` if any other object us
 extension only after a dependency check. After writers begin storing evidence, do not drop these
 objects—restore or migrate their rows through a separate before-imaged recovery plan.
 
+### Legacy collegiate status evidence backfill — applied 2026-09-08
+
+Migration `20260908173000_backfill_legacy_collegiate_status_evidence.sql` copied 127,334 existing,
+structurally consistent `athlete_team_seasons` relationships into private evidence and linked them
+to 126,925 provisional athlete-season periods. It does not claim an original roster snapshot:
+every copied row is tagged `source = 'legacy_database'`, `evidence_type = 'legacy_relationship'`,
+and `verification_status = 'unresolved'`; every period uses
+`resolution_method = 'legacy_team_season_unresolved'`. The public current-status view did not
+change because provisional periods are not public and both stored seasons end before the current
+date. Twenty-one Cheyney rows lacking normalized governing membership and two gender-conflicted
+relationships were deliberately excluded. No athlete, result, relay, team, school, or original
+team-season row was updated or deleted. Migration ledger version `20260908173000` is recorded once.
+
+The exact rollback is
+`docs/database-audit/rollback_legacy_collegiate_status_backfill.sql`. It removes only bridges,
+periods, and evidence with the migration's exact source/method tags, then restores the two prior
+constraints. A live rollback-only rehearsal removed all tagged rows and restored the exact
+127,334/126,925/127,334 applied counts when its transaction rolled back. Verify no newer process
+has linked or promoted these rows before committing a recovery. Do not delete the original
+`athlete_team_seasons` rows.
+
 ---
 
 ## Backups currently in the database (verified 2026-09-04)
