@@ -28,6 +28,29 @@ restore school 2134 to `division = 'NAIA'` and the `division_id` selected by cod
 the exact pre-migration state asserted by the migration. Remove only the new membership rows/tables
 in one reviewed transaction. Do not use `CASCADE` or delete fact rows.
 
+### Athlete status evidence foundation — applied 2026-09-08
+
+Migration `20260908045520_add_athlete_status_evidence_model.sql` added three initially empty
+tables and `v_athlete_current_status`. It installed `btree_gist` to enforce non-overlapping
+confirmed periods for the same athlete/status axis. Raw evidence and the evidence bridge have no
+public policy; only confirmed resolved periods are publicly readable, and the view uses invoker
+security. A live negative-policy test proved provisional review rows are hidden. The
+migration does not update athletes, results, relays, rosters, schools, or teams and performs no
+classification backfill.
+
+The first live deployment runner mistakenly committed its tagged synthetic verification fixture:
+one evidence row, two period rows, and one bridge row for athlete 89. The issue was detected
+immediately. All four rows were deleted by their exact `migration_test` and
+`independent_axis_test` tags in one asserted transaction. Final live verification found zero rows
+in all three new tables and 151,537 view rows for 151,537 athletes. The runner now commits directly
+after the schema SQL when `--commit` is supplied, so test fixtures run only in rollback rehearsals.
+
+To retire this unused foundation before writers adopt it, first verify all three tables remain
+empty and no reader depends on the view. Drop the view, bridge, periods, then evidence table in one
+reviewed transaction without `CASCADE`. Keep `btree_gist` if any other object uses it; remove the
+extension only after a dependency check. After writers begin storing evidence, do not drop these
+objects—restore or migrate their rows through a separate before-imaged recovery plan.
+
 ---
 
 ## Backups currently in the database (verified 2026-09-04)
