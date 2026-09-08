@@ -8,6 +8,17 @@ Nothing here is theoretical. Several of these operations were wrong on the first
 corrected before running — but the assumption behind this file is that one of them is still wrong
 and nobody has noticed yet.
 
+### Placeholder athlete identity guard — applied 2026-09-08
+
+Three empty `[Name Withheld]` rows (`154055`, `156767`, `182220`) were copied exactly once to
+`archive.athletes_empty_backup` and removed after every declared athlete foreign key was verified
+at zero references. Migration `20260908202312_reject_placeholder_athlete_names.sql` prevents an
+unknown/privacy label from becoming a new public athlete; source observations remain eligible for
+private quarantine and review. The schema guard can be removed with
+`docs/database-audit/rollback_placeholder_athlete_name_guard.sql`. Restoring the three archived
+shells is intentionally not part of migration rollback because they contain no athlete facts and
+would violate the corrected identity contract.
+
 ### Competition hierarchy normalization — applied 2026-09-07
 
 Migration `20260907195650_normalize_collegiate_competition_hierarchy.sql` is primarily additive. It creates

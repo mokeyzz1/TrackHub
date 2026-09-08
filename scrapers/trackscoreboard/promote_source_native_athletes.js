@@ -17,7 +17,7 @@
 
 const path = require('path');
 const { Pool } = require('pg');
-const { parseName } = require('../shared/name_parser');
+const { isPlaceholderAthleteName, parseName } = require('../shared/name_parser');
 const { ensureIngestDatabaseUrl } = require('../shared/private_database_url');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
@@ -156,6 +156,9 @@ function buildPlan(groups, {
 
     if (group.inconsistent.length) {
       return { ...base, action: 'hold', reason: 'source_identity_inconsistent' };
+    }
+    if (isPlaceholderAthleteName(group.source_athlete_name)) {
+      return { ...base, action: 'hold', reason: 'source_name_placeholder' };
     }
     if (!group.source_gender) return { ...base, action: 'hold', reason: 'source_gender_missing' };
     if (!team) return { ...base, action: 'hold', reason: 'canonical_team_missing' };

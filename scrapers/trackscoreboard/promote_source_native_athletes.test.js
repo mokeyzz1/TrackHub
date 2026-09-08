@@ -36,6 +36,16 @@ test('creates only a unique source-native identity with a verified team', () => 
   assert.equal(row.athlete.gender, 'F');
 });
 
+test('keeps a placeholder source identity quarantined instead of creating an athlete', () => {
+  const [row] = buildPlan([{
+    ...groups[0],
+    source_athlete_name: '[Name Withheld]',
+  }], { teams: [team], existingAthletes: [], existingAliases: [] });
+  assert.equal(row.action, 'hold');
+  assert.equal(row.reason, 'source_name_placeholder');
+  assert.equal(row.athlete, undefined);
+});
+
 test('allows a mixed relay identity to use both gender-specific teams at one school', () => {
   const mixedGroup = { ...groups[0], target_team_ids: [200, 201] };
   const mixedTeam = { ...team, team_id: 201, gender: 'M' };
