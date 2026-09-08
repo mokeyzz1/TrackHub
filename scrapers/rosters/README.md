@@ -89,11 +89,26 @@ cat ../output/diff_2026_indoor_*.json | jq '.transfers[] | {name, old_school_id,
 cat ../output/diff_2026_indoor_*.json | jq '.added_athletes[] | {name, school_id, class_year}'
 ```
 
-#### 6. Upload to Supabase (TODO)
+#### 6. Review and import collegiate roster evidence
 ```bash
-python3 upload_to_supabase.py
+node scrapers/rosters/import_collegiate_roster.js --input scrapers/rosters/output/rosters_2026_indoor_latest.json
+node scrapers/rosters/import_collegiate_roster.js --input scrapers/rosters/output/rosters_2026_indoor_latest.json --commit
 ```
-(Script to be created after reviewing diff)
+
+Run these commands from the repository root. Dry-run is the default. The commit path only accepts
+rows with one exact TFRRS athlete ID (including reviewed identity mappings),
+one canonical school/gender team, a verified collegiate school membership covering the season,
+and the source TFRRS team URL. Accepted rows atomically upsert `athlete_team_seasons` and append
+private `athlete_status_evidence`. Unknown athletes, duplicate IDs, clubs, unresolved schools,
+changed source payloads, and contradictory rows are held rather than guessed.
+
+The importer does not create athletes, change `athletes.school_id`, infer current eligibility,
+professional/post-collegiate status, or publish resolved status periods. Those require their own
+reviewed identity/resolution checkpoints.
+
+`upload_to_supabase.js` and `fix_and_upload_new_athletes.js` are legacy one-season scripts. Do not
+use them for new imports: they predate the atomic evidence model and the latter manually allocates
+athlete IDs.
 
 ## Notes
 
@@ -101,3 +116,4 @@ python3 upload_to_supabase.py
 - Review diff output before uploading to production
 - Keep logs for debugging
 - TFRRS athlete IDs are the stable identifier for matching
+- TFRRS and Athletic.net IDs are separate provider namespaces; never compare their numeric values

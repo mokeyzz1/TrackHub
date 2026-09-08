@@ -317,6 +317,8 @@ class TFRRSRosterScraper:
                     school_id,
                     gender
                 )
+                for athlete in athletes:
+                    athlete['tfrrs_team_url'] = url
 
                 logger.info(f"  Found {len(athletes)} {gender_label} athletes (fast)")
                 break
@@ -424,6 +426,7 @@ class TFRRSRosterScraper:
                         'class_year': class_year,
                         'gender': gender,
                         'tfrrs_profile_url': f"https://www.tfrrs.org{href}",
+                        'tfrrs_team_url': url,
                         'scraped_at': datetime.now().isoformat(),
                         'season': SEASON
                     })
