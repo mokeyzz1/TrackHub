@@ -26,10 +26,23 @@ test('collegiate roster evidence is replay-safe and transaction-atomic', { skip:
     created = true;
     pool = new Pool({ ...config, database });
     await pool.query(`
-      insert into public.divisions (division_id, code, display_name, governing_body, sort_order)
-      values (1, 'DI', 'NCAA Division I', 'NCAA', 1);
-      insert into public.schools (school_id, official_name, division, division_id)
-      values (12, 'Roster Test University', 'DI', 1);
+      insert into public.divisions (division_id, code, display_name, governing_body, sort_order) values
+        (1, 'DI', 'NCAA Division I', 'NCAA', 1),
+        (2, 'DII', 'NCAA Division II', 'NCAA', 2),
+        (3, 'DIII', 'NCAA Division III', 'NCAA', 3),
+        (4, 'NAIA', 'NAIA', 'NAIA', 4),
+        (5, 'NJCAA', 'NJCAA', 'NJCAA', 5),
+        (6, 'CCCAA', 'CCCAA', 'CCCAA', 6),
+        (7, 'USPORTS', 'U SPORTS', 'U SPORTS', 7),
+        (8, 'USCAA', 'USCAA', 'USCAA', 8),
+        (9, 'NCCAA-I', 'NCCAA Division I', 'NCCAA', 9),
+        (10, 'NCCAA-II', 'NCCAA Division II', 'NCCAA', 10),
+        (11, 'LAI', 'LAI', 'LAI', 11);
+      insert into public.schools (school_id, official_name, division, division_id) values
+        (12, 'Roster Test University', 'DI', 1),
+        (421, 'Cheyney', null, null),
+        (1829, 'Dawgs Track Club', 'Other', null),
+        (1835, 'Unattached', 'Unattached', null);
       insert into public.teams (team_id, school_id, gender) values (22, 12, 'F');
       insert into public.athletes (athlete_id, school_id, full_name, gender, tfrrs_athlete_id)
       values (41, 12, 'Example Runner', 'F', '9020036');
