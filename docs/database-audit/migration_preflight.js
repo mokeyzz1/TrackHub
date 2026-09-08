@@ -43,6 +43,7 @@ if (require.main === module) {
     [
       ...require('./migration_approved_history_20260905.json').entries,
       ...require('./migration_approved_history_20260906.json').entries,
+      ...require('./migration_approved_history_20260908.json').entries,
     ]);
   process.stdout.write(JSON.stringify(result, null, 2) + '\n');
   process.exitCode = result.ok ? 0 : 1;

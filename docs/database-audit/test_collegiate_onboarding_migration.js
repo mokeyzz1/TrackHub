@@ -8,7 +8,7 @@ const {TeamAliasResolver}=require('../../scrapers/shared/team_alias_resolver');
 const env=require('dotenv').config({path:path.join(__dirname,'../../.env'),quiet:true}).parsed||{};
 const manifest=require('./collegiate_school_onboarding_20260906.json');
 const review=require(process.argv[2]||'./collegiate_source_team_review_20260906.json');
-const migrationPath=process.argv[3]||path.join(__dirname,'../../supabase/migrations/20260906170106_onboard_confirmed_collegiate_schools.sql');
+const migrationPath=process.argv[3]||path.join(__dirname,'../../supabase/migrations/20260906171201_onboard_confirmed_collegiate_schools.sql');
 const commit=process.argv.includes('--commit');
 const migrationSql=fs.readFileSync(migrationPath,'utf8');
 for(const table of ['athletes','results','relay_results','relay_athletes','meets']){

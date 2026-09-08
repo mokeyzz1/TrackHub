@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const { Pool } = require('pg');
-const migrationFile = '20260905230012_use_result_affiliation_in_performance_reads.sql';
+const migrationFile = '20260905230428_use_result_affiliation_in_performance_reads.sql';
 const migration = fs.readFileSync(path.join(__dirname, '../../supabase/migrations', migrationFile), 'utf8');
 const rollback = fs.readFileSync(path.join(__dirname, 'rollback_result_affiliation_reads.sql'), 'utf8');
 

@@ -35,3 +35,28 @@ Workflow reference: Supabase's [local development guide](https://supabase.com/do
 describes capturing existing remote schema before deployment and validating migrations locally.
 The [backup/restore guide](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore)
 distinguishes schema/data restoration from preserving migration history.
+
+## 2026-09-08 current-worktree reconciliation
+
+The former LAI blocker is resolved. Its five exact aliases were already live; a guarded test proved
+their targets and metadata, replayed the SQL in a rolled-back transaction, and recorded only the
+missing `20260829180000` history entry. No alias or fact row changed.
+
+A fresh live preflight also exposed two older files whose SQL matched production but whose local
+timestamps did not. They are now named for the versions production actually recorded:
+`20260905230428_use_result_affiliation_in_performance_reads.sql` and
+`20260906171201_onboard_confirmed_collegiate_schools.sql`. The mistaken duplicate catalog-ledger
+entry created during review was removed immediately; the original `20260906171201` entry remains.
+Application data was never changed by that correction.
+
+The athlete-status foundation file had also been edited after deployment to tighten a public
+policy. Its historical bytes are restored to the exact recorded SQL, while the already-live
+confirmed-only policy now has its own forward migration,
+`20260908205937_restrict_athlete_status_period_reads_to_confirmed.sql`. This preserves both
+immutable history and the safer current behavior.
+
+The approved history now covers all 103 active migration files. The private live check reports 103
+local files, 103 ledger entries, and zero errors. Twenty-four history/coverage tests pass, plus
+rollback-only live checks for the LAI aliases, 50-school/88-team collegiate catalog, and status
+policy. This closes the current-worktree portion of MIG-01e; hosted-CI confirmation remains
+MIG-01e3.

@@ -128,8 +128,7 @@ ALTER TABLE public.athlete_status_periods ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.athlete_status_period_evidence ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY athlete_status_periods_public_read
-  ON public.athlete_status_periods FOR SELECT TO anon, authenticated
-  USING (resolution_status = 'confirmed');
+  ON public.athlete_status_periods FOR SELECT TO anon, authenticated USING (true);
 
 REVOKE ALL ON public.athlete_status_evidence FROM PUBLIC;
 REVOKE ALL ON public.athlete_status_periods FROM PUBLIC;

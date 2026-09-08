@@ -8,6 +8,23 @@ Nothing here is theoretical. Several of these operations were wrong on the first
 corrected before running — but the assumption behind this file is that one of them is still wrong
 and nobody has noticed yet.
 
+### Migration-history reconciliation — 2026-09-08
+
+The five LAI Athletic.net aliases and the confirmed collegiate catalog were already present in
+production before their local history was reconciled. The LAI repair added only ledger version
+`20260829180000`; it did not rewrite the five aliases. The collegiate catalog retains its original
+ledger version `20260906171201`; a mistakenly added duplicate `20260906170106` entry was deleted
+after an exact two-entry assertion. No school, team, alias, athlete, meet, result, or relay row was
+changed by that correction.
+
+Two local filenames were aligned to their existing live versions without changing their SQL:
+`20260905230428_use_result_affiliation_in_performance_reads.sql` and
+`20260906171201_onboard_confirmed_collegiate_schools.sql`. The historical athlete-status migration
+was restored to its recorded bytes. The current confirmed-only read policy is represented by the
+separate `20260908205937_restrict_athlete_status_period_reads_to_confirmed.sql` migration; its
+schema rollback is `docs/database-audit/rollback_athlete_status_period_policy.sql`. Do not delete
+the LAI ledger entry while its migration remains active, because a later push would attempt replay.
+
 ### Athlete-status public summary — applied 2026-09-08
 
 Migration `20260908190000_publish_athlete_status_summary.sql` added the invoker-security
@@ -127,7 +144,7 @@ school; remove the women's team/alias only when no later rows reference them.
 
 ### Confirmed collegiate catalog onboarding — 2026-09-06
 
-Migration `20260906170106_onboard_confirmed_collegiate_schools.sql` is additive catalog work:
+Migration `20260906171201_onboard_confirmed_collegiate_schools.sql` is additive catalog work:
 49 schools, 87 gender-specific teams, and the NWAC association were added; the existing USSU
 school/team was reused. It did not update or delete any athlete, result, relay, meet, or other fact
 row. The exact 50-school plan and all 88 reviewed TFRRS team URLs are retained in
