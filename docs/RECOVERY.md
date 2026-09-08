@@ -8,6 +8,16 @@ Nothing here is theoretical. Several of these operations were wrong on the first
 corrected before running — but the assumption behind this file is that one of them is still wrong
 and nobody has noticed yet.
 
+### Athlete-status public summary — applied 2026-09-08
+
+Migration `20260908190000_publish_athlete_status_summary.sql` added the invoker-security
+`public.v_athlete_status_summary` view and granted read access to the app roles. It exposes only
+collegiate-history booleans and confirmed current career/professional periods; private evidence,
+provisional periods, resolution methods, and source payloads are not columns in the view. Existing
+athlete/profile endpoints and fact rows were not changed. To reverse it, run
+`docs/database-audit/rollback_athlete_status_summary.sql`, which drops the view and removes the
+grant that this migration added to `v_athlete_collegiate_history`.
+
 ### Placeholder athlete identity guard — applied 2026-09-08
 
 Three empty `[Name Withheld]` rows (`154055`, `156767`, `182220`) were copied exactly once to
