@@ -31,6 +31,10 @@ jobs:
         run: npm ci
 
       - name: Run ingestion contract tests
+        env:
+          # Unit tests must not require or contact production Supabase.
+          SUPABASE_URL: http://127.0.0.1:1
+          SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
         run: npm run test:ingestion
 
       - name: Validate schema tracking and source safeguards
@@ -74,4 +78,7 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: 'true'
         run: npm ci
       - name: Run isolated PostgreSQL contracts without production credentials
+        env:
+          # Dependencies are intentionally installed from the scraper lockfile.
+          NODE_PATH: ${{ github.workspace }}/scrapers/node_modules
         run: bash docs/database-audit/run_isolated_postgres_tests.sh

@@ -1,8 +1,11 @@
 const ATHLETIC_LIVE_EXACT_HOSTS = new Set([
   'live.athletic.net',
+  'live.jdlfasttrack.com',
   'live.herostiming.com',
   'live.mastiming.net',
   'live.mountaintiming.com',
+  'results.blacksquirreltiming.com',
+  'blueridgetiming.live',
 ]);
 
 function isAthleticLiveHost(hostname) {
