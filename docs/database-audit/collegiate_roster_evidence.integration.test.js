@@ -37,12 +37,14 @@ test('collegiate roster evidence is replay-safe and transaction-atomic', { skip:
         (8, 'USCAA', 'USCAA', 'USCAA', 8),
         (9, 'NCCAA-I', 'NCCAA Division I', 'NCCAA', 9),
         (10, 'NCCAA-II', 'NCCAA Division II', 'NCCAA', 10),
-        (11, 'LAI', 'LAI', 'LAI', 11);
+        (11, 'LAI', 'LAI', 'LAI', 11),
+        (12, 'INDEPENDENT', 'Independent', 'Independent', 12);
       insert into public.schools (school_id, official_name, division, division_id) values
         (12, 'Roster Test University', 'DI', 1),
         (421, 'Cheyney', null, null),
         (1829, 'Dawgs Track Club', 'Other', null),
-        (1835, 'Unattached', 'Unattached', null);
+        (1835, 'Unattached', 'Unattached', null),
+        (2134, 'University of The Bahamas', 'NAIA', 4);
       insert into public.teams (team_id, school_id, gender) values (22, 12, 'F');
       insert into public.athletes (athlete_id, school_id, full_name, gender, tfrrs_athlete_id)
       values (41, 12, 'Example Runner', 'F', '9020036');

@@ -39,7 +39,7 @@ run_pg "$task_pg_bin/pg_ctl" -D "$task_fixture_root/pgdata" -l "$task_fixture_ro
 "$task_pg_bin/createdb" -h "$task_fixture_root" -p 55434 -U postgres --template=template0 current_owner_schema
 # Filtered pg_restore exports omit schema creation/ACL entries; establish only their prerequisites.
 "$task_pg_bin/psql" -X -v ON_ERROR_STOP=1 -h "$task_fixture_root" -p 55434 -U postgres -d current_owner_schema \
-  -c 'CREATE SCHEMA ingest; GRANT USAGE ON SCHEMA ingest TO service_role;'
+  -c 'CREATE SCHEMA ingest; CREATE SCHEMA extensions; GRANT USAGE ON SCHEMA ingest TO service_role;'
 "$task_pg_bin/psql" -X -q -v ON_ERROR_STOP=1 -h "$task_fixture_root" -p 55434 -U postgres -d current_owner_schema \
   -f "$task_repo_root/docs/database-audit/fixtures/application-schema-pre-checkpoints.sql"
 cd "$task_repo_root"
