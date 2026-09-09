@@ -2,10 +2,10 @@
 
 ## Current focus and how to use this checklist
 
-Current focus: **MODEL-01 — review the entire application data model and its connections**.
-This remains open; completed sub-checkpoints do not mean the whole database is finished.
-Follow the checkpoint IDs below, with the owner's direction controlling progression. Do not
-substitute an ad hoc list or start unrelated feature work.
+Current focus: **CLOSE-01 — reconcile the completed audit pass and carry explicit holds forward**.
+The review pass is complete, but the unresolved source/semantic decisions listed in the closeout
+remain owner-gated work. Follow the checkpoint IDs below, with the owner's direction controlling
+progression. Do not substitute an ad hoc list or start unrelated feature work.
 
 This Markdown file controls work order and checkpoint status. [MASTER_CHECKLIST.json](MASTER_CHECKLIST.json)
 is the detailed object register, not a second work queue. Dated audit documents preserve evidence;
@@ -96,7 +96,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | API-01a | P1 | Align points filtering/extraction whitespace handling; preserve supplied scores and invoker security | SEC-01a | Complete: PR_POINTS_WHITESPACE_20260905.md; live view hardened, zero measured current extraction differences |
 | API-01b | P1 | Count distinct team athletes across stored seasons, retain every historical affiliation, verify all-team parity | MIG-01e1, MODEL-01 team/affiliation review | Complete: TEAM_SUMMARY_COUNTS_20260905.md; 1,795 team counts corrected, no rows deleted |
 | PERF-01 | P2 | Measure query plans and workload before index changes; retain necessary FK and uniqueness support | API-01, ING-02 | Complete 2026-09-09: live catalog has 110 public and 42 ingest indexes, all valid/ready; canonical fact and team-summary plans use the retained supporting indexes; prior FK/unused-index decisions remain workload-backed. No new index was justified. Evidence: PERFORMANCE_CONTRACT_AUDIT_20260909.md, FOREIGN_KEY_INDEX_REVIEW_20260904.md, UNUSED_INDEX_REVIEW_20260904.md |
-| CLOSE-01 | P2 | Refresh catalog, reconcile every object status, run integration/API/security tests and review unresolved items; no blanket completion with hidden holds | All above | Open |
+| CLOSE-01 | P2 | Refresh catalog, reconcile every object status, run integration/API/security tests and review unresolved items; no blanket completion with hidden holds | All above | Complete with explicit holds 2026-09-09: migration, API, security, performance, source-repair, ingestion and workflow evidence reconciled; 259 ingestion, 24 history, three workflow, live role/preflight checks passed. Remaining source/semantic/product decisions are listed without data loss or blanket completion. Evidence: CLOSEOUT_AUDIT_20260909.md |
 
 Priority is dependency-driven. An item may proceed while another is held only when its own
 dependencies are satisfied. Existing implementation evidence is reused, not silently relabeled
