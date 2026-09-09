@@ -74,5 +74,8 @@ table deliberately has no public policies; do not add a permissive policy just t
 [RLS-without-policy informational advisory](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy).
 Role-test approach is consistent with [Supabase testing guidance](https://supabase.com/docs/guides/local-development/testing/pgtap-extended).
 
-Next: review source correction semantics and direct writers; assess the existing PR view's advisor
-finding using its actual consumer queries and role behavior. Entire schema cleanup remains open.
+Next: use the explicit snapshot-backed correction workflow in
+`SOURCE_CORRECTION_WORKFLOW_20260908.md` for reviewed fact changes; continue historical recovery
+only where source evidence exists. Direct-writer inventory and fail-closed guards are recorded in
+`DIRECT_WRITER_INVENTORY_20260908.md`. The existing PR view's advisor finding and entire schema
+cleanup remain open.
