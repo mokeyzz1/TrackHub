@@ -1,10 +1,10 @@
 name: Sync Weekend Results
 
 on:
-  # Run at 4 AM and 2 PM UTC Monday (10 PM/8 AM CST; 11 PM/9 AM CDT)
+  # Sunday 10 PM and Monday 8 AM Central. GitHub cron is UTC, so paired CST/CDT candidate
+  # hours are filtered by the Central-time gate.
   schedule:
-    - cron: '0 4 * * 1'
-    - cron: '0 14 * * 1'
+    - cron: '0 3,4,13,14 * * 1'
 
   # Allow manual trigger
   workflow_dispatch:
@@ -33,7 +33,19 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Check Central schedule
+        id: central-schedule
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=$(node .github/scripts/central-schedule-gate.js weekend-results)" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup Node.js
+        if: steps.central-schedule.outputs.run == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -41,11 +53,13 @@ jobs:
           cache-dependency-path: scrapers/package-lock.json
 
       - name: Install dependencies
+        if: steps.central-schedule.outputs.run == 'true'
         run: |
           cd scrapers
           npm ci
 
       - name: Refresh completed meet result links
+        if: steps.central-schedule.outputs.run == 'true'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
@@ -54,12 +68,14 @@ jobs:
           node discover_meets.js last_week
 
       - name: Refresh meet lifecycle statuses
+        if: steps.central-schedule.outputs.run == 'true'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: node scrapers/meets/update_meet_status.js
 
       - name: Sync weekend results from every available provider
+        if: steps.central-schedule.outputs.run == 'true'
         env:
           LOOKBACK_DAYS: ${{ github.event.inputs.days || '7' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -75,8 +91,8 @@ jobs:
           node sync-dual-source-results.js --days "$LOOKBACK_DAYS" --commit 2>&1 | tee sync.log
 
       - name: Upload logs
+        if: always() && steps.central-schedule.outputs.run == 'true'
         uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: sync-logs-${{ github.run_number }}
           path: scrapers/results/sync.log

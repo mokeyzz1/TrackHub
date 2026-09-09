@@ -87,6 +87,22 @@ test('the app consumes the stored meet lifecycle instead of reclassifying dates'
   assert.doesNotMatch(detail, /meetDateStr === todayStr/);
 });
 
+test('scheduled meet workflows use the tested Central-time gate and preserve manual runs', () => {
+  const root = path.resolve(__dirname, '../..');
+  const expectations = [
+    ['scrape-meets.yml', 'meet-discovery'],
+    ['check-live-status.yml', 'meet-lifecycle'],
+    ['sync-results.yml', 'weekend-results'],
+  ];
+  for (const [file, policy] of expectations) {
+    const workflow = fs.readFileSync(path.join(root, '.github/workflows', file), 'utf8');
+    assert.match(workflow, new RegExp(`central-schedule-gate\\.js ${policy}`), file);
+    assert.match(workflow, /EVENT_NAME.*\$\{\{ github\.event_name \}\}/s, file);
+    assert.match(workflow, /workflow_dispatch[\s\S]*echo "run=true"/, file);
+    assert.match(workflow, /steps\.central-schedule\.outputs\.run == 'true'/, file);
+  }
+});
+
 test('deferred real-time subsystem remains outside scheduled workflows', () => {
   const directory = path.resolve(__dirname, '../../.github/workflows');
   const workflows = fs.readdirSync(directory)

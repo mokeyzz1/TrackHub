@@ -1,11 +1,12 @@
 name: Check Live Meet Status
 
 on:
-  # Fixed UTC schedule: comments below are CST; each run is one hour later locally during CDT.
+  # GitHub cron is UTC. Candidate hours cover CST and CDT; the Central-time gate removes the
+  # extra invocation and preserves the intended local schedule through clock changes.
   schedule:
-    - cron: '0 14-23 * * 3,4,5,6,0'  # 8 AM - 5 PM Central (Wed-Sun)
-    - cron: '0 0-5 * * 4,5,6,0,1'    # 6 PM - 11 PM Central (next day UTC)
-    - cron: '0 12 * * *'              # Daily at 6 AM CST / 7 AM CDT
+    - cron: '0 11,12 * * *'            # Daily 6 AM Central candidates
+    - cron: '0 13-23 * * 3,4,5,6,0'   # Wed-Sun meet-hour candidates
+    - cron: '0 0-5 * * 4,5,6,0,1'     # Wed-Sun evening candidates after UTC rollover
 
   # Allow manual trigger
   workflow_dispatch:
@@ -28,7 +29,19 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Check Central schedule
+        id: central-schedule
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=$(node .github/scripts/central-schedule-gate.js meet-lifecycle)" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup Node.js
+        if: steps.central-schedule.outputs.run == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -36,6 +49,7 @@ jobs:
           cache-dependency-path: scrapers/package-lock.json
 
       - name: Update meet statuses
+        if: steps.central-schedule.outputs.run == 'true'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
@@ -46,4 +60,5 @@ jobs:
           node scrapers/meets/update_meet_status.js
 
       - name: Log summary
+        if: steps.central-schedule.outputs.run == 'true'
         run: echo "Meet status update completed at $(date)"

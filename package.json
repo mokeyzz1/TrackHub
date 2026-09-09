@@ -10,7 +10,7 @@
     "test:source-evidence": "node --test scrapers/shared/source_evidence.test.js",
     "test:source-corrections": "node --test scrapers/shared/source_correction.test.js",
     "test:roster-evidence": "node --test scrapers/shared/collegiate_roster_evidence.test.js",
-    "test:workflow-safety": "node --test docs/database-audit/workflow_safety.test.js scrapers/meets/meet_lifecycle.test.js",
+    "test:workflow-safety": "node --test docs/database-audit/workflow_safety.test.js scrapers/meets/meet_lifecycle.test.js .github/scripts/central-schedule-gate.test.js",
     "test:database-isolated": "bash docs/database-audit/run_isolated_postgres_tests.sh",
     "test:shared": "node --test scrapers/shared/*.test.js",
     "gen:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > types/database.ts && cp types/database.ts frontend/types/database.ts",
