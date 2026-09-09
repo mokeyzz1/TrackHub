@@ -58,6 +58,22 @@ test('scheduled result sync uses the controlled dual-source coordinator', () => 
   assert.match(coordinator, /String\(meet\.meet_id\), '--source-url', job\.url, '--control-plane'/);
 });
 
+test('meet discovery and lifecycle status have one scheduled owner each', () => {
+  const root = path.resolve(__dirname, '../..');
+  const discoveryWorkflow = fs.readFileSync(path.join(root, '.github/workflows/scrape-meets.yml'), 'utf8');
+  const resultWorkflow = fs.readFileSync(path.join(root, '.github/workflows/sync-results.yml'), 'utf8');
+  const discovery = fs.readFileSync(path.join(root, 'scrapers/meets/discover_meets.js'), 'utf8');
+  const status = fs.readFileSync(path.join(root, 'scrapers/meets/update_meet_status.js'), 'utf8');
+
+  assert.match(discoveryWorkflow, /node discover_meets\.js "\$MEET_SCRAPE_SCOPE"/);
+  assert.match(resultWorkflow, /node discover_meets\.js last_week/);
+  assert.match(resultWorkflow, /node scrapers\/meets\/update_meet_status\.js/);
+  assert.doesNotMatch(discovery, /function updateMeetStatuses|date:\s*today/);
+  assert.doesNotMatch(status, /date:\s*today/);
+  assert.equal(fs.existsSync(path.join(root, 'scrapers/meets/scrape_meets.js')), false);
+  assert.equal(fs.existsSync(path.join(root, 'scrapers/meets/scrape_meets_github.js')), false);
+});
+
 test('deferred real-time subsystem remains outside scheduled workflows', () => {
   const directory = path.resolve(__dirname, '../../.github/workflows');
   const workflows = fs.readdirSync(directory)

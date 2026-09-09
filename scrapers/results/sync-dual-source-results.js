@@ -38,6 +38,10 @@ function availableSourceJobs(meet) {
   return jobs;
 }
 
+function isEligibleMeet(meet) {
+  return meet.status === 'completed' && availableSourceJobs(meet).length > 0;
+}
+
 function sourceCommand(job, meet, { commit = false } = {}) {
   if (job.source === 'tfrrs') {
     return {
@@ -107,9 +111,7 @@ async function loadMeets({ meetId, days, limit }, env = process.env) {
   }
   const { data, error } = await query;
   if (error) throw error;
-  const eligible = (data || []).filter(meet =>
-    meet.status !== 'upcoming' && availableSourceJobs(meet).length > 0
-  );
+  const eligible = (data || []).filter(isEligibleMeet);
   return limit ? eligible.slice(0, limit) : eligible;
 }
 
@@ -133,6 +135,7 @@ async function main() {
 module.exports = {
   athleticSourceUrl,
   availableSourceJobs,
+  isEligibleMeet,
   loadMeets,
   parseArgs,
   runSourceProcess,

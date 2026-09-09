@@ -101,7 +101,8 @@ Instead:
 Each change ships as a **versioned migration**, **tested on a Supabase branch first**, then applied
 to prod, then documented. Rough order (each independently valuable, each its own review gate):
 1. `event_types` + `event_aliases` catalog; map results → `event_type_id` (backfill).
-2. Canonical `seasons`; backfill `season_code`; fix the `scrape_meets.js` hardcoded-season bug.
+2. Canonical `seasons`; backfill `season_code`; retain the discovery scraper's month-aware season
+   derivation while legacy stored labels are normalized.
 3. Unify meet ID space; add FKs (`results.meet_id`, `relay_results.meet_id`), clean 222 orphans.
 4. Environment + `wind_ms`/`wind_legal` on results.
 5. Athlete dedup + uniqueness constraints.

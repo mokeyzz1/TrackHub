@@ -72,9 +72,9 @@ the shared source-record/canonical-performance contract, not write competing raw
 
 | Workflow | Schedule | Runs | Writes |
 |---|---|---|---|
-| `scrape-meets.yml` | Mon/Thu/Fri 6AM Central | `meets/scrape_meets_github.js all` | `meets` (upsert; links by label: "Timing Site"→`meet_url`, "TFRRS Results"→`tfrrs_url`, AthleticNet/WA final links) |
-| `check-live-status.yml` | hourly Wed–Sun meet hours + daily 6AM | `meets/update_meet_status.js` | `meets.status` (upcoming→completed by `end_date`) |
-| `sync-results.yml` | Sun 10PM + Mon 8AM Central | refresh result links, then `results/sync-dual-source-results.js --commit` | TFRRS and Athletic.net observations, canonical facts/provenance, `meets.results_status` |
+| `scrape-meets.yml` | Mon/Thu/Fri at 12PM UTC | `meets/discover_meets.js all` | `meets` metadata and distinct timing/result links |
+| `check-live-status.yml` | hourly Wed–Sun meet hours + daily | `meets/update_meet_status.js` | `meets.status` only; date ranges are immutable to this job |
+| `sync-results.yml` | Monday at 4AM + 2PM UTC | refresh result links, refresh statuses, then `results/sync-dual-source-results.js --commit` | Completed-meet TFRRS/Athletic.net observations, canonical facts/provenance, `meets.results_status` |
 | manual recovery queue | operator-run | `recovery/refresh_recovery_queue.js --scope ... --from ... --to ...` | private `ingest.recovery_queue` only; no fact writes |
 
 **Anything not in this table does not run automatically.**
@@ -86,9 +86,9 @@ the shared source-record/canonical-performance contract, not write competing raw
 ### Active (wired to automation or currently useful)
 | Path | Role |
 |---|---|
-| `scrapers/meets/scrape_meets.js` / `scrape_meets_github.js` | Meet discovery from USTFCCCA (stealth Puppeteer). ⚠ hardcodes `season:'indoor'` (`scrape_meets.js:490`) |
-| `scrapers/meets/update_meet_status.js` | Status flips (uses `end_date` for multi-day) |
-| `scrapers/results/sync-dual-source-results.js` | **The one production results entrypoint.** Runs every available TFRRS/Athletic.net source for a completed meet; the shared writer reconciles each observation into one canonical result |
+| `scrapers/meets/discover_meets.js` | The one meet-discovery entrypoint. Reads USTFCCCA scopes and creates/updates meet metadata plus distinct timing/result links. |
+| `scrapers/meets/update_meet_status.js` | The one lifecycle owner for upcoming/live/completed. Uses Central time and the preserved `date`/`end_date`; never rewrites meet dates. |
+| `scrapers/results/sync-dual-source-results.js` | **The one production official-results entrypoint.** Runs every available TFRRS/Athletic.net source for completed meets only; the shared writer reconciles each observation into one canonical result. |
 | `scrapers/tfrrs/meet-scraper/sync-weekend-results.js` | Internal TFRRS source adapter used by the production coordinator; commits require the control plane |
 | `scrapers/athletic-net/import_meet_results.js` | Internal Athletic.net source adapter used by the production coordinator; commits require the control plane and cached evidence remains available for review |
 | `scrapers/meets/backfill_result_links.js` | Off-season tool: re-scrape USTFCCCA/TFRRS listings to fill missing result links on past meets (only fills empty fields) |
@@ -169,8 +169,8 @@ the rest — hence the target state below.
 3. **Athlete duplication** — importers create a new athlete whenever a TFRRS id isn't found;
    name-only ("unattached") athletes never dedupe across runs. 85 duplicate TFRRS ids; ~19.4k
    name+school dup rows.
-4. **Season labels** — `scrape_meets.js:490` hardcodes `'indoor'`. (Seasons span two calendar
-   years: Indoor Dec–Mar, Outdoor Mar–Jun, XC Aug–Nov — never derive by calendar year.)
+4. **Season labels** — discovery now derives Indoor/Outdoor/XC from the meet month and handles
+   December as the following indoor year; legacy stored labels still require separate review.
 5. **Duplicate meets** — e.g. 542 vs 6101 (same NCAA DI XC champs); no uniqueness guard.
 6. **Dead schema** — 7 empty tables; `events` FK'd but unused.
 7. **Orphans** — 222 results reference deleted meets (94641: 207 rows, 94729: 15).

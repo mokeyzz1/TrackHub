@@ -1,4 +1,16 @@
-# Current result-scraper status
+# Current scheduled scraper lifecycle
+
+The scheduled lifecycle has one owner per stage:
+
+1. `scrapers/meets/discover_meets.js` discovers meets and source links Monday, Thursday, and Friday.
+2. `scrapers/meets/update_meet_status.js` owns upcoming/live/completed transitions; it preserves
+   the original start/end dates.
+3. `scrapers/results/sync-dual-source-results.js` ingests official results for completed meets on
+   Monday after refreshing links and statuses.
+
+The entries/live/final real-time subsystem and roster system remain separate and unscheduled.
+
+## Official results
 
 As of 2026-09-09 there is one production result-ingestion entrypoint:
 

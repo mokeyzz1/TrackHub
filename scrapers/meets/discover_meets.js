@@ -1,17 +1,9 @@
 #!/usr/bin/env node
 /**
- * College Meets Scraper
+ * College meet discovery
  *
- * Scrapes college track meets from USTFCCCA and uploads to Supabase.
- * Can be run manually or scheduled via cron.
- *
- * Usage:
- *   node scrape_meets.js                    # Scrape this_week + next_week
- *   node scrape_meets.js this_week          # Scrape specific scope
- *   node scrape_meets.js next_month         # Scrape next month
- *   node scrape_meets.js all                # Scrape all scopes
- *
- * Scopes: this_week, next_week, next_month
+ * Discovers collegiate meets and their timing/result links from USTFCCCA. This script owns meet
+ * metadata discovery only; `update_meet_status.js` owns lifecycle transitions.
  */
 
 const puppeteer = require('puppeteer-extra');
@@ -23,25 +15,21 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 // Supabase config from environment variables
-const SUPABASE_URL = process.env.SUPABASE_URL?.replace('https://', '') || '';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('ERROR: Missing Supabase credentials. Check your .env file.');
+  console.error('ERROR: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables are required');
   process.exit(1);
 }
 
 // Paths
 const LOGS_DIR = path.join(__dirname, '../logs');
-const OUTPUT_DIR = path.join(__dirname, '../output');
-
-// Ensure directories exist
 if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
-if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
 // Logging
 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-const logFile = path.join(LOGS_DIR, `scrape_${timestamp}.log`);
+const logFile = path.join(LOGS_DIR, `meet_discovery_${timestamp}.log`);
 const logStream = fs.createWriteStream(logFile, { flags: 'a' });
 
 function log(message) {
@@ -54,7 +42,7 @@ function log(message) {
 function supabaseRequest(method, endpoint, data = null) {
   return new Promise((resolve, reject) => {
     const options = {
-      hostname: SUPABASE_URL,
+      hostname: SUPABASE_URL.replace('https://', ''),
       path: '/rest/v1/' + endpoint,
       method: method,
       headers: {
@@ -337,30 +325,32 @@ async function findExistingMeet(meet, meetDate, meetEndDate) {
 
 // Scrape meets from USTFCCCA
 async function scrapeMeets(datescope = 'this_week') {
-  log(`\nScraping USTFCCCA meets: ${datescope}`);
+  log(`Scraping USTFCCCA meets: ${datescope}`);
 
   const url = `https://web4.ustfccca.org/meets-results?datescope=${datescope}`;
 
   const browser = await puppeteer.launch({
     headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu'
+    ]
   });
 
   const page = await browser.newPage();
-
-  // Set a reasonable viewport
   await page.setViewport({ width: 1280, height: 800 });
 
   try {
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
     log('Page loaded');
 
-    // Wait for content
     await new Promise(resolve => setTimeout(resolve, 3000));
 
     const meets = await page.evaluate(() => {
       const results = [];
-      // Look for Collegiate, Conference, and NCAA sections
+      // Look for Collegiate, Conference, and Championship sections
       const targetSections = ['Collegiate', 'Conference', 'NCAA', 'NAIA', 'NJCAA'];
       const headings = Array.from(document.querySelectorAll('h4'))
         .filter(h => targetSections.some(s => h.textContent.trim().includes(s)));
@@ -439,121 +429,88 @@ async function scrapeMeets(datescope = 'this_week') {
 // Upsert meets to Supabase
 // A meet whose TIMING SITE is athletic.net (live.athletic.net, *.anet.live, an AthleticLIVE
 // instance) has a link that doubles as its RESULTS source. USTFCCCA only lists it under
-// "timing site", so it used to land in meet_url alone and athletic_net_results_url stayed empty
-// — 563 meets had to be back-sorted once. Derive it here so new meets never drift again.
-// meet_url keeps the link too: it's still the live/timing link (that's what meet_url is for).
+// "timing site", so it used to land in meet_url alone and athletic_net_results_url stayed empty.
+// Derive it here so new meets never drift again. meet_url keeps the link (it's the live link).
 const ATHLETIC_NET_HOST = /athletic\.net|anet\.live/i;
 const deriveAthleticNetResultsUrl = (meet) =>
   meet.athleticNetResultsUrl ||
   (meet.timingUrl && ATHLETIC_NET_HOST.test(meet.timingUrl) ? meet.timingUrl : null);
 
 async function upsertMeets(meets) {
-  log(`\nUpserting ${meets.length} meets to Supabase...`);
+  log(`Upserting ${meets.length} meets to Supabase...`);
 
   let newCount = 0;
   let updatedCount = 0;
   let skippedCount = 0;
+  let errorCount = 0;
 
   for (const meet of meets) {
     const { start: meetDate, end: meetEndDate } = parseMeetDate(meet.date);
     const timingPlatform = detectTimingPlatform(meet.timingUrl);
 
-    const existing = await findExistingMeet(meet, meetDate, meetEndDate);
+    try {
+      const existing = await findExistingMeet(meet, meetDate, meetEndDate);
 
-    if (existing) {
-      // Update timing URL or end_date if changed
-      const updates = {};
-      if (meet.timingUrl && meet.timingUrl !== existing.meet_url) {
-        updates.meet_url = meet.timingUrl;
-      }
-      if (timingPlatform && timingPlatform !== existing.timing_platform) {
-        updates.timing_platform = timingPlatform;
-      }
-      if (meet.tfrrsUrl && meet.tfrrsUrl !== existing.tfrrs_url) {
-        updates.tfrrs_url = meet.tfrrsUrl;
-        if (existing.results_status !== 'imported') {
-          updates.results_status = 'tfrrs_available';
+      if (existing) {
+        // Update timing URL or end_date if changed
+        const updates = {};
+        if (meet.timingUrl && meet.timingUrl !== existing.meet_url) {
+          updates.meet_url = meet.timingUrl;
         }
-      }
-      const anetResults = deriveAthleticNetResultsUrl(meet);
-      if (anetResults && anetResults !== existing.athletic_net_results_url) {
-        updates.athletic_net_results_url = anetResults;
-      }
-      if (meet.waResultsUrl && meet.waResultsUrl !== existing.wa_results_url) {
-        updates.wa_results_url = meet.waResultsUrl;
-      }
-      if (meetEndDate !== meetDate && existing.end_date !== meetEndDate) {
-        updates.end_date = meetEndDate;
-      }
+        if (timingPlatform && timingPlatform !== existing.timing_platform) {
+          updates.timing_platform = timingPlatform;
+        }
+        if (meet.tfrrsUrl && meet.tfrrsUrl !== existing.tfrrs_url) {
+          updates.tfrrs_url = meet.tfrrsUrl;
+          if (existing.results_status !== 'imported') {
+            updates.results_status = 'tfrrs_available';
+          }
+        }
+        const anetResults = deriveAthleticNetResultsUrl(meet);
+        if (anetResults && anetResults !== existing.athletic_net_results_url) {
+          updates.athletic_net_results_url = anetResults;
+        }
+        if (meet.waResultsUrl && meet.waResultsUrl !== existing.wa_results_url) {
+          updates.wa_results_url = meet.waResultsUrl;
+        }
+        if (meetEndDate !== meetDate && existing.end_date !== meetEndDate) {
+          updates.end_date = meetEndDate;
+        }
 
-      if (Object.keys(updates).length > 0) {
-        updates.updated_at = new Date().toISOString();
-        await meetRequest('PATCH', `meets?meet_id=eq.${existing.meet_id}`, updates);
-        log(`  Updated: ${meet.name}`);
-        updatedCount++;
+        if (Object.keys(updates).length > 0) {
+          updates.updated_at = new Date().toISOString();
+          await meetRequest('PATCH', `meets?meet_id=eq.${existing.meet_id}`, updates);
+          log(`  Updated: ${meet.name}`);
+          updatedCount++;
+        } else {
+          skippedCount++;
+        }
       } else {
-        skippedCount++;
-      }
-    } else {
-      // Insert new meet
-      const res = await meetRequest('POST', 'meets', {
-        name: meet.name,
-        date: meetDate,
-        end_date: meetEndDate,
-        location: meet.location,
-        meet_url: meet.timingUrl,
-        timing_platform: timingPlatform,
-        tfrrs_url: meet.tfrrsUrl,
-        athletic_net_results_url: deriveAthleticNetResultsUrl(meet),
-        wa_results_url: meet.waResultsUrl,
-        results_status: meet.tfrrsUrl ? 'tfrrs_available' : 'pending',
-        status: 'upcoming',
-        level: 'college',
-        season: deriveSeason(meetDate)
-      });
-
-      if (res.status < 400) {
+        await meetRequest('POST', 'meets', {
+          name: meet.name,
+          date: meetDate,
+          end_date: meetEndDate,
+          location: meet.location,
+          meet_url: meet.timingUrl,
+          timing_platform: timingPlatform,
+          tfrrs_url: meet.tfrrsUrl,
+          athletic_net_results_url: deriveAthleticNetResultsUrl(meet),
+          wa_results_url: meet.waResultsUrl,
+          results_status: meet.tfrrsUrl ? 'tfrrs_available' : 'pending',
+          status: 'upcoming',
+          level: 'college',
+          season: deriveSeason(meetDate)
+        });
         log(`  Added: ${meet.name} (${meetDate}${meetEndDate !== meetDate ? ' to ' + meetEndDate : ''})`);
         newCount++;
       }
+    } catch (e) {
+      log(`  Error processing ${meet.name}: ${e.message}`);
+      errorCount++;
     }
   }
 
-  return { newCount, updatedCount, skippedCount };
-}
-
-// Update meet statuses (upcoming -> completed for past dates) - uses end_date for multi-day meets
-async function updateMeetStatuses() {
-  log('\nUpdating meet statuses...');
-
-  const today = new Date().toISOString().split('T')[0];
-
-  // Get all upcoming meets and check end_date
-  const res = await supabaseRequest('GET',
-    `meets?status=eq.upcoming&select=meet_id,name,date,end_date`);
-
-  if (res.data && res.data.length > 0) {
-    let completedCount = 0;
-    for (const meet of res.data) {
-      // Use end_date if available, otherwise use date
-      const meetEndDate = meet.end_date || meet.date;
-      if (meetEndDate < today) {
-        await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, {
-          status: 'completed',
-          updated_at: new Date().toISOString()
-        });
-        log(`  Marked completed: ${meet.name} (${meet.date})`);
-        completedCount++;
-      }
-    }
-    if (completedCount > 0) {
-      log(`Updated ${completedCount} meets to completed status`);
-    } else {
-      log('No meets to update');
-    }
-  } else {
-    log('No meets to update');
-  }
+  return { newCount, updatedCount, skippedCount, errorCount };
 }
 
 // Main
@@ -561,7 +518,7 @@ async function main() {
   const arg = process.argv[2] || 'default';
 
   log('='.repeat(60));
-  log('COLLEGE MEETS SCRAPER');
+  log('COLLEGE MEET DISCOVERY');
   log(`Started: ${new Date().toISOString()}`);
   log('='.repeat(60));
 
@@ -570,13 +527,16 @@ async function main() {
     scopes = ['last_week', 'this_week', 'next_week', 'next_month'];
   } else if (arg === 'default') {
     scopes = ['this_week', 'next_week'];
-  } else {
+  } else if (['last_week', 'this_week', 'next_week', 'next_month'].includes(arg)) {
     scopes = [arg];
+  } else {
+    throw new Error(`Unsupported discovery scope: ${arg}`);
   }
 
   let totalNew = 0;
   let totalUpdated = 0;
   let totalSkipped = 0;
+  let totalErrors = 0;
 
   try {
     for (const scope of scopes) {
@@ -585,34 +545,20 @@ async function main() {
       totalNew += result.newCount;
       totalUpdated += result.updatedCount;
       totalSkipped += result.skippedCount;
+      totalErrors += result.errorCount;
     }
-
-    // Update statuses for past meets
-    await updateMeetStatuses();
-
-    // Save summary
-    const summary = {
-      timestamp: new Date().toISOString(),
-      scopes,
-      newMeets: totalNew,
-      updatedMeets: totalUpdated,
-      skippedMeets: totalSkipped
-    };
-
-    fs.writeFileSync(
-      path.join(OUTPUT_DIR, 'last_scrape_summary.json'),
-      JSON.stringify(summary, null, 2)
-    );
 
     log('\n' + '='.repeat(60));
     log('SCRAPE COMPLETE');
     log(`  New meets: ${totalNew}`);
     log(`  Updated: ${totalUpdated}`);
     log(`  Skipped: ${totalSkipped}`);
+    log(`  Errors: ${totalErrors}`);
     log('='.repeat(60));
+    if (totalErrors) throw new Error(`${totalErrors} meet record(s) failed to persist`);
 
   } catch (error) {
-    log(`\nERROR: ${error.message}`);
+    log(`ERROR: ${error.message}`);
     process.exit(1);
   }
 

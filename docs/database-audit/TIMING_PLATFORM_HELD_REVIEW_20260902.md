@@ -12,7 +12,7 @@ Status: reviewed and partially applied; remaining fallback rows are still held
 ## `.anet.live` family
 
 The project already treats `anet.live` as an Athletic.net result host in
-`scrapers/meets/scrape_meets.js` (`ATHLETIC_NET_HOST = /athletic\\.net|anet\\.live/i`). The
+`scrapers/meets/discover_meets.js` (`ATHLETIC_NET_HOST = /athletic\\.net|anet\\.live/i`). The
 official Athletic.net help center also identifies AthleticLIVE as its live/final results service
 and links the `anet.live` domain for AthleticLIVE tooling:
 

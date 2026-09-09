@@ -2,11 +2,11 @@
 /**
  * Update Meet Status
  *
- * Updates the status field of all meets based on current date/time.
- * Handles multi-day meets correctly by using end_date.
+ * Owns upcoming/live/completed lifecycle transitions based on Central time. It never changes a
+ * meet's date, end_date, source links, or result state.
  *
  * Logic:
- * - LIVE: date <= today AND end_date >= today AND has meet_url
+ * - LIVE: the meet's date range contains today AND it has a live/timing URL
  * - COMPLETED: end_date < today, OR (end_date = today AND after 11 PM Central on last day)
  * - UPCOMING: date > today
  *
@@ -30,11 +30,6 @@ try {
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace('https://', '');
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('ERROR: Missing Supabase credentials.');
-  process.exit(1);
-}
 
 // Meet end hour (Central time) - after this, last-day meets can be marked completed
 const MEET_END_HOUR = 23; // 11 PM Central
@@ -80,25 +75,40 @@ function supabaseRequest(method, endpoint, data = null) {
   });
 }
 
-function getCentralTime() {
-  const now = new Date();
-  // Use America/Chicago for proper DST handling
-  const centralStr = now.toLocaleString('en-US', { timeZone: 'America/Chicago' });
-  return new Date(centralStr);
+function getCentralClock(now = new Date()) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(now).filter(part => part.type !== 'literal').map(part => [part.type, part.value]));
+  return { today: `${parts.year}-${parts.month}-${parts.day}`, hour: Number(parts.hour) };
 }
 
-function getToday() {
-  const central = getCentralTime();
-  return `${central.getFullYear()}-${String(central.getMonth() + 1).padStart(2, '0')}-${String(central.getDate()).padStart(2, '0')}`;
+function dateOnly(value) {
+  return value ? String(value).split('T')[0] : null;
 }
 
-function getCentralHour() {
-  return getCentralTime().getHours();
+function desiredMeetStatus(meet, { today, hour, endHour = MEET_END_HOUR }) {
+  if (meet.status === 'cancelled') return 'cancelled';
+  const start = dateOnly(meet.date);
+  const end = dateOnly(meet.end_date) || start;
+  if (!start) return meet.status || null;
+  if (start > today) return 'upcoming';
+  if (end < today || (end === today && hour >= endHour)) return 'completed';
+  if (start <= today && end >= today && meet.meet_url) return 'live';
+  return meet.status || 'upcoming';
+}
+
+function statusPatch(status, now = new Date()) {
+  return { status, updated_at: now.toISOString() };
 }
 
 async function updateMeetStatuses() {
-  const today = getToday();
-  const centralHour = getCentralHour();
+  if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Missing Supabase credentials.');
+  const { today, hour: centralHour } = getCentralClock();
   const afterMeetHours = centralHour >= MEET_END_HOUR;
 
   log('='.repeat(50));
@@ -114,59 +124,25 @@ async function updateMeetStatuses() {
   // 1. Set LIVE: meets happening now (date <= today AND end_date >= today) with meet_url
   log('\n1. Checking meets that should be LIVE...');
   const { data: shouldBeLive } = await supabaseRequest('GET',
-    `meets?select=meet_id,name,date,end_date,status&date=lte.${today}&end_date=gte.${today}&meet_url=not.is.null&status=neq.live`
+    `meets?select=meet_id,name,date,end_date,meet_url,status&or=(and(date.lte.${today},end_date.gte.${today}),and(date.eq.${today},end_date.is.null))&meet_url=not.is.null&status=in.(upcoming,completed)`
   );
 
   for (const meet of shouldBeLive || []) {
-    const endDate = meet.end_date?.split('T')[0];
-    const isLastDay = endDate === today;
-
-    // Don't set to live if it's the last day and past meet hours
-    if (isLastDay && afterMeetHours) {
-      continue;
-    }
-
-    await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, {
-      status: 'live',
-      updated_at: new Date().toISOString()
-    });
-    log(`  -> LIVE: ${meet.name} (${meet.date.split('T')[0]} to ${endDate})`);
+    if (desiredMeetStatus(meet, { today, hour: centralHour }) !== 'live') continue;
+    await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, statusPatch('live'));
+    log(`  -> LIVE: ${meet.name} (${dateOnly(meet.date)} to ${dateOnly(meet.end_date) || dateOnly(meet.date)})`);
     liveCount++;
-  }
-
-  // 1b. WORKAROUND for old frontend: Update date to today for multi-day meets still live
-  // Old frontend uses date=today for Live tab, so we shift the date forward
-  log('\n1b. Updating date field for multi-day meets (old frontend fix)...');
-  const { data: multiDayLive } = await supabaseRequest('GET',
-    `meets?select=meet_id,name,date,end_date&date=lt.${today}&end_date=gte.${today}&meet_url=not.is.null`
-  );
-
-  for (const meet of multiDayLive || []) {
-    const endDate = meet.end_date?.split('T')[0];
-    const isLastDay = endDate === today;
-
-    if (isLastDay && afterMeetHours) {
-      continue;
-    }
-
-    await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, {
-      date: today,
-      updated_at: new Date().toISOString()
-    });
-    log(`  -> Updated date to ${today}: ${meet.name}`);
   }
 
   // 2. Set COMPLETED: meets that have ended (end_date < today)
   log('\n2. Checking meets that should be COMPLETED (ended before today)...');
   const { data: endedMeets } = await supabaseRequest('GET',
-    `meets?select=meet_id,name,date,end_date,status&end_date=lt.${today}&status=neq.completed`
+    `meets?select=meet_id,name,date,end_date,meet_url,status&or=(end_date.lt.${today},and(end_date.is.null,date.lt.${today}))&status=in.(upcoming,live)`
   );
 
   for (const meet of endedMeets || []) {
-    await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, {
-      status: 'completed',
-      updated_at: new Date().toISOString()
-    });
+    if (desiredMeetStatus(meet, { today, hour: centralHour }) !== 'completed') continue;
+    await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, statusPatch('completed'));
     log(`  -> COMPLETED: ${meet.name}`);
     completedCount++;
   }
@@ -175,14 +151,12 @@ async function updateMeetStatuses() {
   if (afterMeetHours) {
     log('\n3. Checking last-day meets to mark COMPLETED (after 11 PM)...');
     const { data: lastDayMeets } = await supabaseRequest('GET',
-      `meets?select=meet_id,name,date,end_date,status&end_date=eq.${today}&status=eq.live`
+      `meets?select=meet_id,name,date,end_date,meet_url,status&or=(end_date.eq.${today},and(end_date.is.null,date.eq.${today}))&status=eq.live`
     );
 
     for (const meet of lastDayMeets || []) {
-      await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, {
-        status: 'completed',
-        updated_at: new Date().toISOString()
-      });
+      if (desiredMeetStatus(meet, { today, hour: centralHour }) !== 'completed') continue;
+      await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, statusPatch('completed'));
       log(`  -> COMPLETED (end of last day): ${meet.name}`);
       completedCount++;
     }
@@ -191,14 +165,12 @@ async function updateMeetStatuses() {
   // 4. Set UPCOMING: meets that haven't started (date > today)
   log('\n4. Checking meets that should be UPCOMING...');
   const { data: futureMeets } = await supabaseRequest('GET',
-    `meets?select=meet_id,name,date,status&date=gt.${today}&status=neq.upcoming`
+    `meets?select=meet_id,name,date,end_date,meet_url,status&date=gt.${today}&status=in.(live,completed)`
   );
 
   for (const meet of futureMeets || []) {
-    await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, {
-      status: 'upcoming',
-      updated_at: new Date().toISOString()
-    });
+    if (desiredMeetStatus(meet, { today, hour: centralHour }) !== 'upcoming') continue;
+    await supabaseRequest('PATCH', `meets?meet_id=eq.${meet.meet_id}`, statusPatch('upcoming'));
     log(`  -> UPCOMING: ${meet.name}`);
     upcomingCount++;
   }
@@ -212,7 +184,11 @@ async function updateMeetStatuses() {
   log('='.repeat(50));
 }
 
-updateMeetStatuses().catch(err => {
-  log(`ERROR: ${err.message}`);
-  process.exit(1);
-});
+if (require.main === module) {
+  updateMeetStatuses().catch(err => {
+    log(`ERROR: ${err.message}`);
+    process.exit(1);
+  });
+}
+
+module.exports = { dateOnly, desiredMeetStatus, getCentralClock, statusPatch, updateMeetStatuses };

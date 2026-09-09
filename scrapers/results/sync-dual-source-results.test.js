@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const {
   athleticSourceUrl,
   availableSourceJobs,
+  isEligibleMeet,
   parseArgs,
   sourceCommand,
   syncMeet,
@@ -24,6 +25,14 @@ test('selects every available result provider in deterministic order', () => {
   ]);
   assert.equal(athleticSourceUrl({ meet_url: 'https://tenant.anet.live/meets/55' }), 'https://tenant.anet.live/meets/55');
   assert.equal(athleticSourceUrl({ meet_url: 'https://example.com/meets/55' }), null);
+});
+
+test('official ingestion accepts completed meets only', () => {
+  assert.equal(isEligibleMeet({ ...meet, status: 'completed' }), true);
+  assert.equal(isEligibleMeet({ ...meet, status: 'live' }), false);
+  assert.equal(isEligibleMeet({ ...meet, status: 'upcoming' }), false);
+  assert.equal(isEligibleMeet({ ...meet, status: 'cancelled' }), false);
+  assert.equal(isEligibleMeet({ meet_id: 99, status: 'completed' }), false);
 });
 
 test('builds controlled compare commands for both providers', () => {

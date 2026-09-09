@@ -1,12 +1,11 @@
 name: Check Live Meet Status
 
 on:
-  # Run hourly on Wed/Thu/Fri/Sat/Sun during meet hours (8 AM - 11 PM Central)
-  # Central to UTC: add 6 hours (winter)
+  # Fixed UTC schedule: comments below are CST; each run is one hour later locally during CDT.
   schedule:
     - cron: '0 14-23 * * 3,4,5,6,0'  # 8 AM - 5 PM Central (Wed-Sun)
     - cron: '0 0-5 * * 4,5,6,0,1'    # 6 PM - 11 PM Central (next day UTC)
-    - cron: '0 12 * * *'              # Daily at 6 AM Central - catch anything missed
+    - cron: '0 12 * * *'              # Daily at 6 AM CST / 7 AM CDT
 
   # Allow manual trigger
   workflow_dispatch:
