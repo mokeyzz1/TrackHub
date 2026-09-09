@@ -43,6 +43,11 @@ quarantine validation, unsupported identity/relay-lineup changes, successful arc
 resolution ordering, and transaction rollback when the canonical update assertion fails. The
 tests use a fake PostgreSQL client and do not connect to Supabase or mutate live data.
 
+A separate live read-only scan on 2026-09-08 found zero open `source_correction_required`
+quarantines and therefore zero currently eligible snapshot-backed corrections. The live quarantine
+workload is dominated by older `missing_athlete`/`missing_team`/identity cases whose observations
+have no immutable snapshot; they remain historical review work, not candidates for this command.
+
 ## Remaining boundary
 
 This closes the missing operator apply mechanism for snapshot-backed corrections, not historical
