@@ -7,12 +7,13 @@
  *
  * Usage:
  *   node import-mapping-to-db.js          # Dry run
- *   node import-mapping-to-db.js --commit # Actually update
+ *   node import-mapping-to-db.js --commit --legacy-direct-write # Explicit legacy update
  */
 
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+const { requireControlledCommit } = require('../shared/write_mode_guard');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
@@ -48,6 +49,13 @@ function isVerifiedSchoolMatch(mapping, equivalences) {
 }
 
 async function importMapping(commit = false) {
+  requireControlledCommit({
+    commit,
+    controlPlane: false,
+    legacyDirectWrite: process.argv.includes('--legacy-direct-write'),
+    importer: 'legacy Athletic.net mapping importer'
+  });
+
   console.log('========================================');
   console.log(commit ? 'IMPORTING MAPPING TO DATABASE' : 'DRY RUN');
   console.log('========================================\n');

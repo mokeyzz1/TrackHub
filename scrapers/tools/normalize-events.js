@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /**
  * Normalize event names in the database (BATCHED)
- * Run with: node normalize-events.js
+ * Run with: node normalize-events.js --commit --legacy-direct-write
  */
 
 require('dotenv').config({ path: '../../frontend/.env' });
 const { createClient } = require('@supabase/supabase-js');
+const { requireControlledCommit } = require('../shared/write_mode_guard');
 
 const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_URL,
@@ -123,7 +124,14 @@ async function updateInBatches(oldName, newName) {
   return totalUpdated;
 }
 
-async function normalizeEvents() {
+async function normalizeEvents(commit = false) {
+  requireControlledCommit({
+    commit,
+    controlPlane: false,
+    legacyDirectWrite: process.argv.includes('--legacy-direct-write'),
+    importer: 'legacy event normalization tool'
+  });
+
   console.log('Starting event name normalization...\n');
 
   let grandTotal = 0;
@@ -151,4 +159,5 @@ async function normalizeEvents() {
   console.log(`========================================`);
 }
 
-normalizeEvents().catch(console.error);
+const commit = process.argv.includes('--commit');
+normalizeEvents(commit).catch(console.error);

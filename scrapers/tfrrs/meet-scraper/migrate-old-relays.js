@@ -1,11 +1,13 @@
 /**
- * Migrate old relay results (individual athlete rows) to new relay tables (team-based)
+ * Migrate old relay results (individual athlete rows) to new relay tables (team-based).
+ * This destructive legacy migration requires --commit --legacy-direct-write.
  *
  * Old format: Each athlete has their own row in results table
  * New format: One relay_result row with linked relay_athletes
  */
 
 const { createClient } = require('@supabase/supabase-js');
+const { requireControlledCommit } = require('../../shared/write_mode_guard');
 require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 
 const supabase = createClient(
@@ -43,6 +45,13 @@ const EVENT_NAME_MAP = {
 };
 
 async function migrateOldRelays(commit = false) {
+  requireControlledCommit({
+    commit,
+    controlPlane: false,
+    legacyDirectWrite: process.argv.includes('--legacy-direct-write'),
+    importer: 'legacy relay migration'
+  });
+
   console.log('========================================');
   console.log(commit ? 'MIGRATING OLD RELAY RESULTS' : 'DRY RUN');
   console.log('========================================\n');

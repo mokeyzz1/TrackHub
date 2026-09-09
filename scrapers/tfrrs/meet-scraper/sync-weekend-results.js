@@ -1377,7 +1377,16 @@ async function loadImportAthleteLookup(ids, ingestPool = null) {
 }
 
 // Import results to database
-async function importResults(results, commit, relaysOnly = false, controlPlane = false, ingestPool = null) {
+async function importResults(results, commit, relaysOnly = false, controlPlane = false, ingestPool = null, legacyDirectWrite = false) {
+  // Keep the write boundary enforced when this function is imported by another worker. The CLI
+  // also checks the flag, but a module caller must not be able to bypass it accidentally.
+  requireControlledCommit({
+    commit,
+    controlPlane,
+    legacyDirectWrite,
+    importer: 'TFRRS weekend importer'
+  });
+
   // Load the canonical event catalog so new results/relays get a resolved event_type_id.
   const aliasCount = await loadImportEventCatalog();
   console.log(`Loaded ${aliasCount.toLocaleString()} event aliases for resolution.`);
@@ -2226,7 +2235,9 @@ async function main() {
     allScrapedResults,
     options.commit,
     options.relaysOnly,
-    options.controlPlane
+    options.controlPlane,
+    null,
+    options.legacyDirectWrite
   );
 
   if (options.commit) {

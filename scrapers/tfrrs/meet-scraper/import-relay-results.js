@@ -6,6 +6,7 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 const { EventResolver } = require('../../shared/event_resolver');
+const { requireControlledCommit } = require('../../shared/write_mode_guard');
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -28,7 +29,14 @@ function normalizeSchoolName(name) {
     .trim();
 }
 
-async function importRelayResults(commit = false) {
+async function importRelayResults(commit = false, { legacyDirectWrite = process.argv.includes('--legacy-direct-write') } = {}) {
+  requireControlledCommit({
+    commit,
+    controlPlane: false,
+    legacyDirectWrite,
+    importer: 'legacy TFRRS relay importer'
+  });
+
   console.log('========================================');
   console.log(commit ? 'IMPORTING RELAY RESULTS' : 'DRY RUN');
   console.log('========================================\n');
@@ -284,4 +292,5 @@ async function importRelayResults(commit = false) {
 }
 
 const commit = process.argv.includes('--commit');
-importRelayResults(commit).catch(console.error);
+const legacyDirectWrite = process.argv.includes('--legacy-direct-write');
+importRelayResults(commit, { legacyDirectWrite }).catch(console.error);
