@@ -39,7 +39,7 @@ function availableSourceJobs(meet) {
 }
 
 function isEligibleMeet(meet) {
-  return meet.status === 'completed' && availableSourceJobs(meet).length > 0;
+  return (meet.effective_status || meet.status) === 'completed' && availableSourceJobs(meet).length > 0;
 }
 
 function sourceCommand(job, meet, { commit = false } = {}) {
@@ -98,8 +98,8 @@ async function loadMeets({ meetId, days, limit }, env = process.env) {
   }
   const client = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
   let query = client
-    .from('meets')
-    .select('meet_id,name,date,end_date,status,meet_url,tfrrs_url,athletic_net_results_url')
+    .from('v_meets_lifecycle')
+    .select('meet_id,name,date,end_date,status,effective_status,meet_url,tfrrs_url,athletic_net_results_url')
     .order('date', { ascending: false })
     .order('meet_id', { ascending: true });
 

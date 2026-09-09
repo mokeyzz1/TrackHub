@@ -28,6 +28,8 @@ test('selects every available result provider in deterministic order', () => {
 });
 
 test('official ingestion accepts completed meets only', () => {
+  assert.equal(isEligibleMeet({ ...meet, status: 'live', effective_status: 'completed' }), true);
+  assert.equal(isEligibleMeet({ ...meet, status: 'completed', effective_status: 'live' }), false);
   assert.equal(isEligibleMeet({ ...meet, status: 'completed' }), true);
   assert.equal(isEligibleMeet({ ...meet, status: 'live' }), false);
   assert.equal(isEligibleMeet({ ...meet, status: 'upcoming' }), false);

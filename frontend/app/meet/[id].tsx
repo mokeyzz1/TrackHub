@@ -30,12 +30,13 @@ interface Meet {
   meet_id: number;
   name: string;
   date: string;
-  end_date: string | null;
-  location: string;
+  end_date: string;
+  location: string | null;
   meet_url: string | null;
-  status: 'upcoming' | 'live' | 'completed' | 'cancelled';
-  level: string;
-  season: string;
+  status: 'upcoming' | 'live' | 'completed' | 'cancelled' | 'postponed';
+  effective_status: 'upcoming' | 'live' | 'completed' | 'cancelled' | 'postponed';
+  level: string | null;
+  season: string | null;
 }
 
 export default function MeetDetailScreen() {
@@ -93,9 +94,9 @@ export default function MeetDetailScreen() {
       }
 
       const { data, error: fetchError } = await supabase
-        .from('meets')
+        .from('v_meets_lifecycle')
         .select('*')
-        .eq('meet_id', id)
+        .eq('meet_id', Number(id))
         .single();
 
       if (fetchError) throw fetchError;
@@ -113,12 +114,12 @@ export default function MeetDetailScreen() {
     if (!isValidId) return;
 
     try {
-      // Get active and upcoming meets according to the canonical stored lifecycle.
+      // Get active and upcoming meets according to the authoritative calculated lifecycle.
       const { data, error: fetchError } = await supabase
-        .from('meets')
+        .from('v_meets_lifecycle')
         .select('*')
-        .neq('meet_id', id)
-        .in('status', ['live', 'upcoming'])
+        .neq('meet_id', Number(id))
+        .in('effective_status', ['live', 'upcoming', 'postponed'])
         .order('date', { ascending: true })
         .limit(10);
 
@@ -348,7 +349,7 @@ export default function MeetDetailScreen() {
   }
 
   function getMeetStatus(meet: Meet) {
-    return meet.status;
+    return meet.effective_status;
   }
 
   function getGradientColors(status: string): readonly [string, string] {
@@ -359,6 +360,8 @@ export default function MeetDetailScreen() {
         return ['#4A90D9', '#7B68EE'] as const; // Blue/purple for upcoming
       case 'cancelled':
         return ['#991B1B', '#7F1D1D'] as const;
+      case 'postponed':
+        return ['#B45309', '#92400E'] as const;
       default:
         return ['#6B7280', '#4B5563'] as const; // Gray for past
     }
@@ -447,6 +450,12 @@ export default function MeetDetailScreen() {
                 <>
                   <Ionicons name="close-circle" size={12} color={colors.text.white} />
                   <Text style={styles.statusText}>CANCELLED</Text>
+                </>
+              )}
+              {meetStatus === 'postponed' && (
+                <>
+                  <Ionicons name="time" size={12} color={colors.text.white} />
+                  <Text style={styles.statusText}>POSTPONED</Text>
                 </>
               )}
             </View>

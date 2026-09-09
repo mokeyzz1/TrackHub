@@ -20,14 +20,14 @@ export function useMeetDetails(meetId: string | number) {
 
       // Fetch meet details
       const { data: meetData, error: meetError } = await supabase
-        .from('meets')
+        .from('v_meets_lifecycle')
         .select('*')
-        .eq('meet_id', meetId)
+        .eq('meet_id', Number(meetId))
         .single();
 
       if (meetError) throw meetError;
 
-      setMeet(meetData as MeetDetails);
+      setMeet(meetData);
     } catch (err) {
       console.error('Error fetching meet details:', err);
       setError(err as Error);

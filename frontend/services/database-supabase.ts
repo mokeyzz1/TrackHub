@@ -1319,7 +1319,7 @@ async function resolveEventTypeId(eventName: string): Promise<number | null> {
 // Get meet by ID
 export async function getMeetById(meetId: number) {
   const { data, error } = await supabase
-    .from('meets')
+    .from('v_meets_lifecycle')
     .select('*')
     .eq('meet_id', meetId)
     .single();
@@ -1334,7 +1334,7 @@ export async function getMeetById(meetId: number) {
 // Get meet by name and date
 export async function getMeetByName(meetName: string, date?: string) {
   let query = supabase
-    .from('meets')
+    .from('v_meets_lifecycle')
     .select('*')
     .eq('name', meetName);
 

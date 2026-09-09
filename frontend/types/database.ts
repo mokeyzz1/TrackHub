@@ -561,10 +561,11 @@ export type Database = {
           athletic_net_results_url: string | null
           created_at: string
           date: string
-          end_date: string | null
+          end_date: string
           level: string | null
           location: string | null
           meet_id: number
+          meet_timezone: string | null
           meet_url: string | null
           name: string
           results_error: string | null
@@ -574,7 +575,8 @@ export type Database = {
           results_status: string | null
           season: string | null
           source_url: string | null
-          status: string | null
+          status: "cancelled" | "completed" | "live" | "postponed" | "upcoming"
+          status_override: "cancelled" | "postponed" | null
           tfrrs_meet_id: string | null
           tfrrs_url: string | null
           timing_platform: string | null
@@ -585,10 +587,11 @@ export type Database = {
           athletic_net_results_url?: string | null
           created_at?: string
           date: string
-          end_date?: string | null
+          end_date: string
           level?: string | null
           location?: string | null
           meet_id?: number
+          meet_timezone?: string | null
           meet_url?: string | null
           name: string
           results_error?: string | null
@@ -598,7 +601,8 @@ export type Database = {
           results_status?: string | null
           season?: string | null
           source_url?: string | null
-          status?: string | null
+          status?: "cancelled" | "completed" | "live" | "postponed" | "upcoming"
+          status_override?: "cancelled" | "postponed" | null
           tfrrs_meet_id?: string | null
           tfrrs_url?: string | null
           timing_platform?: string | null
@@ -609,10 +613,11 @@ export type Database = {
           athletic_net_results_url?: string | null
           created_at?: string
           date?: string
-          end_date?: string | null
+          end_date?: string
           level?: string | null
           location?: string | null
           meet_id?: number
+          meet_timezone?: string | null
           meet_url?: string | null
           name?: string
           results_error?: string | null
@@ -622,7 +627,8 @@ export type Database = {
           results_status?: string | null
           season?: string | null
           source_url?: string | null
-          status?: string | null
+          status?: "cancelled" | "completed" | "live" | "postponed" | "upcoming"
+          status_override?: "cancelled" | "postponed" | null
           tfrrs_meet_id?: string | null
           tfrrs_url?: string | null
           timing_platform?: string | null
@@ -1125,6 +1131,38 @@ export type Database = {
         }
         Relationships: []
       }
+      v_meets_lifecycle: {
+        Row: {
+          athletic_net_results_url: string | null
+          created_at: string
+          date: string
+          effective_status: "cancelled" | "completed" | "live" | "postponed" | "upcoming"
+          end_date: string
+          level: string | null
+          lifecycle_timezone: string
+          location: string | null
+          meet_id: number
+          meet_timezone: string | null
+          meet_url: string | null
+          name: string
+          results_error: string | null
+          results_imported_at: string | null
+          results_last_checked_at: string | null
+          results_source: string | null
+          results_status: string | null
+          season: string | null
+          source_url: string | null
+          status: "cancelled" | "completed" | "live" | "postponed" | "upcoming"
+          status_override: "cancelled" | "postponed" | null
+          tfrrs_meet_id: string | null
+          tfrrs_url: string | null
+          timezone_is_assumed: boolean
+          timing_platform: string | null
+          updated_at: string
+          wa_results_url: string | null
+        }
+        Relationships: []
+      }
       unprocessed_live_results: {
         Row: {
           athlete_id: number | null
@@ -1247,6 +1285,21 @@ export type Database = {
     }
     Functions: {
       detect_timing_platform: { Args: { url: string }; Returns: string }
+      is_valid_time_zone_name: {
+        Args: { value: string }
+        Returns: boolean
+      }
+      meet_effective_status: {
+        Args: {
+          as_of?: string
+          explicit_override: string
+          meet_date: string
+          meet_end_date: string
+          time_zone_name: string
+          timing_url: string
+        }
+        Returns: string
+      }
       get_top_performances: {
         Args: {
           p_division?: string

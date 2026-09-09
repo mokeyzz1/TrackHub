@@ -74,17 +74,23 @@ test('meet discovery and lifecycle status have one scheduled owner each', () => 
   assert.equal(fs.existsSync(path.join(root, 'scrapers/meets/scrape_meets_github.js')), false);
 });
 
-test('the app consumes the stored meet lifecycle instead of reclassifying dates', () => {
+test('the app consumes the calculated meet lifecycle instead of reclassifying dates', () => {
   const root = path.resolve(__dirname, '../..');
   const hook = fs.readFileSync(path.join(root, 'frontend/hooks/useMeets.ts'), 'utf8');
   const detail = fs.readFileSync(path.join(root, 'frontend/app/meet/[id].tsx'), 'utf8');
+  const detailHook = fs.readFileSync(path.join(root, 'frontend/hooks/useMeetDetails.ts'), 'utf8');
+  const service = fs.readFileSync(path.join(root, 'frontend/services/database-supabase.ts'), 'utf8');
 
-  assert.match(hook, /\.eq\('status', 'upcoming'\)/);
-  assert.match(hook, /\.eq\('status', 'live'\)/);
-  assert.match(hook, /\.eq\('status', 'completed'\)/);
+  assert.match(hook, /\.in\('effective_status', \['upcoming', 'postponed'\]\)/);
+  assert.match(hook, /\.eq\('effective_status', 'live'\)/);
+  assert.match(hook, /\.eq\('effective_status', 'completed'\)/);
+  assert.match(hook, /from\('v_meets_lifecycle'\)/);
   assert.doesNotMatch(hook, /end_date\.gte|end_date\.lt|\.gt\('date'/);
-  assert.match(detail, /return meet\.status/);
+  assert.match(detail, /return meet\.effective_status/);
   assert.doesNotMatch(detail, /meetDateStr === todayStr/);
+  assert.match(detailHook, /from\('v_meets_lifecycle'\)/);
+  assert.match(service, /function getMeetById[\s\S]*from\('v_meets_lifecycle'\)/);
+  assert.match(service, /function getMeetByName[\s\S]*from\('v_meets_lifecycle'\)/);
 });
 
 test('scheduled meet workflows use the tested Central-time gate and preserve manual runs', () => {

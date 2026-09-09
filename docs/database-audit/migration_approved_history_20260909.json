@@ -1,6 +1,6 @@
 {
   "snapshotDate": "2026-09-09",
-  "purpose": "Approved migration-history addendum for canonical results backed by multiple providers.",
+  "purpose": "Approved migration-history addendum for canonical results and the authoritative meet-lifecycle contract.",
   "entries": [
     {
       "file": "20260909041600_allow_mixed_result_sources.sql",
@@ -9,6 +9,14 @@
       "localSha256": "c45d37b2b229af5f2c6445f87d7e60ffeb70f9d3573b3b1ab1a194268ce61c2a",
       "ledgerFingerprint": "4ed2d347a32d538a75b4bbcafd2268f3c35f413648cea48866e998cca2b801df",
       "review": "Additive results-source summary value; exact rollback rehearsed and no result rows rewritten."
+    },
+    {
+      "file": "20260909172553_add_meet_lifecycle_contract.sql",
+      "version": "20260909172553",
+      "name": "add_meet_lifecycle_contract",
+      "localSha256": "e9d7635d87272ffeb8a0ffc8695f03aa65e910c301f2b176e2a6720ab08b041d",
+      "ledgerFingerprint": "c6bb584c1afc586463d7d23a4df5a08c4c51cc8c59ed3c1f9520851fa2725eb4",
+      "review": "Additive authoritative meet-lifecycle view and validated timezone/override columns; live rollback rehearsal preserved all 13,059 meet rows, deployment verification passed, and no meet fact was rewritten."
     }
   ]
 }
