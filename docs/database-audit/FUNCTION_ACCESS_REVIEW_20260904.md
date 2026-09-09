@@ -53,6 +53,15 @@ not create a table or duplicate the RPC surface to solve this issue.
 The multi-event product rule remains unchanged: the database/source supplies the aggregate score;
 the current read fix selects the highest supplied Finals value and does not calculate or rewrite it.
 
+## SEC-01 closure follow-up — 2026-09-09
+
+The broader role, policy, trigger and default-privilege audit is recorded in
+`SECURITY_CONTRACT_AUDIT_20260909.md`. A live catalog check found that postgres-owned future
+functions would inherit browser `EXECUTE` through the global default even though current
+functions were explicitly secured. Migration `20260908213000_harden_default_function_execute_acl`
+revokes that future default and grants private `service_role` defaults in `ingest` and `archive`.
+Existing RPC ACLs and trigger behavior were rechecked unchanged; no table or row data changed.
+
 ## Reproducible evidence
 
 - `function_access_scan.sql` contains the exact catalog, trigger, policy, grant, and row-count queries.

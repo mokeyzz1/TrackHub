@@ -64,6 +64,14 @@
       "name": "restrict_athlete_status_period_reads_to_confirmed",
       "localSha256": "b66bef17c90dee78ca07eca5aef57b56d1163e13a5eb591072e34101fa4d187c",
       "ledgerFingerprint": "7f4f85cf00920c35f7f0118f26b490606844176df1fce4037681f4055be3d8a6"
+    },
+    {
+      "file": "20260908213000_harden_default_function_execute_acl.sql",
+      "version": "20260908213000",
+      "name": "harden_default_function_execute_acl",
+      "localSha256": "790a58cd13ef671b7151caf7d4516271da51d628edb1e60165e5e4eb457f976b",
+      "ledgerFingerprint": "5dfdc7a706e6806c0100e2a83e9ce35e37f216376dfb8cf1a414176ced4e2e4c",
+      "review": "SEC-01 future function ACL hardening; transaction rehearsal and live postconditions in SECURITY_CONTRACT_AUDIT_20260909.md"
     }
   ]
 }
