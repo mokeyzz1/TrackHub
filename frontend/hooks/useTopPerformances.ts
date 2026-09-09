@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
 
-const CACHE_KEY = 'top_performances_cache_v8';
+const CACHE_KEY = 'top_performances_cache_v9';
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 interface Performance {
@@ -98,17 +98,32 @@ export function useTopPerformances(limit: number = 10, division?: string, weeksA
       const { data, error: fetchError } = await supabase.rpc('get_top_performances', {
         p_start_date: startDateStr,
         p_end_date: endDateStr,
-        p_division: division === 'all' ? null : division,
-        p_gender: gender === 'all' ? null : gender,
-        p_limit: Math.max(limit, 100) // Get at least 100 for caching
+        p_division: division && division !== 'all' ? division : undefined,
+        p_gender: gender && gender !== 'all' ? gender : undefined,
+        // Pull enough ranked candidates to retain a full collegiate list after the temporary
+        // athlete-visibility gate is applied.
+        p_limit: Math.max(limit * 10, 500)
       });
 
       if (fetchError) throw fetchError;
 
-      console.log('[TopPerformances] Got', data?.length || 0, 'ranked results from DB');
+      const rankedRows = data || [];
+      const athleteIds = [...new Set(rankedRows.map(row => row.athlete_id).filter(Boolean))];
+      const { data: visibleAthletes, error: visibilityError } = athleteIds.length
+        ? await supabase
+            .from('athletes')
+            .select('athlete_id, schools!inner(institution_type)')
+            .in('athlete_id', athleteIds)
+            .eq('schools.institution_type', 'collegiate')
+        : { data: [], error: null };
+      if (visibilityError) throw visibilityError;
+      const visibleAthleteIds = new Set((visibleAthletes || []).map(row => row.athlete_id));
+      const visibleRows = rankedRows.filter(row => visibleAthleteIds.has(row.athlete_id));
+
+      console.log('[TopPerformances] Got', visibleRows.length, 'visible collegiate results from DB');
 
       // Map to Performance interface (data already scored and deduped by DB)
-      const performances: Performance[] = (data || []).map((r: any) => ({
+      const performances: Performance[] = visibleRows.map((r: any) => ({
         athlete_id: r.athlete_id,
         full_name: r.full_name || 'Unknown',
         gender: r.gender || 'M',

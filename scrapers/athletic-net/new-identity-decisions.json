@@ -1,0 +1,22 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "Mount Union Last Chance Meet 2026 / new athlete identity recovery",
+  "decisions": [
+    {
+      "source_athlete_key": "49173398",
+      "source_athlete_name": "Ryan McVicker",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8371168",
+      "expected_school": "Mount Union",
+      "athletic_net_profile_id": "21785574",
+      "tfrrs_profile_url": "https://www.tfrrs.org/athletes/8371168/Mount_Union/Ryan__McVicker",
+      "evidence": [
+        "https://www.athletic.net/athlete/21785574/track-and-field",
+        "https://www.tfrrs.org/athletes/8371168/Mount_Union/Ryan__McVicker",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact name/school match across Athletic.net and TFRRS; no existing internal athlete with TFRRS 8371168 or same name, gender, and Mount Union school."
+    }
+  ]
+}

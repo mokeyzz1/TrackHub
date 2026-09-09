@@ -1,0 +1,55 @@
+{
+  "captured_at": "2026-09-08",
+  "purpose": "Targeted before-image for the two explicitly reviewed interrupted ingest runs. No source payloads or public facts are included because neither run staged observations.",
+  "rows": [
+    {
+      "run_id": "06f0a782-1648-43b3-ae65-1d9628111037",
+      "source": "pt_timing",
+      "mode": "dry_run",
+      "status": "running",
+      "parser_version": "pt_timing-karmarush-firebase-4x100-v1",
+      "code_revision": null,
+      "started_at": "2026-08-31T17:38:39.988811+00:00",
+      "finished_at": null,
+      "metrics": {},
+      "error_message": null,
+      "scope": {
+        "meet_id": 12226,
+        "event_code": "4x100m",
+        "source_url": "https://live.pttiming.com/?mid=8783",
+        "relays_only": true,
+        "source_meet_id": "8783",
+        "source_event_count": 111,
+        "source_observation_count": 189
+      }
+    },
+    {
+      "run_id": "0e4eb796-7a79-49d8-9fb3-0d2232b4f274",
+      "source": "pt_timing",
+      "mode": "dry_run",
+      "status": "running",
+      "parser_version": "pt_timing-karmarush-firebase-4x100-v1",
+      "code_revision": null,
+      "started_at": "2026-08-31T17:39:47.991951+00:00",
+      "finished_at": null,
+      "metrics": {},
+      "error_message": null,
+      "scope": {
+        "meet_id": 12226,
+        "event_code": "4x100m",
+        "source_url": "https://live.pttiming.com/?mid=8783",
+        "relays_only": true,
+        "source_meet_id": "8783",
+        "source_event_count": 111,
+        "source_observation_count": 189
+      }
+    }
+  ],
+  "live_assertions_before_change": {
+    "observation_count_each": 0,
+    "recovery_queue_reference_count_each": 0,
+    "finished_at_each": null,
+    "status_each": "running",
+    "mode_each": "dry_run"
+  }
+}

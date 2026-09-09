@@ -18,7 +18,7 @@
  *   await ar.flush();                       // creates the queued new athletes
  *   for (const r of results) r._athleteId = ar.finalId({ tfrrsId, name });  // fill the created ids
  */
-const { parseName } = require('./name_parser');
+const { isPlaceholderAthleteName, parseName } = require('./name_parser');
 
 const UNATTACHED_SCHOOL_ID = 1835;
 
@@ -32,6 +32,7 @@ class AthleteResolver {
     this.seen = new Set();             // dedup within this run
     this.created = 0;
     this.createErrors = 0;
+    this.rejectedPlaceholders = 0;
   }
 
   /** Preload existing athletes: those matching the given TFRRS ids, plus all unattached-by-name. */
@@ -62,6 +63,12 @@ class AthleteResolver {
     if (tfrrsId != null) {
       const existing = this.byTfrrs.get(Number(tfrrsId));
       if (existing) return existing;
+    }
+    if (isPlaceholderAthleteName(name)) {
+      this.rejectedPlaceholders++;
+      return null;
+    }
+    if (tfrrsId != null) {
       const key = 't:' + tfrrsId;
       if (!this.seen.has(key)) {
         this.seen.add(key);
@@ -76,7 +83,7 @@ class AthleteResolver {
       }
       return null;
     }
-    if (name) {
+    if (name && !isPlaceholderAthleteName(name)) {
       const existing = this.byUnattachedName.get(name);
       if (existing) return existing;
       const key = 'u:' + name;
@@ -119,13 +126,18 @@ class AthleteResolver {
     }
     const n = this.pending.length;
     this.pending = [];
-    return { created: this.created, errors: this.createErrors, queued: n };
+    return {
+      created: this.created,
+      errors: this.createErrors,
+      queued: n,
+      rejectedPlaceholders: this.rejectedPlaceholders,
+    };
   }
 
   /** After flush(), resolve a scraped athlete to its final internal id (existing or newly created). */
   finalId({ tfrrsId, name } = {}) {
     if (tfrrsId != null) return this.byTfrrs.get(Number(tfrrsId)) || null;
-    if (name) return this.byUnattachedName.get(name) || null;
+    if (name && !isPlaceholderAthleteName(name)) return this.byUnattachedName.get(name) || null;
     return null;
   }
 }

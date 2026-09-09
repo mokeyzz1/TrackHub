@@ -58,7 +58,7 @@ const host = 'db.' + new URL(process.env.SUPABASE_URL).host.split('.')[0] + '.su
 
   if (collide.length) {
     const ids = collide.map(r => r.result_id);
-    await c.query('INSERT INTO results_d2_backup SELECT * FROM results WHERE result_id = ANY($1::int[])', [ids]);
+    await c.query('INSERT INTO archive.results_d2_backup SELECT * FROM results WHERE result_id = ANY($1::int[])', [ids]);
     const d = await c.query('DELETE FROM results WHERE result_id = ANY($1::int[])', [ids]);
     console.log(`deleted ${d.rowCount} hidden duplicates (backed up)`);
   }

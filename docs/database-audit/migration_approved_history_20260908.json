@@ -1,0 +1,77 @@
+{
+  "snapshotDate": "2026-09-08",
+  "purpose": "Approved migration-history addendum after reconciling already-applied catalog SQL and restoring immutable historical policy bytes.",
+  "entries": [
+    {
+      "file": "20260829180000_add_lai_athletic_net_team_aliases.sql",
+      "version": "20260829180000",
+      "name": "add_lai_athletic_net_team_aliases",
+      "localSha256": "63ee02204b68bcc6257bf4144bcb3e3f531ac7ab4512f56a2b06ec33176cd819",
+      "ledgerFingerprint": "4a4951da6ceed2854dcc68c4c24cae57289c040f3f9f2bb6748b5aee6ee30d5d"
+    },
+    {
+      "file": "20260906171201_onboard_confirmed_collegiate_schools.sql",
+      "version": "20260906171201",
+      "name": "onboard_confirmed_collegiate_schools",
+      "localSha256": "7260f81b836992235097337318e72716951ea4082f37ac711a0d87d3a95a9712",
+      "ledgerFingerprint": "e361497ca549202334f090609f87a3075de54dc19dbb4eb85096df4350b4963b"
+    },
+    {
+      "file": "20260907183959_onboard_remaining_verified_collegiate_schools.sql",
+      "version": "20260907183959",
+      "name": "onboard_remaining_verified_collegiate_schools",
+      "localSha256": "a6488409d2d6ee91e80d49692448a55e6cbd144d7e55727c7bd260bfe8988694",
+      "ledgerFingerprint": "2a2e71c8f04a4d0cf602601d51bcb022e1bfd48b2be6540ab59ea01f541b2501"
+    },
+    {
+      "file": "20260907195650_normalize_collegiate_competition_hierarchy.sql",
+      "version": "20260907195650",
+      "name": "normalize_collegiate_competition_hierarchy",
+      "localSha256": "56e8edc1ee9b334b418ac8e278069263ce4fdc3076d91a345ab8206e69ddc659",
+      "ledgerFingerprint": "b23c32ad2097c06a8c7e2241f4271767b007a5fc5ed5fc7e1c81c2d23c8468bd"
+    },
+    {
+      "file": "20260908045520_add_athlete_status_evidence_model.sql",
+      "version": "20260908045520",
+      "name": "add_athlete_status_evidence_model",
+      "localSha256": "8eddc5a8bf0e0466cf7884c63f0b0e6a063422ae7c0c7626feb5d2be82b12feb",
+      "ledgerFingerprint": "9b2d4a2fa55d40d757b51a1a23e20571d46f81c5602bf36964d139f85b8a6152"
+    },
+    {
+      "file": "20260908173000_backfill_legacy_collegiate_status_evidence.sql",
+      "version": "20260908173000",
+      "name": "backfill_legacy_collegiate_status_evidence",
+      "localSha256": "75f71c67b95f55629db55cc0f8a46eda1c3ef4c796684e67b5874e0e97bb01f5",
+      "ledgerFingerprint": "9e2741b1587fa49aba582c07e624ef0df683522627e2da51cdc7da33324450fb"
+    },
+    {
+      "file": "20260908190000_publish_athlete_status_summary.sql",
+      "version": "20260908190000",
+      "name": "publish_athlete_status_summary",
+      "localSha256": "adfb381722436f87c8706d82f3eed92ea95b92e24452c4e5a2ba67b7ce238a18",
+      "ledgerFingerprint": "affb620d7d984e5b50b94730e12f56d2f7ed9660e14966a2afa995e1207629e1"
+    },
+    {
+      "file": "20260908202312_reject_placeholder_athlete_names.sql",
+      "version": "20260908202312",
+      "name": "reject_placeholder_athlete_names",
+      "localSha256": "07b7590437988e68176566588597609f9153b071aea2ea4fa94fc1452496882d",
+      "ledgerFingerprint": "4d4beb4be0f4378684f536270c4083010e8cd1515bae0e994dbcb3a7b6471069"
+    },
+    {
+      "file": "20260908205937_restrict_athlete_status_period_reads_to_confirmed.sql",
+      "version": "20260908205937",
+      "name": "restrict_athlete_status_period_reads_to_confirmed",
+      "localSha256": "b66bef17c90dee78ca07eca5aef57b56d1163e13a5eb591072e34101fa4d187c",
+      "ledgerFingerprint": "7f4f85cf00920c35f7f0118f26b490606844176df1fce4037681f4055be3d8a6"
+    },
+    {
+      "file": "20260908213000_harden_default_function_execute_acl.sql",
+      "version": "20260908213000",
+      "name": "harden_default_function_execute_acl",
+      "localSha256": "790a58cd13ef671b7151caf7d4516271da51d628edb1e60165e5e4eb457f976b",
+      "ledgerFingerprint": "5dfdc7a706e6806c0100e2a83e9ce35e37f216376dfb8cf1a414176ced4e2e4c",
+      "review": "SEC-01 future function ACL hardening; transaction rehearsal and live postconditions in SECURITY_CONTRACT_AUDIT_20260909.md"
+    }
+  ]
+}

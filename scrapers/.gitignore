@@ -20,6 +20,18 @@ node_modules/
 *.json
 !package.json
 !package-lock.json
+!athletic-net/verified-identity-decisions.json
+!athletic-net/new-identity-decisions.json
+!athletic-net/split-identity-decisions.json
+!athletic-net/profile-identity-decisions.json
+!athletic-net/name-correction-decisions.json
+!athletic-net/verified-identity-decisions-batch-2.json
+!athletic-net/directathletics-identity-decisions-batch-1.json
+!athletic-net/directathletics-identity-decisions-batch-2.json
+!athletic-net/directathletics-identity-decisions-batch-3.json
+!athletic-net/name-correction-decisions-batch-2.json
+!athletic-net/directathletics-history-identity-decisions-batch-1.json
+!athletic-net/tfrrs-identity-decisions-batch-1.json
 
 # Python
 __pycache__/

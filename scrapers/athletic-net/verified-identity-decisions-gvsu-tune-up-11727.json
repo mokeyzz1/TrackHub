@@ -1,0 +1,161 @@
+{
+  "manifest_version": 1,
+  "review_scope": "Grand Valley State Tune-Up 2026 / remaining quarantine batch",
+  "source": "athletic_net",
+  "decisions": [
+    {
+      "source_athlete_key": "44333245",
+      "source_athlete_name": "Annie Alkema",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9170552",
+      "expected_school": "Grand Valley State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://gvsulakers.com/sports/track-and-field/roster/annie-alkema/18039",
+        "https://www.tfrrs.org/athletes/9170552/Grand_Valley_St/Annie_Alkema.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and TFRRS identity; official 2025-26 GVSU roster confirms affiliation. Source was listed UNAT at this meet."
+    },
+    {
+      "source_athlete_key": "44333135",
+      "source_athlete_name": "Shaela Elert",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9170557",
+      "expected_school": "Grand Valley State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://gvsulakers.com/sports/track-and-field/roster",
+        "https://www.tfrrs.org/athletes/9170557/Grand_Valley_St/Shaela_Elert.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and TFRRS identity; official GVSU roster and TFRRS history confirm affiliation."
+    },
+    {
+      "source_athlete_key": "44333132",
+      "source_athlete_name": "Emma Gunnett",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9170551",
+      "expected_school": "Grand Valley State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://gvsulakers.com/sports/track-and-field/roster",
+        "https://www.tfrrs.org/athletes/9170551/Grand_Valley_St/Emma_Gunnett.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and TFRRS identity; official GVSU roster and TFRRS history confirm affiliation."
+    },
+    {
+      "source_athlete_key": "44333213",
+      "source_athlete_name": "Violet Hrabovsky",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9170553",
+      "expected_school": "Grand Valley State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://gvsulakers.com/sports/cross-country/roster",
+        "https://www.tfrrs.org/athletes/9170553/Grand_Valley_St/Violet_Hrabovsky.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and TFRRS identity; official GVSU roster confirms affiliation and the TFRRS meet page contains the same 3000m performance."
+    },
+    {
+      "source_athlete_key": "44333211",
+      "source_athlete_name": "Karen Kiratu",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "8614667",
+      "expected_school": "Grand Valley State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://gvsulakers.com/sports/track-and-field/roster",
+        "https://www.tfrrs.org/athletes/8614667/Grand_Valley_St/Karen__Kiratu.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and TFRRS identity; official GVSU roster and TFRRS profile confirm affiliation."
+    },
+    {
+      "source_athlete_key": "44333134",
+      "source_athlete_name": "Mackenzie Sellenraad",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9170559",
+      "expected_school": "Grand Valley State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://gvsulakers.com/sports/cross-country/roster",
+        "https://www.tfrrs.org/athletes/9170559/Grand_Valley_St/Mackenzie_Sellenraad.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and TFRRS identity; official GVSU roster and TFRRS history confirm affiliation."
+    },
+    {
+      "source_athlete_key": "44333061",
+      "source_athlete_name": "Seppi Camilli",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9170523",
+      "expected_school": "Grand Valley State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://gvsulakers.com/sports/cross-country/roster",
+        "https://www.tfrrs.org/athletes/9170523/Grand_Valley_St/Seppi_Camilli.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and TFRRS identity; official GVSU roster and TFRRS history confirm affiliation."
+    },
+    {
+      "source_athlete_key": "44332986",
+      "source_athlete_name": "Brendan Chapple",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8586111",
+      "expected_school": "Grand Valley State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://gvsulakers.com/sports/track-and-field/roster/brendan-chapple/18041",
+        "https://www.tfrrs.org/athletes/8586111/Grand_Valley_St/Brendan__Chapple.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and TFRRS identity; official 2025-26 GVSU roster confirms affiliation."
+    },
+    {
+      "source_athlete_key": "44333063",
+      "source_athlete_name": "Will Engbers",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9170525",
+      "expected_school": "Grand Valley State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://gvsulakers.com/sports/cross-country/roster",
+        "https://www.tfrrs.org/athletes/9170525/Grand_Valley_St/Will_Engbers.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and TFRRS identity; official GVSU roster and TFRRS history confirm affiliation."
+    },
+    {
+      "source_athlete_key": "44333059",
+      "source_athlete_name": "Kilian Whalen",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9170522",
+      "expected_school": "Grand Valley State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://gvsulakers.com/sports/track-and-field/roster",
+        "https://www.tfrrs.org/athletes/9170522/Grand_Valley_St/Kilian_Whalen.html",
+        "https://www.tfrrs.org/results/92961/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and existing canonical GVSU TFRRS identity; source was listed UNAT at this meet."
+    },
+    {
+      "source_athlete_key": "44333248",
+      "source_athlete_name": "Lily Baibak",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9168607",
+      "expected_school": "Western Michigan",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://wmubroncos.com/sports/womens-track-and-field/roster/lily-baibak/15743",
+        "https://www.tfrrs.org/athletes/9168607/Western_Michigan/Lily_Baibak.html",
+        "https://upload.tfrrs.org/results/92961/f/GVSU_Tune-Up"
+      ],
+      "notes": "Exact source name/gender and canonical Western Michigan TFRRS identity; TFRRS Tune-Up contains the same 5:19.00 mile while the source affiliation was Unattached."
+    }
+  ]
+}

@@ -6,12 +6,13 @@ export interface Meet {
   meet_id: number;
   name: string;
   date: string;
-  end_date: string | null;
-  location: string;
+  end_date: string;
+  location: string | null;
   meet_url: string | null;
-  status: 'upcoming' | 'live' | 'completed';
-  level: string;
-  season: string;
+  status: 'upcoming' | 'live' | 'completed' | 'cancelled' | 'postponed';
+  effective_status: 'upcoming' | 'live' | 'completed' | 'cancelled' | 'postponed';
+  level: string | null;
+  season: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -21,13 +22,9 @@ const cache: Record<string, Meet[]> = {};
 let allTabsLoaded = false;
 let loadingPromise: Promise<void> | null = null;
 
-const STORAGE_KEY = '@meets_all';
-const COLUMNS = 'meet_id,name,date,end_date,location,meet_url,status,level,season,created_at,updated_at';
-
-function getToday() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-}
+// Versioned because older cached rows do not contain effective_status.
+const STORAGE_KEY = '@meets_all_v2';
+const COLUMNS = 'meet_id,name,date,end_date,location,meet_url,status,effective_status,level,season,created_at,updated_at';
 
 function getFirstOfMonth() {
   const now = new Date();
@@ -40,8 +37,6 @@ async function loadAllTabs(): Promise<void> {
   if (loadingPromise) return loadingPromise;
 
   loadingPromise = (async () => {
-    const today = getToday();
-
     // Try loading from AsyncStorage first
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
@@ -54,7 +49,7 @@ async function loadAllTabs(): Promise<void> {
           cache['live'] = live || [];
           allTabsLoaded = true;
           // Refresh in background
-          fetchAllFromServer(today);
+          fetchAllFromServer();
           return;
         }
       }
@@ -63,35 +58,32 @@ async function loadAllTabs(): Promise<void> {
     }
 
     // Fetch from server
-    await fetchAllFromServer(today);
+    await fetchAllFromServer();
   })();
 
   return loadingPromise;
 }
 
-async function fetchAllFromServer(today: string) {
+async function fetchAllFromServer() {
   try {
     // Only load current month for past meets (faster load)
     const firstOfMonth = getFirstOfMonth();
 
-    // Fetch all 3 tabs in parallel
-    // For multi-day meets, use end_date to determine if still live or past
+    // The view computes lifecycle at read time. No phone clock or scheduled cache refresh is
+    // required for a corrected date to take effect.
     const [upcomingRes, pastRes, liveRes] = await Promise.all([
-      // Upcoming: hasn't started yet
-      supabase.from('meets').select(COLUMNS)
-        .gt('date', today)
+      supabase.from('v_meets_lifecycle').select(COLUMNS)
+        .in('effective_status', ['upcoming', 'postponed'])
         .order('date', { ascending: true })
         .limit(200),
-      // Past: single-day before today OR multi-day that ended before today
-      supabase.from('meets').select(COLUMNS)
-        .or(`and(date.lt.${today},end_date.is.null),end_date.lt.${today}`)
+      supabase.from('v_meets_lifecycle').select(COLUMNS)
+        .eq('effective_status', 'completed')
         .gte('date', firstOfMonth)
         .order('date', { ascending: false })
         .limit(100),
-      // Live: single-day today OR multi-day spanning today
-      supabase.from('meets').select(COLUMNS)
-        .or(`and(date.eq.${today},end_date.is.null),and(date.lte.${today},end_date.gte.${today})`)
-        .not('meet_url', 'is', null)
+      supabase.from('v_meets_lifecycle').select(COLUMNS)
+        .eq('effective_status', 'live')
+        .order('date', { ascending: true })
     ]);
 
     cache['upcoming'] = upcomingRes.data || [];
@@ -169,11 +161,10 @@ export function useMeets(filter?: 'upcoming' | 'live' | 'past') {
   async function searchPastMeets(query: string): Promise<Meet[]> {
     if (!query || query.length < 2) return [];
 
-    const today = getToday();
     const { data } = await supabase
-      .from('meets')
+      .from('v_meets_lifecycle')
       .select(COLUMNS)
-      .or(`and(date.lt.${today},end_date.is.null),end_date.lt.${today}`)
+      .eq('effective_status', 'completed')
       .ilike('name', `%${query}%`)
       .order('date', { ascending: false })
       .limit(50);
@@ -209,8 +200,9 @@ export function useLatestResults(limit: number = 5) {
       console.log('Last weekend:', satStr, 'to', sunStr);
 
       const { data } = await supabase
-        .from('meets')
+        .from('v_meets_lifecycle')
         .select(COLUMNS)
+        .eq('effective_status', 'completed')
         .gte('date', satStr)
         .lte('date', sunStr)
         .not('meet_url', 'is', null)

@@ -1,0 +1,273 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "Mount Union Last Chance Meet 2026 / AthleticLIVE identity recovery",
+  "decisions": [
+    {
+      "source_athlete_key": "49173327",
+      "source_athlete_name": "Bella Hodges",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "8222518",
+      "expected_school": "Purdue Fort Wayne",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/21305679/track-and-field",
+        "https://www.tfrrs.org/athletes/8222518/PFW/Bella_Hodges.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Athletic.net candidate matches name and Purdue Fort Wayne; existing athlete target has TFRRS 8222518 and the same school."
+    },
+    {
+      "source_athlete_key": "49173341",
+      "source_athlete_name": "Jack Blais",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9360897",
+      "expected_school": "Case Western",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/30867585/track-and-field",
+        "https://www.tfrrs.org/results/96457/m/2026_UAA_Outdoor_Track_and_Field_Championships",
+        "https://tf.tfrrs.org/results/95661/5897749/2026_Wooster_Invitational/Long-Jump",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Name and Case Western affiliation match; existing athlete target has TFRRS 9360897. TFRRS meet-result evidence confirms the 2026 Case Western athlete."
+    },
+    {
+      "source_athlete_key": "49173399",
+      "source_athlete_name": "Jameson Marlatt",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9288634",
+      "expected_school": "Mount Union",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/30248284/track-and-field",
+        "https://m.tfrrs.org/athletes/9288634/Mount_Union/Jameson_Marlatt",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and TFRRS identity match the existing Mount Union athlete. A second same-name Mount Union row remains untouched and is separately flagged."
+    },
+    {
+      "source_athlete_key": "49173319",
+      "source_athlete_name": "Ryan Palmer",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8989379",
+      "expected_school": "Mount Union",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/27175093/track-and-field",
+        "https://www.tfrrs.org/athletes/8989379/Mount_Union/Ryan_Palmer.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Existing athlete target has TFRRS 8989379 and Mount Union; TFRRS 2026 results match the source 100m, 200m, and 110m hurdles marks."
+    },
+    {
+      "source_athlete_key": "49173398",
+      "source_athlete_name": "Ryan McVicker",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8371168",
+      "expected_school": "Mount Union",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/21785574/track-and-field",
+        "https://www.tfrrs.org/athletes/8371168/Mount_Union/Ryan__McVicker",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Existing athlete target has TFRRS 8371168 and Mount Union; internal full_name contains duplicate whitespace but normalizes to the source name."
+    },
+    {
+      "source_athlete_key": "49174087",
+      "source_athlete_name": "Anthony Shivers",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8601035",
+      "expected_school": "Evangel",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/24087013/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile already stored on the unique same-name, same-gender internal athlete; source affiliation is Unattached and is not used to rewrite the public school."
+    },
+    {
+      "source_athlete_key": "49173349",
+      "source_athlete_name": "Antoine Brown",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8361307",
+      "expected_school": "Kent State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/19280920/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49173339",
+      "source_athlete_name": "Asher Moorefield",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9242464",
+      "expected_school": "Hillsdale",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/30242049/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is Unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49173502",
+      "source_athlete_name": "Brandon Bonsu",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8970325",
+      "expected_school": "Memphis",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/26992315/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is Unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49173330",
+      "source_athlete_name": "Brianna McIvor",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9160850",
+      "expected_school": "Xavier (Ohio)",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/29857421/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is Unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49173250",
+      "source_athlete_name": "Chloe Rickson",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "7989993",
+      "expected_school": "Miami (Ohio)",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/19392066/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is Unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49173272",
+      "source_athlete_name": "Deja Curry-Brown",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9254722",
+      "expected_school": "Central State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/30071096/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is Unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49173265",
+      "source_athlete_name": "Hudson Moorefield",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8988291",
+      "expected_school": "Hillsdale",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/26972392/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is Unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49173314",
+      "source_athlete_name": "Jack Fleming",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8797371",
+      "expected_school": "Miami (Ohio)",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/30071177/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source API currently shows Wright State while the internal row is Miami (Ohio), so this alias preserves identity without changing affiliation."
+    },
+    {
+      "source_athlete_key": "49173730",
+      "source_athlete_name": "Jeff Yang",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8989090",
+      "expected_school": "Cornell",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/21636390/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49174021",
+      "source_athlete_name": "Joy Edward",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "8375272",
+      "expected_school": "Charleston (W.V.)",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/21802688/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source API currently shows Troy while the internal row is Charleston (W.V.), so this alias preserves identity without changing affiliation."
+    },
+    {
+      "source_athlete_key": "49173311",
+      "source_athlete_name": "Luke Jones",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8975689",
+      "expected_school": "St Olaf",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/26983534/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is Unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49173267",
+      "source_athlete_name": "Russell Lough",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8012924",
+      "expected_school": "Bluffton",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/19414096/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is Unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49173279",
+      "source_athlete_name": "Ryan Radkowski",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9236607",
+      "expected_school": "Walsh",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/30057879/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is Unattached and no public affiliation is changed."
+    },
+    {
+      "source_athlete_key": "49173340",
+      "source_athlete_name": "Ryan Tetrick",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8674790",
+      "expected_school": "Youngstown State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.athletic.net/athlete/24085350/track-and-field",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "Exact Athletic.net profile and normalized name/gender match; source affiliation is Unattached and no public affiliation is changed."
+    }
+  ]
+}

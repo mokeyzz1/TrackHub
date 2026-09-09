@@ -1,0 +1,37 @@
+{
+  "manifest_version": 1,
+  "review_scope": "Mount Union Last Chance Meet 2026 / populated athlete history overlap / DirectAthletics batch 1",
+  "decisions": [
+    {
+      "source_athlete_key": "49173268",
+      "source_athlete_name": "Isaac Eugene",
+      "source_gender": "M",
+      "target_athlete_id": 146908,
+      "directathletics_profile_id": "8865824",
+      "expected_school": "Unattached",
+      "public_name": "Isaac Eugene",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/8865824.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "history_matches": [
+        {
+          "meet_id": 3795,
+          "event_type_id": 23,
+          "mark_raw": "22.39",
+          "place": 7,
+          "round": "Finals"
+        },
+        {
+          "meet_id": 3795,
+          "event_type_id": 38,
+          "mark_raw": "50.49",
+          "place": 7,
+          "round": "Finals"
+        }
+      ],
+      "notes": "The DirectAthletics profile matches the current Mount Union 100m, 200m, and 400m rows and independently overlaps the target's existing Ashland Invitational 2025 marks in both 200m and 400m; no result rows are moved or rewritten."
+    }
+  ]
+}

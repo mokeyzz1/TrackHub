@@ -1,0 +1,23 @@
+{
+  "manifest_version": 1,
+  "review_scope": "Mount Union Last Chance Meet 2026 / empty Unattached placeholder / reviewed TFRRS identity batch 1",
+  "decisions": [
+    {
+      "source_athlete_key": "49173264",
+      "source_athlete_name": "Lawrence Durski",
+      "source_gender": "M",
+      "target_athlete_id": 181016,
+      "tfrrs_athlete_id": "8526889",
+      "tfrrs_profile_slug": "Buffalo_State/Lawrence_Durski.html",
+      "expected_school": "Unattached",
+      "public_name": "Lawrence Durski",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.tfrrs.org/athletes/8526889/Buffalo_State/Lawrence_Durski.html",
+        "https://www.directathletics.com/view_public_entries.html?meet_hnd=95785&sport=track",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The exact TFRRS profile matches the Athletic.net/DirectAthletics meet-entry identity and the 200m/400m event pattern. The selected Unattached target is unique and contains no results, relays, seasons, PRs, or external references; only identity metadata and the private source alias are added."
+    }
+  ]
+}

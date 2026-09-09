@@ -1,0 +1,12 @@
+{
+  "source_team": "https://www.tfrrs.org/teams/tf/AL_college_f_United_States_Sports_Academy.html",
+  "verification": "Exact TFRRS athlete ID, event ID, mark, and USSU team link verified for every result.",
+  "athletes": ["153183", "153184", "153187", "153189"],
+  "results": [
+    "6683853", "6683922", "6684054", "6684057", "6684106", "6901154",
+    "6901220", "6901322", "6901342", "7093110", "7093133", "7093160",
+    "7093187", "7093265", "7093275", "7093302", "7093313", "7127114",
+    "7284641", "7284678", "7284976", "7285009", "7371983", "7371993",
+    "7372031", "7372039", "7372081"
+  ]
+}

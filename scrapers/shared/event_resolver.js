@@ -21,6 +21,7 @@
 class EventResolver {
   constructor() {
     this.map = new Map();       // normalized raw_name -> event_type_id
+    this.catalog = new Map();   // event_type_id -> canonical event metadata
     this.unmapped = new Map();  // original raw_name -> miss count (this run)
     this.loaded = false;
   }
@@ -31,19 +32,48 @@ class EventResolver {
 
   /** Load the full event_aliases table into memory. Returns the alias count. */
   async load(supabase) {
+    // A failed reload must never expose a partially loaded catalog as ready.
+    this.loaded = false;
     this.map.clear();
+    this.catalog.clear();
     let from = 0;
     const page = 1000;
     for (;;) {
       const { data, error } = await supabase
         .from('event_aliases')
         .select('raw_name, event_type_id')
+        .order('raw_name', { ascending: true })
         .range(from, from + page - 1);
       if (error) throw new Error(`event_aliases load failed: ${error.message}`);
       if (!data || data.length === 0) break;
-      for (const a of data) this.map.set(this._key(a.raw_name), a.event_type_id);
+      for (const a of data) {
+        const key = this._key(a.raw_name);
+        if (this.map.has(key) && this.map.get(key) !== a.event_type_id) {
+          throw new Error(`Conflicting normalized event alias: ${key}`);
+        }
+        this.map.set(key, a.event_type_id);
+      }
       if (data.length < page) break;
       from += page;
+    }
+
+    // Load the measurement metadata separately instead of relying on a nested PostgREST
+    // relationship shape. The live schema is the authority, and this remains portable if the
+    // API relationship is renamed or not exposed in a local environment.
+    for (let from = 0; ; from += page) {
+      const { data, error } = await supabase
+        .from('event_types')
+        .select('event_type_id, code, category, measure, environment_scope')
+        .order('event_type_id', { ascending: true })
+        .range(from, from + page - 1);
+      if (error) throw new Error(`event_types load failed: ${error.message}`);
+      if (!data || data.length === 0) break;
+      for (const event of data) this.catalog.set(event.event_type_id, event);
+      if (data.length < page) break;
+    }
+
+    for (const [alias, id] of this.map) {
+      if (!this.catalog.has(id)) throw new Error(`Event alias has no loaded catalog target: ${alias}`);
     }
     this.loaded = true;
     return this.map.size;
@@ -63,6 +93,19 @@ class EventResolver {
     return null;
   }
 
+  /** Return canonical metadata without recording an unmapped event. */
+  details(rawName) {
+    if (!this.loaded) throw new Error('EventResolver.details() called before load()');
+    const id = this.map.get(this._key(rawName));
+    return id == null ? null : this.catalog.get(id) || null;
+  }
+
+  /** Return canonical metadata by already-resolved event_type_id. */
+  detailsById(eventTypeId) {
+    if (!this.loaded) throw new Error('EventResolver.detailsById() called before load()');
+    return this.catalog.get(eventTypeId) || null;
+  }
+
   /** Count of distinct unknown event names seen this run. */
   get unmappedCount() {
     return this.unmapped.size;
@@ -75,25 +118,33 @@ class EventResolver {
   async flushUnmapped(supabase) {
     const entries = [...this.unmapped.entries()];
     for (const [raw_name, count] of entries) {
-      const { data: existing } = await supabase
+      const { data: existing, error: readError } = await supabase
         .from('unmapped_events')
         .select('seen_count')
         .eq('raw_name', raw_name)
         .maybeSingle();
+      if (readError) throw new Error(`unmapped_events lookup failed: ${readError.message}`);
+      let write;
       if (existing) {
-        await supabase
+        const nextCount = Number(existing.seen_count) + count;
+        if (!Number.isSafeInteger(nextCount) || nextCount < count) throw new Error('Invalid unmapped event count');
+        write = await supabase
           .from('unmapped_events')
-          .update({ seen_count: existing.seen_count + count })
+          .update({ seen_count: nextCount })
           .eq('raw_name', raw_name);
       } else {
-        await supabase
+        write = await supabase
           .from('unmapped_events')
           .insert({ raw_name, seen_count: count });
       }
+      if (write.error) throw new Error(`unmapped_events write failed: ${write.error.message}`);
+      // Remove only acknowledged counts. Retain later entries after a partial failure,
+      // and preserve new misses recorded while this flush was awaiting the database.
+      const remaining = (this.unmapped.get(raw_name) || 0) - count;
+      if (remaining > 0) this.unmapped.set(raw_name, remaining);
+      else this.unmapped.delete(raw_name);
     }
-    const flushed = this.unmapped.size;
-    this.unmapped.clear();
-    return flushed;
+    return entries.length;
   }
 }
 

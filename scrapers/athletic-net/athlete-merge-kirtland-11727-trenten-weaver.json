@@ -1,0 +1,28 @@
+{
+  "manifest_version": 1,
+  "review_scope": "Grand Valley State Tune-Up 2026 Kirtland CC duplicate identity review",
+  "decisions": [
+    {
+      "old_athlete_id": 194243,
+      "target_athlete_id": 101404,
+      "source_athlete_key": "29402938",
+      "source_athlete_name": "Trenten Weaver",
+      "athletic_net_profile_id": "29402938",
+      "duplicate_result_mappings": [
+        { "old_result_id": 8023559, "target_result_id": 8024271, "reason": "same 200m performance; Athletic.net annotation only" },
+        { "old_result_id": 8023531, "target_result_id": 8024244, "reason": "same 60m performance; Athletic.net annotation only" },
+        { "old_result_id": 8023968, "target_result_id": 8024280, "reason": "same 4x400m relay-leg performance; source event label/annotation differs" }
+      ],
+      "relay_leg_mappings": [
+        { "old_relay_athlete_id": 506604, "action": "move" }
+      ],
+      "evidence": [
+        "TFRRS GVSU Tune-Up lists Trenten Weaver for Kirtland CC at 7.79, 25.33, and on the 3:50.67 4x400m relay: https://www.tfrrs.org/results/92961/m/GVSU_Tune-Up",
+        "Canonical athlete 101404 already owns TFRRS athlete 9283289 for Kirtland CC: https://www.tfrrs.org/athletes/9283289/Kirtland_CC/Trenten_Weaver.html",
+        "Duplicate athlete 194243 uniquely owns the Athletic.net profile: https://www.athletic.net/athlete/29402938/track-and-field",
+        "The old and canonical rows share the same meet, performances, team, and relay squad; the explicit relay-leg mapping preserves the relay membership during merge."
+      ],
+      "notes": "Merge only after the transactional relay-leg guard passes; preserve the duplicate-result backup and transfer the old relay leg to canonical athlete 101404."
+    }
+  ]
+}

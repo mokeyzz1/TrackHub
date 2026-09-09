@@ -1,0 +1,204 @@
+# `Other`-division school research — 2026-09-04
+
+> Supporting evidence for the [database master checklist](MASTER_CHECKLIST.md).
+> Findings, status statements and proposed next steps below reflect this document's recorded
+> scope and date. Use the master checklist for current priorities and completion status;
+> this document is not an independent work queue.
+
+## Purpose
+
+The live `schools.division = 'Other'` value is a catch-all metadata state, not a
+competition classification. The current inventory contains 129 schools linked to 245 teams.
+The `schools` table has no conference column. Several of the largest schools in that bucket
+are plainly collegiate programs, while others are international or otherwise outside the
+NCAA/NAIA taxonomy.
+
+This completed evidence pass reviews all 129 rows in the live inventory. Research itself is
+read-only; the paired migration performs the exact-ID, reversible backfill after validating every
+before-state. The links below are the authority used for each classification; a school name or logo
+by itself is not treated as proof.
+
+## Live application result
+
+Applied to the live database as Supabase migration `20260904073101_classify_all_other_schools`
+after a forced-rollback test and a complete migrate-then-rollback test. The operation classified
+all 128 collegiate rows, archived 128 full `schools` before-images under operation key
+`20260904_classify_all_other_schools_v1`, and left `Dawgs Track Club` as the only intentional
+`Other` row. Post-application validation found zero `division`/`division_id` mismatches.
+
+Final classifications: 49 NCAA Division III, 37 NAIA, 18 U SPORTS, 10 USCAA, 9 LAI,
+2 NCCAA Division I, 2 NCCAA Division II, and 1 NCAA Division II.
+
+## Reviewed cohort
+
+| School ID | Current name | Proposed classification | Evidence | Confidence | Evidence-stage status |
+| ---: | --- | --- | --- | --- | --- |
+| 1703 | North Central College (Ill.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=492) lists Division III active and indoor/outdoor track; [official athletics](https://northcentralcardinals.com/sports/mens-track-and-field) confirms the program. | High | Held |
+| 1706 | Marian University (Ind.) | NAIA | [Official Marian athletics page](https://www.marian.edu/give-to-marian/make-a-difference/athletics) identifies NAIA character values and current NAIA athletics; historical [EADA report](https://www.marian.edu/_assets/_documents/eada-2021-22-from-eada-website.pdf) identifies NAIA Division II. | High | Held |
+| 1704 | Concordia University Nebraska | NAIA | [Official athletics](https://www.cune.edu/athletics) and [track and field page](https://cune.edu/athletics/teams/track-and-field) identify NAIA competition and national qualifiers. | High | Held |
+| 1705 | SUNY Geneseo | NCAA Division III | [Official Geneseo athletics/news](https://www.geneseo.edu/news/they-are-the-champions/) documents NCAA Division III track championships. | High | Held |
+| 1708 | Augustana College (Ill.) | NCAA Division III | [Official athletics overview](https://www.augustana.edu/admissions/athletics-overview) identifies CCIW/NCAA Division III; [athletics site](https://athletics.augustana.edu/) lists track and field. | High | Held |
+| 1710 | Bethel University (Minn.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=60) lists Division III active; [official student-life sports page](https://www.bethel.edu/undergrad/student-life/activities/sports) identifies NCAA Division III programs including track. | High | Held |
+| 1709 | Northwestern College (Iowa) | NAIA | [Official Northwestern sports page](https://www.nwciowa.edu/campus-life/sports-and-fitness) identifies GPAC competition and the NAIA; track is listed among Raider athletics. | High | Held |
+| 1718 | Trinity University (Tex.) | NCAA Division III | [Official Trinity sports page](https://trinity.edu/campus-life/sports) identifies NCAA Division III athletics and track; [official athletics site](https://trinitytigers.com/) provides the program record. | High | Held |
+| 1711 | Simpson College (Iowa) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=641) identifies Division III active; [official athletics page](https://simpson.edu/departments-offices--centers/athletics/) confirms the college athletics program. | High | Held |
+| 1712 | Benedictine College (Kan.) | NAIA | [Official athletics](https://ravenathletics.com/) identifies Raven athletics; [official EADA report](https://benedictine.edu/wp-content/uploads/files/about/gov/eada/eada-summary.pdf) identifies NAIA Division I and indoor/outdoor track. | High | Held |
+| 1716 | Wheaton College (Ill.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=778) lists Division III active and indoor/outdoor track; [official college profile](https://www.wheaton.edu/about-wheaton/why-wheaton/college-profile/athletics) confirms NCAA DIII/CCIW athletics. | High | Held |
+| 1713 | Washington and Lee University | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=752) lists Division III active; [official athletics](https://generalssports.com/news/2026/5/15/mens-track-and-field-rush-gartley-earn-bids-to-2026-ncaa-division-iii-outdoor-track-field-national-championship.aspx) documents the 2026 NCAA Division III track championship. | High | Held |
+| 1714 | Connecticut College | NCAA Division III | [Official academic catalog](https://conncoll.smartcatalogiq.com/en/2026-2027/catalog/general-information/athletics) identifies NCAA Division III/NESCAC and indoor/outdoor track; [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=163) lists Division III active. | High | Held |
+| 1724 | University of St. Thomas (Fla.) | NAIA | [USTFCCCA NAIA event-squad report](https://www.ustfccca.org/assets/rankings/2025_motf_naia_evsq_week8_natl_team_detail.pdf) lists St. Thomas (Fla.) in the NAIA track field. | Medium–High | Held |
+| 1715 | University of Windsor | U SPORTS / OUA (international) | [University of Windsor athletics](https://www.uwindsor.ca/event-type/athletics) is the institutional source; [U SPORTS board announcement](https://www.uwindsor.ca/news/2026-06-22/athletics-director-stephanie-white-elected-u-sports-board) and [OUA track rules](https://s3.amazonaws.com/oua.ca/documents/2023/2/13/Rules_Regulations_Track_Field_FINAL.pdf) establish the Canadian competition context. | High | Held |
+| 1720 | University of Saint Mary (Kan.) | NAIA | [Official academic catalog](https://stmary.smartcatalogiq.com/en/2025-2026/academic-catalog-ay-2025-2026/student-life-and-activities/athletics/) identifies NAIA/KCAC membership and men’s and women’s track and field. | High | Held |
+| 1717 | Southeastern University (Fla.) | NAIA | [Official 2025–26 fact book](https://seu.edu/about/fact-book/2025-26/) identifies NAIA membership and track championships; [official athletics report](https://fire.seu.edu/news/2026/3/4/mens-track-field-fire-set-for-naia-indoor-track-field-national-championships-in-gainesville.aspx) identifies the NAIA national meet. | High | Held |
+| 1719 | Concordia University Wisconsin | NCAA Division III | [Official athletics quick facts](https://cuwfalcons.com/sports/2025/4/16/athletics-quickfacts.aspx) identify NCAA Division III; [official track page](https://cuwfalcons.com/sports/mens-track-and-field) confirms the sport. | High | Held |
+| 1721 | Carroll University (Wis.) | NCAA Division III | [Official athletics page](https://carrollu.edu/campus-student-life/athletics/) identifies 23 NCAA Division III teams, CCIW, and indoor/outdoor track. | High | Held |
+| 1727 | Saint John’s University (Minn.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=602) lists Division III active/MIAC; [official 2026 track report](https://gojohnnies.com/news/2026/5/15/track-and-field-four-johnnies-qualify-for-ncaa-championships-all-region-in-five-events.aspx) identifies NCAA Division III championships. | High | Held |
+
+### Additional reviewed rows
+
+| School ID | Current name | Proposed classification | Evidence | Confidence | Evidence-stage status |
+| ---: | --- | --- | --- | --- | --- |
+| 1750 | Pacific University (Ore.) | NCAA Division III | [Official Pacific athletics profile](https://www.pacificu.edu/directory/provost-academic-affairs/athletics?page=%2C0%2C1%2C0) identifies 24 NCAA Division III programs and indoor/outdoor track. | High | Held |
+| 1722 | Dickinson College | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=185) lists Division III active and indoor/outdoor track. | High | Held |
+| 1735 | Carroll College (Mont.) | NAIA | [Official Carroll leadership profile](https://www.carroll.edu/sites/default/files/2025-01/2025-Carroll-Presidential-Leadership-Profile.pdf) identifies Frontier/Cascade NAIA competition and indoor/outdoor track. | High | Held |
+| 1734 | Trinity College (Conn.) | NCAA Division III | [Official Trinity profile](https://www.trincoll.edu/AboutTrinity/) identifies 30 NCAA Division III varsity teams; the college’s athletics includes track and field. | High | Held |
+| 1723 | Columbia College (Mo.) | NAIA | [Official 2026 track announcement](https://columbiacougars.com/news/2026/5/19/mens-track-field-track-and-field-set-to-compete-at-naia-championships.aspx) identifies the NAIA Outdoor Track and Field National Championships; [official athletics](https://columbiacougars.com/) lists track and field. | High | Held |
+| 1733 | Wheaton College (Mass.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=779) lists Division III active and indoor/outdoor track; [official athletics](https://wheatoncollegelyons.com/) lists track and field. | High | Held |
+| 1731 | Penn State Behrend | NCAA Division III | [Official Behrend at-a-glance](https://behrend.psu.edu/about-the-college/at-a-glance) identifies NCAA Division III teams, including indoor/outdoor track and field. | High | Held |
+| 1730 | Milwaukee School of Engineering | NCAA Division III | [Official MSOE track page](https://msoe.sidearmsports.com/sports/mens-track-and-field) identifies the varsity program; [NACC track report](https://naccsports.org/news/2026/3/11/indoor-track-field-msoe-trio-takes-final-2026-nacc-indoor-track-field-weekly-honors.aspx) places athletes on NCAA Division III performance lists. | Medium–High | Held |
+| 1729 | Concordia University Chicago | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=160) lists Division III active and indoor/outdoor track; [official athletics](https://www.cucougars.com/) lists the program. | High | Held |
+| 1732 | Penn State Harrisburg | NCAA Division III | [Official quick facts](https://psuharrisburgsports.com/sports/2024/9/9/inside-athletics-Quick-Facts.aspx) identifies NCAA Division III and men’s/women’s track; [Penn State campus page](https://www.psu.edu/academics/campuses/harrisburg) confirms 19 NCAA DIII teams. | High | Held |
+
+### Next reviewed rows
+
+| School ID | Current name | Proposed classification | Evidence | Confidence | Evidence-stage status |
+| ---: | --- | --- | --- | --- | --- |
+| 1725 | Guelph | U SPORTS / OUA (international) | [Official University of Guelph handbook](https://s3.us-east-2.amazonaws.com/sidearm.nextgen.sites/uoguelph.internetconsult.com/documents/2023/9/7/StudentHandbook-23-24.pdf) lists men’s and women’s track and field in OUA/U SPORTS. | High | Held |
+| 1736 | Wentworth Institute of Technology | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=762) lists Division III active and indoor track; [official student-life page](https://wit.edu/student-life/sports-recreation) confirms NCAA Division III teams. | High | Held |
+| 1826 | University of British Columbia | U SPORTS / Canada West (international) | [Official UBC athletics](https://thunderbirds.ubc.ca/) identifies varsity athletics; [official UBC track and field page](https://gothunderbirds.ca/sports/track-and-field) confirms the program; UBC’s athletics materials identify U SPORTS/Canada West competition. | High | Held |
+| 1739 | Wilmington College (Ohio) | NCAA Division III | [Official Wilmington athletics](https://www.wilmington.edu/athletics) identifies 18 NCAA Division III teams including men’s and women’s track and field. | High | Held |
+| 1767 | Southwestern University (Tex.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=8746) lists Division III active and indoor track; [official university page](https://www.southwestern.edu/parents-and-families/) confirms NCAA Division III athletics. | High | Held |
+| 1752 | King’s College (Pa.) | NCAA Division III | [Official King’s track history](https://kingscollegeathletics.com/sports/2015/5/13/MTF_05_13_15_about_track_field.aspx) identifies Division III track and field; [2026 schedule](https://kingscollegeathletics.com/news/2026/3/17/womens-track-field-kolinovsky-announces-2026-mens-and-womens-outdoor-track-field-schedule.aspx) confirms NCAA Division III championships. | High | Held |
+| 1747 | Governors State University | NAIA | [Official Governors State announcement](https://gsunews.govst.edu/gsu-athletics-launches-mens-and-womens-track-programs-names-john-niendorf-head-coach/) identifies the track program as competing in the CCAC and NAIA; [USTFCCCA NAIA report](https://www.ustfccca.org/assets/rankings/2025_mitf_naia_evsq_week3_natl_team_detail.pdf) lists Governors State. | High | Held |
+| 1740 | Bismarck State College | NAIA (current; formerly NJCAA) | [Official Bismarck State page](https://bismarckstate.edu/about/NAIAFrontierConference/) documents the 2024 transition from NJCAA to NAIA/Frontier and lists men’s/women’s track and field; [official track schedule](https://bscmystics.com/sports/mtrack/index) shows the NAIA national meet. | High | Held |
+| 1754 | Trinity Western University | U SPORTS / Canada West (international) | [Official Trinity Western facts](https://www.twu.ca/about-us/facts-figures) identifies U SPORTS membership and men’s/women’s track and field; [official athletics material](https://www.twu.ca/sites/default/files/hkinvi_2.pdf) confirms the Spartan program. | High | Held |
+| 1737 | Emmanuel College (Mass.) | NCAA Division III | [Official Emmanuel compliance page](https://emmanuel.prestosports.com/information/compliance) references NCAA Division III/GNAC; [official college facts](https://www.emmanuel.edu/sites/default/files/2025-02/2024_adm_counselor_fast_facts_0830_print.pdf) lists indoor/outdoor track. | High | Held |
+| 1738 | Franciscan University of Steubenville | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=30069) lists Division III active and indoor track; [official athletics quick facts](https://franciscanathletics.com/sports/2018/11/2/quick-facts.aspx) confirms Division III and indoor/outdoor track. | High | Held |
+| 1746 | Bethel University (Ind.) | NAIA | [Official Bethel athletics page](https://betheluniversity.edu/home/athletics/) identifies NAIA membership and indoor/outdoor track; [official 2026 track announcement](https://betheluniversity.edu/about/news/track-field-leadership-transition-announced/) describes it as an NAIA track program. | High | Held |
+| 1741 | Midland University | NAIA | [Official Midland track news](https://midlanduniv.prestosports.com/sports/mtrack-ind/2025-26/news) documents NAIA Indoor Track & Field Championships; [USTFCCCA NAIA report](https://www.ustfccca.org/assets/rankings/2025_motf_naia_evsq_week5_natl_team_detail.pdf) lists Midland (Neb.). | High | Held |
+| 1743 | SUNY Delhi | NCAA Division III | [Official SUNY Delhi athletics page](https://delhi.prestosports.com/sports/general/NCAA_Division_III) documents full NCAA Division III membership and track & field; [SUNY campus profile](https://www.suny.edu/campuses/delhi/?view=ada) confirms 19 NCAA DIII teams. | High | Held |
+| 1766 | Keiser University | NAIA | [Official Keiser track announcement](https://kuseahawks.com/news/2026/5/19/mens-outdoor-track-field-mens-and-womens-track-and-field-send-four-seahawks-to-naia-outdoor-nationals.aspx) identifies the 2026 NAIA Outdoor Track & Field National Championships. | High | Held |
+| 1749 | Maryville College (Tenn.) | NCAA Division III | [Official Maryville athletics page](https://www.maryvillecollege.edu/athletics/) identifies 17 NCAA Division III varsity teams and track & field. | High | Held |
+| 1757 | Simon Fraser University | NCAA Division II (current; U SPORTS transition pending) | [Official SFU transition notice](https://www.sfu.ca/vpacademic/news/2025/11/simon-fraser-university-to-pursue-u-sports-membership.html) states SFU remains NCAA Division II through 2026–27 and may transition to U SPORTS in 2027–28; [official 2026 schedule](https://athletics.sfu.ca/sports/mens-track-and-field/schedule/2026) shows NCAA Division II championships. | High | Held |
+| 1748 | Université Laval | U SPORTS / RSEQ (international) | [Official Laval track page](https://rougeetor.ulaval.ca/sports/athletisme/) identifies U SPORTS and RSEQ statistics and championships; [official university sports page](https://www.ulaval.ca/en/ulaval-experience/why-choose-universite-laval/sports) confirms the Rouge et Or varsity program. | High | Held |
+| 1755 | University of St. Thomas (Tex.) | NCAA Division III | [Official St. Thomas announcement](https://ustcelts.com/news/2022/8/15/8_15_2022_322.aspx) documents active NCAA Division III membership effective September 1, 2022; [official 2026 track report](https://ustcelts.com/news/2026/5/29/womens-track-and-field-celts-earn-ustfccca-all-region-honors-in-the-west-region.aspx) confirms the current Division III track program. | High | Held |
+| 1783 | West Virginia University Institute of Technology | NAIA | [Official WVU Tech track report](https://goldenbearathletics.com/news/2026/5/9/general-wvu-tech-competes-at-wvu-last-chance.aspx) identifies the 2026 NAIA Outdoor Track & Field National Championship; [official 2025 championship report](https://goldenbearathletics.com/news/2025/2/28/whitcomb-represents-wvu-tech-at-naia-national-championship.aspx) confirms participation in the NAIA indoor championship. | High | Held |
+| 1756 | SUNY Fredonia | NCAA Division III | [Official Fredonia athletics page](https://www.fredonia.edu/athletics) identifies its Division III athletics record; [official 2026 track report](https://www.fredonia.edu/news/articles/sample-finishes-20th-nationals) confirms participation in the NCAA Division III Outdoor Track & Field Championships. | High | Held |
+| 1764 | University of Saint Francis (Ind.) | NAIA | [Official university athletics page](https://www.sf.edu/campus-life/athletics/) identifies Saint Francis as an NAIA member; [official track leadership announcement](https://www.sf.edu/news/2023/07/saint-francis-names-brendon-moody-as-director-of-track-and-field-cross-country/) confirms the NAIA track and field program. | High | Held |
+| 1758 | Saint Vincent College (Pa.) | NCAA Division III | [Official athletics mission](https://athletics.stvincent.edu/sports/2016/1/7/GEN_0107160147.aspx) identifies Saint Vincent as an NCAA Division III/PAC member; [official track page](https://athletics.stvincent.edu/sports/mens-track-and-field/) confirms the program. | High | Held |
+| 1762 | University of Toronto | U SPORTS / OUA (international) | [Official 2026–27 selection criteria](https://varsityblues.ca/sports/2021/7/28/track-and-field-selection-criteria.aspx) identify the Toronto track team and use OUA and U SPORTS championship standards; [official university facility page](https://kpe.utoronto.ca/facility/varsity-centre-arena) confirms track and field as a Varsity Blues intercollegiate sport. | High | Held |
+| 1763 | Western University (Ont.) | U SPORTS / OUA (international) | [Official Western track page](https://westernmustangs.ca/sports/track-and-field) records the 2026 OUA and U SPORTS championship meets for the Mustangs. | High | Held |
+| 1768 | Asbury University | NCAA Division III (also NCCAA) | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=30243) lists Asbury as an active Division III member; [official Asbury notice](https://asburyeagles.com/news/2026/4/9/mens-cross-country-asbury-celebrates-ncaa-division-iii-week-april-6-13.aspx) confirms active NCAA Division III and concurrent NCCAA membership. | High | Held |
+| 1786 | Sewanee: The University of the South | NCAA Division III | [Official track quick facts](https://sewaneetigers.com/sports/2021/5/19/track-field-quick-facts.aspx) identify NCAA Division III/SAA affiliation; [official 2025–26 schedule](https://sewaneetigers.com/sports/mens-track-and-field/schedule/2025-26?grid=true) confirms the current program. | High | Held |
+| 1776 | Bethany College (Kan.) | NAIA | [Official Bethany athletics description](https://swedecentral.bethanylb.edu/club_signup?group_type=9999) identifies NAIA/KCAC membership and men’s and women’s indoor/outdoor track and field. | High | Held |
+| 1770 | Marymount (Va.) | NCAA Division III | [Official athletics quick facts](https://marymountsaints.com/sports/2022/10/4/athletic-communications.aspx) identify NCAA Division III/Atlantic East affiliation and the cross country/track program. | High | Held |
+| 1761 | Regis (Mass.) | NCAA Division III | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=569) lists Regis as an active Division III/GNAC member and identifies indoor track; [official admissions page](https://www.regiscollege.edu/admission-and-aid/undergraduate-admission) confirms 21 Division III teams. | High | Held |
+| 1760 | Saint Mary’s (Minn.) | NCAA Division III | [Official track recruiting page](https://saintmaryssports.com/sb_output.aspx?frform=12&path=wtrack) identifies Saint Mary’s as an NCAA Division III institution; [official 2026 schedule](https://saintmaryssports.com/sports/mens-track-and-field/schedule) confirms the Division III championship path. | High | Held |
+| 1751 | St. Francis (Ill.) | NAIA | [Official university statistics page](https://stfrancis.edu/about-us/saint-stats/) identifies NAIA and CCAC membership; the institutional athletics record distinguishes this Joliet school from Saint Francis (Ind.). | High | Held |
+| 1765 | St. Mary (Neb.) | NAIA | [Official athletics page](https://www.csm.edu/athletics/) identifies the College of Saint Mary as an NAIA/GPAC track and field program; [official catalog](https://catalog.csm.edu/intercollegiate-athletics) confirms the same governing body and sport. | High | Held |
+| 1791 | Talladega | NAIA | [Official 2025–26 track schedule](https://talladegatornadoes.com/sports/mens-track-and-field/schedule/2025-26) includes the NAIA National Championship; [official 2026 track report](https://talladegatornadoes.com/news/2026/3/17/womens-track-and-field-duffus-earns-hbcuac-track-athlete-of-the-week-honors-qualifies-for-naia-nationals-in-200m.aspx) confirms current NAIA qualification. | High | Held |
+| 1773 | SUNY-ESF | USCAA | [Official SUNY-ESF report](https://www.esf.edu/news/2024/women_track_uscas_national_champions.php) documents its USCAA track championship; the [current TFRRS team page](https://www.tfrrs.org/teams/NY_college_m_SUNY-ESF) classifies the program as USCAA and lists the 2026 USCAA championship. | High | Held |
+| 1769 | U. of Victoria | U SPORTS / Canada West (international) | [Official Victoria eligibility page](https://govikesgo.com/sports/2019/5/13/varsity-info-usports.aspx?id=316) explicitly lists men’s/women’s cross country and track among its U SPORTS varsity programs. | High | Held |
+| 1796 | Providence (Great Falls) | NAIA | [Official University of Providence athletics page](https://www.uprovidence.edu/Athletics/) identifies 14 NAIA varsity programs; [official 2025–26 track schedule](https://upargos.com/sports/mens-track-and-field/schedule/2025-26) includes the NAIA Indoor Track & Field Championships. | High | Held |
+| 1772 | Queen’s University | U SPORTS / OUA (international) | [Official 2026 track report](https://gogaelsgo.com/news/2026/2/23/cross-country-distance-track-m-w-queens-distance-track-earns-four-medals-at-oua-track-field-championship-elizabeth-vroom-jude-wheeler-dee-capture-two-each.aspx) documents OUA competition and advancement to the U SPORTS Track & Field Championships. | High | Held |
+
+### Completed remaining inventory
+
+| School ID | Current name | Proposed classification | Evidence | Confidence | Evidence-stage status |
+| ---: | --- | --- | --- | --- | --- |
+| 1742 | Bridgewater (Va.) | NCAA Division III / ODAC | [Official 2026 schedule](https://bridgewatereagles.com/sports/mens-track-and-field/schedule/2026) includes the NCAA Division III Outdoor Championships. | High | Prepared |
+| 1759 | Anderson (Ind.) | NCAA Division III / HCAC | [Official university profile](https://anderson.edu/about/) identifies NCAA Division III athletics; the [HCAC schedule](https://heartlandconf.org/schedule.aspx?schedule=4336) identifies Anderson (Ind.) track. | High | Prepared |
+| 1745 | Monmouth (Ill.) | NCAA Division III / Midwest Conference | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=438) lists active Division III membership; [official admissions](https://www.monmouthcollege.edu/admission/) identifies the Midwest Conference. | High | Prepared |
+| 1779 | Western Conn. St | NCAA Division III / Little East | [Official athletics overview](https://westconnathletics.com/sports/2020/4/28/information-About-WestConn-Athletics.aspx) identifies NCAA Division III and Little East membership. | High | Prepared |
+| 1788 | Northwestern (Minn.) | NCAA Division III / UMAC (also NCCAA I) | [Official quick facts](https://unweagles.com/sports/2013/3/14/gen_0314134051.aspx) identify NCAA Division III, NCCAA Division I, and UMAC affiliation. | High | Prepared |
+| 1781 | Regent University | NCCAA Division I (NCAA exploratory) | [Official Regent announcement](https://regentroyals.com/news/2024/10/3/general-regent-adds-baseball-as-11th-sport-beginning-2025-26-season.aspx) identifies current NCCAA Division I membership and NCAA exploration. | High | Prepared |
+| 1802 | North Central (Minn.) | NCAA Division III / UMAC (also NCCAA) | [Official track report](https://ncurams.com/news/2025/4/23/track-and-field-ncu-track-field-shows-out-at-the-gary-wilson-invite.aspx) places the program in NCAA Division III and UMAC while documenting NCCAA qualification. | High | Prepared |
+| 1811 | UNB REDS | U SPORTS / AUS | [Official UNB award criteria](https://www.unb.ca/academics/calendar/undergraduate/current/awards/search/friends-of-the-unb-reds-mens-track-and-field-endowed.html) apply U SPORTS regulations to REDS track and field. | High | Prepared |
+| 1774 | Benedictine (Ill.) | NCAA Division III / NACC | [Official athletics quick facts](https://benueagles.com/sports/2014/7/10/GEN_QuickFacts.aspx) identify NCAA Division III and NACC affiliation. | High | Prepared |
+| 1784 | Bob Jones | NCCAA Division II | [Official university program page](https://www.bju.edu/program) identifies current NCCAA Division II intercollegiate athletics, including track. | High | Prepared |
+| 1806 | Albany College of Pharmacy | USCAA | [Official recruiting form](https://admissions.acphs.edu/register/athletics) identifies USCAA athletics and track and field. | High | Prepared |
+| 1809 | Bethel (Tenn.) | NAIA / Mid-South | [Official NIL policy](https://bethelathletics.com/sports/2026/8/25/information-NIL.aspx) applies NAIA rules to Bethel student-athletes; the [2026 conference report](https://bethelathletics.com/news/2026/8/21/8_21_2026_3632.aspx) identifies Bethel (Tenn.) in the Mid-South. | High | Prepared |
+| 1794 | Cumberland (Tenn.) | NAIA / Mid-South | [Official 2025–26 schedule](https://gocumberlandathletics.com/sports/mens-track-and-field/schedule) includes the NAIA national championship. | High | Prepared |
+| 1771 | SUNY Cobleskill | NCAA Division III / NAC | [Official athletics communications page](https://fightingtigers.cobleskill.edu/sports/2024/10/16/athletic-communcations.aspx) identifies all varsity sports as NCAA Division III. | High | Prepared |
+| 1787 | Lakehead University | U SPORTS / OUA | [Official athletics overview](https://thunderwolves.ca/inside-athletics/about-us/) identifies OUA and U SPORTS membership. | High | Prepared |
+| 1792 | Ottawa (AZ) | NAIA / GSAC | [Official 2026 schedule](https://ouazspirit.com/sports/track-and-field/schedule/2026) identifies Ottawa University Arizona and its GSAC championship. | High | Prepared |
+| 1793 | Sherbrooke | U SPORTS / RSEQ | [Official Vert & Or program](https://www.usherbrooke.ca/vertetor/equipes/athletisme) identifies the university track program; its [2025–26 program document](https://www.usherbrooke.ca/vertetor/fileadmin/sites/vertetor2/Athletisme/06-_ATHLETISME_VERT___OR_25-26.pdf) identifies RSEQ/U SPORTS competition. | High | Prepared |
+| 1797 | York (Neb.) | NAIA / KCAC | [Official York quick facts](https://www.york.edu/about/quick-facts.php) identify NAIA and KCAC membership. | High | Prepared |
+| 1785 | York University | U SPORTS / OUA | [Official 2025–26 schedule](https://yorkulions.ca/sports/track-and-field/schedule/2025-26?grid=true) includes the U SPORTS championships. | High | Prepared |
+| 1778 | Castleton | NCAA Division III / Little East | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=123) lists Vermont State University Castleton as an active Division III member. | High | Prepared |
+| 1789 | Mid-America Christian | NAIA (also NCCAA) | [Official athletics profile](https://macuathletics.com/staff-directory/marcus-moeller/2) documents both NAIA and NCCAA championship qualification. | High | Prepared |
+| 1790 | Ottawa University | NAIA / KCAC | [Official 2026 track report](https://ottawabraves.com/news/2026/5/22/mens-outdoor-track-and-field-brown-perry-and-blount-earn-naia-all-america-honors-at-naia-outdoor-championships.aspx) documents NAIA championship participation. | High | Prepared |
+| 1804 | Bellevue | NAIA / Frontier | [Official university athletics page](https://www.bellevue.edu/student-experience/athletics/) identifies NAIA/Frontier athletics and distance track. | High | Prepared |
+| 1799 | Bethel (Kan.) | NAIA / KCAC | [Official 2026 schedule](https://bethelthreshers.com/sports/track-field/schedule/2026) includes KCAC and NAIA championships. | High | Prepared |
+| 1795 | SCAD Savannah | NAIA / Sun Conference | [Official schedule](https://savannah.scadathletics.com/sports/womens-track-and-field/schedule) includes Sun Conference and NAIA championships. | High | Prepared |
+| 1800 | IU Columbus | NAIA / River States | [Official IU announcement](https://news.iu.edu/columbus/live/news/44741-iu-columbus-introduces-track-field) identifies the new track program as NAIA/River States. | High | Prepared |
+| 1798 | Dominican (Ill.) | NCAA Division III / NACC | [Official compliance page](https://dustars.com/sports/2016/5/18/compliance.aspx) identifies NCAA Division III and NACC membership. | High | Prepared |
+| 1801 | Maine-Fort Kent | USCAA | [Official student-life page](https://www.umfk.edu/student-life/) states that UMFK teams compete in the USCAA. | High | Prepared |
+| 1805 | Universite de Montreal | U SPORTS / RSEQ | [Official 2026 track report](https://carabins.umontreal.ca/athletisme/plus-pres-que-jamais-du-sommet/) documents RSEQ and U SPORTS championships. | High | Prepared |
+| 1815 | Ozarks (Ark.) | NCAA Division III / SCAC | [Official 2026 track report](https://uofoathletics.com/news/2026/4/21/mens-track-track-programs-aim-high-at-scac-championships.aspx) identifies the SCAC program; Ozarks competes in NCAA Division III. | High | Prepared |
+| 1803 | Rochester Christian | NAIA / WHAC | [Official university athletics guide](https://rcu.edu/wp-content/uploads/2023/11/CrimsonCompanion_Final.pdf) identifies NAIA/WHAC and indoor/outdoor track. | High | Prepared |
+| 1808 | Southwestern (Kan.) | NAIA / KCAC | [Official university athletics page](https://www.sckans.edu/admissions/athletics--activities/) identifies NAIA/KCAC and track and field. | High | Prepared |
+| 1810 | Park Gilbert | NAIA / GSAC | [Official athletics recognition](https://gilbert.parkathletics.com/news/2025/8/1/general-park-gilbert-named-five-star-silver-champions-of-character-institution.aspx) identifies current NAIA and GSAC membership. | High | Prepared |
+| 1812 | Carlow | NCAA Division III provisional / AMCC (also USCAA) | [NCAA directory](https://web3.ncaa.org/directory/orgDetail?id=30253) lists Division III provisional status and AMCC membership for 2026–27. | High | Prepared |
+| 1819 | Carolina University | NCCAA Division I | [NCCAA member page](https://thenccaa.org/sports/2016/6/7/Piedmont_International_University.aspx) identifies Division I and outdoor track and field. | High | Prepared |
+| 1813 | Cottey | NAIA / American Midwest | [Official catalog](https://catalog.cottey.edu/athletics) identifies NAIA membership and indoor/outdoor track; the [official conference announcement](https://cottey.edu/2021/11/cottey-joins-american-midwest-conference/) identifies AMC membership. | High | Prepared |
+| 1816 | St. Catherine (Minn.) | NCAA Division III / MIAC | [Official 2026 report](https://stkatesathletics.com/news/2026/7/20/track-field-team-garners-tenth-best-team-gpa-in-division-iii.aspx) identifies NCAA Division III and MIAC. | High | Prepared |
+| 1821 | Thomas (Ga.) | NAIA / SSAC | [Official athletics site](https://tunighthawks.com/index.aspx) links NAIA eligibility; the [2026 track report](https://tunighthawks.com/news/2026/2/22/mens-track-field-night-hawks-highlight-program-growth-at-ssac-championships.aspx) confirms SSAC competition. | High | Prepared |
+| 1814 | Vermont State Randolph | USCAA Division II / YSCC | [Official Vermont State athletics page](https://vermontstate.edu/athletics/) identifies Randolph as USCAA Division II/YSCC with track and field. | High | Prepared |
+| 1828 | Maine-Augusta | USCAA / YSCC | [Official UMA track announcement](https://www.uma.edu/news/uma-moose-track-field-join-today/) identifies its USCAA track program. | High | Prepared |
+| 1875 | P.R.-Humacao | LAI | The [official LAI university directory](https://laipr.org/universidades/) lists UPR Humacao as a member. | High | Prepared |
+| 1876 | Pontificia Universidad Catolica de Puerto Rico | LAI | The [official LAI university directory](https://laipr.org/universidades/) lists Pontificia Universidad Católica de Puerto Rico. | High | Prepared |
+| 1827 | Beacon College | USCAA / New South | [Official Beacon athletics page](https://www.beaconcollege.edu/student-life/athletics/) identifies USCAA/New South membership and the 2026 4x100 national title. | High | Prepared |
+| 1834 | Hampshire | USCAA / YSCC | [Official Hampshire student-life page](https://www.hampshire.edu/student-life/student-groups-activities) identifies USCAA and YSCC membership. | High | Prepared |
+| 1877 | P.R.-Arecibo | LAI | The [official LAI university directory](https://laipr.org/universidades/) lists UPR Arecibo in its UPR member section. | High | Prepared |
+| 1825 | U of Alberta | U SPORTS / Canada West | [Official 2026 championship report](https://bearsandpandas.ca/news/2026/2/21/track-and-field-golden-bears-capture-eighth-canada-west-title.aspx) identifies Canada West and U SPORTS competition. | High | Prepared |
+| 1823 | Bluefield | NAIA / Appalachian Athletic | [Official athletics information](https://burams.com/sports/2013/3/18/DEPT_0318131243.aspx?path=department&tab=sportsinformation) identifies NAIA and Appalachian Athletic Conference membership. | High | Prepared |
+| 1817 | Carleton (Ont.) | U SPORTS / RSEQ | [Official Ravens program page](https://goravens.ca/clubs/trackfieldcc/) states that track competes in RSEQ and U SPORTS championships. | High | Prepared |
+| 1820 | Remparts | U SPORTS / RSEQ | [Official RMC Saint-Jean brochure](https://www.cmrsj-rmcsj.forces.gc.ca/fe-fs/brochure/brochure-eng.asp) identifies the Remparts, track and field, RSEQ, and U SPORTS structure. | High | Prepared |
+| 1878 | P.R.-Ponce | LAI | The [official LAI university directory](https://laipr.org/universidades/) lists UPR Ponce as a member. | High | Prepared |
+| 1872 | Universidad Interamericana de Puerto Rico | LAI | [Official Inter athletics](https://metro.inter.edu/dep-deportes/) identifies LAI track and field. | High | Prepared |
+| 1824 | Bryant & Stratton (Buffalo) | USCAA | [Official Bryant & Stratton athletics page](https://www.bryantstratton.edu/student-experience/athletics/) states that New York campuses compete in the USCAA and offer track and field. | High | Prepared |
+| 1874 | Universidad Politecnica de Puerto Rico | LAI | The [official LAI profile](https://laipr.org/conoce-a-dario-rodriguez-el-nuevo-director-atletico-de-la-politecnica/) documents Politécnica athletes competing in the LAI. | High | Prepared |
+| 1831 | Regina | U SPORTS / Canada West | [Official 2026–27 schedule](https://cougarsandrams.com/sports/track-and-field/schedule/2026-27) includes Canada West and U SPORTS championships. | High | Prepared |
+| 1873 | Caribbean University | LAI | The [official LAI university directory](https://laipr.org/universidades/) lists Caribbean University as a member. | High | Prepared |
+| 1829 | Dawgs Track Club | Club — not a collegiate division | The live team already has the explicit reviewed `team_type = 'club'`; no collegiate governing-body evidence exists. | High | Intentionally remains `Other` |
+| 1833 | Penn State Shenango | USCAA / PSUAC | [Official Penn State page](https://shenango.psu.edu/student-life/fitness-recreation) identifies PSUAC and USCAA affiliation. | High | Prepared |
+| 1879 | Sagrado Corazon | LAI | The [official LAI university directory](https://laipr.org/universidades/) lists Universidad del Sagrado Corazón as a member. | High | Prepared |
+| 1830 | Simmons College of KY | NCCAA Division II | [NCCAA member page](https://thenccaa.org/sports/2016/6/8/Simmons_College_of_Kentucky.aspx?id=514) identifies Division II and outdoor track and field. | High | Prepared |
+| 1832 | Williamson | USCAA | [Official Williamson athletics page](https://williamson.edu/news-events/2024/04/26/student-activities-and-athletics/) confirms the college athletics program; the program is a current USCAA member. | Medium–High | Prepared |
+| 1871 | Universidad Ana G. Mendez | LAI | [Official UAGM sports page](https://uagm.edu/en/node/115) identifies the LAI track championships and LAI eligibility. | High | Prepared |
+
+## What this establishes
+
+1. `Other` is materially mixed: the complete inventory contains NCAA Division II/III, NAIA,
+   USCAA, NCCAA, LAI, Canadian U SPORTS programs, and one actual club.
+2. The current value is therefore a data-quality gap, not a valid “non-collegiate” label. A bulk
+   rule such as “Other = club” would misclassify a large share of the data.
+3. Logos are supporting evidence only. The classification comes from institutional, NCAA, NAIA,
+   U SPORTS, or conference records.
+4. Canadian programs and SUNY-ESF cannot be represented faithfully as NCAA/NAIA divisions.
+   The model needs to distinguish governing body (for example NCAA, NAIA, U SPORTS, or USCAA)
+   from division and conference before those rows are written.
+5. `Marian University (Ind.)` is a useful correction to the earlier hypothesis: it is NAIA, while
+   similarly named Marian University (Wis.) is NCAA Division III. Name matching without state or
+   source identity is unsafe.
+
+## Implementation gate
+
+The evidence pass is complete for all 129 rows. The paired migration reuses the existing
+`public.divisions` dimension and `schools.division_id`; it does not create a duplicate school or
+classification table. It adds only the missing governing-body dimension rows, archives all 128
+collegiate school before-images in `ingest.fact_cleanup_archive`, updates exact school IDs, and
+leaves the one verified club (`Dawgs Track Club`) in `Other`. Conference writes remain out of this
+migration because the live `conferences` table contains duplicate natural keys that require a
+separate identity-safe consolidation before references can be assigned reliably.

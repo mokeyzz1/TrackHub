@@ -28,9 +28,9 @@
  * EFFECT: C's copied rows are deleted; the meet row itself stays and returns to "no results",
  * which is the truthful state — we simply do not have that meet's real results.
  *
- * Every deleted row is copied whole into `results_d1_backup` first, plus an audit JSON of the
+ * Every deleted row is copied whole into `archive.results_d1_backup` first, plus an audit JSON of the
  * ids (CLAUDE.md §7). Nothing FKs to results.result_id, so no orphans.
- *   Rollback: INSERT INTO results SELECT * FROM results_d1_backup;
+ *   Rollback: INSERT INTO results SELECT * FROM archive.results_d1_backup;
  *
  *   node dedup-copied-meets.js            # dry run — lists the copied meets, writes nothing
  *   node dedup-copied-meets.js --apply    # back up and delete
@@ -233,7 +233,7 @@ const ONLY_IDS = ONLY ? new Set(ONLY.split(',').map(Number)) : null;
   if (!verified.length) { await c.end(); return; }
   list.length = 0; list.push(...verified);
 
-  await c.query(`CREATE TABLE IF NOT EXISTS results_d1_backup (LIKE results INCLUDING DEFAULTS)`);
+  await c.query(`CREATE TABLE IF NOT EXISTS archive.results_d1_backup (LIKE results INCLUDING DEFAULTS)`);
   const copyIds = list.map(r => r.copy_id);
   const { rows: doomed } = await c.query(
     'SELECT result_id FROM results WHERE meet_id = ANY($1::int[])', [copyIds]);
@@ -249,7 +249,7 @@ const ONLY_IDS = ONLY ? new Set(ONLY.split(',').map(Number)) : null;
     const chunk = ids.slice(i, i + BATCH);
     try {
       backed += (await c.query(
-        `INSERT INTO results_d1_backup SELECT * FROM results WHERE result_id = ANY($1::int[])`, [chunk])).rowCount;
+        `INSERT INTO archive.results_d1_backup SELECT * FROM results WHERE result_id = ANY($1::int[])`, [chunk])).rowCount;
       deleted += (await c.query(`DELETE FROM results WHERE result_id = ANY($1::int[])`, [chunk])).rowCount;
     } catch (e) {
       console.log(`  error @${i}: ${e.message}`);
@@ -264,6 +264,6 @@ const ONLY_IDS = ONLY ? new Set(ONLY.split(',').map(Number)) : null;
   await c.query(`UPDATE meets SET results_status = 'pending'
                  WHERE meet_id = ANY($1::int[]) AND results_status <> 'pending'`, [copyIds]);
   console.log(`\nDONE — backed up ${backed.toLocaleString()} | deleted ${deleted.toLocaleString()} across ${list.length} meets`);
-  console.log(`rollback: INSERT INTO results SELECT * FROM results_d1_backup;`);
+  console.log(`rollback: INSERT INTO results SELECT * FROM archive.results_d1_backup;`);
   await c.end();
 })().catch(e => { console.error('ERR', e.message); process.exit(1); });

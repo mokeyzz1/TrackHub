@@ -105,7 +105,7 @@ async function matchSchoolAliases() {
   while (true) {
     const { data } = await supabase
       .from('teams')
-      .select('team_id, gender, school_id, schools(short_name, official_name)')
+      .select('team_id, gender, school_id, team_name, team_type, schools(short_name, official_name)')
       .range(offset, offset + 999);
     if (!data || data.length === 0) break;
     allTeams = allTeams.concat(data);
@@ -117,8 +117,16 @@ async function matchSchoolAliases() {
   for (const team of allTeams) {
     const shortName = team.schools?.short_name?.toLowerCase();
     const officialName = team.schools?.official_name?.toLowerCase();
-    if (shortName) teamByName.set(shortName + '|' + team.gender, team.team_id);
-    if (officialName) teamByName.set(officialName + '|' + team.gender, team.team_id);
+    const explicitName = team.team_name?.toLowerCase();
+    if (explicitName) teamByName.set(explicitName + '|' + team.gender, team.team_id);
+    if (shortName) {
+      const key = shortName + '|' + team.gender;
+      if (!teamByName.has(key)) teamByName.set(key, team.team_id);
+    }
+    if (officialName) {
+      const key = officialName + '|' + team.gender;
+      if (!teamByName.has(key)) teamByName.set(key, team.team_id);
+    }
   }
 
   // Find unmatched school names

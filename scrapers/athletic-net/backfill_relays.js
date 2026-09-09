@@ -3,16 +3,16 @@
  * Re-run the athletic.net import over meets ALREADY sourced from athletic.net, to pick up relays.
  *
  * The original imports dropped every relay (relay rows have a team, not an athlete, so the bridge
- * skipped them as blank). Relay support now exists, but `batch_import.js` only targets *empty*
- * meets — so these already-filled meets need their own pass.
+ * skipped them as blank). Relay support now exists, but normal ingestion targets current meets;
+ * this reviewed repair pass exists for already-filled historical meets.
  *
  * Safe to run repeatedly: the bridge skips individual results it already imported (fingerprint
  * guard) and skips relays it already wrote (event_type + team + mark), so this only adds what's
  * missing.
  *
  *   node backfill_relays.js            # dry run
- *   node backfill_relays.js --commit   # write
- *   node backfill_relays.js --commit --limit 5
+ *   node backfill_relays.js --commit --control-plane   # controlled write
+ *   node backfill_relays.js --commit --control-plane --limit 5
  */
 const path = require('path');
 const { execFileSync } = require('child_process');
@@ -26,6 +26,7 @@ const BRIDGE = path.join(__dirname, 'import_meet_results.js');
 (async () => {
   const args = process.argv.slice(2);
   const commit = args.includes('--commit');
+  const controlPlane = args.includes('--control-plane');
   const li = args.indexOf('--limit');
   const limit = li >= 0 ? parseInt(args[li + 1], 10) : 0;
 
@@ -52,7 +53,10 @@ const BRIDGE = path.join(__dirname, 'import_meet_results.js');
     const m = list[i];
     console.log(`[${i + 1}/${list.length}] meet ${m.meet_id} "${m.name}" (${m.date})`);
     try {
-      const out = execFileSync(NODE, [BRIDGE, String(m.meet_id), ...(commit ? ['--commit'] : [])],
+      const flags = [];
+      if (commit) flags.push('--commit');
+      if (controlPlane || commit) flags.push('--control-plane');
+      const out = execFileSync(NODE, [BRIDGE, String(m.meet_id), ...flags],
         { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 32 * 1024 * 1024 });
       const line = out.split('\n').find(l => l.includes('RELAYS:'));
       if (line) console.log(' ', line.trim());

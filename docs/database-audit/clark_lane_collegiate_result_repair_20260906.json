@@ -1,0 +1,24 @@
+{
+  "operation": "20260906_clark_lane_collegiate_result_affiliation_repair",
+  "reason": "Four legacy aliases routed these NWAC 4x100 relay facts to Clark (Massachusetts) and Lane (Tennessee).",
+  "source": "TFRRS result pages retained in ingest.source_records and linked by ingest.source_links",
+  "meet_ids": [12461, 12885, 12954, 13138],
+  "source_result_urls": [
+    "https://www.tfrrs.org/results/96163/5922919/John_Knight_Twilight/Mens-4-x-100-Relay",
+    "https://www.tfrrs.org/results/96163/5922918/John_Knight_Twilight/Womens-4-x-100-Relay",
+    "https://www.tfrrs.org/results/96320/5984000/OSU_High_Performance/Mens-4-x-100-Relay",
+    "https://www.tfrrs.org/results/96320/5983999/OSU_High_Performance/Womens-4-x-100-Relay",
+    "https://www.tfrrs.org/results/96349/5992580/NWAC_South_Region_Championships/Mens-4-x-100-Relay",
+    "https://www.tfrrs.org/results/96349/5992579/NWAC_South_Region_Championships/Womens-4-x-100-Relay",
+    "https://www.tfrrs.org/results/96778/6002473/NWAC_Championships_/Mens-4-x-100-Relay",
+    "https://www.tfrrs.org/results/96778/6002472/NWAC_Championships_/Womens-4-x-100-Relay"
+  ],
+  "team_mapping": [
+    {"old_team_url": "https://www.tfrrs.org/teams/tf/MA_college_m_Clark.html", "new_team_url": "https://www.tfrrs.org/teams/tf/WA_jcollege_m_Clark_College.html", "result_count": 12, "relay_parent_ids": [245959, 245970, 245979]},
+    {"old_team_url": "https://www.tfrrs.org/teams/tf/MA_college_f_Clark.html", "new_team_url": "https://www.tfrrs.org/teams/tf/WA_jcollege_f_Clark_College.html", "result_count": 12, "relay_parent_ids": [245964, 245981, 245989]},
+    {"old_team_url": "https://www.tfrrs.org/teams/tf/TN_college_m_Lane.html", "new_team_url": "https://www.tfrrs.org/teams/tf/OR_jcollege_m_Lane_CC.html", "result_count": 12, "relay_parent_ids": [245958, 245977, 245986]},
+    {"old_team_url": "https://www.tfrrs.org/teams/tf/TN_college_f_Lane.html", "new_team_url": "https://www.tfrrs.org/teams/tf/OR_jcollege_f_Lane_CC.html", "result_count": 16, "relay_parent_ids": [245966, 245976, 245982, 245991]}
+  ],
+  "result_ids": [8043555,8043556,8043557,8043558,8043563,8043564,8043565,8043566,8043587,8043588,8043589,8043590,8043595,8043596,8043597,8043598,8043627,8043628,8043629,8043630,8043651,8043652,8043653,8043654,8043663,8043664,8043665,8043666,8043671,8043672,8043673,8043674,8043687,8043688,8043689,8043690,8043691,8043692,8043693,8043694,8043719,8043720,8043721,8043722,8043747,8043748,8043749,8043750,8043755,8043756,8043757,8043758],
+  "relay_result_ids": [245958,245959,245964,245966,245970,245976,245977,245979,245981,245982,245986,245989,245991]
+}

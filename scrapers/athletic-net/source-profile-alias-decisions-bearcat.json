@@ -1,0 +1,35 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "Bearcat Invite 2026 / exact AthleticLIVE source-profile matches",
+  "decisions": [
+    {
+      "source_athlete_key": "44071295",
+      "source_athlete_name": "Elijah Edwards",
+      "source_gender": "M",
+      "target_athlete_id": 46875,
+      "athletic_net_profile_id": "29690533",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/60533",
+        "https://www.athletic.net/athlete/29690533/track-and-field",
+        "https://www.tfrrs.org/athletes/9205093/Emporia_State/Elijah_Edwards.html"
+      ],
+      "notes": "Bearcat source key has exact Elijah Edwards identity, source team Emporia St., and the unique existing athlete owns the exact Athletic.net profile and Emporia State TFRRS identity."
+    },
+    {
+      "source_athlete_key": "44071157",
+      "source_athlete_name": "Kian McGhee",
+      "source_gender": "M",
+      "target_athlete_id": 33244,
+      "athletic_net_profile_id": "30070171",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/60533",
+        "https://www.athletic.net/athlete/30070171/track-and-field",
+        "https://www.tfrrs.org/athletes/9235673/Southern_Arkansas/Kian_McGhee.html"
+      ],
+      "notes": "Bearcat source key has exact Kian McGhee identity, source team Southern Arkansas, and the unique existing athlete owns the exact Athletic.net profile and Southern Arkansas TFRRS identity."
+    }
+  ]
+}

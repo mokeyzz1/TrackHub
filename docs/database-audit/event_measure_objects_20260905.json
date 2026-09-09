@@ -1,0 +1,32 @@
+{
+  "snapshotDate": "2026-09-05",
+  "items": [
+    {
+      "id": "constraint:public:event_types:event_types_measure_check",
+      "kind": "constraint",
+      "schema": "public",
+      "relation": "event_types",
+      "name": "event_types_measure_check",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Restrict canonical measurement kinds to time, distance, points or explicit unknown.",
+      "problems": "Previously accepted arbitrary labels; no existing invalid values. Broader event taxonomy remains under review.",
+      "proposedImprovement": "Preserve supported kinds with a validated check and separate NOT NULL.",
+      "status": "verified",
+      "dependencies": [
+        "MODEL-01a"
+      ],
+      "evidence": [
+        "EVENT_MEASURE_DOMAIN_20260905.md"
+      ],
+      "verification": "25 isolated PostgreSQL tests; all 67 live catalog rows unchanged, check validated.",
+      "rollback": "Drop only event_types_measure_check and measure NOT NULL if required; no row deletion.",
+      "appliedLive": true,
+      "metadata": {
+        "type": "c",
+        "validated": true,
+        "migrationVersion": "20260905201510"
+      }
+    }
+  ]
+}

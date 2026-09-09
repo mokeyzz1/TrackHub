@@ -1,0 +1,147 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "VMI Winter Relays 2026 / exact AthleticLIVE source-profile matches batch 1",
+  "decisions": [
+    {
+      "source_athlete_key": "44018991",
+      "source_athlete_name": "Aubree Harris",
+      "source_gender": "F",
+      "target_athlete_id": 80527,
+      "athletic_net_profile_id": "30171595",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/30171595/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018817",
+      "source_athlete_name": "Chazz Alexander",
+      "source_gender": "M",
+      "target_athlete_id": 6439,
+      "athletic_net_profile_id": "29493502",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/29493502/track-and-field",
+        "Exact existing Tusculum athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team Tusculum, high-confidence API match, and unique existing Tusculum athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018873",
+      "source_athlete_name": "Deonte Harris",
+      "source_gender": "M",
+      "target_athlete_id": 17804,
+      "athletic_net_profile_id": "30164013",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/30164013/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44019178",
+      "source_athlete_name": "Heaven Hall",
+      "source_gender": "F",
+      "target_athlete_id": 16181,
+      "athletic_net_profile_id": "21734646",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/21734646/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018896",
+      "source_athlete_name": "Indira O'neil",
+      "source_gender": "F",
+      "target_athlete_id": 57935,
+      "athletic_net_profile_id": "27119618",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/27119618/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source identity after harmless capitalization/apostrophe normalization, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018628",
+      "source_athlete_name": "Isaac Reyna",
+      "source_gender": "M",
+      "target_athlete_id": 35235,
+      "athletic_net_profile_id": "21294452",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/21294452/track-and-field",
+        "Exact existing Lees-McRae athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team Lees-McRae, high-confidence API match, and unique existing Lees-McRae athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018913",
+      "source_athlete_name": "JeNiya White",
+      "source_gender": "F",
+      "target_athlete_id": 16200,
+      "athletic_net_profile_id": "26993928",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/26993928/track-and-field",
+        "Exact existing VMI athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source identity after harmless casing normalization, source team VMI, high-confidence API match, and unique existing VMI athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018802",
+      "source_athlete_name": "Jordan Davis",
+      "source_gender": "M",
+      "target_athlete_id": 44465,
+      "athletic_net_profile_id": "24207417",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/24207417/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018636",
+      "source_athlete_name": "Josh Brett",
+      "source_gender": "M",
+      "target_athlete_id": 35224,
+      "athletic_net_profile_id": "23997088",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/23997088/track-and-field",
+        "Exact existing Lees-McRae athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team Lees-McRae, high-confidence API match, and unique existing Lees-McRae athlete owning the exact Athletic.net profile."
+    },
+    {
+      "source_athlete_key": "44018803",
+      "source_athlete_name": "Kaiden Ross",
+      "source_gender": "M",
+      "target_athlete_id": 44486,
+      "athletic_net_profile_id": "27119621",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/27119621/track-and-field",
+        "Exact existing VCU athlete/profile ownership verified in the production database"
+      ],
+      "notes": "Exact source name and gender, source team VCU, high-confidence API match, and unique existing VCU athlete owning the exact Athletic.net profile."
+    }
+  ]
+}

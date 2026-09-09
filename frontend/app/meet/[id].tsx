@@ -30,11 +30,13 @@ interface Meet {
   meet_id: number;
   name: string;
   date: string;
-  location: string;
+  end_date: string;
+  location: string | null;
   meet_url: string | null;
-  status: string;
-  level: string;
-  season: string;
+  status: 'upcoming' | 'live' | 'completed' | 'cancelled' | 'postponed';
+  effective_status: 'upcoming' | 'live' | 'completed' | 'cancelled' | 'postponed';
+  level: string | null;
+  season: string | null;
 }
 
 export default function MeetDetailScreen() {
@@ -92,9 +94,9 @@ export default function MeetDetailScreen() {
       }
 
       const { data, error: fetchError } = await supabase
-        .from('meets')
+        .from('v_meets_lifecycle')
         .select('*')
-        .eq('meet_id', id)
+        .eq('meet_id', Number(id))
         .single();
 
       if (fetchError) throw fetchError;
@@ -112,16 +114,12 @@ export default function MeetDetailScreen() {
     if (!isValidId) return;
 
     try {
-      // Get today's date as YYYY-MM-DD string (local timezone)
-      const now = new Date();
-      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
-      // Get upcoming meets (today or later), excluding current meet
+      // Get active and upcoming meets according to the authoritative calculated lifecycle.
       const { data, error: fetchError } = await supabase
-        .from('meets')
+        .from('v_meets_lifecycle')
         .select('*')
-        .neq('meet_id', id)
-        .gte('date', todayStr)
+        .neq('meet_id', Number(id))
+        .in('effective_status', ['live', 'upcoming', 'postponed'])
         .order('date', { ascending: true })
         .limit(10);
 
@@ -137,7 +135,7 @@ export default function MeetDetailScreen() {
   useEffect(() => {
     if (meet) {
       const status = getMeetStatus(meet);
-      if (status === 'past') {
+      if (status === 'completed') {
         fetchMeetEvents();
       }
     } else if (fallbackMeetName && fallbackMeetDate) {
@@ -351,34 +349,19 @@ export default function MeetDetailScreen() {
   }
 
   function getMeetStatus(meet: Meet) {
-    // Get today's date as YYYY-MM-DD string (local timezone)
-    const now = new Date();
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
-    // Meet date from database (already YYYY-MM-DD format)
-    const meetDateStr = meet.date.split('T')[0]; // Handle if it has time component
-
-    if (meetDateStr === todayStr) {
-      // Today's meet - check if it has a timing link
-      if (meet.meet_url) {
-        return 'live'; // Today + has URL = live
-      }
-      return 'today'; // Today but no URL yet
-    } else if (meetDateStr > todayStr) {
-      return 'upcoming';
-    } else {
-      return 'past';
-    }
+    return meet.effective_status;
   }
 
   function getGradientColors(status: string): readonly [string, string] {
     switch (status) {
       case 'live':
         return ['#FF1B8D', '#FF6B35'] as const; // Pink/orange for live
-      case 'today':
-        return ['#10B981', '#059669'] as const; // Green for today (not live yet)
       case 'upcoming':
         return ['#4A90D9', '#7B68EE'] as const; // Blue/purple for upcoming
+      case 'cancelled':
+        return ['#991B1B', '#7F1D1D'] as const;
+      case 'postponed':
+        return ['#B45309', '#92400E'] as const;
       default:
         return ['#6B7280', '#4B5563'] as const; // Gray for past
     }
@@ -412,7 +395,7 @@ export default function MeetDetailScreen() {
     );
   }
 
-  const meetStatus = meet ? getMeetStatus(meet) : 'past';
+  const meetStatus = meet ? getMeetStatus(meet) : 'completed';
   const shortDate = meet ? formatShortDate(meet.date) : (fallbackMeetDate ? formatShortDate(fallbackMeetDate) : { day: '', month: '', year: 0 });
   const displayName = meet?.name || fallbackMeetName || '';
   const displayDate = meet?.date || fallbackMeetDate || '';
@@ -451,22 +434,28 @@ export default function MeetDetailScreen() {
                   <Text style={styles.statusText}>LIVE NOW</Text>
                 </>
               )}
-              {meetStatus === 'today' && (
-                <>
-                  <Ionicons name="today" size={12} color={colors.text.white} />
-                  <Text style={styles.statusText}>TODAY</Text>
-                </>
-              )}
               {meetStatus === 'upcoming' && (
                 <>
                   <Ionicons name="calendar" size={12} color={colors.text.white} />
                   <Text style={styles.statusText}>UPCOMING</Text>
                 </>
               )}
-              {meetStatus === 'past' && (
+              {meetStatus === 'completed' && (
                 <>
                   <Ionicons name="checkmark-circle" size={12} color={colors.text.white} />
                   <Text style={styles.statusText}>COMPLETED</Text>
+                </>
+              )}
+              {meetStatus === 'cancelled' && (
+                <>
+                  <Ionicons name="close-circle" size={12} color={colors.text.white} />
+                  <Text style={styles.statusText}>CANCELLED</Text>
+                </>
+              )}
+              {meetStatus === 'postponed' && (
+                <>
+                  <Ionicons name="time" size={12} color={colors.text.white} />
+                  <Text style={styles.statusText}>POSTPONED</Text>
                 </>
               )}
             </View>
@@ -571,7 +560,7 @@ export default function MeetDetailScreen() {
         )}
 
         {/* Events Section - For past meets with results in our database */}
-        {(meetStatus === 'past' || isFallbackMode) && (
+        {(meetStatus === 'completed' || isFallbackMode) && (
           <View style={styles.eventsSection}>
             <Text style={styles.sectionTitle}>Events</Text>
 
@@ -599,7 +588,7 @@ export default function MeetDetailScreen() {
                       styles.genderToggleText,
                       selectedGender === 'M' && styles.genderToggleTextActive,
                     ]}>
-                      Men's ({mensEvents.length})
+                      Men’s ({mensEvents.length})
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -617,7 +606,7 @@ export default function MeetDetailScreen() {
                       styles.genderToggleText,
                       selectedGender === 'F' && styles.genderToggleTextActive,
                     ]}>
-                      Women's ({womensEvents.length})
+                      Women’s ({womensEvents.length})
                     </Text>
                   </TouchableOpacity>
                 </View>

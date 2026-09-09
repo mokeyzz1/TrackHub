@@ -1,0 +1,132 @@
+{
+  "manifest_version": 1,
+  "review_scope": "VMI Winter Relays 2026 / exact official TFRRS roster owners for existing athletes",
+  "decisions": [
+    {
+      "source_athlete_key": "44018922",
+      "source_athlete_name": "Dezyre Christian",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9237904",
+      "expected_school": "Ferrum",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/VA_college_f_Ferrum_College.html",
+        "https://www.tfrrs.org/athletes/9237904/Ferrum_College/Dezyre__Christian"
+      ],
+      "notes": "Exact source name, gender, Ferrum roster membership, and existing Ferrum TFRRS owner; attach the source key to that existing athlete rather than the Unattached placeholder."
+    },
+    {
+      "source_athlete_key": "44018569",
+      "source_athlete_name": "Kaylie Dziedzina",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9275643",
+      "expected_school": "Radford",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/VA_college_f_Radford.html",
+        "https://www.tfrrs.org/athletes/9275643/Radford/Kaylie_Dziedzina.html"
+      ],
+      "notes": "Exact source name and gender on the official Radford roster; current TFRRS identity 9275643 has one existing Radford owner."
+    },
+    {
+      "source_athlete_key": "44018702",
+      "source_athlete_name": "Jackson Olson",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8323768",
+      "expected_school": "Lees-McRae",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/NC_college_m_Lees_McRae.html",
+        "https://www.tfrrs.org/athletes/8323768/Lees_McRae/Jackson_Olson"
+      ],
+      "notes": "Exact source name and gender on the official Lees-McRae roster; the current TFRRS identity has one existing Lees-McRae owner."
+    },
+    {
+      "source_athlete_key": "44018605",
+      "source_athlete_name": "Carter Smith",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8588919",
+      "expected_school": "VCU",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/VA_college_m_VCU.html",
+        "https://www.tfrrs.org/athletes/8588919/VCU/Carter_Smith.html"
+      ],
+      "notes": "Exact source name and gender on the official VCU roster; existing VCU athlete 44487 owns TFRRS identity 8588919."
+    },
+    {
+      "source_athlete_key": "44018939",
+      "source_athlete_name": "Leena Olibah",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9187176",
+      "expected_school": "VCU",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/VA_college_f_VCU.html",
+        "https://www.tfrrs.org/athletes/9187176/VCU/Leena_Olibah.html"
+      ],
+      "notes": "Exact source name and gender on the official VCU roster; existing VCU athlete owns TFRRS identity 9187176."
+    },
+    {
+      "source_athlete_key": "44018941",
+      "source_athlete_name": "Madeleine Devlin",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9187174",
+      "expected_school": "VCU",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/VA_college_f_VCU.html",
+        "https://www.tfrrs.org/athletes/9187174/VCU/Madeleine_Devlin.html"
+      ],
+      "notes": "Exact source name and gender on the official VCU roster; existing VCU athlete owns TFRRS identity 9187174."
+    },
+    {
+      "source_athlete_key": "44018940",
+      "source_athlete_name": "Madison Johnson",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9187177",
+      "expected_school": "VCU",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/VA_college_f_VCU.html",
+        "https://www.tfrrs.org/athletes/9187177/VCU/Madison_Johnson.html"
+      ],
+      "notes": "Exact source name and gender on the official VCU roster; existing VCU athlete owns TFRRS identity 9187177."
+    },
+    {
+      "source_athlete_key": "44018743",
+      "source_athlete_name": "Viktoria Higgins",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9187179",
+      "expected_school": "VCU",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/VA_college_f_VCU.html",
+        "https://www.tfrrs.org/athletes/9187179/VCU/Viktoria_Higgins.html"
+      ],
+      "notes": "Exact source name and gender on the official VCU roster; existing VCU athlete owns TFRRS identity 9187179."
+    },
+    {
+      "source_athlete_key": "44019167",
+      "source_athlete_name": "Triston Jordan",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9287761",
+      "expected_school": "VMI",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/VA_college_m_Va_Military_Institute.html",
+        "https://www.tfrrs.org/athletes/9287761/Va_Military_Institute/Triston_Jordan.html"
+      ],
+      "notes": "Exact source name and gender on the official VMI roster; existing VMI athlete 119840 owns TFRRS identity 9287761, so the Unattached duplicate is not used."
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "Mount Union Last Chance Meet 2026 / remaining quarantine batch 2",
+  "decisions": [
+    {
+      "source_athlete_key": "49173273",
+      "source_athlete_name": "Breannda Davis",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "7793699",
+      "expected_school": "Westminster Pa",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/f/Mount_Union_Last_Chance_Meet",
+        "https://www.tfrrs.org/athletes/7793699/Westminster_PA/Breannda_Davis.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official 2026 Mount Union meet lists Breannda Davis at 1.70m high jump and the unique target is the verified Westminster TFRRS identity; the source entry is Unattached, so the public school is preserved."
+    },
+    {
+      "source_athlete_key": "49173280",
+      "source_athlete_name": "Adam Spaulding",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9250913",
+      "expected_school": "Westminster Pa",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.tfrrs.org/results/93221/5769110/2026_YSU_Mid_Major_Invitational/Mens-High-Jump",
+        "https://www.tfrrs.org/athletes/9250913/Westminster_PA/Adam_Spaulding.html"
+      ],
+      "notes": "The official meet lists Adam Spaulding at 1.86m high jump as Unattached and the unique target TFRRS identity is the Westminster unattached athlete; no public school rewrite is performed."
+    },
+    {
+      "source_athlete_key": "49173992",
+      "source_athlete_name": "Cammie Densevich",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9274390",
+      "expected_school": "Kent State",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/5996210/Mount_Union_Last_Chance_Meet/Shot-Put",
+        "https://www.tfrrs.org/results/95785/5996211/Mount_Union_Last_Chance_Meet/Womens-Discus",
+        "https://kentstatesports.com/sports/womens-track-and-field/roster/cammie-densevich/15649"
+      ],
+      "notes": "The official 2026 meet records Cammie Densevich at 10.20m shot put and 40.98m discus; Kent State's 2025-26 roster confirms the unique public identity."
+    },
+    {
+      "source_athlete_key": "49173331",
+      "source_athlete_name": "Ethan Jones",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8678799",
+      "expected_school": "Baldwin Wallace",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.tfrrs.org/athletes/8678799/Baldwin_Wallace/Ethan_Jones",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official meet lists Ethan Jones for Baldwin Wallace at 14.23m shot put and the unique target has the matching Baldwin Wallace TFRRS identity."
+    },
+    {
+      "source_athlete_key": "49174006",
+      "source_athlete_name": "Ethan Barrick",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9014514",
+      "expected_school": "Pitt.-Johnstown",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://m.tfrrs.org/athletes/9014514/Pitt_Johnstown/Ethan_Barrick.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official meet lists Ethan Barrick at 4:10.69 for 1500m and the unique target is the verified Pitt.-Johnstown TFRRS identity; source affiliation is Unattached."
+    },
+    {
+      "source_athlete_key": "49173313",
+      "source_athlete_name": "Jack Tharnish",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9201905",
+      "expected_school": "Geneseo St",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.tfrrs.org/teams/NY_college_m_Geneseo_St.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official meet lists Jack Tharnish at 2:01.94 for 800m and the unique target is the verified Geneseo St TFRRS identity; source affiliation is Unattached."
+    },
+    {
+      "source_athlete_key": "49173316",
+      "source_athlete_name": "Justin Sahli",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9200193",
+      "expected_school": "Youngstown St",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.tfrrs.org/teams/tf/OH_college_m_Youngstown_St.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official meet lists Justin Sahli at 1:59.51 for 800m and the unique target is the verified Youngstown St TFRRS identity; source affiliation is Unattached."
+    },
+    {
+      "source_athlete_key": "49173310",
+      "source_athlete_name": "Arjun Patel",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "9160347",
+      "expected_school": "Ursuline (Ohio)",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.tfrrs.org/athletes/9160347/Ursuline/Arjun__Patel_.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official meet lists Arjun Patel at 2:08.12 for 800m and the unique target is the verified Ursuline TFRRS identity; source affiliation is Unattached."
+    }
+  ]
+}

@@ -9,6 +9,30 @@ were wrong about as often as they were right. **The process is what worked, not 
 
 ---
 
+## 0. Fix the CLASS, not the instance — ask these three before closing anything
+
+Owner, 2026-08-18: *"why didn't all that get fixed at the same time?"* Because each fix was
+scoped to the symptom in front of me. Three times in one session:
+
+| fixed | never asked | cost |
+|---|---|---|
+| the colon parser (F7) | *does existing data still carry this bug?* | 463 meets stayed broken for months, reported 3× |
+| DUP-2 in `results` | *does the sibling table have this pattern?* | ~13,000 relay Heat+Finals duplicates untouched |
+| found the leg-name format split | *does this invalidate a dedup I already ran?* | DUP-3 missed ~26,000 rows |
+
+**Before marking anything fixed, answer all three:**
+
+1. **Is the DATA fixed, or only the code?** A parser fix repairs future scrapes and nothing else.
+   Two separate lines, and the second is not done until it is measured.
+2. **Where else does this pattern live?** `results` ↔ `relay_results` ↔ athlete-history rows are
+   siblings. A bug in one is a hypothesis about the others.
+3. **Does this invalidate an earlier measurement or fix?** New understanding of the data usually
+   means an earlier key was wrong, not just incomplete.
+
+The one time this went right was U8 — the collapse fix landed in **both** scrapers because
+`U1 (two engines, copy-pasted logic)` was written down. When the sibling is documented it gets
+checked; when it isn't, it doesn't. So write the sibling down.
+
 ## 1. Re-measure. The tracker lies.
 
 Three documented issue sizes were materially wrong when checked:

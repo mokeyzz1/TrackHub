@@ -1,0 +1,32 @@
+{
+  "snapshotDate": "2026-09-05",
+  "items": [
+    {
+      "id": "constraint:ingest:source_links:source_links_target_kind_ck",
+      "kind": "constraint",
+      "schema": "ingest",
+      "relation": "source_links",
+      "name": "source_links_target_kind_ck",
+      "ownership": "application",
+      "priority": "P1",
+      "purpose": "Prevent individual source links targeting relay parents and relay-parent source links targeting individual results.",
+      "problems": "No existing violations of these rules. Relay-leg compatibility representation remains unchanged and is not declared the final normalized model.",
+      "proposedImprovement": "Keep database-level target-kind checks while reviewing broader identity and relay participation relationships separately.",
+      "status": "verified",
+      "dependencies": [
+        "ING-02c1"
+      ],
+      "evidence": [
+        "SOURCE_LINK_TARGET_KIND_20260905.md"
+      ],
+      "verification": "16 isolated PostgreSQL tests; live constraint validated and all 41,214 existing links preserved.",
+      "rollback": "Drop only source_links_target_kind_ck if a demonstrated regression requires rollback; no rows need removal.",
+      "appliedLive": true,
+      "metadata": {
+        "type": "c",
+        "validated": true,
+        "migrationVersion": "20260905185312"
+      }
+    }
+  ]
+}

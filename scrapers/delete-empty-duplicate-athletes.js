@@ -27,11 +27,11 @@ const APPLY = process.argv.includes('--apply');
   console.log(`empty duplicate athlete records: ${ids.length.toLocaleString()}`);
   if (!APPLY) { console.log('(dry run)'); await c.end(); return; }
   require('fs').writeFileSync(`delete-empty-athletes-${Date.now()}.json`, JSON.stringify(ids));
-  await c.query('CREATE TABLE IF NOT EXISTS athletes_empty_backup (LIKE athletes INCLUDING DEFAULTS)');
+  await c.query('CREATE TABLE IF NOT EXISTS archive.athletes_empty_backup (LIKE athletes INCLUDING DEFAULTS)');
   let saved=0, del=0;
   for (let i=0;i<ids.length;i+=2000) {
     const ch = ids.slice(i,i+2000);
-    saved += (await c.query('INSERT INTO athletes_empty_backup SELECT * FROM athletes WHERE athlete_id = ANY($1::int[])',[ch])).rowCount;
+    saved += (await c.query('INSERT INTO archive.athletes_empty_backup SELECT * FROM athletes WHERE athlete_id = ANY($1::int[])',[ch])).rowCount;
     del   += (await c.query('DELETE FROM athletes WHERE athlete_id = ANY($1::int[])',[ch])).rowCount;
   }
   console.log(`backed up ${saved.toLocaleString()}, deleted ${del.toLocaleString()}`);

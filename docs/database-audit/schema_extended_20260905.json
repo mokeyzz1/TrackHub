@@ -1,0 +1,4236 @@
+{
+  "defaults": [
+    {
+      "name": "athlete_id",
+      "schema": "archive",
+      "identity": "",
+      "relation": "athletes_empty_backup",
+      "generated": "",
+      "expression": "nextval('athletes_athlete_id_seq'::regclass)"
+    },
+    {
+      "name": "is_active",
+      "schema": "archive",
+      "identity": "",
+      "relation": "athletes_empty_backup",
+      "generated": "",
+      "expression": "true"
+    },
+    {
+      "name": "created_at",
+      "schema": "archive",
+      "identity": "",
+      "relation": "athletes_empty_backup",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "updated_at",
+      "schema": "archive",
+      "identity": "",
+      "relation": "athletes_empty_backup",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "relay_athlete_id",
+      "schema": "archive",
+      "identity": "",
+      "relation": "relay_athletes_d3_backup",
+      "generated": "",
+      "expression": "nextval('relay_athletes_relay_athlete_id_seq'::regclass)"
+    },
+    {
+      "name": "created_at",
+      "schema": "archive",
+      "identity": "",
+      "relation": "relay_athletes_d3_backup",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "relay_result_id",
+      "schema": "archive",
+      "identity": "",
+      "relation": "relay_results_d3_backup",
+      "generated": "",
+      "expression": "nextval('relay_results_relay_result_id_seq'::regclass)"
+    },
+    {
+      "name": "created_at",
+      "schema": "archive",
+      "identity": "",
+      "relation": "relay_results_d3_backup",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "relay_result_id",
+      "schema": "archive",
+      "identity": "",
+      "relation": "relay_results_20260819_backup",
+      "generated": "",
+      "expression": "nextval('relay_results_relay_result_id_seq'::regclass)"
+    },
+    {
+      "name": "created_at",
+      "schema": "archive",
+      "identity": "",
+      "relation": "relay_results_20260819_backup",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "result_id",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_d1_backup",
+      "generated": "",
+      "expression": "nextval('results_result_id_seq'::regclass)"
+    },
+    {
+      "name": "is_pr",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_d1_backup",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "is_season_best",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_d1_backup",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "created_at",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_d1_backup",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "result_id",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_d2_backup",
+      "generated": "",
+      "expression": "nextval('results_result_id_seq'::regclass)"
+    },
+    {
+      "name": "is_pr",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_d2_backup",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "is_season_best",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_d2_backup",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "created_at",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_d2_backup",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "result_id",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_xsource_20260819_backup",
+      "generated": "",
+      "expression": "nextval('results_result_id_seq'::regclass)"
+    },
+    {
+      "name": "is_pr",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_xsource_20260819_backup",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "is_season_best",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_xsource_20260819_backup",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "created_at",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_xsource_20260819_backup",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "result_id",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_accidental_import_20260819_backup",
+      "generated": "",
+      "expression": "nextval('results_result_id_seq'::regclass)"
+    },
+    {
+      "name": "is_pr",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_accidental_import_20260819_backup",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "is_season_best",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_accidental_import_20260819_backup",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "created_at",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_accidental_import_20260819_backup",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "queue_id",
+      "schema": "ingest",
+      "identity": "a",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": null
+    },
+    {
+      "name": "individual_fact_count",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "relay_fact_count",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "source_candidates",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "'{}'::jsonb"
+    },
+    {
+      "name": "priority",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "100"
+    },
+    {
+      "name": "status",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "'queued'::text"
+    },
+    {
+      "name": "attempts",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "created_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "relay_coverage_status",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "'unknown'::text"
+    },
+    {
+      "name": "quarantined_observation_count",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "canonical_match_evidence",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "recovery_queue",
+      "generated": "",
+      "expression": "'[]'::jsonb"
+    },
+    {
+      "name": "private",
+      "schema": "realtime",
+      "identity": "",
+      "relation": "messages",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "updated_at",
+      "schema": "realtime",
+      "identity": "",
+      "relation": "messages",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "inserted_at",
+      "schema": "realtime",
+      "identity": "",
+      "relation": "messages",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "id",
+      "schema": "realtime",
+      "identity": "",
+      "relation": "messages",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "skip_broadcast",
+      "schema": "realtime",
+      "identity": "",
+      "relation": "messages",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "id",
+      "schema": "auth",
+      "identity": "",
+      "relation": "refresh_tokens",
+      "generated": "",
+      "expression": "nextval('auth.refresh_tokens_id_seq'::regclass)"
+    },
+    {
+      "name": "executed_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "migrations",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "id",
+      "schema": "vault",
+      "identity": "",
+      "relation": "secrets",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "description",
+      "schema": "vault",
+      "identity": "",
+      "relation": "secrets",
+      "generated": "",
+      "expression": "''::text"
+    },
+    {
+      "name": "nonce",
+      "schema": "vault",
+      "identity": "",
+      "relation": "secrets",
+      "generated": "",
+      "expression": "vault._crypto_aead_det_noncegen()"
+    },
+    {
+      "name": "created_at",
+      "schema": "vault",
+      "identity": "",
+      "relation": "secrets",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "updated_at",
+      "schema": "vault",
+      "identity": "",
+      "relation": "secrets",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "team_alias_id",
+      "schema": "ingest",
+      "identity": "a",
+      "relation": "team_aliases",
+      "generated": "",
+      "expression": null
+    },
+    {
+      "name": "match_method",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "team_aliases",
+      "generated": "",
+      "expression": "'verified_alias'::text"
+    },
+    {
+      "name": "status",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "team_aliases",
+      "generated": "",
+      "expression": "'active'::text"
+    },
+    {
+      "name": "verified_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "team_aliases",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "created_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "team_aliases",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "team_aliases",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "run_id",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "runs",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "status",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "runs",
+      "generated": "",
+      "expression": "'created'::text"
+    },
+    {
+      "name": "scope",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "runs",
+      "generated": "",
+      "expression": "'{}'::jsonb"
+    },
+    {
+      "name": "metrics",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "runs",
+      "generated": "",
+      "expression": "'{}'::jsonb"
+    },
+    {
+      "name": "created_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "runs",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "athlete_alias_id",
+      "schema": "ingest",
+      "identity": "a",
+      "relation": "athlete_aliases",
+      "generated": "",
+      "expression": null
+    },
+    {
+      "name": "match_method",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "athlete_aliases",
+      "generated": "",
+      "expression": "'verified_alias'::text"
+    },
+    {
+      "name": "status",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "athlete_aliases",
+      "generated": "",
+      "expression": "'active'::text"
+    },
+    {
+      "name": "verified_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "athlete_aliases",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "created_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "athlete_aliases",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "athlete_aliases",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "phone",
+      "schema": "auth",
+      "identity": "",
+      "relation": "users",
+      "generated": "",
+      "expression": "NULL::character varying"
+    },
+    {
+      "name": "phone_change",
+      "schema": "auth",
+      "identity": "",
+      "relation": "users",
+      "generated": "",
+      "expression": "''::character varying"
+    },
+    {
+      "name": "phone_change_token",
+      "schema": "auth",
+      "identity": "",
+      "relation": "users",
+      "generated": "",
+      "expression": "[redacted sensitive-column default; review privately]"
+    },
+    {
+      "name": "confirmed_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "users",
+      "generated": "s",
+      "expression": "LEAST(email_confirmed_at, phone_confirmed_at)"
+    },
+    {
+      "name": "email_change_token_current",
+      "schema": "auth",
+      "identity": "",
+      "relation": "users",
+      "generated": "",
+      "expression": "[redacted sensitive-column default; review privately]"
+    },
+    {
+      "name": "email_change_confirm_status",
+      "schema": "auth",
+      "identity": "",
+      "relation": "users",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "reauthentication_token",
+      "schema": "auth",
+      "identity": "",
+      "relation": "users",
+      "generated": "",
+      "expression": "[redacted sensitive-column default; review privately]"
+    },
+    {
+      "name": "is_sso_user",
+      "schema": "auth",
+      "identity": "",
+      "relation": "users",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "is_anonymous",
+      "schema": "auth",
+      "identity": "",
+      "relation": "users",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "ip_address",
+      "schema": "auth",
+      "identity": "",
+      "relation": "audit_log_entries",
+      "generated": "",
+      "expression": "''::character varying"
+    },
+    {
+      "name": "email",
+      "schema": "auth",
+      "identity": "",
+      "relation": "identities",
+      "generated": "s",
+      "expression": "lower((identity_data ->> 'email'::text))"
+    },
+    {
+      "name": "id",
+      "schema": "auth",
+      "identity": "",
+      "relation": "identities",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "created_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "one_time_tokens",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "one_time_tokens",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "id",
+      "schema": "realtime",
+      "identity": "a",
+      "relation": "subscription",
+      "generated": "",
+      "expression": null
+    },
+    {
+      "name": "filters",
+      "schema": "realtime",
+      "identity": "",
+      "relation": "subscription",
+      "generated": "",
+      "expression": "'{}'::realtime.user_defined_filter[]"
+    },
+    {
+      "name": "claims_role",
+      "schema": "realtime",
+      "identity": "",
+      "relation": "subscription",
+      "generated": "s",
+      "expression": "realtime.to_regrole((claims ->> 'role'::text))"
+    },
+    {
+      "name": "created_at",
+      "schema": "realtime",
+      "identity": "",
+      "relation": "subscription",
+      "generated": "",
+      "expression": "timezone('utc'::text, now())"
+    },
+    {
+      "name": "action_filter",
+      "schema": "realtime",
+      "identity": "",
+      "relation": "subscription",
+      "generated": "",
+      "expression": "'*'::text"
+    },
+    {
+      "name": "email_optional",
+      "schema": "auth",
+      "identity": "",
+      "relation": "flow_state",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "response_type",
+      "schema": "auth",
+      "identity": "",
+      "relation": "oauth_authorizations",
+      "generated": "",
+      "expression": "'code'::auth.oauth_response_type"
+    },
+    {
+      "name": "status",
+      "schema": "auth",
+      "identity": "",
+      "relation": "oauth_authorizations",
+      "generated": "",
+      "expression": "'pending'::auth.oauth_authorization_status"
+    },
+    {
+      "name": "created_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "oauth_authorizations",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "expires_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "oauth_authorizations",
+      "generated": "",
+      "expression": "(now() + '00:03:00'::interval)"
+    },
+    {
+      "name": "granted_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "oauth_consents",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "team_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "teams",
+      "generated": "",
+      "expression": "nextval('teams_team_id_seq'::regclass)"
+    },
+    {
+      "name": "is_active",
+      "schema": "public",
+      "identity": "",
+      "relation": "teams",
+      "generated": "",
+      "expression": "true"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "teams",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "updated_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "teams",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "created_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "public",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "avif_autodetection",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "type",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets",
+      "generated": "",
+      "expression": "'STANDARD'::storage.buckettype"
+    },
+    {
+      "name": "versioning_status",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets",
+      "generated": "",
+      "expression": "'DISABLED'::text"
+    },
+    {
+      "name": "result_id",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_athlete_merge_backup",
+      "generated": "",
+      "expression": "nextval('results_result_id_seq'::regclass)"
+    },
+    {
+      "name": "is_pr",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_athlete_merge_backup",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "is_season_best",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_athlete_merge_backup",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "created_at",
+      "schema": "archive",
+      "identity": "",
+      "relation": "results_athlete_merge_backup",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "observation_id",
+      "schema": "ingest",
+      "identity": "a",
+      "relation": "observations",
+      "generated": "",
+      "expression": null
+    },
+    {
+      "name": "decision",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "observations",
+      "generated": "",
+      "expression": "'pending'::text"
+    },
+    {
+      "name": "validation_errors",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "observations",
+      "generated": "",
+      "expression": "'[]'::jsonb"
+    },
+    {
+      "name": "created_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "observations",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "quarantine_id",
+      "schema": "ingest",
+      "identity": "a",
+      "relation": "quarantine",
+      "generated": "",
+      "expression": null
+    },
+    {
+      "name": "status",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "quarantine",
+      "generated": "",
+      "expression": "'open'::text"
+    },
+    {
+      "name": "created_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "quarantine",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "in_progress_size",
+      "schema": "storage",
+      "identity": "",
+      "relation": "s3_multipart_uploads",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "created_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "s3_multipart_uploads",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "id",
+      "schema": "storage",
+      "identity": "",
+      "relation": "objects",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "created_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "objects",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "objects",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "last_accessed_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "objects",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "path_tokens",
+      "schema": "storage",
+      "identity": "",
+      "relation": "objects",
+      "generated": "s",
+      "expression": "[redacted sensitive-column default; review privately]"
+    },
+    {
+      "name": "is_delete_marker",
+      "schema": "storage",
+      "identity": "",
+      "relation": "objects",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "is_versioned",
+      "schema": "storage",
+      "identity": "",
+      "relation": "objects",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "link_status",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "source_links",
+      "generated": "",
+      "expression": "'unlinked'::text"
+    },
+    {
+      "name": "last_seen_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "source_links",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "source_record_id",
+      "schema": "ingest",
+      "identity": "a",
+      "relation": "source_records",
+      "generated": "",
+      "expression": null
+    },
+    {
+      "name": "payload",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "source_records",
+      "generated": "",
+      "expression": "'{}'::jsonb"
+    },
+    {
+      "name": "first_seen_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "source_records",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "last_seen_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "source_records",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "id",
+      "schema": "storage",
+      "identity": "",
+      "relation": "s3_multipart_uploads_parts",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "size",
+      "schema": "storage",
+      "identity": "",
+      "relation": "s3_multipart_uploads_parts",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "created_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "s3_multipart_uploads_parts",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "created_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "oauth_clients",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "oauth_clients",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "client_type",
+      "schema": "auth",
+      "identity": "",
+      "relation": "oauth_clients",
+      "generated": "",
+      "expression": "'confidential'::auth.oauth_client_type"
+    },
+    {
+      "name": "type",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets_vectors",
+      "generated": "",
+      "expression": "'VECTOR'::storage.buckettype"
+    },
+    {
+      "name": "created_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets_vectors",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets_vectors",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "id",
+      "schema": "storage",
+      "identity": "",
+      "relation": "vector_indexes",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "created_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "vector_indexes",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "vector_indexes",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "archive_id",
+      "schema": "ingest",
+      "identity": "a",
+      "relation": "fact_cleanup_archive",
+      "generated": "",
+      "expression": null
+    },
+    {
+      "name": "archived_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "fact_cleanup_archive",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "live_result_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "live_results",
+      "generated": "",
+      "expression": "nextval('live_results_live_result_id_seq'::regclass)"
+    },
+    {
+      "name": "round",
+      "schema": "public",
+      "identity": "",
+      "relation": "live_results",
+      "generated": "",
+      "expression": "'LIVE'::text"
+    },
+    {
+      "name": "is_processed",
+      "schema": "public",
+      "identity": "",
+      "relation": "live_results",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "live_results",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "updated_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "live_results",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "is_final",
+      "schema": "public",
+      "identity": "",
+      "relation": "live_results",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "result_type",
+      "schema": "public",
+      "identity": "",
+      "relation": "live_results",
+      "generated": "",
+      "expression": "'live'::text"
+    },
+    {
+      "name": "type",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets_analytics",
+      "generated": "",
+      "expression": "'ANALYTICS'::storage.buckettype"
+    },
+    {
+      "name": "format",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets_analytics",
+      "generated": "",
+      "expression": "'ICEBERG'::text"
+    },
+    {
+      "name": "created_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets_analytics",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets_analytics",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "id",
+      "schema": "storage",
+      "identity": "",
+      "relation": "buckets_analytics",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "job_id",
+      "schema": "ingest",
+      "identity": "a",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": null
+    },
+    {
+      "name": "status",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "'queued'::text"
+    },
+    {
+      "name": "priority",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "100"
+    },
+    {
+      "name": "individual_fact_count",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "parent_fact_count",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "numeric_parent_fact_count",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "leg_fact_count",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "source_candidates",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "'{}'::jsonb"
+    },
+    {
+      "name": "attempts",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "next_attempt_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "last_parent_count",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "last_numeric_parent_count",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "last_leg_count",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "created_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "event_recovery_queue",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "created_at",
+      "schema": "ingest",
+      "identity": "",
+      "relation": "source_record_versions",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "id",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_credentials",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "attestation_type",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_credentials",
+      "generated": "",
+      "expression": "''::text"
+    },
+    {
+      "name": "sign_count",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_credentials",
+      "generated": "",
+      "expression": "0"
+    },
+    {
+      "name": "transports",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_credentials",
+      "generated": "",
+      "expression": "'[]'::jsonb"
+    },
+    {
+      "name": "backup_eligible",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_credentials",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "backed_up",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_credentials",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "friendly_name",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_credentials",
+      "generated": "",
+      "expression": "''::text"
+    },
+    {
+      "name": "created_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_credentials",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_credentials",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "id",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "acceptable_client_ids",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "'{}'::text[]"
+    },
+    {
+      "name": "scopes",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "'{}'::text[]"
+    },
+    {
+      "name": "pkce_enabled",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "true"
+    },
+    {
+      "name": "attribute_mapping",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "'{}'::jsonb"
+    },
+    {
+      "name": "authorization_params",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "'{}'::jsonb"
+    },
+    {
+      "name": "enabled",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "true"
+    },
+    {
+      "name": "email_optional",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "skip_nonce_check",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "created_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "custom_claims_allowlist",
+      "schema": "auth",
+      "identity": "",
+      "relation": "custom_oauth_providers",
+      "generated": "",
+      "expression": "'{}'::text[]"
+    },
+    {
+      "name": "id",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_challenges",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "created_at",
+      "schema": "auth",
+      "identity": "",
+      "relation": "webauthn_challenges",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "first_seen",
+      "schema": "public",
+      "identity": "",
+      "relation": "unmapped_events",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "seen_count",
+      "schema": "public",
+      "identity": "",
+      "relation": "unmapped_events",
+      "generated": "",
+      "expression": "1"
+    },
+    {
+      "name": "id",
+      "schema": "public",
+      "identity": "",
+      "relation": "push_tokens",
+      "generated": "",
+      "expression": "gen_random_uuid()"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "push_tokens",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "is_active",
+      "schema": "public",
+      "identity": "",
+      "relation": "push_tokens",
+      "generated": "",
+      "expression": "true"
+    },
+    {
+      "name": "id",
+      "schema": "public",
+      "identity": "",
+      "relation": "athlete_prs",
+      "generated": "",
+      "expression": "nextval('athlete_prs_id_seq'::regclass)"
+    },
+    {
+      "name": "season",
+      "schema": "public",
+      "identity": "",
+      "relation": "athlete_prs",
+      "generated": "",
+      "expression": "'all'::character varying"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "athlete_prs",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "updated_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "athlete_prs",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "ats_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "athlete_team_seasons",
+      "generated": "",
+      "expression": "nextval('athlete_team_seasons_ats_id_seq'::regclass)"
+    },
+    {
+      "name": "status",
+      "schema": "public",
+      "identity": "",
+      "relation": "athlete_team_seasons",
+      "generated": "",
+      "expression": "'active'::text"
+    },
+    {
+      "name": "is_redshirt",
+      "schema": "public",
+      "identity": "",
+      "relation": "athlete_team_seasons",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "athlete_team_seasons",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "athlete_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "athletes",
+      "generated": "",
+      "expression": "nextval('athletes_athlete_id_seq'::regclass)"
+    },
+    {
+      "name": "is_active",
+      "schema": "public",
+      "identity": "",
+      "relation": "athletes",
+      "generated": "",
+      "expression": "true"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "athletes",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "updated_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "athletes",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "membership_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "conference_memberships",
+      "generated": "",
+      "expression": "nextval('conference_memberships_membership_id_seq'::regclass)"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "conference_memberships",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "conference_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "conferences",
+      "generated": "",
+      "expression": "nextval('conferences_conference_id_seq'::regclass)"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "conferences",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "updated_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "conferences",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "division_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "divisions",
+      "generated": "",
+      "expression": "nextval('divisions_division_id_seq'::regclass)"
+    },
+    {
+      "name": "event_type_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "event_types",
+      "generated": "",
+      "expression": "nextval('event_types_event_type_id_seq'::regclass)"
+    },
+    {
+      "name": "external_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "external_ids",
+      "generated": "",
+      "expression": "nextval('external_ids_external_id_seq'::regclass)"
+    },
+    {
+      "name": "verified",
+      "schema": "public",
+      "identity": "",
+      "relation": "external_ids",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "external_ids",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "updated_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "external_ids",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "meet_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "meets",
+      "generated": "",
+      "expression": "nextval('meets_meet_id_seq'::regclass)"
+    },
+    {
+      "name": "status",
+      "schema": "public",
+      "identity": "",
+      "relation": "meets",
+      "generated": "",
+      "expression": "'upcoming'::text"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "meets",
+      "generated": "",
+      "expression": "timezone('utc'::text, now())"
+    },
+    {
+      "name": "updated_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "meets",
+      "generated": "",
+      "expression": "timezone('utc'::text, now())"
+    },
+    {
+      "name": "results_status",
+      "schema": "public",
+      "identity": "",
+      "relation": "meets",
+      "generated": "",
+      "expression": "'pending'::text"
+    },
+    {
+      "name": "region_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "regions",
+      "generated": "",
+      "expression": "nextval('regions_region_id_seq'::regclass)"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "regions",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "relay_athlete_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "relay_athletes",
+      "generated": "",
+      "expression": "nextval('relay_athletes_relay_athlete_id_seq'::regclass)"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "relay_athletes",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "relay_result_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "relay_results",
+      "generated": "",
+      "expression": "nextval('relay_results_relay_result_id_seq'::regclass)"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "relay_results",
+      "generated": "",
+      "expression": "now()"
+    },
+    {
+      "name": "result_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "results",
+      "generated": "",
+      "expression": "nextval('results_result_id_seq'::regclass)"
+    },
+    {
+      "name": "is_pr",
+      "schema": "public",
+      "identity": "",
+      "relation": "results",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "is_season_best",
+      "schema": "public",
+      "identity": "",
+      "relation": "results",
+      "generated": "",
+      "expression": "false"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "results",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "school_id",
+      "schema": "public",
+      "identity": "",
+      "relation": "schools",
+      "generated": "",
+      "expression": "nextval('schools_school_id_seq'::regclass)"
+    },
+    {
+      "name": "is_active",
+      "schema": "public",
+      "identity": "",
+      "relation": "schools",
+      "generated": "",
+      "expression": "true"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "schools",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "updated_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "schools",
+      "generated": "",
+      "expression": "CURRENT_TIMESTAMP"
+    },
+    {
+      "name": "id",
+      "schema": "public",
+      "identity": "",
+      "relation": "waitlist",
+      "generated": "",
+      "expression": "nextval('waitlist_id_seq'::regclass)"
+    },
+    {
+      "name": "feature",
+      "schema": "public",
+      "identity": "",
+      "relation": "waitlist",
+      "generated": "",
+      "expression": "'community'::character varying"
+    },
+    {
+      "name": "created_at",
+      "schema": "public",
+      "identity": "",
+      "relation": "waitlist",
+      "generated": "",
+      "expression": "now()"
+    }
+  ],
+  "sequences": [
+    {
+      "name": "refresh_tokens_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "supabase_auth_admin",
+      "start": "1",
+      "schema": "auth",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": null,
+      "owned_column": "id",
+      "owned_relation": "auth.refresh_tokens"
+    },
+    {
+      "name": "team_aliases_team_alias_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "ingest",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "133",
+      "owned_column": "team_alias_id",
+      "owned_relation": "ingest.team_aliases"
+    },
+    {
+      "name": "subscription_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "supabase_realtime_admin",
+      "start": "1",
+      "schema": "realtime",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": null,
+      "owned_column": "id",
+      "owned_relation": "realtime.subscription"
+    },
+    {
+      "name": "athlete_aliases_athlete_alias_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "ingest",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "1342",
+      "owned_column": "athlete_alias_id",
+      "owned_relation": "ingest.athlete_aliases"
+    },
+    {
+      "name": "fact_cleanup_archive_archive_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "ingest",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "143951",
+      "owned_column": "archive_id",
+      "owned_relation": "ingest.fact_cleanup_archive"
+    },
+    {
+      "name": "event_recovery_queue_job_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "ingest",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "74309",
+      "owned_column": "job_id",
+      "owned_relation": "ingest.event_recovery_queue"
+    },
+    {
+      "name": "regions_region_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": null,
+      "owned_column": "region_id",
+      "owned_relation": "public.regions"
+    },
+    {
+      "name": "conferences_conference_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "1162",
+      "owned_column": "conference_id",
+      "owned_relation": "public.conferences"
+    },
+    {
+      "name": "schools_school_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "1879",
+      "owned_column": "school_id",
+      "owned_relation": "public.schools"
+    },
+    {
+      "name": "conference_memberships_membership_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": null,
+      "owned_column": "membership_id",
+      "owned_relation": "public.conference_memberships"
+    },
+    {
+      "name": "teams_team_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "3700",
+      "owned_column": "team_id",
+      "owned_relation": "public.teams"
+    },
+    {
+      "name": "athletes_athlete_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "206968",
+      "owned_column": "athlete_id",
+      "owned_relation": "public.athletes"
+    },
+    {
+      "name": "athlete_team_seasons_ats_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "130279",
+      "owned_column": "ats_id",
+      "owned_relation": "public.athlete_team_seasons"
+    },
+    {
+      "name": "results_result_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "8047451",
+      "owned_column": "result_id",
+      "owned_relation": "public.results"
+    },
+    {
+      "name": "external_ids_external_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "357",
+      "owned_column": "external_id",
+      "owned_relation": "public.external_ids"
+    },
+    {
+      "name": "live_results_live_result_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "164",
+      "owned_column": "live_result_id",
+      "owned_relation": "public.live_results"
+    },
+    {
+      "name": "meets_meet_id_seq",
+      "type": "integer",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "2147483647",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "95243",
+      "owned_column": "meet_id",
+      "owned_relation": "public.meets"
+    },
+    {
+      "name": "event_types_event_type_id_seq",
+      "type": "integer",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "2147483647",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "67",
+      "owned_column": "event_type_id",
+      "owned_relation": "public.event_types"
+    },
+    {
+      "name": "waitlist_id_seq",
+      "type": "integer",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "2147483647",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "9",
+      "owned_column": "id",
+      "owned_relation": "public.waitlist"
+    },
+    {
+      "name": "divisions_division_id_seq",
+      "type": "integer",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "2147483647",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "26",
+      "owned_column": "division_id",
+      "owned_relation": "public.divisions"
+    },
+    {
+      "name": "source_records_source_record_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "ingest",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "156918",
+      "owned_column": "source_record_id",
+      "owned_relation": "ingest.source_records"
+    },
+    {
+      "name": "observations_observation_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "ingest",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "156918",
+      "owned_column": "observation_id",
+      "owned_relation": "ingest.observations"
+    },
+    {
+      "name": "athlete_prs_id_seq",
+      "type": "integer",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "2147483647",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "479656",
+      "owned_column": "id",
+      "owned_relation": "public.athlete_prs"
+    },
+    {
+      "name": "quarantine_quarantine_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "ingest",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "10401",
+      "owned_column": "quarantine_id",
+      "owned_relation": "ingest.quarantine"
+    },
+    {
+      "name": "recovery_queue_queue_id_seq",
+      "type": "bigint",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "ingest",
+      "maximum": "9223372036854775807",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "90055",
+      "owned_column": "queue_id",
+      "owned_relation": "ingest.recovery_queue"
+    },
+    {
+      "name": "relay_results_relay_result_id_seq",
+      "type": "integer",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "2147483647",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "246920",
+      "owned_column": "relay_result_id",
+      "owned_relation": "public.relay_results"
+    },
+    {
+      "name": "relay_athletes_relay_athlete_id_seq",
+      "type": "integer",
+      "cache": "1",
+      "cycle": false,
+      "owner": "postgres",
+      "start": "1",
+      "schema": "public",
+      "maximum": "2147483647",
+      "minimum": "1",
+      "increment": "1",
+      "last_value": "560103",
+      "owned_column": "relay_athlete_id",
+      "owned_relation": "public.relay_athletes"
+    }
+  ],
+  "enum_types": [
+    {
+      "name": "factor_type",
+      "labels": [
+        "totp",
+        "webauthn",
+        "phone"
+      ],
+      "schema": "auth"
+    },
+    {
+      "name": "factor_status",
+      "labels": [
+        "unverified",
+        "verified"
+      ],
+      "schema": "auth"
+    },
+    {
+      "name": "aal_level",
+      "labels": [
+        "aal1",
+        "aal2",
+        "aal3"
+      ],
+      "schema": "auth"
+    },
+    {
+      "name": "code_challenge_method",
+      "labels": [
+        "s256",
+        "plain"
+      ],
+      "schema": "auth"
+    },
+    {
+      "name": "one_time_token_type",
+      "labels": [
+        "confirmation_token",
+        "reauthentication_token",
+        "recovery_token",
+        "email_change_token_new",
+        "email_change_token_current",
+        "phone_change_token"
+      ],
+      "schema": "auth"
+    },
+    {
+      "name": "oauth_registration_type",
+      "labels": [
+        "dynamic",
+        "manual"
+      ],
+      "schema": "auth"
+    },
+    {
+      "name": "oauth_authorization_status",
+      "labels": [
+        "pending",
+        "approved",
+        "denied",
+        "expired"
+      ],
+      "schema": "auth"
+    },
+    {
+      "name": "oauth_response_type",
+      "labels": [
+        "code"
+      ],
+      "schema": "auth"
+    },
+    {
+      "name": "oauth_client_type",
+      "labels": [
+        "public",
+        "confidential"
+      ],
+      "schema": "auth"
+    },
+    {
+      "name": "action",
+      "labels": [
+        "INSERT",
+        "UPDATE",
+        "DELETE",
+        "TRUNCATE",
+        "ERROR"
+      ],
+      "schema": "realtime"
+    },
+    {
+      "name": "buckettype",
+      "labels": [
+        "STANDARD",
+        "ANALYTICS",
+        "VECTOR"
+      ],
+      "schema": "storage"
+    },
+    {
+      "name": "equality_op",
+      "labels": [
+        "eq",
+        "neq",
+        "lt",
+        "lte",
+        "gt",
+        "gte",
+        "in",
+        "like",
+        "ilike",
+        "is",
+        "match",
+        "imatch",
+        "isdistinct"
+      ],
+      "schema": "realtime"
+    }
+  ],
+  "extensions": [
+    {
+      "name": "plpgsql",
+      "owner": "supabase_admin",
+      "schema": "pg_catalog",
+      "version": "1.0"
+    },
+    {
+      "name": "pgcrypto",
+      "owner": "postgres",
+      "schema": "extensions",
+      "version": "1.3"
+    },
+    {
+      "name": "uuid-ossp",
+      "owner": "postgres",
+      "schema": "extensions",
+      "version": "1.1"
+    },
+    {
+      "name": "pg_stat_statements",
+      "owner": "postgres",
+      "schema": "extensions",
+      "version": "1.11"
+    },
+    {
+      "name": "supabase_vault",
+      "owner": "supabase_admin",
+      "schema": "vault",
+      "version": "0.3.1"
+    }
+  ],
+  "publications": [
+    {
+      "name": "supabase_realtime",
+      "delete": true,
+      "insert": true,
+      "schema": "database",
+      "tables": null,
+      "update": true,
+      "truncate": true,
+      "all_tables": false
+    }
+  ],
+  "column_grants": null,
+  "schema_grants": [
+    {
+      "acl": "{postgres=UC/postgres,anon=U/postgres,authenticated=U/postgres,service_role=U/postgres,dashboard_user=UC/postgres}",
+      "name": "extensions",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,service_role=U/supabase_admin}",
+      "name": "vault",
+      "owner": "supabase_admin",
+      "schema": "vault"
+    },
+    {
+      "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin}",
+      "name": "graphql_public",
+      "owner": "supabase_admin",
+      "schema": "graphql_public"
+    },
+    {
+      "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin}",
+      "name": "graphql",
+      "owner": "supabase_admin",
+      "schema": "graphql"
+    },
+    {
+      "acl": "{supabase_admin=UC/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin,supabase_auth_admin=UC/supabase_admin,dashboard_user=UC/supabase_admin,postgres=U/supabase_admin}",
+      "name": "auth",
+      "owner": "supabase_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin,supabase_storage_admin=UC/supabase_admin,dashboard_user=UC/supabase_admin}",
+      "name": "storage",
+      "owner": "supabase_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=UC/postgres}",
+      "name": "supabase_migrations",
+      "owner": "postgres",
+      "schema": "supabase_migrations"
+    },
+    {
+      "acl": "{pg_database_owner=UC/pg_database_owner,=U/pg_database_owner,postgres=U/pg_database_owner,anon=U/pg_database_owner,authenticated=U/pg_database_owner,service_role=U/pg_database_owner}",
+      "name": "public",
+      "owner": "pg_database_owner",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=UC/postgres,service_role=U/postgres}",
+      "name": "ingest",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{supabase_admin=UC/supabase_admin,postgres=U*/supabase_admin,anon=U/supabase_admin,authenticated=U/supabase_admin,service_role=U/supabase_admin,supabase_realtime_admin=UC/supabase_admin}",
+      "name": "realtime",
+      "owner": "supabase_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{postgres=UC/postgres,service_role=U/postgres}",
+      "name": "archive",
+      "owner": "postgres",
+      "schema": "archive"
+    }
+  ],
+  "default_grants": [
+    {
+      "acl": "{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "name": "postgres:f",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}",
+      "name": "supabase_admin:S",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}",
+      "name": "supabase_admin:r",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}",
+      "name": "supabase_admin:f",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "postgres:r",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "name": "postgres:f",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,anon=rwU/postgres,authenticated=rwU/postgres,service_role=rwU/postgres}",
+      "name": "postgres:S",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "name": "supabase_auth_admin:r",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=rwU/supabase_auth_admin,dashboard_user=rwU/supabase_auth_admin}",
+      "name": "supabase_auth_admin:S",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+      "name": "supabase_auth_admin:f",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_admin,dashboard_user=arwdDxtm/supabase_admin}",
+      "name": "supabase_admin:r",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{postgres=rwU/supabase_admin,dashboard_user=rwU/supabase_admin}",
+      "name": "supabase_admin:S",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{postgres=X/supabase_admin,dashboard_user=X/supabase_admin}",
+      "name": "supabase_admin:f",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}",
+      "name": "supabase_admin:S",
+      "schema": "graphql_public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}",
+      "name": "supabase_admin:r",
+      "schema": "graphql_public"
+    },
+    {
+      "acl": "{postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}",
+      "name": "supabase_admin:f",
+      "schema": "graphql_public"
+    },
+    {
+      "acl": "{postgres=a*r*w*d*D*x*t*m*/supabase_admin}",
+      "name": "supabase_admin:r",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{postgres=X*/supabase_admin}",
+      "name": "supabase_admin:f",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{postgres=r*w*U*/supabase_admin}",
+      "name": "supabase_admin:S",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}",
+      "name": "supabase_admin:r",
+      "schema": "graphql"
+    },
+    {
+      "acl": "{postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}",
+      "name": "supabase_admin:f",
+      "schema": "graphql"
+    },
+    {
+      "acl": "{postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}",
+      "name": "supabase_admin:S",
+      "schema": "graphql"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "name": "postgres:r",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "name": "postgres:S",
+      "schema": "public"
+    },
+    {
+      "acl": "{service_role=r/postgres}",
+      "name": "postgres:r",
+      "schema": "archive"
+    }
+  ],
+  "event_triggers": [
+    {
+      "name": "issue_pg_graphql_access",
+      "tags": [
+        "CREATE FUNCTION"
+      ],
+      "event": "ddl_command_end",
+      "schema": "database",
+      "enabled": "O",
+      "function": "grant_pg_graphql_access()"
+    },
+    {
+      "name": "issue_graphql_placeholder",
+      "tags": [
+        "DROP EXTENSION"
+      ],
+      "event": "sql_drop",
+      "schema": "database",
+      "enabled": "O",
+      "function": "set_graphql_placeholder()"
+    },
+    {
+      "name": "pgrst_ddl_watch",
+      "tags": null,
+      "event": "ddl_command_end",
+      "schema": "database",
+      "enabled": "O",
+      "function": "pgrst_ddl_watch()"
+    },
+    {
+      "name": "pgrst_drop_watch",
+      "tags": null,
+      "event": "sql_drop",
+      "schema": "database",
+      "enabled": "O",
+      "function": "pgrst_drop_watch()"
+    },
+    {
+      "name": "issue_pg_cron_access",
+      "tags": [
+        "CREATE EXTENSION"
+      ],
+      "event": "ddl_command_end",
+      "schema": "database",
+      "enabled": "O",
+      "function": "grant_pg_cron_access()"
+    },
+    {
+      "name": "issue_pg_net_access",
+      "tags": [
+        "CREATE EXTENSION"
+      ],
+      "event": "ddl_command_end",
+      "schema": "database",
+      "enabled": "O",
+      "function": "grant_pg_net_access()"
+    }
+  ],
+  "foreign_servers": null,
+  "function_grants": [
+    {
+      "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "name": "get_top_performances(p_start_date date, p_end_date date, p_division text, p_gender character, p_limit integer)",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "gen_salt(text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "encrypt(bytea, bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "decrypt(bytea, bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pg_stat_statements_info(OUT dealloc bigint, OUT stats_reset timestamp with time zone)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "gen_salt(text, integer)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "allow_only_operation(expected_operation text)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "allow_any_operation(expected_operations text[])",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pg_stat_statements_reset(userid oid, dbid oid, queryid bigint, minmax_only boolean)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "uuid_nil()",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "uuid_ns_dns()",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "uuid_ns_url()",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "uuid_ns_oid()",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/supabase_auth_admin,supabase_auth_admin=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+      "name": "uid()",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{=X/supabase_auth_admin,supabase_auth_admin=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+      "name": "role()",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{=X/supabase_auth_admin,supabase_auth_admin=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+      "name": "email()",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "uuid_ns_x500()",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "uuid_generate_v1()",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "uuid_generate_v1mc()",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "uuid_generate_v3(namespace uuid, name text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "uuid_generate_v4()",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "uuid_generate_v5(namespace uuid, name text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "digest(text, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "digest(bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "hmac(text, text, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "hmac(bytea, bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "crypt(text, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "encrypt_iv(bytea, bytea, bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "decrypt_iv(bytea, bytea, bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{supabase_admin=X/supabase_admin}",
+      "name": "_crypto_aead_det_noncegen()",
+      "owner": "supabase_admin",
+      "schema": "vault"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pg_stat_statements(showtext boolean, OUT userid oid, OUT dbid oid, OUT toplevel boolean, OUT queryid bigint, OUT query text, OUT plans bigint, OUT total_plan_time double precision, OUT min_plan_time double precision, OUT max_plan_time double precision, OUT mean_plan_time double precision, OUT stddev_plan_time double precision, OUT calls bigint, OUT total_exec_time double precision, OUT min_exec_time double precision, OUT max_exec_time double precision, OUT mean_exec_time double precision, OUT stddev_exec_time double precision, OUT rows bigint, OUT shared_blks_hit bigint, OUT shared_blks_read bigint, OUT shared_blks_dirtied bigint, OUT shared_blks_written bigint, OUT local_blks_hit bigint, OUT local_blks_read bigint, OUT local_blks_dirtied bigint, OUT local_blks_written bigint, OUT temp_blks_read bigint, OUT temp_blks_written bigint, OUT shared_blk_read_time double precision, OUT shared_blk_write_time double precision, OUT local_blk_read_time double precision, OUT local_blk_write_time double precision, OUT temp_blk_read_time double precision, OUT temp_blk_write_time double precision, OUT wal_records bigint, OUT wal_fpi bigint, OUT wal_bytes numeric, OUT jit_functions bigint, OUT jit_generation_time double precision, OUT jit_inlining_count bigint, OUT jit_inlining_time double precision, OUT jit_optimization_count bigint, OUT jit_optimization_time double precision, OUT jit_emission_count bigint, OUT jit_emission_time double precision, OUT jit_deform_count bigint, OUT jit_deform_time double precision, OUT stats_since timestamp with time zone, OUT minmax_stats_since timestamp with time zone)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin}",
+      "name": "wal2json_escape_identifier(name text)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin}",
+      "name": "list_changes(publication name, slot_name name, max_changes integer, max_record_bytes integer)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_admin,supabase_admin=X/supabase_admin,postgres=X*/supabase_admin}",
+      "name": "pgrst_drop_watch()",
+      "owner": "supabase_admin",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/supabase_admin,supabase_admin=X/supabase_admin,postgres=X*/supabase_admin}",
+      "name": "pgrst_ddl_watch()",
+      "owner": "supabase_admin",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "get_common_prefix(p_key text, p_prefix text, p_delimiter text)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "list_objects_with_delimiter(_bucket_id text, prefix_param text, delimiter_param text, max_keys integer, start_after text, next_token text, sort_order text)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_admin,supabase_admin=X/supabase_admin,postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}",
+      "name": "graphql(\"operationName\" text, query text, variables jsonb, extensions jsonb)",
+      "owner": "supabase_admin",
+      "schema": "graphql_public"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "search_v2(prefix text, bucket_name text, limits integer, levels integer, start_after text, sort_order text, sort_column text, sort_column_after text)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "protect_delete()",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "clear_recovery_queue_error_on_complete()",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{supabase_admin=X/supabase_admin}",
+      "name": "_crypto_aead_det_encrypt(message bytea, additional bytea, key_id bigint, context bytea, nonce bytea)",
+      "owner": "supabase_admin",
+      "schema": "vault"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "armor(bytea, text[], text[])",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{supabase_admin=X/supabase_admin,postgres=X*/supabase_admin,service_role=X/supabase_admin}",
+      "name": "create_secret(new_secret text, new_name text, new_description text, new_key_id uuid)",
+      "owner": "supabase_admin",
+      "schema": "vault"
+    },
+    {
+      "acl": "{supabase_admin=X/supabase_admin,postgres=X*/supabase_admin,service_role=X/supabase_admin}",
+      "name": "_crypto_aead_det_decrypt(message bytea, additional bytea, key_id bigint, context bytea, nonce bytea)",
+      "owner": "supabase_admin",
+      "schema": "vault"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "dearmor(text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_armor_headers(text, OUT key text, OUT value text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/supabase_admin,supabase_admin=X*/supabase_admin,dashboard_user=X/supabase_admin}",
+      "name": "grant_pg_net_access()",
+      "owner": "supabase_admin",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{supabase_admin=X/supabase_admin,postgres=X*/supabase_admin,service_role=X/supabase_admin}",
+      "name": "update_secret(secret_id uuid, new_secret text, new_name text, new_description text, new_key_id uuid)",
+      "owner": "supabase_admin",
+      "schema": "vault"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "gen_random_bytes(integer)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "gen_random_uuid()",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_sym_encrypt(text, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_sym_encrypt_bytea(bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_sym_encrypt(text, text, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_sym_encrypt_bytea(bytea, text, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_sym_decrypt(bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_sym_decrypt_bytea(bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_sym_decrypt(bytea, text, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_sym_decrypt_bytea(bytea, text, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_pub_encrypt(text, bytea)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_pub_encrypt_bytea(bytea, bytea)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_pub_encrypt(text, bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_pub_encrypt_bytea(bytea, bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_pub_decrypt(bytea, bytea)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_pub_decrypt_bytea(bytea, bytea)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_pub_decrypt(bytea, bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_pub_decrypt_bytea(bytea, bytea, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_pub_decrypt(bytea, bytea, text, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_pub_decrypt_bytea(bytea, bytea, text, text)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "pgp_key_id(bytea)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X*/postgres,dashboard_user=X/postgres}",
+      "name": "armor(bytea)",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/supabase_auth_admin,postgres=X/supabase_auth_admin,supabase_auth_admin=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+      "name": "jwt()",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "operation()",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "extension(name text)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "foldername(name text)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "filename(name text)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "update_updated_at_column()",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "can_insert_object(bucketid text, name text, owner uuid, metadata jsonb)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "list_multipart_uploads_with_delimiter(bucket_id text, prefix_param text, delimiter_param text, max_keys integer, next_key_token text, next_upload_token text)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin,anon=X/supabase_realtime_admin,authenticated=X/supabase_realtime_admin,service_role=X/supabase_realtime_admin}",
+      "name": "quote_wal2json(entity regclass)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin,anon=X/supabase_realtime_admin,authenticated=X/supabase_realtime_admin,service_role=X/supabase_realtime_admin}",
+      "name": "cast(val text, type_ regtype)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "enforce_bucket_name_length()",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "get_size_by_bucket()",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin,anon=X/supabase_realtime_admin,authenticated=X/supabase_realtime_admin,service_role=X/supabase_realtime_admin}",
+      "name": "to_regrole(role_name text)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin}",
+      "name": "broadcast_changes(topic_name text, event_name text, operation text, table_name text, table_schema text, new record, old record, level text)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin}",
+      "name": "topic()",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin,anon=X/supabase_realtime_admin,authenticated=X/supabase_realtime_admin,service_role=X/supabase_realtime_admin}",
+      "name": "build_prepared_statement_sql(prepared_statement_name text, entity regclass, columns realtime.wal_column[])",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin}",
+      "name": "send(payload jsonb, event text, topic text, private boolean)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "update_updated_at_column()",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin,anon=X/supabase_realtime_admin,authenticated=X/supabase_realtime_admin,service_role=X/supabase_realtime_admin}",
+      "name": "apply_rls(wal jsonb, max_record_bytes integer)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "name": "register_push_token(p_expo_push_token text, p_platform text)",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "name": "detect_timing_platform(url text)",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "name": "get_weekly_performances(p_start_date date, p_end_date date, p_division text, p_limit integer)",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin}",
+      "name": "send_binary(payload bytea, event text, topic text, private boolean)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin,anon=X/supabase_realtime_admin,authenticated=X/supabase_realtime_admin,service_role=X/supabase_realtime_admin}",
+      "name": "is_visible_through_filters(columns realtime.wal_column[], filters realtime.user_defined_filter[])",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "refresh_4x100_recovery_queue_base(p_scope_key text, p_start_date date, p_end_date date, p_season text)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "refresh_recovery_queue(p_scope_key text, p_start_date date, p_end_date date)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "reconcile_recovery_queue_relay_probe(p_run_id uuid)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "search(prefix text, bucketname text, limits integer, levels integer, offsets integer, search text, sortcolumn text, sortorder text)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_storage_admin,supabase_storage_admin=X/supabase_storage_admin}",
+      "name": "search_by_timestamp(p_prefix text, p_bucket_id text, p_limit integer, p_level integer, p_start_after text, p_sort_order text, p_sort_column text, p_sort_column_after text)",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{=X/supabase_admin,supabase_admin=X/supabase_admin,postgres=X*/supabase_admin}",
+      "name": "set_graphql_placeholder()",
+      "owner": "supabase_admin",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "refresh_4x100_recovery_queue(p_scope_key text, p_start_date date, p_end_date date)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "claim_4x100_recovery_job(p_scope_key text, p_lease_minutes integer, p_retry_failed boolean)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "claim_4x100_recovery_job(p_scope_key text, p_lease_minutes integer, p_retry_failed boolean, p_source text, p_meet_id integer)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "refresh_4x100_recovery_queue_host_routing_base(p_scope_key text, p_start_date date, p_end_date date, p_season text)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "refresh_4x100_recovery_queue(p_scope_key text, p_start_date date, p_end_date date, p_season text)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "claim_4x100_recovery_job(p_scope_key text, p_lease_minutes integer, p_retry_failed boolean, p_source text, p_meet_id integer, p_max_attempts integer)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "record_4x100_recovery_run(p_job_id bigint, p_lease_token uuid, p_run_id uuid, p_source text, p_source_status text, p_parent_count integer, p_numeric_parent_count integer, p_leg_count integer, p_error text)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "finish_4x100_recovery_job(p_job_id bigint, p_lease_token uuid, p_status text, p_run_id uuid, p_source text, p_source_status text, p_parent_count integer, p_numeric_parent_count integer, p_leg_count integer, p_error text, p_retry_after_minutes integer)",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin,anon=X/supabase_realtime_admin,authenticated=X/supabase_realtime_admin,service_role=X/supabase_realtime_admin}",
+      "name": "subscription_check_filters()",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin,anon=X/supabase_realtime_admin,authenticated=X/supabase_realtime_admin,service_role=X/supabase_realtime_admin}",
+      "name": "check_equality_op(op realtime.equality_op, type_ regtype, val_1 text, val_2 text)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_realtime_admin,supabase_realtime_admin=X/supabase_realtime_admin,postgres=X/supabase_realtime_admin,dashboard_user=X/supabase_realtime_admin,anon=X/supabase_realtime_admin,authenticated=X/supabase_realtime_admin,service_role=X/supabase_realtime_admin}",
+      "name": "check_equality_op(op realtime.equality_op, type_ regtype, val_1 text, val_2 text, negate boolean)",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{=X/supabase_admin,supabase_admin=X/supabase_admin,postgres=X*/supabase_admin}",
+      "name": "grant_pg_graphql_access()",
+      "owner": "supabase_admin",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{=X/supabase_admin,supabase_admin=X*/supabase_admin,dashboard_user=X/supabase_admin}",
+      "name": "grant_pg_cron_access()",
+      "owner": "supabase_admin",
+      "schema": "extensions"
+    }
+  ],
+  "relation_grants": [
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=r/postgres}",
+      "kind": "r",
+      "name": "athletes_empty_backup",
+      "owner": "postgres",
+      "schema": "archive"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=r/postgres}",
+      "kind": "r",
+      "name": "relay_athletes_d3_backup",
+      "owner": "postgres",
+      "schema": "archive"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=r/postgres}",
+      "kind": "r",
+      "name": "relay_results_d3_backup",
+      "owner": "postgres",
+      "schema": "archive"
+    },
+    {
+      "acl": "{postgres=a*r*w*d*D*x*t*m*/postgres,=r/postgres,dashboard_user=arwdDxtm/postgres}",
+      "kind": "v",
+      "name": "pg_stat_statements_info",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{postgres=a*r*w*d*D*x*t*m*/postgres,=r/postgres,dashboard_user=arwdDxtm/postgres}",
+      "kind": "v",
+      "name": "pg_stat_statements",
+      "owner": "postgres",
+      "schema": "extensions"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=r/postgres}",
+      "kind": "r",
+      "name": "relay_results_20260819_backup",
+      "owner": "postgres",
+      "schema": "archive"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=r/postgres}",
+      "kind": "r",
+      "name": "results_d1_backup",
+      "owner": "postgres",
+      "schema": "archive"
+    },
+    {
+      "acl": "{supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin,postgres=ar*wdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "instances",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rU/postgres}",
+      "kind": "S",
+      "name": "recovery_queue_queue_id_seq",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=r/postgres}",
+      "kind": "r",
+      "name": "results_d2_backup",
+      "owner": "postgres",
+      "schema": "archive"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=r/postgres}",
+      "kind": "r",
+      "name": "results_xsource_20260819_backup",
+      "owner": "postgres",
+      "schema": "archive"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=r/postgres}",
+      "kind": "r",
+      "name": "results_accidental_import_20260819_backup",
+      "owner": "postgres",
+      "schema": "archive"
+    },
+    {
+      "acl": "{supabase_auth_admin=rwU/supabase_auth_admin,dashboard_user=rwU/supabase_auth_admin,postgres=rwU/supabase_auth_admin}",
+      "kind": "S",
+      "name": "refresh_tokens_id_seq",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwd/postgres}",
+      "kind": "r",
+      "name": "recovery_queue",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "oauth_client_states",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{supabase_realtime_admin=arwdDxtm/supabase_realtime_admin,postgres=arwdDxtm/supabase_realtime_admin,dashboard_user=arwdDxtm/supabase_realtime_admin,anon=arw/supabase_realtime_admin,authenticated=arw/supabase_realtime_admin,service_role=arw/supabase_realtime_admin}",
+      "kind": "p",
+      "name": "messages",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin,postgres=ar*wdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "refresh_tokens",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin}",
+      "kind": "r",
+      "name": "migrations",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{supabase_admin=arwdDxtm/supabase_admin,postgres=r*d*D*x*/supabase_admin,service_role=rd/supabase_admin}",
+      "kind": "r",
+      "name": "secrets",
+      "owner": "supabase_admin",
+      "schema": "vault"
+    },
+    {
+      "acl": "{supabase_admin=arwdDxtm/supabase_admin,postgres=r*d*D*x*/supabase_admin,service_role=rd/supabase_admin}",
+      "kind": "v",
+      "name": "decrypted_secrets",
+      "owner": "supabase_admin",
+      "schema": "vault"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwd/postgres}",
+      "kind": "r",
+      "name": "team_aliases",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rU/postgres}",
+      "kind": "S",
+      "name": "team_aliases_team_alias_id_seq",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "athlete_team_seasons_ats_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "teams_team_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "athletes_athlete_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwd/postgres}",
+      "kind": "r",
+      "name": "runs",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwd/postgres}",
+      "kind": "r",
+      "name": "athlete_aliases",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rU/postgres}",
+      "kind": "S",
+      "name": "athlete_aliases_athlete_alias_id_seq",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{supabase_auth_admin=arwdDxtm/supabase_auth_admin,postgres=r*/supabase_auth_admin}",
+      "kind": "r",
+      "name": "schema_migrations",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin,postgres=ar*wdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "users",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin,postgres=ar*wdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "audit_log_entries",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "saml_relay_states",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "sso_domains",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "mfa_amr_claims",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "saml_providers",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "identities",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "one_time_tokens",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{supabase_realtime_admin=arwdDxtm/supabase_realtime_admin,postgres=arwdDxtm/supabase_realtime_admin,dashboard_user=arwdDxtm/supabase_realtime_admin,anon=r/supabase_realtime_admin,authenticated=r/supabase_realtime_admin,service_role=r/supabase_realtime_admin}",
+      "kind": "r",
+      "name": "subscription",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "flow_state",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "mfa_challenges",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "sso_providers",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "oauth_authorizations",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "oauth_consents",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "mfa_factors",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "teams",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{supabase_storage_admin=a*r*w*d*D*x*t*m*/supabase_storage_admin,anon=arwdDxtm/supabase_storage_admin,authenticated=arwdDxtm/supabase_storage_admin,service_role=arwdDxtm/supabase_storage_admin,postgres=a*r*w*d*D*x*t*m*/supabase_storage_admin}",
+      "kind": "r",
+      "name": "buckets",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=r/postgres}",
+      "kind": "r",
+      "name": "results_athlete_merge_backup",
+      "owner": "postgres",
+      "schema": "archive"
+    },
+    {
+      "acl": "{postgres=ar*wdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "sessions",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{supabase_admin=arwdDxtm/supabase_admin}",
+      "kind": "r",
+      "name": "schema_migrations",
+      "owner": "supabase_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwd/postgres}",
+      "kind": "r",
+      "name": "observations",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwd/postgres}",
+      "kind": "r",
+      "name": "quarantine",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rU/postgres}",
+      "kind": "S",
+      "name": "source_records_source_record_id_seq",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rU/postgres}",
+      "kind": "S",
+      "name": "observations_observation_id_seq",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin,service_role=arwdDxtm/supabase_storage_admin,authenticated=r/supabase_storage_admin,anon=r/supabase_storage_admin}",
+      "kind": "r",
+      "name": "s3_multipart_uploads",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rU/postgres}",
+      "kind": "S",
+      "name": "quarantine_quarantine_id_seq",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{supabase_storage_admin=a*r*w*d*D*x*t*m*/supabase_storage_admin,anon=arwdDxtm/supabase_storage_admin,authenticated=arwdDxtm/supabase_storage_admin,service_role=arwdDxtm/supabase_storage_admin,postgres=a*r*w*d*D*x*t*m*/supabase_storage_admin}",
+      "kind": "r",
+      "name": "objects",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwd/postgres}",
+      "kind": "r",
+      "name": "source_links",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwd/postgres}",
+      "kind": "r",
+      "name": "source_records",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin,service_role=arwdDxtm/supabase_storage_admin,authenticated=r/supabase_storage_admin,anon=r/supabase_storage_admin}",
+      "kind": "r",
+      "name": "s3_multipart_uploads_parts",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "oauth_clients",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{supabase_realtime_admin=rwU/supabase_realtime_admin,postgres=rwU/supabase_realtime_admin,dashboard_user=rwU/supabase_realtime_admin,anon=U/supabase_realtime_admin,authenticated=U/supabase_realtime_admin,service_role=U/supabase_realtime_admin}",
+      "kind": "S",
+      "name": "subscription_id_seq",
+      "owner": "supabase_realtime_admin",
+      "schema": "realtime"
+    },
+    {
+      "acl": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin,service_role=r/supabase_storage_admin,authenticated=r/supabase_storage_admin,anon=r/supabase_storage_admin}",
+      "kind": "r",
+      "name": "buckets_vectors",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin,service_role=r/supabase_storage_admin,authenticated=r/supabase_storage_admin,anon=r/supabase_storage_admin}",
+      "kind": "r",
+      "name": "vector_indexes",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=ar/postgres}",
+      "kind": "r",
+      "name": "fact_cleanup_archive",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rU/postgres}",
+      "kind": "S",
+      "name": "fact_cleanup_archive_archive_id_seq",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "kind": "v",
+      "name": "unprocessed_live_results",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "live_results_live_result_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "live_results",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{supabase_storage_admin=arwdDxtm/supabase_storage_admin,service_role=arwdDxtm/supabase_storage_admin,authenticated=arwdDxtm/supabase_storage_admin,anon=arwdDxtm/supabase_storage_admin}",
+      "kind": "r",
+      "name": "buckets_analytics",
+      "owner": "supabase_storage_admin",
+      "schema": "storage"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres}",
+      "kind": "r",
+      "name": "schema_migrations",
+      "owner": "postgres",
+      "schema": "supabase_migrations"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rU/postgres}",
+      "kind": "S",
+      "name": "event_recovery_queue_job_id_seq",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwd/postgres}",
+      "kind": "r",
+      "name": "event_recovery_queue",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "meets_meet_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=ar/postgres}",
+      "kind": "r",
+      "name": "source_record_versions",
+      "owner": "postgres",
+      "schema": "ingest"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "webauthn_credentials",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "custom_oauth_providers",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_auth_admin,supabase_auth_admin=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "kind": "r",
+      "name": "webauthn_challenges",
+      "owner": "supabase_auth_admin",
+      "schema": "auth"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "kind": "v",
+      "name": "teams_summary",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "kind": "r",
+      "name": "unmapped_events",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "kind": "r",
+      "name": "push_tokens",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "kind": "v",
+      "name": "schools_full",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "relay_results_relay_result_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "regions_region_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "conferences_conference_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "schools_school_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "conference_memberships_membership_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "waitlist_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "results_result_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "external_ids_external_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "divisions_division_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "athlete_prs_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "relay_athletes_relay_athlete_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,service_role=rwU/postgres}",
+      "kind": "S",
+      "name": "event_types_event_type_id_seq",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "athlete_prs",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "athlete_team_seasons",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "athletes",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "conference_memberships",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "conferences",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "divisions",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "event_aliases",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "event_types",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "external_ids",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "meets",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "regions",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "relay_athletes",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "relay_results",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "results",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "r",
+      "name": "schools",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=r/postgres,authenticated=r/postgres}",
+      "kind": "v",
+      "name": "v_athlete_prs",
+      "owner": "postgres",
+      "schema": "public"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,anon=a/postgres,authenticated=a/postgres}",
+      "kind": "r",
+      "name": "waitlist",
+      "owner": "postgres",
+      "schema": "public"
+    }
+  ],
+  "scheduler_presence": {
+    "pg_cron_extension": false,
+    "cron_jobs_relation": null
+  }
+}

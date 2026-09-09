@@ -38,7 +38,16 @@ const CHECKS = [
          'the ones worth investigating; start with mass+texas.\n' +
          '         DO NOT tune this to zero -- three earlier versions were wrong from ' +
          'over-fitting a detector to data that was not understood yet.',
-    tolerate: 2789,
+    // 2026-08-18: +65 from 197 newly-filled meets adding legitimate athlete-days.
+    // 2026-08-19: 2,854 -> 2,866 (+12) from importing 14 recovered meets. Each of the 12 was
+    // inspected rather than waved through: 8 are adjacent-state and ordinary (ariz+utah 4,
+    // colo+utah 4 — a squad split across two meets on one weekend, Robison Invitational at BYU
+    // against Desert Heat Classic / Western Slope). The other 4 are DISTANT and are the ones to
+    // look at if this is ever investigated: ky+pa 2 (130th Penn Relays vs Jim Freeman/Clark
+    // Wood), iowa+ky 1 (116th Drake Relays), mich+ky 1. Note Penn and Drake are both MULTI-DAY
+    // meets whose rows all carry one date, which is a documented cause of false hits here — so
+    // these are suspicious, not proven.
+    tolerate: 2866,
     sql: `WITH st AS (
             SELECT meet_id,
               CASE
@@ -57,10 +66,14 @@ const CHECKS = [
           SELECT count(*)::int AS n FROM pairs WHERE states > 1`,
   },
   {
-    name: 'every result resolves to a canonical event',
-    why: 'event_type_id NULL means the row cannot be grouped, ranked or PR-ed correctly.',
+    name: 'every result resolves to a canonical event (results + relay_results)',
+    why: 'event_type_id NULL means the row cannot be grouped, ranked or PR-ed correctly.\n' +
+         '         COVERS THE RELAY TABLE TOO. Checking only `results` reported 100% coverage ' +
+         'while relay_results held 48 NULLs (athletic.net short codes sprintmed2248 / 110shuttleh ' +
+         '/ 4x1600m had no alias). Fixed 2026-08-19, migrations/20260819_sibling_table_gaps.sql.',
     tolerate: 0,
-    sql: `SELECT count(*)::int AS n FROM results WHERE event_type_id IS NULL`,
+    sql: `SELECT (SELECT count(*) FROM results       WHERE event_type_id IS NULL)
+               + (SELECT count(*) FROM relay_results WHERE event_type_id IS NULL) AS n`,
   },
   {
     name: 'no exact duplicate performance on a meet-linked result',
@@ -90,10 +103,17 @@ const CHECKS = [
             HAVING count(*) > 1) t`,
   },
   {
-    name: 'no malformed doubled mark codes',
-    why: 'M8. The app renders mark_raw verbatim, so "NM  NM" reaches the user.',
+    name: 'no malformed doubled mark codes (all three tables)',
+    why: 'M8. The app renders mark_raw verbatim, so "NM  NM" reaches the user.\n' +
+         '         M8 was marked FIXED on 2026-08-12 after repairing 21,683 rows in `results` — ' +
+         'but it never reached the siblings, and athlete_prs still held 41 ("NH  NH" x22, ' +
+         '"NM  NM" x19) until 2026-08-19. A single-table check made a whole-database claim it ' +
+         'could not support. This is the M8/M9/DUP-3 pattern: fix the class, and make the CHECK ' +
+         'cover the class too.',
     tolerate: 0,
-    sql: `SELECT count(*)::int AS n FROM results WHERE mark_raw ~ '^(NM|NH|ND|DNS|DNF|DQ|NT)\\s+\\1$'`,
+    sql: `SELECT (SELECT count(*) FROM results       WHERE mark_raw ~ '^(NM|NH|ND|DNS|DNF|DQ|NT)\\s+\\1$')
+               + (SELECT count(*) FROM relay_results WHERE mark_raw ~ '^(NM|NH|ND|DNS|DNF|DQ|NT)\\s+\\1$')
+               + (SELECT count(*) FROM athlete_prs   WHERE mark_raw ~ '^(NM|NH|ND|DNS|DNF|DQ|NT)\\s+\\1$') AS n`,
   },
   {
     name: 'no meet holds results that are 100% duplicated at another meet',
@@ -117,6 +137,115 @@ const CHECKS = [
              AND s.mark_raw=k.mark_raw AND s.place IS NOT DISTINCT FROM k.place
             GROUP BY 1)
           SELECT count(*)::int AS n FROM per_meet WHERE total > 0 AND shared = total`,
+  },
+  {
+    name: 'no cross-source duplicate performance (round-insensitive)',
+    why: 'FOUND BY THE OWNER IN THE APP, 2026-08-19: the NCAA DII Outdoor 4x100 appeared FOUR ' +
+         'times on an athlete profile — "45.15a"/"45.34a" from athletic.net beside "45.15 F"/' +
+         '"45.34 P" from TFRRS. 1,252 rows across 243 meets.\n' +
+         '         NEITHER UNIQUE INDEX CAN CATCH THIS, and no index ever will: both include ' +
+         '`round`, and athletic.net supplies no round at all, so NULL vs \'Finals\' reads as two ' +
+         'separate performances. `round` is in those indexes deliberately (185 real prelim/final ' +
+         'pairs share mark and place), so it cannot simply be removed. That is exactly why this ' +
+         'check exists OUTSIDE the indexes — it is the only thing that can see the gap.\n' +
+         '         The mixed-suffix test is what makes it safe: a trailing `a` (source annotation) or ' +
+         '`h` (hand-timed) is a SOURCE annotation, so one row with a suffix and one without, at ' +
+         'the same athlete/meet/event/mark, is two sources describing one race — never two races. ' +
+         'A genuine prelim and final differ in TIME, so they cannot be caught here.\n' +
+         '         Prevention is in scrapers/shared/result_fingerprint.js (both importers now ' +
+         'share one definition of "already have it"). This check is the backstop.',
+    tolerate: 0,
+    sql: `WITH k AS (
+            SELECT athlete_id, meet_id, event_type_id,
+                   lower(regexp_replace(mark_raw,'[ah]$','')) AS nm,
+                   count(*) FILTER (WHERE mark_raw ~ '[ah]$')::int  AS suffixed,
+                   count(*) FILTER (WHERE mark_raw !~ '[ah]$')::int AS plain
+            FROM results
+            WHERE meet_id IS NOT NULL AND athlete_id IS NOT NULL AND mark_raw ~ '[0-9]'
+            GROUP BY 1,2,3,4 HAVING count(*) > 1)
+          SELECT count(*)::int AS n FROM k WHERE suffixed > 0 AND plain > 0`,
+  },
+  {
+    name: 'no same-round duplicate performance with disagreeing places',
+    why: 'The residual after the cross-source cleanup. Same athlete, meet, event and mark, same ' +
+         'round label, but two different places — one race stored twice with conflicting ' +
+         'placings, so at least one is wrong. Measured 2026-08-19 = 99 groups.\n' +
+         '         Two known causes, and they need different fixes, which is why this is a ' +
+         'TRACKED BASELINE rather than something auto-deleted: (a) sectioned races, where TFRRS ' +
+         'publishes both an overall place and a within-section place ("5000 Meter" place 18 vs ' +
+         '"5000 Meter Section 1" place 2 — the same run); (b) an athlete appearing at several ' +
+         'meet rows that are themselves duplicates of one meet (DUP-1 shaped).\n' +
+         '         Do NOT tune this to zero by deleting rows — resolve the cause. Legitimate ' +
+         'prelim/final pairs are excluded automatically because they differ in round.',
+    tolerate: 99,
+    sql: `WITH k AS (
+            SELECT athlete_id, meet_id, event_type_id,
+                   lower(regexp_replace(mark_raw,'[ah]$','')) AS nm,
+                   count(DISTINCT COALESCE(round,'~NULL~'))::int AS dr,
+                   count(DISTINCT COALESCE(place,-1))::int       AS dp
+            FROM results
+            WHERE meet_id IS NOT NULL AND athlete_id IS NOT NULL AND mark_raw ~ '[0-9]'
+            GROUP BY 1,2,3,4 HAVING count(*) > 1)
+          SELECT count(*)::int AS n FROM k WHERE dr = 1 AND dp > 1`,
+  },
+  {
+    name: 'every parseable mark has a numeric mark_seconds',
+    why: 'M9. 1,301,371 rows held a time as TEXT with mark_seconds NULL, so they could not be ' +
+         'sorted, ranked or PR-ed. Cause: six copy-pasted parsers, all of which demanded 2-3 ' +
+         'decimals (so "10.6" returned null) and none of which stripped a trailing wind reading ' +
+         '("10.24  (2.0)"). Repaired 2026-08-19; all six replaced by shared/mark_parser.js. ' +
+         'This check is what makes the repair stick — a new importer that forgets to parse ' +
+         'shows up here instead of quietly accumulating for nine months.\n' +
+         '         NOT counted, deliberately: bare integers (Decathlon/Heptathlon/Pentathlon ' +
+         'POINTS, ~15,767 rows — writing 8420 into mark_seconds would rank a decathlete as the ' +
+         'slowest athlete in the DB) and status codes (DNS/DQ/NM/NT — real results with no ' +
+         'numeric value, see MARK_CODES.md).',
+    tolerate: 0,
+    // ⚠️ ALL THREE SIBLING TABLES. The first version of this check looked only at `results`, and
+    // that omission hid 379,508 rows with the identical defect (119,148 relay_results + 260,360
+    // athlete_prs). A single-table invariant makes a whole-database claim it cannot support.
+    sql: `WITH c AS (
+            SELECT regexp_replace(btrim(regexp_replace(mark_raw,'\\s*\\([-+]?[0-9.]+\\)\\s*$','')),
+                                  '[ahcyAHCY]$','') AS core
+            FROM results       WHERE mark_seconds IS NULL AND mark_meters IS NULL AND mark_raw IS NOT NULL
+            UNION ALL
+            SELECT regexp_replace(btrim(regexp_replace(mark_raw,'\\s*\\([-+]?[0-9.]+\\)\\s*$','')),
+                                  '[ahcyAHCY]$','')
+            FROM relay_results WHERE mark_seconds IS NULL AND mark_raw IS NOT NULL
+            UNION ALL
+            SELECT regexp_replace(btrim(regexp_replace(mark_raw,'\\s*\\([-+]?[0-9.]+\\)\\s*$','')),
+                                  '[ahcyAHCY]$','')
+            FROM athlete_prs   WHERE mark_seconds IS NULL AND mark_meters IS NULL AND mark_raw IS NOT NULL)
+          SELECT count(*)::int AS n FROM c
+          WHERE (core ~ '^[0-9]+:[0-9]{2}:[0-9]{1,2}(\\.[0-9]+)?$'
+              OR core ~ '^[0-9]+:[0-9]{2}(\\.[0-9]+)?$'
+              OR core ~ '^[0-9]+\\.[0-9]+$')
+            -- "0:00.0" / "0.00" are shaped like times but are placeholders for a MISSING time.
+            -- They are meant to stay NULL (the next check owns them); counting them here would
+            -- make this invariant permanently unsatisfiable.
+            AND core !~ '^[0:.]+$'`,
+  },
+  {
+    name: 'no zero or negative mark_seconds, and no truncated h:mm:ss',
+    why: 'Two distinct corruptions, both found 2026-08-19, both of which put a bogus WORLD ' +
+         'RECORD at the top of a leaderboard:\n' +
+         '         (a) athletic.net\'s parser did `const [mm, ss] = clean.split(\':\')`, so ' +
+         '"1:05:37.73" bound mm="1", ss="05" and stored 65 SECONDS for a 65-MINUTE run. 6 rows.\n' +
+         '         (b) sources emit "0:00.0"/"0.00" as a placeholder for a missing time; parsed ' +
+         'naively that is faster than any human. 2 rows.\n' +
+         '         shared/mark_parser.js now rejects non-positive values outright, and mark_raw ' +
+         'still preserves whatever the source actually published.',
+    tolerate: 0,
+    sql: `SELECT (SELECT count(*) FROM results WHERE mark_seconds IS NOT NULL
+                    AND (mark_seconds <= 0
+                         OR (mark_raw ~ '^[0-9]+:[0-9]{2}:[0-9]' AND mark_seconds < 600)))
+               + (SELECT count(*) FROM relay_results WHERE mark_seconds IS NOT NULL
+                    AND (mark_seconds <= 0
+                         OR (mark_raw ~ '^[0-9]+:[0-9]{2}:[0-9]' AND mark_seconds < 600)))
+               + (SELECT count(*) FROM athlete_prs WHERE mark_seconds IS NOT NULL
+                    AND (mark_seconds <= 0
+                         OR (mark_raw ~ '^[0-9]+:[0-9]{2}:[0-9]' AND mark_seconds < 600)))
+               AS n`,
   },
   {
     name: 'no result dated more than 7 days from its own meet date',

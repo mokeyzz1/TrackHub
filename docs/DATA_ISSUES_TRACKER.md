@@ -6,6 +6,9 @@ before the 2026-27 season (starts Dec 2026 / Jan 2027).
 Companion docs: `BACKEND_PRIORITIES.md` (execution order) · `CLAUDE.md` (rules & context) ·
 `memory/backend-rebuild-status.md` (problem/solution history).
 
+Current branch checkpoint: `docs/database-audit/WORKSTREAM_STATUS_20260904.md` records what is
+applied, code-only, held, and next. It does not replace the evidence packets below.
+
 **SCALE NOTE (owner, 2026-08):** every issue found by inspecting ONE athlete's profile turned out
 to affect tens of thousands. Always measure an in-app symptom across the whole DB before deciding
 it's minor.
@@ -65,24 +68,23 @@ never delete without a self-proving test · small throttled batches (weak instan
 > absorbed by the DUP-3 dedup pass, which keys on exactly (meet, event, team, place, mark).
 | M4 | **Relays with no team** | 1,418 | Mostly juco — leg athletes aren't in the DB, so the team can't be derived. Lineups are still recorded. |
 | M5 | **Results with no `team_id`** | 394,659 | Mostly pre-2024 (roster history only covers 2024-25, 2025-26). Re-runnable: `backfill-result-team-id.js`. |
-| M7 | **Numeric marks never parsed into `mark_seconds` / `mark_meters`** | **1,483,604 rows (45%) have neither, and 1,319,151 of those have a numeric `mark_raw`** | Found 2026-08-10 while checking whether those columns could key the cross-source dedup — they can't. Blocks using them for anything computed (PR maths already works off `mark_raw`). Related: the normalized-mark column needed for dual-source imports (`DATA_SOURCE_STRATEGY.md`). |
+| ~~M7~~ | ~~**Numeric marks never parsed into `mark_seconds` / `mark_meters`**~~ | ~~1,483,604 rows~~ | **FIXED 2026-08-19 as M9 — 1,301,371 rows written. See the M9 section below.** The residual 182k is correct-by-design: multi-event points and status codes. |
 | ~~M8~~ | ~~Doubled mark codes~~ — `NM  NM`, `NH  NH` | **FIXED 2026-08-12: 21,683 repaired, 9 collisions removed, 0 left** (11,452 + 10,240) | Scraper concatenated a field-event cell with itself; appears only in HJ/LJ/PV/SP/TJ. Should be `NM` / `NH`. ⚠️ Not a plain UPDATE — `mark_raw` is in `results_no_exact_duplicate`, so normalising can collide with an existing row; delete the collider instead, as `backfill-null-event-types.js` does. |
-| M6 | **Meets with no results link** | 137 (2025-26) · 671 all-time | **Structurally limited** — USTFCCCA's directory is a moving window, so old links are gone (CLAUDE.md §1b). Don't grind; mark `results_status='unavailable'`. |
+| M6 | **Meets with no results link** | **2025-26 now 93% covered (2,392/2,573).** Remaining 181 = 31 source-has-no-results · 92 timing-platform-only · 58 no link | **Structurally limited** — USTFCCCA's directory is a moving window, so old links are gone (CLAUDE.md §1b). Don't grind; mark `results_status='unavailable'`. |
 
 ## 🟡 OPEN — modelling / structural
 
 | # | Issue | Notes |
 |---|---|---|
-| U1 | **Two scraper engines with copy-pasted logic** | The relay colon bug (F7) existed **separately in two files**. One shared engine = fix once. |
+| U1 | **Two scraper engines with copy-pasted logic** | **PARTLY ADDRESSED.** The shared `scrapers/shared/collapse_duplicate_rounds.js` is now used by both, and the colon fix was applied to both. But they are still two parsers — every future fix must be made twice, and this is exactly how the colon bug survived in one file after being fixed in the other. |
 | U2 | **Unattached modelled per-person, not per-competition** | `athletes.school_id=1835` instead of `results.team_id` → one person's unattached and college records look like two athletes. Root cause of DUP-4. |
 | U3 | **No per-event source fallback** | TFRRS broke on DII 4x100 while athletic.net had it perfectly. Current rule is per-meet; needs to be per-event. |
 | U4 | **`get_top_performances` uses regex, not `event_type_id`** | Home-screen leaderboard normalizes events by hand-written regex and infers indoor by "has a 60m event" — misses athletic.net short codes. Best first target for the frontend migration. |
 | ~~U4b~~ | ~~Athlete progression & season bests split one event into several~~ | **FIXED 2026-08-09 — see F13.** |
 | ~~U8~~ | ~~Source of the `Finals`+`Heat N` duplicates~~ | **SOLVED + FIXED 2026-08-10 — see below.** |
-| U8-old | *(superseded)* | **The biggest recurrence risk before Dec/Jan.** DUP-2 removed ~370k of these, and the DB guard does NOT prevent them (the rows legitimately differ in `round`). A single scraper pass over one event page emits **one row per athlete**, so it cannot produce the pair — the duplication happens somewhere else. **Leading hypothesis: the same meet ingested by BOTH `scrape-meet-results.js` and `sync-weekend-results.js`**, each labelling the round from a different view (see U1 — two engines, copy-pasted logic). **Test it** against a meet known to have produced the pairs, before the season starts. A round-label fix was applied 2026-08-10 (label now taken from the cell the mark came from) but verified to change 0 of 48 rows on a live page — latent hardening, *not* the cause. |
 | U5 | **Frontend still matches by text** | App reads `meet_name`/`event_name` strings instead of IDs. Until this lands most cleanup is dormant. |
-| U6 | **Abandoned live-results code** | In-app live results was dropped (link-out via `meet_url` is the shipped answer). Dead: `live_results` table, `useLiveResults.ts`, `getTopPerformances()`, 8 live scripts. |
-| U7 | **Merge `backend-rebuild` → `main`** | Nothing touches app code; low risk. |
+| U6 | **Legacy live-results path** | No scheduled workflow invokes live/final scraping, and the shipped app uses meet link-outs, but `live_results`, `useLiveResults.ts`, `getTopPerformances()`, and manual live/final scripts remain. Hold table retirement until a lifecycle owner and replacement contract are approved. |
+| ~~U7~~ | ~~Merge `backend-rebuild` → `main`~~ | **DONE 2026-08-12** — 88 commits merged (`15307b9`). This mattered more than it looked: `main` is the default branch, so the cron'd scrapers were running WITHOUT any of this year's fixes. Production would have regenerated the duplicates in December. |
 
 ## ✅ FIXED (2026-07 → 2026-08)
 
@@ -563,3 +565,208 @@ does THIS row belong to?) rather than a per-meet one, and the same-day invariant
 find candidates.
 
 Baselines recorded in the invariant suite; the same-day number **should only ever go down**.
+
+
+### 2025-26 backfill — finished as far as it goes (2026-08-12)
+
+**93% coverage (2,392 of 2,573 meets).** Everything reachable by a stored link has been fetched.
+
+| action | meets | rows |
+|---|---|---|
+| athletic.net batch import | 14 filled (of 45 attempted) | +8,731 results, +440 relays |
+| TFRRS links found in the WRONG COLUMN | 4 | +1,800 results, +81 relays |
+
+**The wrong-column find:** 4 meets had a `tfrrs.org/results/...` URL sitting in `meet_url`
+instead of `tfrrs_url`, so no scraper ever looked at it. One was **Big West Championships** —
+emptied earlier that day as a DUP-1 copy, and its real results were in the database all along,
+one column over. Now holds all 11 Big West schools (Cal Poly, CSUN, Hawaii, Long Beach State,
+UC Davis…) where it previously held Big Ten.
+
+**⚠️ Worth re-checking periodically:** `meet_url` is meant to be the live/timing link, but results
+links leak into it. `SELECT ... WHERE meet_url ILIKE '%tfrrs.org/results%' AND tfrrs_url IS NULL`.
+
+**What is left, and why it is the ceiling:**
+- **31** — source page exists on athletic.net but no results were ever posted (`no_results_at_source`)
+- **58** — no link of any kind; USTFCCCA's window closed (CLAUDE.md §1b)
+- **92** — a timing-platform link only, scattered across **15+ companies** with 1-6 meets each:
+  blacksquirreltiming 6 · trackscoreboard 12 (3 subdomains) · wayzatatiming 3 · wingfootfinish 3 ·
+  MileSplit 28 · Flash Results 3 · OpenTrack 1 · and a dozen more singletons.
+  **A scraper per platform is not worth it.** The one cheap experiment left: several of those
+  (blacksquirrel, mentzertiming, mastiming, athletictiming.net) are AthleticLIVE instances, and
+  per §1 every live page links to its permanent `www.athletic.net` meet. If the existing scraper
+  can follow that from a timing-company URL, ~20-30 might come free with no new code.
+
+**2024-25 is done at 95%** — all 125 remaining empties have no link at all.
+
+
+### M1 — 4x100 repair, 2026-08-14 (owner-reported, third time)
+
+**The owner reported missing 4x100s three times before this was actually fixed.** F7 corrected the
+parser and was logged as FIXED; the 463 meets already holding broken data were never re-fetched.
+"Fixed the scraper" and "fixed the data" are different things — see `docs/README.md`.
+
+**Repaired: 35 meets, 716 relay rows**, all via TFRRS `--relays-only`.
+
+| meet | 4x100 timed | fastest |
+|---|---|---|
+| NCAA DI Outdoor | 56 | **37.75** |
+| NAIA Outdoor | 66 | 39.57 |
+| NCAA DIII Outdoor | 48 | 39.25 |
+| NCAA DII Outdoor | 15 | 39.30 |
+| Big Ten Outdoor | 23 | 38.44 |
+
+**SOURCE MATTERS: use TFRRS, not athletic.net.** athletic.net returns the times but with **no round
+label**, and the app groups relays by round — a round-less row looks repaired in the database and
+is still broken on screen. Proven on meet 13142: athletic.net gave 44 rows with `round = NULL`
+(rolled back), TFRRS gave the same 44 correctly labelled Finals / Preliminaries.
+
+**Still broken: ~428 meets.** Only 35 of the 463 had a TFRRS link. 148 have athletic.net only and
+need the relay round-capture fixed first; the rest have no link at all.
+
+### 🔴 DUP-3 REOPENED — the lineup key missed ~26,000 duplicates
+
+Keying the relay dedup on the **lineup** (after the A/B/C/D near-miss) was safe but far too
+narrow. Measured 2026-08-14:
+
+```
+same meet+event+team+place+REAL MARK+round : 26,413 groups (26,494 rows)
+   ...of which the lineup-key invariant reports :      0
+same key but a STATUS-CODE mark             :  1,990 groups  <- legitimate A/B/C/D squads, keep
+```
+
+26,494 rows are the same squad running the same time in the same race, differing **only in how the
+legs are written**: TFRRS stores the heat view as `Grant, Cleveland, Jefferson, Wilson` and the
+prelim view as `Cody Grant, Cameron Cleveland, Phillip Jefferson, Rylan Wilson`.
+
+So DUP-3's "674, not 43,037" correction was wrong in the other direction. The truth is ~26,000+.
+
+**A unique index on `relay_results` CANNOT be built until these are cleaned** — 26,494 rows would
+violate it. `relay_results` currently has **no database-level duplicate protection at all**, unlike
+`results`. Order of work:
+1. normalise the lineup comparison (match on **last names**, which both formats share)
+2. re-run DUP-3 on that key
+3. **then** add `UNIQUE (meet_id, event_type_id, team_id, place, mark_raw, round) WHERE mark_raw ~ '[0-9]'`
+   — partial on real marks so the A/B/C/D status-code squads stay legal
+
+
+### M1 — COMPLETE as far as links allow (2026-08-18)
+
+**463 broken meets → 300.** 163 repaired, **2,953 relay rows recovered**, 31,730 timed 4x100 rows
+now in the database.
+
+| arm | meets | rows | round labels |
+|---|---|---|---|
+| `repair-timeless-4x100.js` (TFRRS) | 35 | 716 | real Finals / Preliminaries / Heat N |
+| `repair-4x100-anet.js` (athletic.net) | 131 | 2,237 | `Finals` (athletic.net has none — see below) |
+
+Full circle on the DUP-1 meets: CAA held Big Ten results this morning and now has its own 4x100
+(17/23 timed); Patriot League held Summit League results and now has 15/17.
+
+**athletic.net publishes NO round data for relays** — verified against meet 640046: no
+heat/prelim/final/section field anywhere, just one row per team with place, mark, points, legs.
+Rows are labelled `Finals` because a list of places 1..N with points IS the final standing, and
+because the app **groups relays by round** — a NULL round is invisible on screen while looking
+repaired in the database (cost a 44-row rollback on meet 13142). **Prefer TFRRS wherever it
+exists**; it gives the real round structure.
+
+**Throttling is required, not optional.** A first athletic.net batch failed 2 of 3, and every
+failure succeeded when re-run by hand — Cloudflare dislikes back-to-back headless requests. With
+2.5s between meets + one retry: 131 ok, 4 failed, and **18 needed the retry**. Without it those 18
+would have been reported as failures.
+
+**The remaining 300 have no usable link** (plus 4 transient failures worth a re-run). They need the
+TFRRS search cascade in `DATA_SOURCE_STRATEGY.md`, one verified match at a time.
+
+### M9 — 1,301,371 marks were text-only; six copy-pasted parsers were why (2026-08-19)
+
+Logged as M7 on 2026-08-10 ("numeric marks never parsed"), measured then at 1,483,604 rows.
+Re-measured before acting, per `DEDUP_METHOD.md` §1 — the real repairable set was **1,301,371**.
+
+**What the column meant.** `mark_seconds` NULL means the row cannot be sorted, ranked or compared.
+`mark_raw` still displayed fine, which is exactly why this survived nine months: the app looked
+correct and only computed features were broken.
+
+**Root cause — U1 again, in its purest form.** There were **six** near-identical
+`parseMarkSeconds` implementations (`tfrrs/meet-scraper/scrape-meet-results.js`,
+`tfrrs/meet-scraper/sync-weekend-results.js`, `tfrrs/athlete-scraper/import-results-to-db.js`,
+`tfrrs/athlete-scraper/import-prs-to-table.js`, `tools/scrape-and-import.js`, and
+`athletic-net/import_meet_results.js`). Shared defects:
+
+- the seconds branch required `\d{1,2}\.\d{2,3}`, so **`10.6` returned null**;
+- none stripped a trailing wind reading, so **`10.24  (2.0)` returned null** (190,129 rows);
+- athletic.net's did `const [mm, ss] = clean.split(':')`, which on `1:05:37.73` binds `mm="1"`,
+  `ss="05"` and returns **65 seconds for a 65-minute run**.
+
+**Timing proves the code was already fixed and only the data was stale** — the split
+`DEDUP_METHOD.md` §0 warns about. 856,765 of the unparsed rows were created in **one bulk import
+in November 2025**; every import from March 2026 onward parses cleanly (0 unparsed).
+
+**Validated before writing.** The repair expression was run against the 1,082,583 rows that
+*already* had a `mark_seconds` and reproduced **1,082,576** of them exactly. The 7 misses were the
+6 corrupt `h:mm:ss` rows (expression right, stored value wrong) and one 3-decimal rounding
+difference. An expression that cannot reproduce known-good data has no business writing new data.
+
+**Deliberately left unparsed (182,146 rows) — these are not failures:**
+
+| rows | why |
+|---|---|
+| 175,611 | status codes — `DNS`/`DQ`/`NM`/`NT`/… are **results** (`OWNER_DECISIONS.md`), just not numeric |
+| 15,767 | bare integers on Decathlon/Heptathlon/Pentathlon rows — those are **points**. Writing `8420` into `mark_seconds` would rank a decathlete as the slowest athlete in the database. There is no points column yet. |
+| 2 | `"0:00.0"` / `"0.00"` — placeholders for a missing time; as a number, faster than any world record |
+
+**Fixed the class, not the instance.** All six parsers deleted and replaced by one
+`scrapers/shared/mark_parser.js` (25 unit-tested cases). Two standing invariants added so a future
+importer that forgets to parse fails loudly instead of accumulating for nine months.
+
+### A hazard found by tripping over it: `tools/scrape-and-import.js` (2026-08-19)
+
+While rewiring the parsers I ran `require()` on `tools/scrape-and-import.js` to check it loaded.
+It called `main()` at module scope, so it **started importing**, and wrote 31 rows into MAAC Indoor
+Championships (meet 11842) before being killed. Rolled back in full
+(`results_accidental_import_20260819_backup`; meet is back to its original 834 rows).
+
+Worth recording because the 31 rows were a compact demonstration of three real defects in that
+script, all previously only suspected:
+
+1. **`event_type_id` NULL on all 31** — never wired to `shared/event_resolver`. Those 31 rows were
+   the *only* NULL-event rows in the database; it broke the 100%-coverage invariant by itself.
+2. **`Preliminaries` + `Heat N` duplicate pairs** — it does not call
+   `shared/collapse_duplicate_rounds`. The unique index cannot catch this (the rows differ in
+   `round`), which is precisely why U8 has to be handled at import time.
+3. **It imported into a meet that already held 834 rows** — the one-meet-one-source rule.
+
+It is documented elsewhere as a legacy Feb-2026 one-off, but nothing stopped it running. It now
+refuses without `--i-know-this-is-legacy`, and `main()` is behind `require.main === module` so a
+bare `require()` can never start an import again.
+
+### The verification itself was single-table — 379,508 rows hidden behind that (2026-08-19)
+
+**The owner asked: "are you sure you are doing a good verification, and with the entire
+database??"** The answer was no, and the question found real data.
+
+M9 repaired `results.mark_seconds` and I wrote the invariant against `results` alone. But
+`DEDUP_METHOD.md` §0 rule 2 says plainly: *where else does this pattern live?* `results` ↔
+`relay_results` ↔ `athlete_prs` are siblings. Re-asking that question of every check found:
+
+| table | defect | rows |
+|---|---|---|
+| `relay_results` | time stored as text, `mark_seconds` NULL | **119,148** |
+| `athlete_prs` | same | **260,360** |
+| `athlete_prs` | doubled mark codes (`NH  NH`, `NM  NM`) — **M8 was marked FIXED in Aug 2026 but only ever touched `results`** | 41 |
+| `relay_results` | NULL `event_type_id` — relay coverage was documented as 100% | 48 |
+| `relay_results` | cross-source duplicate, invisible until the NULL event type resolved | 1 |
+
+All fixed. The expression was validated against each table's already-correct rows first —
+`relay_results` 64,894/64,894 exact, `athlete_prs` 117,497/117,497 exact.
+
+**The durable lesson is about the CHECK, not the data.** A single-table invariant makes a
+whole-database claim it cannot support, and it passes, which is worse than having no check at all:
+it actively certifies the gap. Every invariant in `verify-data-invariants.js` that can apply to a
+sibling table now does.
+
+**A near-miss worth recording.** Backfilling the 48 relay event types hit
+`relay_no_dup_normmark`. The pre-flight collision check I ran compared `mark_raw` exactly, but
+that index keys on the *normalised* mark — so `1:02.87a` and `1:02.87` collide under the index and
+not under my check. The transaction rolled back and nothing was written, but the check had been
+wrong. **When testing whether a write will violate an index, test the index's own expression,
+not an approximation of it.**

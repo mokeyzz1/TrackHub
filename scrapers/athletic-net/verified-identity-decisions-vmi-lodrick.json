@@ -1,0 +1,20 @@
+{
+  "manifest_version": 1,
+  "review_scope": "VMI Winter Relays 2026 / Lodrick Scott exact existing TFRRS owner",
+  "decisions": [
+    {
+      "source_athlete_key": "44018579",
+      "source_athlete_name": "Lodrick Scott",
+      "source_gender": "M",
+      "target_tfrrs_athlete_id": "8671534",
+      "expected_school": "Lees-McRae",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/NC_college_m_Lees_McRae.html",
+        "https://www.tfrrs.org/athletes/8671534/Lees_McRae/Lodrick_Scott.html"
+      ],
+      "notes": "Exact source name and gender on the official Lees-McRae roster; existing Lees-McRae athlete 35232 owns TFRRS identity 8671534."
+    }
+  ]
+}

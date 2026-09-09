@@ -1,0 +1,25 @@
+{
+  "manifest_version": 1,
+  "review_scope": "Brooklyn Harmon duplicate identity discovered during Grand Valley State Tune-Up recovery",
+  "decisions": [
+    {
+      "old_athlete_id": 185262,
+      "target_athlete_id": 100290,
+      "source_athlete_key": "31347449",
+      "source_athlete_name": "Brooklyn Harmon",
+      "athletic_net_profile_id": "31347449",
+      "duplicate_result_mappings": [
+        { "old_result_id": 8023901, "target_result_id": 8024256, "reason": "same 60m hurdles mark/place; old row has no round, canonical row is Finals" },
+        { "old_result_id": 8023917, "target_result_id": 8024277, "reason": "same 300m hurdles mark/place" }
+      ],
+      "evidence": [
+        "Grand Valley State 2025-26 roster: https://gvsulakers.com/sports/track-and-field/roster/brooklyn-harmon/18267",
+        "TFRRS canonical athlete 9243596: https://www.tfrrs.org/athletes/9243596/Grand_Valley_St/Brooklyn_Harmon",
+        "Athletic.net profile 31347449 is the same Brooklyn Harmon profile currently attached to duplicate athlete 185262: https://www.athletic.net/athlete/31347449/track-and-field",
+        "Canonical athlete 100290 already owns TFRRS athlete 9243596, school Grand Valley State, and the recovered AthleticLIVE source key 44332871.",
+        "The old athlete has exactly eight results, zero relay legs, zero PRs, zero team seasons, zero live references, and zero external IDs; two Grand Valley Tune-Up rows are exact duplicates of canonical rows and six remaining rows are unique performances to move."
+      ],
+      "notes": "Keep the complete duplicate-row backup in public.results_athlete_merge_backup; do not delete the athlete row, only clear its profile URL and mark it inactive."
+    }
+  ]
+}

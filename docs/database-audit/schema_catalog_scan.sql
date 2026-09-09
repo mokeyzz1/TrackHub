@@ -1,0 +1,6 @@
+select jsonb_build_object(
+'columns',(select jsonb_agg(jsonb_build_object('schema',n.nspname,'relation',c.relname,'kind',c.relkind,'column',a.attname,'type',format_type(a.atttypid,a.atttypmod),'nullable',not a.attnotnull) order by n.nspname,c.relname,a.attnum) from pg_class c join pg_namespace n on n.oid=c.relnamespace join pg_attribute a on a.attrelid=c.oid and a.attnum>0 and not a.attisdropped where n.nspname not like 'pg_%' and n.nspname<>'information_schema' and c.relkind in ('r','p','v','m')),
+'constraints',(select jsonb_agg(jsonb_build_object('schema',n.nspname,'relation',c.relname,'name',k.conname,'definition',pg_get_constraintdef(k.oid),'validated',k.convalidated)) from pg_constraint k join pg_class c on c.oid=k.conrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','ingest','archive')),
+'policies',(select jsonb_agg(to_jsonb(p)) from pg_policies p),
+'indexes',(select jsonb_agg(jsonb_build_object('schema',n.nspname,'relation',c.relname,'name',i.relname,'valid',x.indisvalid,'definition',pg_get_indexdef(i.oid))) from pg_index x join pg_class c on c.oid=x.indrelid join pg_class i on i.oid=x.indexrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','ingest','archive'))
+) as snapshot;

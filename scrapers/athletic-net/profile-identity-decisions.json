@@ -1,0 +1,20 @@
+{
+  "manifest_version": 1,
+  "decisions": [
+    {
+      "source_athlete_key": "49173402",
+      "source_athlete_name": "Christopher Kocher",
+      "source_gender": "M",
+      "target_athlete_id": 195965,
+      "athletic_net_profile_id": "19401430",
+      "expected_current_name": "CK Christopher Kocher",
+      "normalize_public_name": true,
+      "evidence": [
+        "Exact existing public Athletic.net profile URL: https://www.athletic.net/athlete/19401430/track-and-field",
+        "TFRRS Mount Union Last Chance shot put result: Christopher Kocher, UofSC club XC/TF, 13.96m",
+        "TFRRS Mount Union Last Chance discus result: Christopher Kocher, UofSC club XC/TF, 46.76m"
+      ],
+      "notes": "Existing row has no results, relay legs, PRs, team seasons, live references, or external IDs. Normalize only the CK display prefix and attach the exact AthleticLIVE source identity."
+    }
+  ]
+}

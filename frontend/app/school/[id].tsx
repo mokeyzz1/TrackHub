@@ -7,7 +7,13 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../design-system/colors';
 import { FadeInCard } from '../../components/animations/FadeInCard';
-import { getSchoolById, getSchoolAthletesBySeason, getSchoolMeets } from '../../services/database-supabase';
+import {
+  getSchoolById,
+  getSchoolAthletesBySeason,
+  getSchoolMeets,
+  getSchoolTopPerformances,
+  type SchoolTopPerformance,
+} from '../../services/database-supabase';
 
 interface School {
   school_id: number;
@@ -47,7 +53,9 @@ export default function SchoolDetailScreen() {
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [selectedSeason, setSelectedSeason] = useState<string>('2025-26');
   const [activeDropdown, setActiveDropdown] = useState<'season' | 'gender' | 'class' | null>(null);
-  const [activeTab, setActiveTab] = useState<'athletes' | 'meets'>('athletes');
+  const [activeTab, setActiveTab] = useState<'athletes' | 'meets' | 'performances'>('athletes');
+  const [performances, setPerformances] = useState<SchoolTopPerformance[]>([]);
+  const [performancesLoading, setPerformancesLoading] = useState(false);
 
   const classYears = ['FR', 'SO', 'JR', 'SR'];
   const seasons = ['2025-26', '2024-25', '2023-24', '2022-23'];
@@ -84,7 +92,7 @@ export default function SchoolDetailScreen() {
         setSchool(schoolData);
         setAthletes(athletesData);
         setMeets(meetsData);
-      } catch (err) {
+      } catch {
         setError('School not found');
       } finally {
         setLoading(false);
@@ -93,6 +101,30 @@ export default function SchoolDetailScreen() {
 
     fetchData();
   }, [schoolId, isValidId, selectedSeason]);
+
+  // Keep the heavier event-aware leaderboard on demand so browsing a school roster does not
+  // spend another Data API request until the user opens the Performances tab.
+  useEffect(() => {
+    if (!isValidId || activeTab !== 'performances') return;
+
+    let cancelled = false;
+    async function fetchPerformances() {
+      try {
+        setPerformancesLoading(true);
+        const data = await getSchoolTopPerformances(schoolId, selectedSeason, 60);
+        if (!cancelled) setPerformances(data);
+      } catch {
+        if (!cancelled) setPerformances([]);
+      } finally {
+        if (!cancelled) setPerformancesLoading(false);
+      }
+    }
+
+    fetchPerformances();
+    return () => {
+      cancelled = true;
+    };
+  }, [schoolId, isValidId, activeTab, selectedSeason]);
 
   if (loading) {
     return (
@@ -202,6 +234,22 @@ export default function SchoolDetailScreen() {
             />
             <Text style={[styles.tabText, activeTab === 'meets' && styles.tabTextActive]}>
               Meets
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'performances' && styles.tabActive]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setActiveTab('performances');
+            }}
+          >
+            <Ionicons
+              name="stats-chart"
+              size={18}
+              color={activeTab === 'performances' ? colors.text.white : colors.text.primary}
+            />
+            <Text style={[styles.tabText, activeTab === 'performances' && styles.tabTextActive]}>
+              Performances
             </Text>
           </TouchableOpacity>
         </View>
@@ -334,6 +382,53 @@ export default function SchoolDetailScreen() {
             </View>
           </TouchableOpacity>
         </Modal>
+
+        {/* Performances Tab */}
+        {activeTab === 'performances' && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Best performances · {selectedSeason}</Text>
+            {performancesLoading ? (
+              <View style={styles.performanceLoading}>
+                <ActivityIndicator size="small" color={colors.primary.trackOrange} />
+                <Text style={styles.performanceLoadingText}>Loading performances...</Text>
+              </View>
+            ) : performances.length > 0 ? (
+              performances.map((performance, index) => (
+                <FadeInCard key={`${performance.performance_type}-${performance.performance_id}`} delay={index * 50}>
+                  <View style={styles.performanceCard}>
+                    <View style={styles.performanceHeader}>
+                      <Text style={styles.performanceEvent}>{performance.event_name}</Text>
+                      <View style={[
+                        styles.performanceTypeTag,
+                        performance.performance_type === 'relay' && styles.relayPerformanceTag,
+                      ]}>
+                        <Text style={styles.performanceTypeText}>
+                          {performance.performance_type === 'relay' ? 'Relay team' : 'Individual'}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={styles.performanceMark}>{performance.mark_raw || '—'}</Text>
+                    <Text style={styles.performanceAthlete}>
+                      {performance.performance_type === 'relay'
+                        ? performance.team_name || 'Team relay'
+                        : performance.athlete_name || 'Athlete'}
+                      {performance.gender ? ` · ${performance.gender === 'M' ? 'Men' : performance.gender === 'F' ? 'Women' : performance.gender}` : ''}
+                    </Text>
+                    <Text style={styles.performanceMeet} numberOfLines={1}>
+                      {performance.meet_name || 'Meet'}
+                      {performance.date ? ` · ${new Date(performance.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
+                    </Text>
+                  </View>
+                </FadeInCard>
+              ))
+            ) : (
+              <View style={styles.emptyState}>
+                <Ionicons name="stats-chart-outline" size={48} color={colors.text.tertiary} />
+                <Text style={styles.emptyText}>No ranked performances found for this season</Text>
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Meets Tab */}
         {activeTab === 'meets' && meets.length > 0 && (
@@ -700,6 +795,78 @@ const styles = StyleSheet.create({
     textShadowColor: colors.backgrounds.white,
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 0,
+  },
+  performanceLoading: {
+    alignItems: 'center',
+    padding: 40,
+    gap: 10,
+  },
+  performanceLoadingText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+  },
+  performanceCard: {
+    backgroundColor: colors.backgrounds.white,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 4,
+    borderColor: colors.borders.thick,
+    shadowColor: colors.borders.thick,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  performanceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  performanceEvent: {
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '900',
+    color: colors.text.primary,
+  },
+  performanceTypeTag: {
+    backgroundColor: colors.backgrounds.cream,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.borders.medium,
+  },
+  relayPerformanceTag: {
+    backgroundColor: colors.primary.trackOrange,
+    borderColor: colors.primary.trackOrange,
+  },
+  performanceTypeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: colors.text.secondary,
+    textTransform: 'uppercase',
+  },
+  performanceMark: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: colors.primary.trackOrange,
+    fontFamily: 'Courier',
+    marginTop: 8,
+  },
+  performanceAthlete: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: colors.text.secondary,
+    marginTop: 4,
+  },
+  performanceMeet: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+    marginTop: 4,
   },
   athleteCard: {
     flexDirection: 'row',

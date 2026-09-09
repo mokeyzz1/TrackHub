@@ -1,0 +1,82 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "Mount Union Last Chance Meet 2026 / empty Unattached placeholders / DirectAthletics batch 1",
+  "decisions": [
+    {
+      "source_athlete_key": "49173315",
+      "source_athlete_name": "Brayden Murray",
+      "source_gender": "M",
+      "target_athlete_id": 140989,
+      "directathletics_profile_id": "9219354",
+      "expected_school": "Unattached",
+      "public_name": "Brayden Murray",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9219354.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "DirectAthletics profile lists the same Mount Union 2026 800m and 1500m marks; the target is an empty Unattached placeholder and no existing facts are moved."
+    },
+    {
+      "source_athlete_key": "49173496",
+      "source_athlete_name": "CALEB HEWITT",
+      "source_gender": "M",
+      "target_athlete_id": 140981,
+      "directathletics_profile_id": "9243763",
+      "expected_school": "Unattached",
+      "public_name": "Caleb Hewitt",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9243763.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official DirectAthletics profile identifies Caleb Hewitt as Unattached; the target is an empty placeholder and the source key is linked without replacing any facts."
+    },
+    {
+      "source_athlete_key": "49173269",
+      "source_athlete_name": "DUBEM AMAH",
+      "source_gender": "M",
+      "target_athlete_id": 140980,
+      "directathletics_profile_id": "9243765",
+      "expected_school": "Unattached",
+      "public_name": "Dubem Amah",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9243765.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official DirectAthletics profile identifies Dubem Amah as Unattached and carries the same 2026 400m season; the target is empty."
+    },
+    {
+      "source_athlete_key": "49173582",
+      "source_athlete_name": "Matt Beuermann",
+      "source_gender": "M",
+      "target_athlete_id": 142953,
+      "directathletics_profile_id": "9315353",
+      "expected_school": "Unattached",
+      "public_name": "Matt Beuermann",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9315353.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official DirectAthletics profile lists the same 2026 Mount Union 5000m result; MCRC is preserved as source-entry context and the public placeholder remains Unattached."
+    },
+    {
+      "source_athlete_key": "49173281",
+      "source_athlete_name": "Tremayne Brown",
+      "source_gender": "M",
+      "target_athlete_id": 156011,
+      "directathletics_profile_id": "9266721",
+      "expected_school": "Unattached",
+      "public_name": "Tremayne Brown",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9266721.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official DirectAthletics profile carries the same 2.09m Mount Union high-jump result and lists no school affiliation; the target is empty."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "VMI Winter Relays 2026 / exact Athletic.net profile owners for empty Unattached placeholders",
+  "decisions": [
+    {
+      "source_athlete_key": "44018581",
+      "source_athlete_name": "Dominic Bruzzo-Morello",
+      "source_gender": "M",
+      "target_athlete_id": 195578,
+      "athletic_net_profile_id": "29638081",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/29638081/track-and-field",
+        "Exact Athletic.net API name/profile match; the target is an empty Unattached placeholder"
+      ],
+      "notes": "Use the unique exact Athletic.net profile owner for the relay-leg identity. Preserve the existing Unattached school value and write no public athlete fields."
+    },
+    {
+      "source_athlete_key": "44018815",
+      "source_athlete_name": "Ivan Garcia Rubio",
+      "source_gender": "M",
+      "target_athlete_id": 195033,
+      "athletic_net_profile_id": "29493572",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/29493572/track-and-field",
+        "Exact Athletic.net API name/profile match; the target is an empty Unattached placeholder"
+      ],
+      "notes": "Use the unique exact Athletic.net profile owner for the individual-result identity. Preserve the existing Unattached school value and write no public athlete fields."
+    },
+    {
+      "source_athlete_key": "44018595",
+      "source_athlete_name": "Josh Gillis",
+      "source_gender": "M",
+      "target_athlete_id": 198907,
+      "athletic_net_profile_id": "29426601",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/29426601/track-and-field",
+        "Exact Athletic.net API name/profile match; the target is an empty Unattached placeholder"
+      ],
+      "notes": "Use the unique exact Athletic.net profile owner for the relay-leg identity. Preserve the existing Unattached school value and write no public athlete fields."
+    },
+    {
+      "source_athlete_key": "44018571",
+      "source_athlete_name": "Noah Ricketts",
+      "source_gender": "M",
+      "target_athlete_id": 195037,
+      "athletic_net_profile_id": "27120715",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.athletic.net/athlete/27120715/track-and-field",
+        "Exact Athletic.net API name/profile match; the target is an empty Unattached placeholder"
+      ],
+      "notes": "Use the unique exact Athletic.net profile owner for the relay-leg identity. Preserve the existing Unattached school value and write no public athlete fields."
+    }
+  ]
+}

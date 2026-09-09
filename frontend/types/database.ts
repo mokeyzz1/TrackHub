@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -258,6 +258,7 @@ export type Database = {
           conference_id: number
           created_at: string | null
           division: string | null
+          division_id: number | null
           name: string
           region: string | null
           updated_at: string | null
@@ -268,6 +269,7 @@ export type Database = {
           conference_id?: number
           created_at?: string | null
           division?: string | null
+          division_id?: number | null
           name: string
           region?: string | null
           updated_at?: string | null
@@ -278,106 +280,92 @@ export type Database = {
           conference_id?: number
           created_at?: string | null
           division?: string | null
+          division_id?: number | null
           name?: string
           region?: string | null
           updated_at?: string | null
           website?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "conferences_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["division_id"]
+          },
+        ]
+      }
+      divisions: {
+        Row: {
+          code: string
+          display_name: string
+          division_id: number
+          governing_body: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          display_name: string
+          division_id?: number
+          governing_body: string
+          sort_order: number
+        }
+        Update: {
+          code?: string
+          display_name?: string
+          division_id?: number
+          governing_body?: string
+          sort_order?: number
+        }
         Relationships: []
       }
-      event_entries: {
+      event_aliases: {
         Row: {
-          athlete_name: string
-          created_at: string | null
-          entry_id: number
-          event_id: number | null
-          heat_number: number | null
-          lane_number: number | null
-          seed_mark: string | null
-          seed_time: string | null
-          team_name: string | null
-          updated_at: string | null
+          event_type_id: number
+          raw_name: string
         }
         Insert: {
-          athlete_name: string
-          created_at?: string | null
-          entry_id?: number
-          event_id?: number | null
-          heat_number?: number | null
-          lane_number?: number | null
-          seed_mark?: string | null
-          seed_time?: string | null
-          team_name?: string | null
-          updated_at?: string | null
+          event_type_id: number
+          raw_name: string
         }
         Update: {
-          athlete_name?: string
-          created_at?: string | null
-          entry_id?: number
-          event_id?: number | null
-          heat_number?: number | null
-          lane_number?: number | null
-          seed_mark?: string | null
-          seed_time?: string | null
-          team_name?: string | null
-          updated_at?: string | null
+          event_type_id?: number
+          raw_name?: string
         }
         Relationships: [
           {
-            foreignKeyName: "event_entries_event_id_fkey"
-            columns: ["event_id"]
+            foreignKeyName: "event_aliases_event_type_id_fkey"
+            columns: ["event_type_id"]
             isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["event_id"]
+            referencedRelation: "event_types"
+            referencedColumns: ["event_type_id"]
           },
         ]
       }
-      events: {
+      event_types: {
         Row: {
-          actual_start_time: string | null
-          created_at: string
-          event_id: number
-          event_name: string
-          event_type: string | null
-          gender: string | null
-          meet_id: number
-          scheduled_time: string | null
-          status: string | null
-          updated_at: string
+          category: string | null
+          code: string
+          environment_scope: string | null
+          event_type_id: number
+          measure: string | null
         }
         Insert: {
-          actual_start_time?: string | null
-          created_at?: string
-          event_id?: number
-          event_name: string
-          event_type?: string | null
-          gender?: string | null
-          meet_id: number
-          scheduled_time?: string | null
-          status?: string | null
-          updated_at?: string
+          category?: string | null
+          code: string
+          environment_scope?: string | null
+          event_type_id?: number
+          measure?: string | null
         }
         Update: {
-          actual_start_time?: string | null
-          created_at?: string
-          event_id?: number
-          event_name?: string
-          event_type?: string | null
-          gender?: string | null
-          meet_id?: number
-          scheduled_time?: string | null
-          status?: string | null
-          updated_at?: string
+          category?: string | null
+          code?: string
+          environment_scope?: string | null
+          event_type_id?: number
+          measure?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "events_meet_id_fkey"
-            columns: ["meet_id"]
-            isOneToOne: false
-            referencedRelation: "meets"
-            referencedColumns: ["meet_id"]
-          },
-        ]
+        Relationships: []
       }
       external_ids: {
         Row: {
@@ -472,7 +460,6 @@ export type Database = {
           athlete_id: number | null
           created_at: string | null
           date: string | null
-          entry_id: number | null
           event_name: string
           is_final: boolean | null
           is_processed: boolean | null
@@ -496,7 +483,6 @@ export type Database = {
           athlete_id?: number | null
           created_at?: string | null
           date?: string | null
-          entry_id?: number | null
           event_name: string
           is_final?: boolean | null
           is_processed?: boolean | null
@@ -520,7 +506,6 @@ export type Database = {
           athlete_id?: number | null
           created_at?: string | null
           date?: string | null
-          entry_id?: number | null
           event_name?: string
           is_final?: boolean | null
           is_processed?: boolean | null
@@ -549,13 +534,6 @@ export type Database = {
             referencedColumns: ["athlete_id"]
           },
           {
-            foreignKeyName: "live_results_entry_id_fkey"
-            columns: ["entry_id"]
-            isOneToOne: false
-            referencedRelation: "meet_entries"
-            referencedColumns: ["entry_id"]
-          },
-          {
             foreignKeyName: "live_results_meet_id_fkey"
             columns: ["meet_id"]
             isOneToOne: false
@@ -578,154 +556,139 @@ export type Database = {
           },
         ]
       }
-      meet_entries: {
-        Row: {
-          athlete_id: number | null
-          athlete_name: string
-          created_at: string | null
-          entry_id: number
-          event_name: string
-          heat: number | null
-          lane: number | null
-          match_confidence: number | null
-          meet_id: number | null
-          scraped_at: string
-          seed_mark: string | null
-          seed_time: string | null
-          team_id: number | null
-          team_name: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          athlete_id?: number | null
-          athlete_name: string
-          created_at?: string | null
-          entry_id?: number
-          event_name: string
-          heat?: number | null
-          lane?: number | null
-          match_confidence?: number | null
-          meet_id?: number | null
-          scraped_at?: string
-          seed_mark?: string | null
-          seed_time?: string | null
-          team_id?: number | null
-          team_name?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          athlete_id?: number | null
-          athlete_name?: string
-          created_at?: string | null
-          entry_id?: number
-          event_name?: string
-          heat?: number | null
-          lane?: number | null
-          match_confidence?: number | null
-          meet_id?: number | null
-          scraped_at?: string
-          seed_mark?: string | null
-          seed_time?: string | null
-          team_id?: number | null
-          team_name?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "meet_entries_athlete_id_fkey"
-            columns: ["athlete_id"]
-            isOneToOne: false
-            referencedRelation: "athletes"
-            referencedColumns: ["athlete_id"]
-          },
-          {
-            foreignKeyName: "meet_entries_meet_id_fkey"
-            columns: ["meet_id"]
-            isOneToOne: false
-            referencedRelation: "meets"
-            referencedColumns: ["meet_id"]
-          },
-          {
-            foreignKeyName: "meet_entries_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "teams"
-            referencedColumns: ["team_id"]
-          },
-          {
-            foreignKeyName: "meet_entries_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "teams_summary"
-            referencedColumns: ["team_id"]
-          },
-        ]
-      }
       meets: {
         Row: {
+          athletic_net_results_url: string | null
           created_at: string
           date: string
+          end_date: string
           level: string | null
           location: string | null
           meet_id: number
+          meet_timezone: string | null
           meet_url: string | null
           name: string
+          results_error: string | null
+          results_imported_at: string | null
+          results_last_checked_at: string | null
+          results_source: string | null
+          results_status: string | null
           season: string | null
           source_url: string | null
-          status: string | null
+          status: "cancelled" | "completed" | "live" | "postponed" | "upcoming"
+          status_override: "cancelled" | "postponed" | null
           tfrrs_meet_id: string | null
+          tfrrs_url: string | null
           timing_platform: string | null
           updated_at: string
+          wa_results_url: string | null
         }
         Insert: {
+          athletic_net_results_url?: string | null
           created_at?: string
           date: string
+          end_date: string
           level?: string | null
           location?: string | null
           meet_id?: number
+          meet_timezone?: string | null
           meet_url?: string | null
           name: string
+          results_error?: string | null
+          results_imported_at?: string | null
+          results_last_checked_at?: string | null
+          results_source?: string | null
+          results_status?: string | null
           season?: string | null
           source_url?: string | null
-          status?: string | null
+          status?: "cancelled" | "completed" | "live" | "postponed" | "upcoming"
+          status_override?: "cancelled" | "postponed" | null
           tfrrs_meet_id?: string | null
+          tfrrs_url?: string | null
           timing_platform?: string | null
           updated_at?: string
+          wa_results_url?: string | null
         }
         Update: {
+          athletic_net_results_url?: string | null
           created_at?: string
           date?: string
+          end_date?: string
           level?: string | null
           location?: string | null
           meet_id?: number
+          meet_timezone?: string | null
           meet_url?: string | null
           name?: string
+          results_error?: string | null
+          results_imported_at?: string | null
+          results_last_checked_at?: string | null
+          results_source?: string | null
+          results_status?: string | null
           season?: string | null
           source_url?: string | null
-          status?: string | null
+          status?: "cancelled" | "completed" | "live" | "postponed" | "upcoming"
+          status_override?: "cancelled" | "postponed" | null
           tfrrs_meet_id?: string | null
+          tfrrs_url?: string | null
           timing_platform?: string | null
           updated_at?: string
+          wa_results_url?: string | null
+        }
+        Relationships: []
+      }
+      push_tokens: {
+        Row: {
+          created_at: string | null
+          expo_push_token: string
+          id: string
+          is_active: boolean | null
+          platform: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expo_push_token: string
+          id?: string
+          is_active?: boolean | null
+          platform?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expo_push_token?: string
+          id?: string
+          is_active?: boolean | null
+          platform?: string | null
         }
         Relationships: []
       }
       regions: {
         Row: {
           created_at: string | null
+          division_id: number | null
           region_id: number
           region_name: string
         }
         Insert: {
           created_at?: string | null
+          division_id?: number | null
           region_id?: number
           region_name: string
         }
         Update: {
           created_at?: string | null
+          division_id?: number | null
           region_id?: number
           region_name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "regions_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["division_id"]
+          },
+        ]
       }
       relay_athletes: {
         Row: {
@@ -827,6 +790,13 @@ export type Database = {
             referencedColumns: ["event_type_id"]
           },
           {
+            foreignKeyName: "relay_results_meet_id_fkey"
+            columns: ["meet_id"]
+            isOneToOne: false
+            referencedRelation: "meets"
+            referencedColumns: ["meet_id"]
+          },
+          {
             foreignKeyName: "relay_results_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
@@ -842,35 +812,12 @@ export type Database = {
           },
         ]
       }
-      event_types: {
-        Row: {
-          category: string | null
-          code: string
-          environment_scope: string | null
-          event_type_id: number
-          measure: string | null
-        }
-        Insert: {
-          category?: string | null
-          code: string
-          environment_scope?: string | null
-          event_type_id?: number
-          measure?: string | null
-        }
-        Update: {
-          category?: string | null
-          code?: string
-          environment_scope?: string | null
-          event_type_id?: number
-          measure?: string | null
-        }
-        Relationships: []
-      }
       results: {
         Row: {
           athlete_id: number
           created_at: string | null
           date: string | null
+          environment: string | null
           event_id: number | null
           event_name: string
           event_type_id: number | null
@@ -895,6 +842,7 @@ export type Database = {
           athlete_id: number
           created_at?: string | null
           date?: string | null
+          environment?: string | null
           event_id?: number | null
           event_name: string
           event_type_id?: number | null
@@ -919,6 +867,7 @@ export type Database = {
           athlete_id?: number
           created_at?: string | null
           date?: string | null
+          environment?: string | null
           event_id?: number | null
           event_name?: string
           event_type_id?: number | null
@@ -941,6 +890,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "results_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["athlete_id"]
+          },
+          {
             foreignKeyName: "results_event_type_id_fkey"
             columns: ["event_type_id"]
             isOneToOne: false
@@ -948,11 +904,11 @@ export type Database = {
             referencedColumns: ["event_type_id"]
           },
           {
-            foreignKeyName: "results_athlete_id_fkey"
-            columns: ["athlete_id"]
+            foreignKeyName: "results_meet_id_fkey"
+            columns: ["meet_id"]
             isOneToOne: false
-            referencedRelation: "athletes"
-            referencedColumns: ["athlete_id"]
+            referencedRelation: "meets"
+            referencedColumns: ["meet_id"]
           },
           {
             foreignKeyName: "results_team_id_fkey"
@@ -976,6 +932,8 @@ export type Database = {
           created_at: string | null
           current_conference_id: number | null
           division: string | null
+          division_id: number | null
+          institution_type: "club" | "collegiate" | "high_school" | "other" | "unattached" | "unknown"
           is_active: boolean | null
           logo_file_path: string | null
           logo_source: string | null
@@ -993,6 +951,8 @@ export type Database = {
           created_at?: string | null
           current_conference_id?: number | null
           division?: string | null
+          division_id?: number | null
+          institution_type?: "club" | "collegiate" | "high_school" | "other" | "unattached" | "unknown"
           is_active?: boolean | null
           logo_file_path?: string | null
           logo_source?: string | null
@@ -1010,6 +970,8 @@ export type Database = {
           created_at?: string | null
           current_conference_id?: number | null
           division?: string | null
+          division_id?: number | null
+          institution_type?: "club" | "collegiate" | "high_school" | "other" | "unattached" | "unknown"
           is_active?: boolean | null
           logo_file_path?: string | null
           logo_source?: string | null
@@ -1031,6 +993,13 @@ export type Database = {
             referencedColumns: ["conference_id"]
           },
           {
+            foreignKeyName: "schools_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["division_id"]
+          },
+          {
             foreignKeyName: "schools_region_id_fkey"
             columns: ["region_id"]
             isOneToOne: false
@@ -1048,6 +1017,8 @@ export type Database = {
           is_active: boolean | null
           school_id: number
           team_id: number
+          team_name: string | null
+          team_type: string | null
           tfrrs_team_url: string | null
           updated_at: string | null
         }
@@ -1059,6 +1030,8 @@ export type Database = {
           is_active?: boolean | null
           school_id: number
           team_id?: number
+          team_name?: string | null
+          team_type?: string | null
           tfrrs_team_url?: string | null
           updated_at?: string | null
         }
@@ -1070,6 +1043,8 @@ export type Database = {
           is_active?: boolean | null
           school_id?: number
           team_id?: number
+          team_name?: string | null
+          team_type?: string | null
           tfrrs_team_url?: string | null
           updated_at?: string | null
         }
@@ -1089,6 +1064,24 @@ export type Database = {
             referencedColumns: ["school_id"]
           },
         ]
+      }
+      unmapped_events: {
+        Row: {
+          first_seen: string | null
+          raw_name: string
+          seen_count: number | null
+        }
+        Insert: {
+          first_seen?: string | null
+          raw_name: string
+          seen_count?: number | null
+        }
+        Update: {
+          first_seen?: string | null
+          raw_name?: string
+          seen_count?: number | null
+        }
+        Relationships: []
       }
       waitlist: {
         Row: {
@@ -1138,6 +1131,38 @@ export type Database = {
           region_name: string | null
           school_name: string | null
           team_id: number | null
+        }
+        Relationships: []
+      }
+      v_meets_lifecycle: {
+        Row: {
+          athletic_net_results_url: string | null
+          created_at: string
+          date: string
+          effective_status: "cancelled" | "completed" | "live" | "postponed" | "upcoming"
+          end_date: string
+          level: string | null
+          lifecycle_timezone: string
+          location: string | null
+          meet_id: number
+          meet_timezone: string | null
+          meet_url: string | null
+          name: string
+          results_error: string | null
+          results_imported_at: string | null
+          results_last_checked_at: string | null
+          results_source: string | null
+          results_status: string | null
+          season: string | null
+          source_url: string | null
+          status: "cancelled" | "completed" | "live" | "postponed" | "upcoming"
+          status_override: "cancelled" | "postponed" | null
+          tfrrs_meet_id: string | null
+          tfrrs_url: string | null
+          timezone_is_assumed: boolean
+          timing_platform: string | null
+          updated_at: string
+          wa_results_url: string | null
         }
         Relationships: []
       }
@@ -1223,9 +1248,86 @@ export type Database = {
           },
         ]
       }
+      v_athlete_prs: {
+        Row: {
+          achieved_at_meet_id: number | null
+          achieved_on: string | null
+          athlete_id: number | null
+          environment: string | null
+          event_type_id: number | null
+          mark_meters: number | null
+          mark_points: number | null
+          mark_raw: string | null
+          mark_seconds: number | null
+          source_result_id: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "results_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["athlete_id"]
+          },
+          {
+            foreignKeyName: "results_event_type_id_fkey"
+            columns: ["event_type_id"]
+            isOneToOne: false
+            referencedRelation: "event_types"
+            referencedColumns: ["event_type_id"]
+          },
+          {
+            foreignKeyName: "results_meet_id_fkey"
+            columns: ["achieved_at_meet_id"]
+            isOneToOne: false
+            referencedRelation: "meets"
+            referencedColumns: ["meet_id"]
+          },
+        ]
+      }
     }
     Functions: {
       detect_timing_platform: { Args: { url: string }; Returns: string }
+      is_valid_time_zone_name: {
+        Args: { value: string }
+        Returns: boolean
+      }
+      meet_effective_status: {
+        Args: {
+          as_of?: string
+          explicit_override: string
+          meet_date: string
+          meet_end_date: string
+          time_zone_name: string
+          timing_url: string
+        }
+        Returns: string
+      }
+      get_top_performances: {
+        Args: {
+          p_division?: string
+          p_end_date: string
+          p_gender?: string
+          p_limit?: number
+          p_start_date: string
+        }
+        Returns: {
+          athlete_id: number
+          date: string
+          division: string
+          event_name: string
+          full_name: string
+          gender: string
+          mark_meters: number
+          mark_raw: string
+          mark_seconds: number
+          meet_id: number
+          meet_name: string
+          place: number
+          school_name: string
+          wa_points: number
+        }[]
+      }
       get_weekly_performances: {
         Args: {
           p_division?: string
@@ -1249,6 +1351,10 @@ export type Database = {
           school_name: string
         }[]
       }
+      register_push_token: {
+        Args: { p_expo_push_token: string; p_platform?: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
@@ -1267,12 +1373,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1296,11 +1402,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1321,11 +1427,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1346,11 +1452,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1363,11 +1469,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

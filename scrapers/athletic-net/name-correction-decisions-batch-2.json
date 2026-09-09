@@ -1,0 +1,21 @@
+{
+  "manifest_version": 1,
+  "review_scope": "Mount Union Last Chance Meet 2026 / exact TFRRS identity name correction batch 2",
+  "decisions": [
+    {
+      "source_athlete_key": "49173726",
+      "source_athlete_name": "Nick Arnold",
+      "source_gender": "M",
+      "target_athlete_id": 12573,
+      "target_tfrrs_athlete_id": "8710496",
+      "expected_current_name": "Nicholas Arnold",
+      "expected_school_id": 1250,
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.tfrrs.org/athletes/8710496/Eastern_Mennonite/Nick_Arnold.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The exact TFRRS athlete identity, school, gender, and existing history are preserved; only the public spelling is corrected from Nicholas Arnold to Nick Arnold before linking this Athletic.net source key."
+    }
+  ]
+}

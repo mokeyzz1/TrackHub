@@ -1,0 +1,43 @@
+{
+  "operation": "20260909_sacramento_city_college_result_affiliation_v1",
+  "source": "tfrrs",
+  "source_team_url": "https://www.tfrrs.org/teams/tf/CA_jcollege_m_Sacramento.html",
+  "source_team_name": "SACRAMENTO",
+  "source_meet_id": "93081",
+  "canonical_meet_id": 11778,
+  "old_team_id": 494,
+  "old_team_url": "https://www.tfrrs.org/teams/tf/CA_college_m_Sacramento_St.html",
+  "new_team_id": 4066,
+  "new_school_id": 2107,
+  "new_team_url": "https://www.tfrrs.org/teams/tf/CA_jcollege_m_Sacramento.html",
+  "new_school": "Sacramento City College",
+  "athletes": [
+    { "athlete_id": 150410, "tfrrs_athlete_id": 9293206, "name": "Titius Robinson" },
+    { "athlete_id": 150416, "tfrrs_athlete_id": 9293202, "name": "Ahmad Ihdiab" },
+    { "athlete_id": 150425, "tfrrs_athlete_id": 9293204, "name": "Damian Moreno" },
+    { "athlete_id": 150435, "tfrrs_athlete_id": 9293203, "name": "Jet Madriaga" },
+    { "athlete_id": 150438, "tfrrs_athlete_id": 9293208, "name": "Braden Stoufflet" },
+    { "athlete_id": 150452, "tfrrs_athlete_id": 9293207, "name": "Odin Skeie" },
+    { "athlete_id": 150454, "tfrrs_athlete_id": 9293197, "name": "Matt Garton" },
+    { "athlete_id": 150456, "tfrrs_athlete_id": 9293199, "name": "Cassius Hawkins" },
+    { "athlete_id": 150476, "tfrrs_athlete_id": 9041751, "name": "Lucas Alba" },
+    { "athlete_id": 150479, "tfrrs_athlete_id": 9041760, "name": "Noah Ortiz" },
+    { "athlete_id": 150495, "tfrrs_athlete_id": 9041758, "name": "Francisco Mendoza" },
+    { "athlete_id": 150501, "tfrrs_athlete_id": 9293205, "name": "Shaheed Muhammad" }
+  ],
+  "result_ids": [8012700, 8012713, 8012740, 8012756, 8012760, 8012798, 8012827, 8012836, 8012912, 8012918, 8012980, 8012994, 8013001, 8013016, 8013018, 8013019, 8013042, 8013049],
+  "source_record_ids": [80011, 80025, 80060, 80078, 80083, 80128, 80157, 80171, 80254, 80261, 80332, 80348, 80355, 80370, 80372, 80373, 80396, 80403],
+  "meet_ids": [11778],
+  "event_type_ids": [1, 4, 10, 16, 23, 29, 38, 39, 53, 54],
+  "scope": {
+    "individual_results": 18,
+    "athletes": 12,
+    "relay_parents": 0,
+    "relay_legs": 0,
+    "current_team_id_before": null,
+    "target_team_id_after": 4066,
+    "targeted_only_teamless_rows": true,
+    "immutable_source_version_hashes": 0,
+    "evidence_note": "Legacy source observations are unversioned. This is retained as a source-backed result-affiliation repair, not a payload correction; no source observation is rewritten."
+  }
+}

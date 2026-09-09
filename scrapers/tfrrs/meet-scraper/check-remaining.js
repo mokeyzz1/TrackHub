@@ -21,7 +21,7 @@ async function check() {
   while (true) {
     const { data } = await supabase
       .from('teams')
-      .select('team_id, gender, school_id, schools(short_name, official_name)')
+      .select('team_id, gender, school_id, team_name, team_type, schools(short_name, official_name)')
       .range(offset, offset + 999);
     if (!data || data.length === 0) break;
     allTeams = allTeams.concat(data);
@@ -34,13 +34,22 @@ async function check() {
     const shortName = team.schools?.short_name;
     const officialName = team.schools?.official_name;
 
+    if (team.team_name) {
+      teamByName.set(team.team_name.toLowerCase() + '|' + team.gender, team.team_id);
+      teamByName.set(normalizeSchoolName(team.team_name) + '|' + team.gender, team.team_id);
+    }
+
     if (shortName) {
-      teamByName.set(shortName.toLowerCase() + '|' + team.gender, team.team_id);
-      teamByName.set(normalizeSchoolName(shortName) + '|' + team.gender, team.team_id);
+      const exactKey = shortName.toLowerCase() + '|' + team.gender;
+      const normKey = normalizeSchoolName(shortName) + '|' + team.gender;
+      if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+      if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
     }
     if (officialName) {
-      teamByName.set(officialName.toLowerCase() + '|' + team.gender, team.team_id);
-      teamByName.set(normalizeSchoolName(officialName) + '|' + team.gender, team.team_id);
+      const exactKey = officialName.toLowerCase() + '|' + team.gender;
+      const normKey = normalizeSchoolName(officialName) + '|' + team.gender;
+      if (!teamByName.has(exactKey)) teamByName.set(exactKey, team.team_id);
+      if (!teamByName.has(normKey)) teamByName.set(normKey, team.team_id);
     }
   }
 

@@ -1,0 +1,52 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "Mount Union Last Chance Meet 2026 / empty Unattached placeholders / DirectAthletics batch 3",
+  "decisions": [
+    {
+      "source_athlete_key": "49173312",
+      "source_athlete_name": "dean Sunderland",
+      "source_gender": "M",
+      "target_athlete_id": 175632,
+      "directathletics_profile_id": "9388567",
+      "expected_school": "Unattached",
+      "public_name": "Dean Sunderland",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9388567.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The exact DirectAthletics profile carries Dean Sunderland's Mount Union 2026 800m and 1500m marks; the selected Unattached target has no existing facts."
+    },
+    {
+      "source_athlete_key": "49174008",
+      "source_athlete_name": "Joshua Medlin",
+      "source_gender": "M",
+      "target_athlete_id": 157092,
+      "directathletics_profile_id": "8178948",
+      "expected_school": "Unattached",
+      "public_name": "Joshua Medlin",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/8178948.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The exact DirectAthletics profile carries Joshua Medlin's Mount Union 2026 1500m mark; the selected Unattached target has no existing facts."
+    },
+    {
+      "source_athlete_key": "49174088",
+      "source_athlete_name": "James Dennis",
+      "source_gender": "M",
+      "target_athlete_id": 182612,
+      "directathletics_profile_id": "475903",
+      "expected_school": "Unattached",
+      "public_name": "James Dennis",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/475903.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The exact DirectAthletics profile carries James Dennis's Mount Union 2026 discus mark; the selected Unattached target has no existing facts."
+    }
+  ]
+}

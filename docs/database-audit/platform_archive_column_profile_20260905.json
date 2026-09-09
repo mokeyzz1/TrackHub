@@ -1,0 +1,4623 @@
+{
+  "snapshotDate": "2026-09-05",
+  "scope": "archive/platform ordinary and partitioned tables; per-table aggregate counts only; no raw values or semantic signoff",
+  "profile": [
+    {
+      "nulls": 0,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "athlete_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12518,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "athletic_net_url",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12518,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "bio",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12518,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "class_year",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "created_at",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "first_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "full_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12086,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "gender",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12518,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "grad_year",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12518,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "high_school",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12518,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "hometown",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "is_active",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "last_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12518,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "primary_events",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12518,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "profile_image_url",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "school_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12512,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "tfrrs_athlete_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 12518,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "tfrrs_profile_url",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 12518,
+      "table_name": "athletes_empty_backup",
+      "column_name": "updated_at",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 30,
+      "total": 89085,
+      "table_name": "relay_athletes_d3_backup",
+      "column_name": "athlete_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 32201,
+      "total": 89085,
+      "table_name": "relay_athletes_d3_backup",
+      "column_name": "athlete_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 89085,
+      "table_name": "relay_athletes_d3_backup",
+      "column_name": "created_at",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 89085,
+      "table_name": "relay_athletes_d3_backup",
+      "column_name": "leg_order",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 89085,
+      "table_name": "relay_athletes_d3_backup",
+      "column_name": "relay_athlete_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 89085,
+      "table_name": "relay_athletes_d3_backup",
+      "column_name": "relay_result_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 32373,
+      "total": 89085,
+      "table_name": "relay_athletes_d3_backup",
+      "column_name": "tfrrs_athlete_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "created_at",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "date",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "event_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "event_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "event_type_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "mark_raw",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "mark_seconds",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "meet_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "meet_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "place",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "relay_result_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "round",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "relay_results_20260819_backup",
+      "column_name": "team_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "created_at",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "date",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 26681,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "event_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "event_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "event_type_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "mark_raw",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 28051,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "mark_seconds",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "meet_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "meet_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2264,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "place",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "relay_result_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 26681,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "round",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1,
+      "total": 40935,
+      "table_name": "relay_results_d3_backup",
+      "column_name": "team_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "athlete_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "created_at",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "date",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "environment",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "event_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "event_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "event_type_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "is_pr",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "is_season_best",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "mark_feet",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 13,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "mark_meters",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "mark_raw",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 18,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "mark_seconds",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "meet_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "meet_location",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "meet_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "place",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "result_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "round",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "season_code",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "team_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "total_competitors",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31,
+      "total": 31,
+      "table_name": "results_accidental_import_20260819_backup",
+      "column_name": "wind",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "athlete_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "created_at",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "date",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "environment",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "event_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "event_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "event_type_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "is_pr",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "is_season_best",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "mark_feet",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "mark_meters",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "mark_raw",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "mark_seconds",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "meet_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "meet_location",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "meet_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "place",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "result_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 7,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "round",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "season_code",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 7,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "team_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "total_competitors",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 11,
+      "total": 11,
+      "table_name": "results_athlete_merge_backup",
+      "column_name": "wind",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "athlete_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "created_at",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "date",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "environment",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "event_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "event_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "event_type_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "is_pr",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "is_season_best",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 23766,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "mark_feet",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 16679,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "mark_meters",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "mark_raw",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 9066,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "mark_seconds",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "meet_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 23766,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "meet_location",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "meet_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 2015,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "place",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "result_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "round",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 23766,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "season_code",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 172,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "team_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 23766,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "total_competitors",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 23766,
+      "total": 23766,
+      "table_name": "results_d1_backup",
+      "column_name": "wind",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "athlete_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "created_at",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 931,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "date",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 31754,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "environment",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1326,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "event_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "event_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 303,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "event_type_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "is_pr",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "is_season_best",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 453714,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "mark_feet",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 334637,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "mark_meters",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "mark_raw",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 153444,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "mark_seconds",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 976,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "meet_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 453737,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "meet_location",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 715,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "meet_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 37625,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "place",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "result_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1325,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "round",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 453737,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "season_code",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 15265,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "team_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 453737,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "total_competitors",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 453695,
+      "total": 453737,
+      "table_name": "results_d2_backup",
+      "column_name": "wind",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "athlete_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "created_at",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "date",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "environment",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1252,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "event_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "event_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "event_type_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "is_pr",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "is_season_best",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1252,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "mark_feet",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1252,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "mark_meters",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "mark_raw",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "mark_seconds",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "meet_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1252,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "meet_location",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "meet_name",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "place",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "result_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1252,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "round",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1252,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "season_code",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 117,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "team_id",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1252,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "total_competitors",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 907,
+      "total": 1252,
+      "table_name": "results_xsource_20260819_backup",
+      "column_name": "wind",
+      "schema_name": "archive",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "audit_log_entries",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "audit_log_entries",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "audit_log_entries",
+      "column_name": "instance_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "audit_log_entries",
+      "column_name": "ip_address",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "audit_log_entries",
+      "column_name": "payload",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "acceptable_client_ids",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "attribute_mapping",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "authorization_params",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "authorization_url",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "cached_discovery",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "client_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "client_secret",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "custom_claims_allowlist",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "discovery_cached_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "discovery_url",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "email_optional",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "enabled",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "identifier",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "issuer",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "jwks_uri",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "name",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "pkce_enabled",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "provider_type",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "scopes",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "skip_nonce_check",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "token_url",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "custom_oauth_providers",
+      "column_name": "userinfo_url",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "auth_code",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "auth_code_issued_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "authentication_method",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "code_challenge",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "code_challenge_method",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "email_optional",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "invite_token",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "linking_target_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "oauth_client_state_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "provider_access_token",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "provider_refresh_token",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "provider_type",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "referrer",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "flow_state",
+      "column_name": "user_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "identities",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "identities",
+      "column_name": "email",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "identities",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "identities",
+      "column_name": "identity_data",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "identities",
+      "column_name": "last_sign_in_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "identities",
+      "column_name": "provider",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "identities",
+      "column_name": "provider_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "identities",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "identities",
+      "column_name": "user_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "instances",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "instances",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "instances",
+      "column_name": "raw_base_config",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "instances",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "instances",
+      "column_name": "uuid",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_amr_claims",
+      "column_name": "authentication_method",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_amr_claims",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_amr_claims",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_amr_claims",
+      "column_name": "session_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_amr_claims",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_challenges",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_challenges",
+      "column_name": "factor_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_challenges",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_challenges",
+      "column_name": "ip_address",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_challenges",
+      "column_name": "otp_code",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_challenges",
+      "column_name": "verified_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_challenges",
+      "column_name": "web_authn_session_data",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "factor_type",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "friendly_name",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "last_challenged_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "last_webauthn_challenge_data",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "phone",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "secret",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "status",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "user_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "web_authn_aaguid",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "mfa_factors",
+      "column_name": "web_authn_credential",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "approved_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "authorization_code",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "authorization_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "client_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "code_challenge",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "code_challenge_method",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "expires_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "nonce",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "redirect_uri",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "resource",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "response_type",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "scope",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "state",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "status",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_authorizations",
+      "column_name": "user_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_client_states",
+      "column_name": "code_verifier",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_client_states",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_client_states",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_client_states",
+      "column_name": "provider_type",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "client_name",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "client_secret_hash",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "client_type",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "client_uri",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "deleted_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "grant_types",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "logo_uri",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "redirect_uris",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "registration_type",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "token_endpoint_auth_method",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_clients",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_consents",
+      "column_name": "client_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_consents",
+      "column_name": "granted_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_consents",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_consents",
+      "column_name": "revoked_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_consents",
+      "column_name": "scopes",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "oauth_consents",
+      "column_name": "user_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "one_time_tokens",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "one_time_tokens",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "one_time_tokens",
+      "column_name": "relates_to",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "one_time_tokens",
+      "column_name": "token_hash",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "one_time_tokens",
+      "column_name": "token_type",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "one_time_tokens",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "one_time_tokens",
+      "column_name": "user_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "refresh_tokens",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "refresh_tokens",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "refresh_tokens",
+      "column_name": "instance_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "refresh_tokens",
+      "column_name": "parent",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "refresh_tokens",
+      "column_name": "revoked",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "refresh_tokens",
+      "column_name": "session_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "refresh_tokens",
+      "column_name": "token",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "refresh_tokens",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "refresh_tokens",
+      "column_name": "user_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_providers",
+      "column_name": "attribute_mapping",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_providers",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_providers",
+      "column_name": "entity_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_providers",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_providers",
+      "column_name": "metadata_url",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_providers",
+      "column_name": "metadata_xml",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_providers",
+      "column_name": "name_id_format",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_providers",
+      "column_name": "sso_provider_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_providers",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_relay_states",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_relay_states",
+      "column_name": "flow_state_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_relay_states",
+      "column_name": "for_email",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_relay_states",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_relay_states",
+      "column_name": "redirect_to",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_relay_states",
+      "column_name": "request_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_relay_states",
+      "column_name": "sso_provider_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "saml_relay_states",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 77,
+      "table_name": "schema_migrations",
+      "column_name": "version",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "aal",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "factor_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "ip",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "not_after",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "oauth_client_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "refresh_token_counter",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "refresh_token_hmac_key",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "refreshed_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "scopes",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "tag",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "user_agent",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sessions",
+      "column_name": "user_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sso_domains",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sso_domains",
+      "column_name": "domain",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sso_domains",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sso_domains",
+      "column_name": "sso_provider_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sso_domains",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sso_providers",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sso_providers",
+      "column_name": "disabled",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sso_providers",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sso_providers",
+      "column_name": "resource_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "sso_providers",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "aud",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "banned_until",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "confirmation_sent_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "confirmation_token",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "confirmed_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "deleted_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "email",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "email_change",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "email_change_confirm_status",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "email_change_sent_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "email_change_token_current",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "email_change_token_new",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "email_confirmed_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "encrypted_password",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "instance_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "invited_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "is_anonymous",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "is_sso_user",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "is_super_admin",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "last_sign_in_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "phone",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "phone_change",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "phone_change_sent_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "phone_change_token",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "phone_confirmed_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "raw_app_meta_data",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "raw_user_meta_data",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "reauthentication_sent_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "reauthentication_token",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "recovery_sent_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "recovery_token",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "role",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "users",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_challenges",
+      "column_name": "challenge_type",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_challenges",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_challenges",
+      "column_name": "expires_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_challenges",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_challenges",
+      "column_name": "session_data",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_challenges",
+      "column_name": "user_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "aaguid",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "attestation_type",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "backed_up",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "backup_eligible",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "created_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "credential_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "friendly_name",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "last_used_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "public_key",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "sign_count",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "transports",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "updated_at",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "webauthn_credentials",
+      "column_name": "user_id",
+      "schema_name": "auth",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "messages",
+      "column_name": "binary_payload",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "messages",
+      "column_name": "event",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "messages",
+      "column_name": "extension",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "messages",
+      "column_name": "id",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "messages",
+      "column_name": "inserted_at",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "messages",
+      "column_name": "payload",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "messages",
+      "column_name": "private",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "messages",
+      "column_name": "skip_broadcast",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "messages",
+      "column_name": "topic",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "messages",
+      "column_name": "updated_at",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 82,
+      "table_name": "schema_migrations",
+      "column_name": "inserted_at",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 82,
+      "table_name": "schema_migrations",
+      "column_name": "version",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "subscription",
+      "column_name": "action_filter",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "subscription",
+      "column_name": "claims",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "subscription",
+      "column_name": "claims_role",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "subscription",
+      "column_name": "created_at",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "subscription",
+      "column_name": "entity",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "subscription",
+      "column_name": "filters",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "subscription",
+      "column_name": "id",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "subscription",
+      "column_name": "selected_columns",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "subscription",
+      "column_name": "subscription_id",
+      "schema_name": "realtime",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "allowed_mime_types",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "avif_autodetection",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "created_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "file_size_limit",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "name",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "owner",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "owner_id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "public",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "type",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "updated_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1,
+      "table_name": "buckets",
+      "column_name": "versioning_status",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_analytics",
+      "column_name": "created_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_analytics",
+      "column_name": "deleted_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_analytics",
+      "column_name": "format",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_analytics",
+      "column_name": "id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_analytics",
+      "column_name": "name",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_analytics",
+      "column_name": "type",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_analytics",
+      "column_name": "updated_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_vectors",
+      "column_name": "created_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_vectors",
+      "column_name": "id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_vectors",
+      "column_name": "type",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "buckets_vectors",
+      "column_name": "updated_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 65,
+      "table_name": "migrations",
+      "column_name": "executed_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 65,
+      "table_name": "migrations",
+      "column_name": "hash",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 65,
+      "table_name": "migrations",
+      "column_name": "id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 65,
+      "table_name": "migrations",
+      "column_name": "name",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1840,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "archived_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "bucket_id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "created_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "is_delete_marker",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "is_versioned",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "last_accessed_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "metadata",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "name",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1840,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "owner",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 1840,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "owner_id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "path_tokens",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "updated_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "user_metadata",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 1840,
+      "table_name": "objects",
+      "column_name": "version",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads",
+      "column_name": "bucket_id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads",
+      "column_name": "created_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads",
+      "column_name": "id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads",
+      "column_name": "in_progress_size",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads",
+      "column_name": "key",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads",
+      "column_name": "metadata",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads",
+      "column_name": "owner_id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads",
+      "column_name": "upload_signature",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads",
+      "column_name": "user_metadata",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads",
+      "column_name": "version",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads_parts",
+      "column_name": "bucket_id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads_parts",
+      "column_name": "created_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads_parts",
+      "column_name": "etag",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads_parts",
+      "column_name": "id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads_parts",
+      "column_name": "key",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads_parts",
+      "column_name": "owner_id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads_parts",
+      "column_name": "part_number",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads_parts",
+      "column_name": "size",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads_parts",
+      "column_name": "upload_id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "s3_multipart_uploads_parts",
+      "column_name": "version",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "vector_indexes",
+      "column_name": "bucket_id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "vector_indexes",
+      "column_name": "created_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "vector_indexes",
+      "column_name": "data_type",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "vector_indexes",
+      "column_name": "dimension",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "vector_indexes",
+      "column_name": "distance_metric",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "vector_indexes",
+      "column_name": "id",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "vector_indexes",
+      "column_name": "metadata_configuration",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "vector_indexes",
+      "column_name": "name",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "vector_indexes",
+      "column_name": "updated_at",
+      "schema_name": "storage",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 37,
+      "total": 90,
+      "table_name": "schema_migrations",
+      "column_name": "created_by",
+      "schema_name": "supabase_migrations",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 90,
+      "total": 90,
+      "table_name": "schema_migrations",
+      "column_name": "idempotency_key",
+      "schema_name": "supabase_migrations",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 90,
+      "table_name": "schema_migrations",
+      "column_name": "name",
+      "schema_name": "supabase_migrations",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 90,
+      "total": 90,
+      "table_name": "schema_migrations",
+      "column_name": "rollback",
+      "schema_name": "supabase_migrations",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 90,
+      "table_name": "schema_migrations",
+      "column_name": "statements",
+      "schema_name": "supabase_migrations",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 90,
+      "table_name": "schema_migrations",
+      "column_name": "version",
+      "schema_name": "supabase_migrations",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "secrets",
+      "column_name": "created_at",
+      "schema_name": "vault",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "secrets",
+      "column_name": "description",
+      "schema_name": "vault",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "secrets",
+      "column_name": "id",
+      "schema_name": "vault",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "secrets",
+      "column_name": "key_id",
+      "schema_name": "vault",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "secrets",
+      "column_name": "name",
+      "schema_name": "vault",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "secrets",
+      "column_name": "nonce",
+      "schema_name": "vault",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "secrets",
+      "column_name": "secret",
+      "schema_name": "vault",
+      "empty_strings": 0,
+      "distinct_values": null
+    },
+    {
+      "nulls": 0,
+      "total": 0,
+      "table_name": "secrets",
+      "column_name": "updated_at",
+      "schema_name": "vault",
+      "empty_strings": 0,
+      "distinct_values": null
+    }
+  ]
+}

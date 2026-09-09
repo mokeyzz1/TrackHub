@@ -28,17 +28,19 @@ export async function getTopPerformances(limit: number = 10) {
       team_name,
       participant_name,
       is_final,
-      athletes (
+      athletes!inner (
         full_name,
         gender,
         school_id,
-        schools (
+        schools!inner (
           official_name,
-          division
+          division,
+          institution_type
         )
       )
     `)
     .eq('is_final', true)
+    .eq('athletes.schools.institution_type', 'collegiate')
     .not('athlete_id', 'is', null)
     .lte('place', 3)
     .order('date', { ascending: false })
@@ -75,11 +77,14 @@ export async function getPerformancesByEvent(eventName: string, limit: number = 
       date,
       meet_name,
       place,
-      athletes (
+      athletes!inner (
         full_name,
-        gender
+        gender,
+        schools!inner ( institution_type )
       ),
       teams (
+        team_name,
+        team_type,
         schools (
           official_name,
           division
@@ -87,6 +92,7 @@ export async function getPerformancesByEvent(eventName: string, limit: number = 
       )
     `)
     .eq('event_name', eventName)
+    .eq('athletes.schools.institution_type', 'collegiate')
     .gte('date', '2024-01-01')
     .order('mark_seconds', { ascending: true })
     .limit(limit);
@@ -105,7 +111,7 @@ export async function getPerformancesByEvent(eventName: string, limit: number = 
     date: r.date,
     meet_name: r.meet_name,
     place: r.place,
-    school_name: r.teams?.schools?.official_name,
+    school_name: r.teams?.team_name || r.teams?.schools?.official_name,
     division: r.teams?.schools?.division,
   })) || [];
 }
@@ -123,12 +129,14 @@ export async function searchAthletes(searchTerm: string, limit: number = 20) {
       gender,
       class_year,
       primary_events,
-      schools (
+      schools!inner (
         official_name,
-        division
+        division,
+        institution_type
       )
     `)
     .eq('is_active', true)
+    .eq('schools.institution_type', 'collegiate')
     .not('full_name', 'is', null)
     .neq('full_name', '')
     .neq('full_name', ',');
@@ -164,6 +172,7 @@ export async function searchSchools(searchTerm: string, limit: number = 20) {
     .from('schools')
     .select('school_id, official_name, short_name, city, state, division')
     .eq('is_active', true)
+    .eq('institution_type', 'collegiate')
     .or(`official_name.ilike.%${searchTerm}%,short_name.ilike.%${searchTerm}%`)
     .order('official_name')
     .limit(limit);
@@ -177,8 +186,15 @@ export async function getSchoolById(schoolId: number) {
   console.log('getSchoolById called with:', schoolId);
   const { data, error } = await supabase
     .from('schools')
-    .select('*')
+    .select(`
+      *,
+      conferences (
+        name,
+        abbreviation
+      )
+    `)
     .eq('school_id', schoolId)
+    .eq('institution_type', 'collegiate')
     .single();
 
   console.log('getSchoolById result:', { data, error });
@@ -186,7 +202,11 @@ export async function getSchoolById(schoolId: number) {
     console.error('getSchoolById error:', error);
     return null;
   }
-  return data;
+  const conference = data?.conferences as { name?: string | null } | null;
+  return data ? {
+    ...data,
+    conference: conference?.name || null,
+  } : null;
 }
 
 // Get athletes for a school (all athletes)
@@ -221,28 +241,54 @@ export async function getSchoolAthletesBySeason(schoolId: number, season: string
 
   const teamIds = teams.map(t => t.team_id);
 
-  // Get unique athlete IDs who have results in this season for these teams
-  const { data: results, error: resultsError } = await supabase
-    .from('results')
-    .select('athlete_id')
-    .in('team_id', teamIds)
-    .gte('date', startDate)
-    .lte('date', endDate)
-    .limit(2000);
+  // A roster can include athletes whose only school result is a relay leg. Read individual
+  // results and relay parents together, then resolve the relay lineup into athlete IDs.
+  const [individualResultResponse, relayResultResponse] = await Promise.all([
+    supabase
+      .from('results')
+      .select('athlete_id')
+      .in('team_id', teamIds)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .limit(2000),
+    supabase
+      .from('relay_results')
+      .select('relay_result_id')
+      .in('team_id', teamIds)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .limit(2000),
+  ]);
 
-  if (resultsError) throw resultsError;
-  if (!results || results.length === 0) return [];
+  if (individualResultResponse.error) throw individualResultResponse.error;
+  if (relayResultResponse.error) throw relayResultResponse.error;
 
-  // Get unique athlete IDs
-  const athleteIds = [...new Set(results.map(r => r.athlete_id).filter(Boolean))];
+  const athleteIds = new Set(
+    (individualResultResponse.data || []).map(r => r.athlete_id).filter(Boolean)
+  );
+  const relayResultIds = (relayResultResponse.data || []).map(r => r.relay_result_id).filter(Boolean);
 
-  if (athleteIds.length === 0) return [];
+  if (relayResultIds.length > 0) {
+    const { data: relayAthletes, error: relayAthletesError } = await supabase
+      .from('relay_athletes')
+      .select('athlete_id')
+      .in('relay_result_id', relayResultIds)
+      .not('athlete_id', 'is', null)
+      .limit(8000);
+
+    if (relayAthletesError) throw relayAthletesError;
+    (relayAthletes || []).forEach(row => {
+      if (row.athlete_id) athleteIds.add(row.athlete_id);
+    });
+  }
+
+  if (athleteIds.size === 0) return [];
 
   // Fetch athlete details
   const { data: athletes, error: athletesError } = await supabase
     .from('athletes')
     .select('athlete_id, full_name, gender, class_year, primary_events')
-    .in('athlete_id', athleteIds)
+    .in('athlete_id', [...athleteIds])
     .limit(limit);
 
   if (athletesError) throw athletesError;
@@ -262,25 +308,246 @@ export async function getSchoolMeets(schoolId: number, limit: number = 50) {
 
   const teamIds = teams.map(t => t.team_id);
 
-  // Get unique meets from results
-  const { data: results, error: resultsError } = await supabase
-    .from('results')
-    .select('meet_id, meet_name, date')
-    .in('team_id', teamIds)
-    .order('date', { ascending: false })
-    .limit(1000);
+  // A meet can contain only relay facts for a school/team, so read both canonical result sources
+  // before deduplicating. This keeps the school timeline aligned with the meet model used by the
+  // athlete page (individual and relay performances belong to the same meet).
+  const [individualResultResponse, relayResultResponse] = await Promise.all([
+    supabase
+      .from('results')
+      .select('meet_id, meet_name, date')
+      .in('team_id', teamIds)
+      .order('date', { ascending: false })
+      .limit(1000),
+    supabase
+      .from('relay_results')
+      .select('meet_id, meet_name, date')
+      .in('team_id', teamIds)
+      .order('date', { ascending: false })
+      .limit(1000),
+  ]);
 
-  if (resultsError) throw resultsError;
+  if (individualResultResponse.error) throw individualResultResponse.error;
+  if (relayResultResponse.error) throw relayResultResponse.error;
 
   // Dedupe by meet_id
   const meetsMap = new Map<number, { meet_id: number; meet_name: string; date: string }>();
-  results?.forEach(r => {
+  [...(individualResultResponse.data || []), ...(relayResultResponse.data || [])].forEach((r: any) => {
     if (r.meet_id && !meetsMap.has(r.meet_id)) {
-      meetsMap.set(r.meet_id, { meet_id: r.meet_id, meet_name: r.meet_name, date: r.date });
+      meetsMap.set(r.meet_id, { meet_id: r.meet_id, meet_name: r.meet_name || '', date: r.date || '' });
     }
   });
 
   return [...meetsMap.values()].slice(0, limit);
+}
+
+export interface SchoolTopPerformance {
+  performance_id: number;
+  performance_type: 'individual' | 'relay';
+  athlete_id: number | null;
+  athlete_name: string | null;
+  team_id: number | null;
+  team_name: string | null;
+  gender: string | null;
+  event_type_id: number | null;
+  event_name: string;
+  mark_raw: string | null;
+  mark_seconds: number | null;
+  mark_meters: number | null;
+  date: string;
+  meet_id: number | null;
+  meet_name: string;
+  place: number | null;
+  round: string | null;
+  measure: string | null;
+  environment: string | null;
+}
+
+// Get one best-known performance per event/gender/type for a school's season. Individual and
+// relay facts remain separate so a relay is counted once for the team rather than once per leg.
+export async function getSchoolTopPerformances(
+  schoolId: number,
+  season: string,
+  limit: number = 60
+): Promise<SchoolTopPerformance[]> {
+  const [startYear] = season.split('-');
+  const startDate = `${startYear}-08-01`;
+  const endDate = `${parseInt(startYear) + 1}-07-31`;
+
+  const { data: teams, error: teamsError } = await supabase
+    .from('teams')
+    .select('team_id')
+    .eq('school_id', schoolId);
+
+  if (teamsError) throw teamsError;
+  if (!teams || teams.length === 0) return [];
+
+  const teamIds = teams.map(t => t.team_id);
+  const [individualResultResponse, relayResultResponse] = await Promise.all([
+    supabase
+      .from('results')
+      .select(`
+        result_id,
+        athlete_id,
+        team_id,
+        meet_id,
+        event_name,
+        event_type_id,
+        event_types (
+          code,
+          category,
+          measure
+        ),
+        mark_raw,
+        mark_seconds,
+        mark_meters,
+        date,
+        meet_name,
+        place,
+        round,
+        environment,
+        athletes (
+          full_name,
+          gender
+        ),
+        teams (
+          team_name,
+          gender
+        )
+      `)
+      .in('team_id', teamIds)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: false })
+      .limit(5000),
+    supabase
+      .from('relay_results')
+      .select(`
+        relay_result_id,
+        team_id,
+        meet_id,
+        event_name,
+        event_type_id,
+        event_types (
+          code,
+          category,
+          measure
+        ),
+        mark_raw,
+        mark_seconds,
+        date,
+        meet_name,
+        place,
+        round,
+        teams (
+          team_name,
+          gender
+        )
+      `)
+      .in('team_id', teamIds)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: false })
+      .limit(5000),
+  ]);
+
+  if (individualResultResponse.error) throw individualResultResponse.error;
+  if (relayResultResponse.error) throw relayResultResponse.error;
+
+  const eventType = (row: any) => Array.isArray(row.event_types) ? row.event_types[0] : row.event_types;
+  const numericValue = (row: any, measure: string | null): number | null => {
+    if (measure === 'distance') {
+      return row.mark_meters == null ? null : Number(row.mark_meters);
+    }
+    if (measure === 'points') {
+      const parsed = Number(String(row.mark_raw || '').replace(/,/g, ''));
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return row.mark_seconds == null ? null : Number(row.mark_seconds);
+  };
+
+  const candidates: (SchoolTopPerformance & { ranking_value: number | null })[] = [];
+  (individualResultResponse.data || []).forEach((row: any) => {
+    const meta = eventType(row);
+    // Relay projections in results are not individual performances. The canonical relay parent
+    // query below supplies the team-level fact once.
+    if (meta?.category === 'relay') return;
+    const value = numericValue(row, meta?.measure || null);
+    if (value == null || !Number.isFinite(value)) return;
+    const athlete = row.athletes;
+    const team = row.teams;
+    candidates.push({
+      performance_id: row.result_id,
+      performance_type: 'individual',
+      athlete_id: row.athlete_id ?? null,
+      athlete_name: athlete?.full_name || null,
+      team_id: row.team_id ?? null,
+      team_name: team?.team_name || null,
+      gender: athlete?.gender || team?.gender || null,
+      event_type_id: row.event_type_id ?? null,
+      event_name: meta?.code || canonicalEventName(row),
+      mark_raw: row.mark_raw || null,
+      mark_seconds: row.mark_seconds ?? null,
+      mark_meters: row.mark_meters ?? null,
+      date: row.date,
+      meet_id: row.meet_id ?? null,
+      meet_name: row.meet_name || '',
+      place: row.place ?? null,
+      round: row.round ?? null,
+      measure: meta?.measure || null,
+      environment: row.environment || null,
+      ranking_value: value,
+    });
+  });
+
+  (relayResultResponse.data || []).forEach((row: any) => {
+    const meta = eventType(row);
+    const value = numericValue(row, meta?.measure || 'time');
+    if (value == null || !Number.isFinite(value)) return;
+    const team = row.teams;
+    candidates.push({
+      performance_id: row.relay_result_id,
+      performance_type: 'relay',
+      athlete_id: null,
+      athlete_name: null,
+      team_id: row.team_id ?? null,
+      team_name: team?.team_name || null,
+      gender: team?.gender || null,
+      event_type_id: row.event_type_id ?? null,
+      event_name: meta?.code || canonicalEventName(row),
+      mark_raw: row.mark_raw || null,
+      mark_seconds: row.mark_seconds ?? null,
+      mark_meters: null,
+      date: row.date,
+      meet_id: row.meet_id ?? null,
+      meet_name: row.meet_name || '',
+      place: row.place ?? null,
+      round: row.round ?? null,
+      measure: meta?.measure || 'time',
+      environment: null,
+      ranking_value: value,
+    });
+  });
+
+  const bestByEvent = new Map<string, SchoolTopPerformance & { ranking_value: number | null }>();
+  candidates.forEach(candidate => {
+    const environmentKey = candidate.environment || 'unknown';
+    const key = `${candidate.event_type_id ?? candidate.event_name}|${candidate.gender || 'unknown'}|${candidate.performance_type}|${environmentKey}`;
+    const existing = bestByEvent.get(key);
+    if (!existing) {
+      bestByEvent.set(key, candidate);
+      return;
+    }
+    const higherIsBetter = candidate.measure === 'distance' || candidate.measure === 'points';
+    const isBetter = higherIsBetter
+      ? candidate.ranking_value! > existing.ranking_value!
+      : candidate.ranking_value! < existing.ranking_value!;
+    if (isBetter) bestByEvent.set(key, candidate);
+  });
+
+  return Array.from(bestByEvent.values())
+    .sort((a, b) => a.event_name.localeCompare(b.event_name) || a.performance_type.localeCompare(b.performance_type) || a.gender?.localeCompare(b.gender || '') || 0)
+    .slice(0, limit)
+    .map(({ ranking_value: _rankingValue, ...performance }) => performance);
 }
 
 // Get athlete details
@@ -289,14 +556,16 @@ export async function getAthleteDetails(athleteId: number) {
     .from('athletes')
     .select(`
       *,
-      schools (
+      schools!inner (
         official_name,
         division,
         city,
-        state
+        state,
+        institution_type
       )
     `)
     .eq('athlete_id', athleteId)
+    .eq('schools.institution_type', 'collegiate')
     .single();
 
   if (error) {
@@ -322,10 +591,12 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
       result_id,
       athlete_id,
       team_id,
+      meet_id,
       event_name,
       event_type_id,
       event_types (
-        code
+        code,
+        category
       ),
       mark_raw,
       mark_seconds,
@@ -335,6 +606,7 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
       round,
       is_pr,
       teams (
+        team_name,
         school_id,
         schools (
           official_name,
@@ -358,6 +630,12 @@ export async function getAthletePerformances(athleteId: number, limit: number = 
     ...r,
     // Canonical event from the DB — group and display by this, never by raw event_name
     event_canonical: canonicalEventName(r),
+    // Relay rows in results are athlete-facing projections of a team performance. Keep the
+    // classification explicit so profile stats/timelines do not count them as individual events.
+    performance_type: r.event_types?.category === 'relay' || isRelayEvent(r.event_name)
+      ? 'relay'
+      : 'individual',
+    competed_for_team: r.teams?.team_name || null,
     competed_for_school: r.teams?.schools?.official_name || r.teams?.schools?.short_name || null,
   })) || [];
 }
@@ -503,13 +781,15 @@ export async function getAthletes(options: {
       gender,
       class_year,
       primary_events,
-      schools (
+      schools!inner (
         official_name,
         division,
-        state
+        state,
+        institution_type
       )
     `, { count: 'exact' })
     .eq('is_active', true)
+    .eq('schools.institution_type', 'collegiate')
     .not('full_name', 'is', null)
     .neq('full_name', '')
     .neq('full_name', ',');
@@ -576,7 +856,8 @@ export async function getSchools(options: {
         abbreviation
       )
     `, { count: 'exact' })
-    .eq('is_active', true);
+    .eq('is_active', true)
+    .eq('institution_type', 'collegiate');
 
   if (division) {
     query = query.eq('division', division);
@@ -711,12 +992,14 @@ export async function getAthleteComparisonStats(athleteId: number, seasonFilter:
       athlete_id,
       full_name,
       gender,
-      schools (
+      schools!inner (
         official_name,
-        division
+        division,
+        institution_type
       )
     `)
     .eq('athlete_id', athleteId)
+    .eq('schools.institution_type', 'collegiate')
     .single();
 
   if (athleteError || !athlete) {
@@ -1011,9 +1294,7 @@ export async function addToWaitlist(email: string, feature: string = 'community'
       email: email.toLowerCase().trim(),
       feature,
       created_at: new Date().toISOString(),
-    })
-    .select()
-    .single();
+    });
 
   if (error) {
     // Check if duplicate email
@@ -1030,10 +1311,30 @@ export async function addToWaitlist(email: string, feature: string = 'community'
 // MEET RESULTS
 // ============================================
 
+function scopeMeetFactQuery(query: any, meetName: string, date: string, meetId?: number) {
+  // meet_id is authoritative for newly ingested facts. Keep the name/date fallback only for the
+  // historical athlete-history rows that have not been claimed by a meet yet.
+  return meetId
+    ? query.eq('meet_id', meetId)
+    : query.eq('meet_name', meetName).eq('date', date);
+}
+
+async function resolveEventTypeId(eventName: string): Promise<number | null> {
+  const { data, error } = await supabase
+    .from('event_types')
+    .select('event_type_id')
+    .eq('code', eventName)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.event_type_id ?? null;
+}
+
 // Get meet by ID
 export async function getMeetById(meetId: number) {
   const { data, error } = await supabase
-    .from('meets')
+    .from('v_meets_lifecycle')
     .select('*')
     .eq('meet_id', meetId)
     .single();
@@ -1048,7 +1349,7 @@ export async function getMeetById(meetId: number) {
 // Get meet by name and date
 export async function getMeetByName(meetName: string, date?: string) {
   let query = supabase
-    .from('meets')
+    .from('v_meets_lifecycle')
     .select('*')
     .eq('name', meetName);
 
@@ -1065,13 +1366,15 @@ export async function getMeetByName(meetName: string, date?: string) {
 }
 
 // Get all events at a specific meet
-export async function getEventsByMeet(meetName: string, date: string) {
-  const { data, error } = await supabase
-    .from('results')
-    .select('event_name')
-    .eq('meet_name', meetName)
-    .eq('date', date)
-    .not('event_name', 'is', null);
+export async function getEventsByMeet(meetName: string, date: string, meetId?: number) {
+  const query = scopeMeetFactQuery(
+    supabase.from('results')
+    .select('event_name, event_type_id, event_types ( code )'),
+    meetName,
+    date,
+    meetId
+  );
+  const { data, error } = await query.not('event_name', 'is', null);
 
   if (error) {
     console.error('Error fetching events by meet:', error);
@@ -1079,7 +1382,7 @@ export async function getEventsByMeet(meetName: string, date: string) {
   }
 
   // Get unique event names and sort them
-  const uniqueEvents = [...new Set(data?.map(r => r.event_name))].sort();
+  const uniqueEvents = [...new Set(data?.map((r: any) => (r.event_types as any)?.code || r.event_name))].sort();
   return uniqueEvents;
 }
 
@@ -1093,16 +1396,23 @@ export async function getEventsByMeetWithGender(meetName: string, date: string, 
   const pageSize = 1000;
 
   while (true) {
-    const { data, error } = await supabase
-      .from('results')
+    let query = scopeMeetFactQuery(
+      supabase.from('results')
       .select(`
         event_name,
-        athletes (
-          gender
+        event_type_id,
+        event_types ( code ),
+        athletes!inner (
+          gender,
+          schools!inner ( institution_type )
         )
-      `)
-      .eq('meet_name', meetName)
-      .eq('date', date)
+      `),
+      meetName,
+      date,
+      meetId
+    );
+    const { data, error } = await query
+      .eq('athletes.schools.institution_type', 'collegiate')
       .not('event_name', 'is', null)
       .range(offset, offset + pageSize - 1);
 
@@ -1114,12 +1424,12 @@ export async function getEventsByMeetWithGender(meetName: string, date: string, 
     if (!data || data.length === 0) break;
 
     // Organize events by gender
-    data.forEach(r => {
+    data.forEach((r: any) => {
       const gender = (r.athletes as any)?.gender;
       if (gender === 'M') {
-        mensEvents.add(r.event_name);
+        mensEvents.add((r.event_types as any)?.code || r.event_name);
       } else if (gender === 'F') {
-        womensEvents.add(r.event_name);
+        womensEvents.add((r.event_types as any)?.code || r.event_name);
       }
     });
 
@@ -1139,37 +1449,50 @@ export async function getEventsByMeetWithGender(meetName: string, date: string, 
 // gender parameter filters to only show M or F results (since event names don't include gender)
 // Paginates through all results to handle events with >1000 results
 export async function getEventResults(meetName: string, eventName: string, date: string, gender?: string, meetId?: number) {
+  const eventTypeId = await resolveEventTypeId(eventName);
   let allData: any[] = [];
   let offset = 0;
   const pageSize = 1000;
 
   while (true) {
-    const { data, error } = await supabase
-      .from('results')
+    let query = scopeMeetFactQuery(
+      supabase.from('results')
       .select(`
         result_id,
         athlete_id,
+        event_id,
+        event_type_id,
         mark_raw,
         mark_seconds,
+        mark_meters,
         place,
         round,
         wind,
-        athletes (
+        environment,
+        athletes!inner (
           full_name,
           gender,
           class_year,
           school_id,
-          schools (
+          schools!inner (
             official_name,
-            short_name
+            short_name,
+            institution_type
           )
         )
-      `)
-      .eq('meet_name', meetName)
-      .eq('event_name', eventName)
-      .eq('date', date)
-      .order('round', { ascending: true })
-      .order('place', { ascending: true })
+      `),
+      meetName,
+      date,
+      meetId
+    );
+    query = query.eq('athletes.schools.institution_type', 'collegiate');
+    if (eventTypeId) query = query.eq('event_type_id', eventTypeId);
+    else query = query.eq('event_name', eventName);
+    // Keep the source insertion order. Combined-event component rows share the parent event and
+    // athlete, and their result_id sequence is the only stable component ordering available in
+    // the current schema. Ordinary event screens still sort their rounds/places in the reader.
+    const { data, error } = await query
+      .order('result_id', { ascending: true })
       .range(offset, offset + pageSize - 1);
 
     if (error) {
@@ -1191,33 +1514,46 @@ export async function getEventResults(meetName: string, eventName: string, date:
     return {
       result_id: r.result_id,
       athlete_id: r.athlete_id,
+      event_id: r.event_id ?? null,
+      event_type_id: r.event_type_id ?? eventTypeId ?? null,
       athlete_name: athlete?.full_name || 'Unknown',
       gender: athlete?.gender,
       class_year: athlete?.class_year || '',
       school_name: school?.official_name || school?.short_name || 'Unknown',
-      mark_raw: r.mark_raw,
+      mark_raw: r.mark_raw || '',
       mark_seconds: r.mark_seconds,
+      mark_meters: r.mark_meters,
       place: r.place,
       round: r.round || 'Results',
       wind: r.wind,
+      environment: r.environment ?? null,
     };
   });
 
   // Filter by gender if provided
   if (gender) {
-    results = results.filter(r => r.gender === gender);
+    results = results.filter((r: any) => r.gender === gender);
   }
 
   return results;
 }
 
 // Get count of results per event at a meet (for displaying athlete counts)
-export async function getEventCountsByMeet(meetName: string, date: string) {
-  const { data, error } = await supabase
-    .from('results')
-    .select('event_name')
-    .eq('meet_name', meetName)
-    .eq('date', date)
+export async function getEventCountsByMeet(meetName: string, date: string, meetId?: number) {
+  const query = scopeMeetFactQuery(
+    supabase.from('results')
+    .select(`
+      event_name,
+      event_type_id,
+      event_types ( code ),
+      athletes!inner ( schools!inner ( institution_type ) )
+    `),
+    meetName,
+    date,
+    meetId
+  );
+  const { data, error } = await query
+    .eq('athletes.schools.institution_type', 'collegiate')
     .not('event_name', 'is', null);
 
   if (error) {
@@ -1227,8 +1563,9 @@ export async function getEventCountsByMeet(meetName: string, date: string) {
 
   // Count results per event
   const counts: Record<string, number> = {};
-  data?.forEach(r => {
-    counts[r.event_name] = (counts[r.event_name] || 0) + 1;
+  data?.forEach((r: any) => {
+    const eventName = (r.event_types as any)?.code || r.event_name;
+    counts[eventName] = (counts[eventName] || 0) + 1;
   });
   return counts;
 }
@@ -1251,8 +1588,9 @@ export function isRelayEvent(eventName: string): boolean {
 
 // Get relay results for a specific event at a meet
 export async function getRelayResults(meetName: string, eventName: string, date: string, gender?: string, meetId?: number) {
-  const { data, error } = await supabase
-    .from('relay_results')
+  const eventTypeId = await resolveEventTypeId(eventName);
+  let query = scopeMeetFactQuery(
+    supabase.from('relay_results')
     .select(`
       relay_result_id,
       team_id,
@@ -1262,6 +1600,8 @@ export async function getRelayResults(meetName: string, eventName: string, date:
       place,
       round,
       teams (
+        team_name,
+        team_type,
         gender,
         schools (
           official_name,
@@ -1277,10 +1617,14 @@ export async function getRelayResults(meetName: string, eventName: string, date:
           class_year
         )
       )
-    `)
-    .eq('meet_name', meetName)
-    .eq('event_name', eventName)
-    .eq('date', date)
+    `),
+    meetName,
+    date,
+    meetId
+  );
+  if (eventTypeId) query = query.eq('event_type_id', eventTypeId);
+  else query = query.eq('event_name', eventName);
+  const { data, error } = await query
     .order('round', { ascending: true })
     .order('place', { ascending: true });
 
@@ -1290,7 +1634,7 @@ export async function getRelayResults(meetName: string, eventName: string, date:
   }
 
   // Transform and filter by gender
-  let results = data?.map(r => {
+  let results = data?.map((r: any) => {
     const team = r.teams as any;
     const school = team?.schools as any;
     const athletes = (r.relay_athletes as any[])?.sort((a, b) => a.leg_order - b.leg_order) || [];
@@ -1299,7 +1643,7 @@ export async function getRelayResults(meetName: string, eventName: string, date:
       relay_result_id: r.relay_result_id,
       team_id: r.team_id,
       gender: team?.gender,
-      school_name: school?.official_name || school?.short_name || 'Unknown',
+      school_name: team?.team_name || school?.official_name || school?.short_name || 'Unknown',
       mark_raw: r.mark_raw,
       mark_seconds: r.mark_seconds,
       place: r.place,
@@ -1315,7 +1659,7 @@ export async function getRelayResults(meetName: string, eventName: string, date:
 
   // Filter by gender if provided
   if (gender) {
-    results = results.filter(r => r.gender === gender);
+    results = results.filter((r: any) => r.gender === gender);
   }
 
   return results;
@@ -1330,6 +1674,8 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
       leg_order,
       relay_results (
         relay_result_id,
+        meet_id,
+        team_id,
         event_name,
         event_type_id,
         event_types (
@@ -1342,6 +1688,8 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
         meet_name,
         date,
         teams (
+          team_name,
+          team_type,
           schools (
             official_name,
             short_name
@@ -1377,6 +1725,8 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
 
     return {
       relay_result_id: relay?.relay_result_id,
+      meet_id: relay?.meet_id,
+      team_id: relay?.team_id,
       event_name: relay?.event_name,
       event_types: relay?.event_types,   // carried through so canonicalEventName() can use it
       mark_raw: relay?.mark_raw,
@@ -1385,7 +1735,7 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
       meet_name: relay?.meet_name,
       date: relay?.date,
       leg_order: r.leg_order,
-      school_name: school?.official_name || school?.short_name,
+      school_name: relay?.teams?.team_name || school?.official_name || school?.short_name,
       teammates,
     };
   }) || [];

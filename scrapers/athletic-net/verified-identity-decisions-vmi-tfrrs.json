@@ -1,0 +1,37 @@
+{
+  "manifest_version": 1,
+  "review_scope": "VMI Winter Relays 2026 / exact TFRRS identity owners for existing canonical athletes",
+  "decisions": [
+    {
+      "source_athlete_key": "44018568",
+      "source_athlete_name": "Arianna Redies",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9239712",
+      "expected_school": "Lees-McRae",
+      "match_method": "verified_alias",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/NC_college_f_Lees_McRae.html",
+        "https://www.tfrrs.org/athletes/9239712/Lees_McRae/Arianna__Redies.html"
+      ],
+      "notes": "The exact TFRRS identity is already owned by canonical athlete 98404 (Lees-McRae); attach the AthleticLIVE source key to that existing athlete rather than creating or using the empty placeholder."
+    },
+    {
+      "source_athlete_key": "44018954",
+      "source_athlete_name": "Zothile Jesica Mbhamali",
+      "source_gender": "F",
+      "target_tfrrs_athlete_id": "9033624",
+      "expected_school": "Tusculum",
+      "match_method": "verified_alias",
+      "allow_name_variant": true,
+      "name_variant_reason": "AthleticLIVE renders Jesica; the official TFRRS profile and roster render Jesi for the same Zothile Mbhamali identity and TFRRS ID.",
+      "evidence": [
+        "https://live.athletic.net/meets/59361",
+        "https://www.tfrrs.org/teams/tf/TN_college_f_Tusculum.html",
+        "https://www.tfrrs.org/athletes/9033624/Tusculum/Zothile_Jesi_Mbhamali.html",
+        "Existing canonical athlete 51343 owns TFRRS ID 9033624 and Tusculum history in the production database"
+      ],
+      "notes": "The exact TFRRS identity is already owned by canonical athlete 51343 (Tusculum); the reviewed Jesica/Jesi spelling difference is limited to the middle-name token."
+    }
+  ]
+}

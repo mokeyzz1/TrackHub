@@ -1,0 +1,97 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "Mount Union Last Chance Meet 2026 / empty Unattached placeholders / DirectAthletics batch 2",
+  "decisions": [
+    {
+      "source_athlete_key": "49173497",
+      "source_athlete_name": "TREVAUGH STEWART",
+      "source_gender": "M",
+      "target_athlete_id": 140979,
+      "directathletics_profile_id": "9243764",
+      "expected_school": "Unattached",
+      "public_name": "Trevaugh Stewart",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9243764.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official DirectAthletics profile identifies Trevaugh Stewart as unattached and carries the same Mount Union 2026 100m and 200m marks; the target is an empty placeholder."
+    },
+    {
+      "source_athlete_key": "49173500",
+      "source_athlete_name": "Jonathan Wang",
+      "source_gender": "M",
+      "target_athlete_id": 158558,
+      "directathletics_profile_id": "9354435",
+      "expected_school": "Unattached",
+      "public_name": "Jonathan Wang",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9354435.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The exact DirectAthletics profile carries Jonathan Wang's Mount Union 2026 100m and 200m marks; the selected Unattached target has no existing facts."
+    },
+    {
+      "source_athlete_key": "49173498",
+      "source_athlete_name": "Juell Scott",
+      "source_gender": "M",
+      "target_athlete_id": 146901,
+      "directathletics_profile_id": "9324594",
+      "expected_school": "Unattached",
+      "public_name": "Juell Scott",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9324594.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The exact DirectAthletics profile carries Juell Scott's Mount Union 2026 100m and 200m marks; the selected Unattached target has no existing facts."
+    },
+    {
+      "source_athlete_key": "49173501",
+      "source_athlete_name": "Malachi Prisby",
+      "source_gender": "M",
+      "target_athlete_id": 147052,
+      "directathletics_profile_id": "9266718",
+      "expected_school": "Unattached",
+      "public_name": "Malachi Prisby",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9266718.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The exact DirectAthletics profile carries Malachi Prisby's Mount Union 2026 100m and 200m marks; the selected Unattached target has no existing facts."
+    },
+    {
+      "source_athlete_key": "49173499",
+      "source_athlete_name": "Andrew Nason",
+      "source_gender": "M",
+      "target_athlete_id": 139573,
+      "directathletics_profile_id": "9236553",
+      "expected_school": "Unattached",
+      "public_name": "Andrew Nason",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9236553.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The exact DirectAthletics profile carries Andrew Nason's Mount Union 2026 100m and 200m marks; the selected Unattached target has no existing facts."
+    },
+    {
+      "source_athlete_key": "49173348",
+      "source_athlete_name": "JAYDEN DOUGHERTY",
+      "source_gender": "M",
+      "target_athlete_id": 140982,
+      "directathletics_profile_id": "9243766",
+      "expected_school": "Unattached",
+      "public_name": "Jayden Dougherty",
+      "evidence": [
+        "https://www.tfrrs.org/results/95785/m/Mount_Union_Last_Chance_Meet",
+        "https://www.directathletics.com/athletes/track/9243766.html",
+        "https://live.athletic.net/meets/73399"
+      ],
+      "notes": "The official DirectAthletics profile identifies Jayden Dougherty as unattached and carries the same Mount Union 2026 200m and long-jump marks; the target is an empty placeholder."
+    }
+  ]
+}

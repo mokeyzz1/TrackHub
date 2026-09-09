@@ -1,0 +1,43 @@
+{
+  "manifest_version": 1,
+  "decisions": [
+    {
+      "source_athlete_key": "49173898",
+      "source_athlete_name": "Josiah Adams",
+      "source_gender": "M",
+      "old_athlete_id": 26355,
+      "old_tfrrs_athlete_id": "7980134",
+      "old_current_school_id": 1391,
+      "old_school_id": 493,
+      "new_tfrrs_athlete_id": "9288500",
+      "new_tfrrs_profile_url": "https://www.tfrrs.org/athletes/9288500/Mount_Union/Josiah_Adams.html",
+      "new_athletic_net_profile_id": "30242071",
+      "new_school_id": 1391,
+      "new_team_id": 2749,
+      "new_season_code": "2025-2026",
+      "new_class_year": "SR-4",
+      "result_ids": [
+        5221903,
+        5042331,
+        6330630,
+        6443722,
+        6782279,
+        6966257,
+        7275288,
+        7626459
+      ],
+      "relay_athlete_ids": [383280],
+      "evidence": [
+        "https://www.tfrrs.org/athletes/9288500/Mount_Union/Josiah_Adams.html",
+        "https://www.tfrrs.org/athletes/7980134/Indianapolis/Josiah_Adams.html",
+        "AthleticLIVE source identity 49173898 at Mount Union Last Chance: Josiah Adams, 200m 25.70"
+      ],
+      "verified_prs": [
+        { "event_name": "200", "mark_raw": "22.98", "mark_seconds": 22.98, "season": "all" },
+        { "event_name": "400", "mark_raw": "49.27", "mark_seconds": 49.27, "season": "all" },
+        { "event_name": "800", "mark_raw": "2:01.73", "mark_seconds": 121.73, "season": "all" }
+      ],
+      "notes": "Split the merged Indianapolis/Mount Union row. Preserve the Indianapolis history and its external IDs; move only the eight exact 2026 Mount Union result rows and the exact 2026 relay leg."
+    }
+  ]
+}

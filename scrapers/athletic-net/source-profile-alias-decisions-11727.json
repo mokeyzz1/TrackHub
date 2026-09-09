@@ -1,0 +1,564 @@
+{
+  "manifest_version": 1,
+  "source": "athletic_net",
+  "review_scope": "Grand Valley State Tune-Up 2026 / control-plane run 6615e698-a416-4c61-b8fd-45683de55e52",
+  "decisions": [
+    {
+      "source_athlete_key": "44333230",
+      "source_athlete_name": "Abigail VanderKooi",
+      "source_gender": "F",
+      "target_athlete_id": 186652,
+      "athletic_net_profile_id": "13930932",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333230: Abigail VanderKooi, F.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State profile: 13930932.",
+        "The existing athlete 186652 uniquely owns the exact profile URL https://www.athletic.net/athlete/13930932/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333243",
+      "source_athlete_name": "Adysen Daman",
+      "source_gender": "F",
+      "target_athlete_id": 194310,
+      "athletic_net_profile_id": "30056518",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333243: Adysen Daman, F.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30056518.",
+        "The existing athlete 194310 uniquely owns the exact profile URL https://www.athletic.net/athlete/30056518/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333052",
+      "source_athlete_name": "Benjamin Gross",
+      "source_gender": "M",
+      "target_athlete_id": 194269,
+      "athletic_net_profile_id": "29774697",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333052: Benjamin Gross, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 29774697.",
+        "The existing athlete 194269 uniquely owns the exact profile URL https://www.athletic.net/athlete/29774697/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333159",
+      "source_athlete_name": "Brandon Roach",
+      "source_gender": "M",
+      "target_athlete_id": 194249,
+      "athletic_net_profile_id": "25209322",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333159: Brandon Roach, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 25209322.",
+        "The existing athlete 194249 uniquely owns the exact profile URL https://www.athletic.net/athlete/25209322/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332879",
+      "source_athlete_name": "Camarion Lightsey",
+      "source_gender": "M",
+      "target_athlete_id": 194275,
+      "athletic_net_profile_id": "30056520",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332879: Camarion Lightsey, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30056520.",
+        "The existing athlete 194275 uniquely owns the exact profile URL https://www.athletic.net/athlete/30056520/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332918",
+      "source_athlete_name": "Carl Johnson",
+      "source_gender": "M",
+      "target_athlete_id": 194245,
+      "athletic_net_profile_id": "30056521",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332918: Carl Johnson, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30056521.",
+        "The existing athlete 194245 uniquely owns the exact profile URL https://www.athletic.net/athlete/30056521/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333032",
+      "source_athlete_name": "Carter Mcllroy",
+      "source_gender": "M",
+      "target_athlete_id": 194270,
+      "athletic_net_profile_id": "24243095",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333032: Carter Mcllroy, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 24243095.",
+        "The existing athlete 194270 uniquely owns the exact profile URL https://www.athletic.net/athlete/24243095/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333209",
+      "source_athlete_name": "Chloe Caulfield",
+      "source_gender": "F",
+      "target_athlete_id": 186818,
+      "athletic_net_profile_id": "29560665",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333209: Chloe Caulfield, F.",
+        "Athletic.net candidate review returned a high-confidence Hope profile: 29560665.",
+        "The existing athlete 186818 uniquely owns the exact profile URL https://www.athletic.net/athlete/29560665/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333232",
+      "source_athlete_name": "Cierra Guay",
+      "source_gender": "F",
+      "target_athlete_id": 64292,
+      "athletic_net_profile_id": "19071466",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333232: Cierra Guay, F.",
+        "Athletic.net candidate review returned a high-confidence Davenport profile: 19071466.",
+        "The existing athlete 64292 uniquely owns the exact profile URL https://www.athletic.net/athlete/19071466/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333101",
+      "source_athlete_name": "Derek Finley",
+      "source_gender": "M",
+      "target_athlete_id": 194250,
+      "athletic_net_profile_id": "30150179",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333101: Derek Finley, M.",
+        "Athletic.net candidate review returned a high-confidence Muskegon CC profile: 30150179.",
+        "The existing athlete 194250 uniquely owns the exact profile URL https://www.athletic.net/athlete/30150179/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333098",
+      "source_athlete_name": "Dylan Bouters",
+      "source_gender": "M",
+      "target_athlete_id": 194276,
+      "athletic_net_profile_id": "27391450",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333098: Dylan Bouters, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 27391450.",
+        "The existing athlete 194276 uniquely owns the exact profile URL https://www.athletic.net/athlete/27391450/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332984",
+      "source_athlete_name": "Elliot Cole",
+      "source_gender": "M",
+      "target_athlete_id": 194258,
+      "athletic_net_profile_id": "30214233",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332984: Elliot Cole, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30214233.",
+        "The existing athlete 194258 uniquely owns the exact profile URL https://www.athletic.net/athlete/30214233/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44374769",
+      "source_athlete_name": "Emily Grob",
+      "source_gender": "F",
+      "target_athlete_id": 194317,
+      "athletic_net_profile_id": "30056524",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44374769: Emily Grob, F.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30056524.",
+        "The existing athlete 194317 uniquely owns the exact profile URL https://www.athletic.net/athlete/30056524/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333127",
+      "source_athlete_name": "Emily Jordan",
+      "source_gender": "F",
+      "target_athlete_id": 194301,
+      "athletic_net_profile_id": "29402972",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333127: Emily Jordan, F.",
+        "Athletic.net candidate review returned a high-confidence Kirtland CC profile: 29402972.",
+        "The existing athlete 194301 uniquely owns the exact profile URL https://www.athletic.net/athlete/29402972/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332880",
+      "source_athlete_name": "Eric Lynn",
+      "source_gender": "M",
+      "target_athlete_id": 194277,
+      "athletic_net_profile_id": "30056525",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332880: Eric Lynn, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30056525.",
+        "The existing athlete 194277 uniquely owns the exact profile URL https://www.athletic.net/athlete/30056525/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333187",
+      "source_athlete_name": "Hannah Grace Wildschut",
+      "source_gender": "F",
+      "target_athlete_id": 194316,
+      "athletic_net_profile_id": "17018441",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333187: Hannah Grace Wildschut, F.",
+        "Athletic.net candidate review returned a high-confidence Calvin University profile: 17018441.",
+        "The existing athlete 194316 uniquely owns the exact profile URL https://www.athletic.net/athlete/17018441/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333168",
+      "source_athlete_name": "Hunter Follett",
+      "source_gender": "M",
+      "target_athlete_id": 194248,
+      "athletic_net_profile_id": "30401155",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333168: Hunter Follett, M.",
+        "Athletic.net candidate review returned a high-confidence Davenport profile: 30401155.",
+        "The existing athlete 194248 uniquely owns the exact profile URL https://www.athletic.net/athlete/30401155/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332925",
+      "source_athlete_name": "Jason Green",
+      "source_gender": "M",
+      "target_athlete_id": 194239,
+      "athletic_net_profile_id": "30214234",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332925: Jason Green, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30214234.",
+        "The existing athlete 194239 uniquely owns the exact profile URL https://www.athletic.net/athlete/30214234/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333009",
+      "source_athlete_name": "Joey Janisse",
+      "source_gender": "F",
+      "target_athlete_id": 194291,
+      "athletic_net_profile_id": "26460017",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333009: Joey Janisse, F.",
+        "Athletic.net candidate review returned a high-confidence Kirtland CC profile: 26460017.",
+        "The existing athlete 194291 uniquely owns the exact profile URL https://www.athletic.net/athlete/26460017/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333034",
+      "source_athlete_name": "Jonathan Carbillido",
+      "source_gender": "M",
+      "target_athlete_id": 194273,
+      "athletic_net_profile_id": "26225702",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333034: Jonathan Carbillido, M.",
+        "Athletic.net candidate review returned a high-confidence Muskegon CC profile: 26225702.",
+        "The existing athlete 194273 uniquely owns the exact profile URL https://www.athletic.net/athlete/26225702/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332985",
+      "source_athlete_name": "Kendale Nash",
+      "source_gender": "M",
+      "target_athlete_id": 194251,
+      "athletic_net_profile_id": "30214235",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332985: Kendale Nash, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30214235.",
+        "The existing athlete 194251 uniquely owns the exact profile URL https://www.athletic.net/athlete/30214235/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333244",
+      "source_athlete_name": "Maddox Lundsten",
+      "source_gender": "F",
+      "target_athlete_id": 194311,
+      "athletic_net_profile_id": "30056531",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333244: Maddox Lundsten, F.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30056531.",
+        "The existing athlete 194311 uniquely owns the exact profile URL https://www.athletic.net/athlete/30056531/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332959",
+      "source_athlete_name": "Makayla Williams",
+      "source_gender": "F",
+      "target_athlete_id": 194289,
+      "athletic_net_profile_id": "30056532",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332959: Makayla Williams, F.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30056532.",
+        "The existing athlete 194289 uniquely owns the exact profile URL https://www.athletic.net/athlete/30056532/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333082",
+      "source_athlete_name": "Matthew (Matt) Nowak",
+      "source_gender": "M",
+      "target_athlete_id": 37173,
+      "athletic_net_profile_id": "26546320",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333082: Matthew (Matt) Nowak, M.",
+        "Athletic.net candidate review returned a high-confidence Davenport profile: 26546320.",
+        "The existing athlete 37173 uniquely owns the exact profile URL https://www.athletic.net/athlete/26546320/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333040",
+      "source_athlete_name": "Nathan Riddering",
+      "source_gender": "M",
+      "target_athlete_id": 45383,
+      "athletic_net_profile_id": "26642822",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333040: Nathan Riddering, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State profile: 26642822.",
+        "The existing athlete 45383 uniquely owns the exact profile URL https://www.athletic.net/athlete/26642822/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332979",
+      "source_athlete_name": "Nick Luna",
+      "source_gender": "M",
+      "target_athlete_id": 194259,
+      "athletic_net_profile_id": "29774699",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332979: Nick Luna, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 29774699.",
+        "The existing athlete 194259 uniquely owns the exact profile URL https://www.athletic.net/athlete/29774699/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333234",
+      "source_athlete_name": "Reagan Ruel",
+      "source_gender": "F",
+      "target_athlete_id": 194309,
+      "athletic_net_profile_id": "26225687",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333234: Reagan Ruel, F.",
+        "Athletic.net candidate review returned a high-confidence Muskegon CC profile: 26225687.",
+        "The existing athlete 194309 uniquely owns the exact profile URL https://www.athletic.net/athlete/26225687/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333021",
+      "source_athlete_name": "Ryan Zannetti",
+      "source_gender": "M",
+      "target_athlete_id": 194272,
+      "athletic_net_profile_id": "15724943",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333021: Ryan Zannetti, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 15724943.",
+        "The existing athlete 194272 uniquely owns the exact profile URL https://www.athletic.net/athlete/15724943/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332881",
+      "source_athlete_name": "Sean Chaplin",
+      "source_gender": "M",
+      "target_athlete_id": 194278,
+      "athletic_net_profile_id": "30056535",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332881: Sean Chaplin, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30056535.",
+        "The existing athlete 194278 uniquely owns the exact profile URL https://www.athletic.net/athlete/30056535/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332877",
+      "source_athlete_name": "Spencer Anderson",
+      "source_gender": "M",
+      "target_athlete_id": 194240,
+      "athletic_net_profile_id": "28403782",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332877: Spencer Anderson, M.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 28403782.",
+        "The existing athlete 194240 uniquely owns the exact profile URL https://www.athletic.net/athlete/28403782/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44332960",
+      "source_athlete_name": "Zariyah Mance",
+      "source_gender": "F",
+      "target_athlete_id": 194290,
+      "athletic_net_profile_id": "30396504",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332960: Zariyah Mance, F.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30396504.",
+        "The existing athlete 194290 uniquely owns the exact profile URL https://www.athletic.net/athlete/30396504/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333016",
+      "source_athlete_name": "Ziomarea Lewis",
+      "source_gender": "F",
+      "target_athlete_id": 194292,
+      "athletic_net_profile_id": "30297027",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333016: Ziomarea Lewis, F.",
+        "Athletic.net candidate review returned a high-confidence Grand Valley State University Club profile: 30297027.",
+        "The existing athlete 194292 uniquely owns the exact profile URL https://www.athletic.net/athlete/30297027/track-and-field."
+      ]
+    },
+    {
+      "source_athlete_key": "44333210",
+      "source_athlete_name": "Ava Crews",
+      "source_gender": "F",
+      "target_athlete_id": 185269,
+      "athletic_net_profile_id": "31201828",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333210: Ava Crews, F, listed Unattached.",
+        "Athletic.net candidate review returned the exact Ava Crews profile 31201828; confidence was medium because the source affiliation was Unattached.",
+        "The existing athlete 185269 uniquely owns https://www.athletic.net/athlete/31201828/track-and-field with matching name and gender."
+      ],
+      "notes": "Reviewed as a source-profile identity; Unattached is not used as school evidence, but exact profile ownership, name, and gender match."
+    },
+    {
+      "source_athlete_key": "44333055",
+      "source_athlete_name": "Carter Livermore",
+      "source_gender": "M",
+      "target_athlete_id": 45365,
+      "athletic_net_profile_id": "29724081",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333055: Carter Livermore, M, listed Unattached.",
+        "Athletic.net candidate review returned the exact Carter Livermore profile 29724081; confidence was medium because the source affiliation was Unattached.",
+        "The existing athlete 45365 uniquely owns https://www.athletic.net/athlete/29724081/track-and-field with matching name and gender."
+      ],
+      "notes": "Reviewed as a source-profile identity; Unattached is not used as school evidence, but exact profile ownership, name, and gender match."
+    },
+    {
+      "source_athlete_key": "44333056",
+      "source_athlete_name": "Connor Nolan",
+      "source_gender": "M",
+      "target_athlete_id": 45374,
+      "athletic_net_profile_id": "30230611",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333056: Connor Nolan, M, listed Unattached.",
+        "Athletic.net candidate review returned the exact Connor Nolan profile 30230611; confidence was medium because the source affiliation was Unattached.",
+        "The existing athlete 45374 uniquely owns https://www.athletic.net/athlete/30230611/track-and-field with matching name and gender."
+      ],
+      "notes": "Reviewed as a source-profile identity; Unattached is not used as school evidence, but exact profile ownership, name, and gender match."
+    },
+    {
+      "source_athlete_key": "44332987",
+      "source_athlete_name": "Jackson Summy",
+      "source_gender": "M",
+      "target_athlete_id": 194253,
+      "athletic_net_profile_id": "31815125",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332987: Jackson Summy, M, listed Unattached.",
+        "Athletic.net candidate review returned the exact Jackson Summy profile 31815125; confidence was medium because the source affiliation was Unattached.",
+        "The existing athlete 194253 uniquely owns https://www.athletic.net/athlete/31815125/track-and-field with matching name and gender."
+      ],
+      "notes": "Reviewed as a source-profile identity; Unattached is not used as school evidence, but exact profile ownership, name, and gender match."
+    },
+    {
+      "source_athlete_key": "44333095",
+      "source_athlete_name": "Jayden Page",
+      "source_gender": "M",
+      "target_athlete_id": 45377,
+      "athletic_net_profile_id": "23948539",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333095: Jayden Page, M, listed Unattached.",
+        "Athletic.net candidate review returned the exact Jayden Page profile 23948539; confidence was medium because the source affiliation was Unattached.",
+        "The existing athlete 45377 uniquely owns https://www.athletic.net/athlete/23948539/track-and-field with matching name and gender."
+      ],
+      "notes": "Reviewed as a source-profile identity; Unattached is not used as school evidence, but exact profile ownership, name, and gender match."
+    },
+    {
+      "source_athlete_key": "44333136",
+      "source_athlete_name": "Klaudia O’Malley",
+      "source_gender": "F",
+      "target_athlete_id": 186570,
+      "athletic_net_profile_id": "16166291",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333136: Klaudia O’Malley, F, listed Unattached.",
+        "Athletic.net candidate review returned the exact Klaudia O’Malley profile 16166291; confidence was medium because the source affiliation was Unattached.",
+        "The existing athlete 186570 uniquely owns https://www.athletic.net/athlete/16166291/track-and-field with matching name and gender."
+      ],
+      "notes": "Reviewed as a source-profile identity; Unattached is not used as school evidence, but exact profile ownership, name, and gender match."
+    },
+    {
+      "source_athlete_key": "44333212",
+      "source_athlete_name": "Lucy Jones",
+      "source_gender": "F",
+      "target_athlete_id": 25697,
+      "athletic_net_profile_id": "26496618",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44333212: Lucy Jones, F, listed Unattached.",
+        "Athletic.net candidate review returned the exact Lucy Jones profile 26496618; confidence was medium because the source affiliation was Unattached.",
+        "The existing athlete 25697 uniquely owns https://www.athletic.net/athlete/26496618/track-and-field with matching name and gender."
+      ],
+      "notes": "Reviewed as a source-profile identity; Unattached is not used as school evidence, but exact profile ownership, name, and gender match."
+    },
+    {
+      "source_athlete_key": "44332988",
+      "source_athlete_name": "Luke Hill",
+      "source_gender": "M",
+      "target_athlete_id": 194256,
+      "athletic_net_profile_id": "31347529",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44332988: Luke Hill, M, listed Unattached.",
+        "Athletic.net candidate review returned the exact Luke Hill profile 31347529; confidence was medium because the source affiliation was Unattached.",
+        "The existing athlete 194256 uniquely owns https://www.athletic.net/athlete/31347529/track-and-field with matching name and gender."
+      ],
+      "notes": "Reviewed as a source-profile identity; Unattached is not used as school evidence, but exact profile ownership, name, and gender match."
+    },
+    {
+      "source_athlete_key": "44373063",
+      "source_athlete_name": "Mia Williams",
+      "source_gender": "F",
+      "target_athlete_id": 65520,
+      "athletic_net_profile_id": "29704216",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 6615e698-a416-4c61-b8fd-45683de55e52 source identity 44373063: Mia Williams, F, listed Unattached.",
+        "Athletic.net candidate review returned the exact Mia Williams profile 29704216; confidence was medium because the source affiliation was Unattached.",
+        "The existing athlete 65520 uniquely owns https://www.athletic.net/athlete/29704216/track-and-field with matching name and gender."
+      ],
+      "notes": "Reviewed as a source-profile identity; Unattached is not used as school evidence, but exact profile ownership, name, and gender match."
+    },
+    {
+      "source_athlete_key": "44332904",
+      "source_athlete_name": "Aaron Stone",
+      "source_gender": "M",
+      "target_athlete_id": 194246,
+      "athletic_net_profile_id": "29402928",
+      "match_method": "verified_source_profile",
+      "evidence": [
+        "Control-plane run 57b6a29e-020c-4b86-ad6c-bb8052d1b424 source identity 44332904: Aaron Stone, M, Kirtland (Mich.) CC.",
+        "TFRRS GVSU Tune-Up lists Aaron Stone for Kirtland CC at 23.90 in the 200m and 53.80 in the 400m: https://www.tfrrs.org/results/92961/m/GVSU_Tune-Up.",
+        "The existing athlete 194246 uniquely owns the exact Athletic.net profile URL https://www.athletic.net/athlete/29402928/track-and-field and already contains the same meet performances.",
+        "Milesplit identifies Aaron Stone as Kirtland CC: https://mi.milesplit.com/athletes/17356170-aaron-stone"
+      ],
+      "notes": "Private source-key alias only; preserves the existing public row and its current school field."
+    }
+  ]
+}

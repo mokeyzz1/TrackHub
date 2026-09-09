@@ -1,0 +1,356 @@
+{
+  "purpose": "Preserved non-deployable historical SQL; not evidence that all effects are absent.",
+  "files": [
+    {
+      "file": "20260210_top_performances_with_scoring.sql",
+      "from": "supabase/migrations/20260210_top_performances_with_scoring.sql",
+      "to": "supabase/migrations-held/20260210_top_performances_with_scoring.sql",
+      "sha256": "066f018409325f72d9c6ecae3a2388a21cbff4a18618c4cfc366a324b2495ca9",
+      "disposition": "superseded_draft",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260211_fix_event_name_matching.sql",
+      "from": "supabase/migrations/20260211_fix_event_name_matching.sql",
+      "to": "supabase/migrations-held/20260211_fix_event_name_matching.sql",
+      "sha256": "5fda16c373b5cee5a9b8f3711980dc6885e084ec02d6f57a2ed0581b2eb37534",
+      "disposition": "superseded_draft",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260211_fix_weight_throw_scoring.sql",
+      "from": "supabase/migrations/20260211_fix_weight_throw_scoring.sql",
+      "to": "supabase/migrations-held/20260211_fix_weight_throw_scoring.sql",
+      "sha256": "4ac5a11db8647c39a2c4772e41c61af761a11dea2332b09dc43fd6f6a957e9ff",
+      "disposition": "superseded_draft",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260211_indoor_outdoor_scoring.sql",
+      "from": "supabase/migrations/20260211_indoor_outdoor_scoring.sql",
+      "to": "supabase/migrations-held/20260211_indoor_outdoor_scoring.sql",
+      "sha256": "2ccc74a03a731fa708d63d13a52785e0d41f2243d34bee2cbbe4f0f0dc6457b7",
+      "disposition": "superseded_draft",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260216_add_meet_end_date.sql",
+      "from": "supabase/migrations/20260216_add_meet_end_date.sql",
+      "to": "supabase/migrations-held/20260216_add_meet_end_date.sql",
+      "sha256": "9a8f8b37bf09140d6ebe4b064b6808cd9e26b71c43b72c732fd77ed2637557e1",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260216_add_performance_indexes.sql",
+      "from": "supabase/migrations/20260216_add_performance_indexes.sql",
+      "to": "supabase/migrations-held/20260216_add_performance_indexes.sql",
+      "sha256": "5edc1089a393d2698b7ce9e3c063e9c3e965c527c53054fd182dde600e5ccff9",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260216_normalized_event_names.sql",
+      "from": "supabase/migrations/20260216_normalized_event_names.sql",
+      "to": "supabase/migrations-held/20260216_normalized_event_names.sql",
+      "sha256": "4fd622ad658e21ec3ba50e061674a289cafdf3dbd7e6488711a29c42c0fbe5f6",
+      "disposition": "superseded_draft",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260220_normalize_event_names.sql",
+      "from": "supabase/migrations/20260220_normalize_event_names.sql",
+      "to": "supabase/migrations-held/20260220_normalize_event_names.sql",
+      "sha256": "a9e2c459dc158f2373dbab0e76a1684e676fe652df60e3fd9d0d5f8361506399",
+      "disposition": "superseded_draft",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260220_push_tokens.sql",
+      "from": "supabase/migrations/20260220_push_tokens.sql",
+      "to": "supabase/migrations-held/20260220_push_tokens.sql",
+      "sha256": "52db1a269313716377280f04eca78593ec446cf961309a0d198fae72df115f50",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260221_comprehensive_event_normalization.sql",
+      "from": "supabase/migrations/20260221_comprehensive_event_normalization.sql",
+      "to": "supabase/migrations-held/20260221_comprehensive_event_normalization.sql",
+      "sha256": "1daa35f985729319f2262def8cda333535b1016f627a9ea1a832016352673d1d",
+      "disposition": "superseded_draft",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260221_event_normalization_batched.sql",
+      "from": "supabase/migrations/20260221_event_normalization_batched.sql",
+      "to": "supabase/migrations-held/20260221_event_normalization_batched.sql",
+      "sha256": "185868a33774eeaa182f37cf0e499f70821dd19ac98cc52bffd632844c4e3fbb",
+      "disposition": "superseded_draft",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260223_wa_scoring_with_bounds.sql",
+      "from": "supabase/migrations/20260223_wa_scoring_with_bounds.sql",
+      "to": "supabase/migrations-held/20260223_wa_scoring_with_bounds.sql",
+      "sha256": "9fc891c788894d8659f4de36177f4a9a6407aa78093eba4d5b6b7d3d1d408bc0",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260527_expand_timing_platform_detection.sql",
+      "from": "supabase/migrations/20260527_expand_timing_platform_detection.sql",
+      "to": "supabase/migrations-held/20260527_expand_timing_platform_detection.sql",
+      "sha256": "0fee31ee7e1337b2abbe814d860972d68a2b23bcb443eef725adcf81bd8af796",
+      "disposition": "partially_repaired_do_not_replay",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260714_drop_duplicate_indexes.sql",
+      "from": "supabase/migrations/20260714_drop_duplicate_indexes.sql",
+      "to": "supabase/migrations-held/20260714_drop_duplicate_indexes.sql",
+      "sha256": "944a3dbac171edb89d12f1e63362fffa7a82e16fd8eb76d9be8341d40327f7c0",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260714_enable_rls_relay_tables.sql",
+      "from": "supabase/migrations/20260714_enable_rls_relay_tables.sql",
+      "to": "supabase/migrations-held/20260714_enable_rls_relay_tables.sql",
+      "sha256": "649dbe0cc19c20a2b787d65c5da5aa602bbecd0bfa7a7165bb9f221b61eebabd",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260714_recompute_meet_seasons.sql",
+      "from": "supabase/migrations/20260714_recompute_meet_seasons.sql",
+      "to": "supabase/migrations-held/20260714_recompute_meet_seasons.sql",
+      "sha256": "a606d49a66109f5296e970f8344c924b455cbe99949966f7d43c72e9275aee1c",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260714_seed_event_catalog.sql",
+      "from": "supabase/migrations/20260714_seed_event_catalog.sql",
+      "to": "supabase/migrations-held/20260714_seed_event_catalog.sql",
+      "sha256": "0ade2529bb6318a439605f7ac5110c9d41b12130fd2bb1584816dd2e1e2c5b22",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260715_add_meet_id_fks.sql",
+      "from": "supabase/migrations/20260715_add_meet_id_fks.sql",
+      "to": "supabase/migrations-held/20260715_add_meet_id_fks.sql",
+      "sha256": "75ff4d2e0ae42e8d6bbd2580b4e2fb84a5a69443c6cfaf3830f686455f8baa01",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260715_drop_dead_tables.sql",
+      "from": "supabase/migrations/20260715_drop_dead_tables.sql",
+      "to": "supabase/migrations-held/20260715_drop_dead_tables.sql",
+      "sha256": "05df315047f11dbcce20eca6206f993d93a2b977f8d7d4ce42d3b26eed959e5d",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260715_relay_event_normalization.sql",
+      "from": "supabase/migrations/20260715_relay_event_normalization.sql",
+      "to": "supabase/migrations-held/20260715_relay_event_normalization.sql",
+      "sha256": "71dcdd002bc907236c63fdcaf1f030e62cf837d3087239e3978418a9b5f07350",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260719_athletic_net_event_aliases.sql",
+      "from": "supabase/migrations/20260719_athletic_net_event_aliases.sql",
+      "to": "supabase/migrations-held/20260719_athletic_net_event_aliases.sql",
+      "sha256": "42b65dda5ef8d306bb65ab900809ef2719cc55ec0cc4a8076790f2195320a44a",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260719_backfill_results_source_tfrrs.sql",
+      "from": "supabase/migrations/20260719_backfill_results_source_tfrrs.sql",
+      "to": "supabase/migrations-held/20260719_backfill_results_source_tfrrs.sql",
+      "sha256": "b9d164263c6ed9f9b38babe1f405b1d4bc52ef656399f07e56ac673007994bb8",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260719_refresh_athlete_current_school.sql",
+      "from": "supabase/migrations/20260719_refresh_athlete_current_school.sql",
+      "to": "supabase/migrations-held/20260719_refresh_athlete_current_school.sql",
+      "sha256": "d3df606fbbe5396cbff0d13c5fb51f6bbe363ab96a5f0b7c81d98739b7737145",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260809_index_results_team_id.sql",
+      "from": "supabase/migrations/20260809_index_results_team_id.sql",
+      "to": "supabase/migrations-held/20260809_index_results_team_id.sql",
+      "sha256": "27cae82b1c08694b1d9296d028b7b744326688000809b77f850648e7994e39f9",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260820032000_track_relay_source_coverage.sql",
+      "from": "supabase/migrations/20260820032000_track_relay_source_coverage.sql",
+      "to": "supabase/migrations-held/20260820032000_track_relay_source_coverage.sql",
+      "sha256": "8ce45ebb1b0cd3667487af545990760d5a956718c59189d8149a3d6e979d69ff",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829083609_add_athleticlive_pentathlon_sub_event_aliases.sql",
+      "from": "supabase/migrations/20260829083609_add_athleticlive_pentathlon_sub_event_aliases.sql",
+      "to": "supabase/migrations-held/20260829083609_add_athleticlive_pentathlon_sub_event_aliases.sql",
+      "sha256": "e12bfae1c2aaa40fcf3504c76a834ddd4d595df005f4946eaec0ce74814e5855",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829084952_add_athleticlive_college_event_aliases.sql",
+      "from": "supabase/migrations/20260829084952_add_athleticlive_college_event_aliases.sql",
+      "to": "supabase/migrations-held/20260829084952_add_athleticlive_college_event_aliases.sql",
+      "sha256": "90c1cfd6fe3412747883f0dc032156e856976b9388af5a1f80731b4edc4b5d6f",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829085632_add_athleticlive_racewalk_masters_aliases.sql",
+      "from": "supabase/migrations/20260829085632_add_athleticlive_racewalk_masters_aliases.sql",
+      "to": "supabase/migrations-held/20260829085632_add_athleticlive_racewalk_masters_aliases.sql",
+      "sha256": "69abd5592ee7da33165ce3b499f0d239faf1541d47265d63d86f87b8a84ce9dc",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829090319_add_athleticlive_pentathlon_mile_aliases.sql",
+      "from": "supabase/migrations/20260829090319_add_athleticlive_pentathlon_mile_aliases.sql",
+      "to": "supabase/migrations-held/20260829090319_add_athleticlive_pentathlon_mile_aliases.sql",
+      "sha256": "69590c41b864b057a7e14956e19ee733596644a8a777c2750674c0db12321123",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829091856_add_athleticlive_punctuated_seeded_event_aliases.sql",
+      "from": "supabase/migrations/20260829091856_add_athleticlive_punctuated_seeded_event_aliases.sql",
+      "to": "supabase/migrations-held/20260829091856_add_athleticlive_punctuated_seeded_event_aliases.sql",
+      "sha256": "04ea7788da0bb2580599a9ecc588ac22be8b4244cceeb076a50b2a5c0dab082a",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829110000_add_lai_puerto_rico_team_entities.sql",
+      "from": "supabase/migrations/20260829110000_add_lai_puerto_rico_team_entities.sql",
+      "to": "supabase/migrations-held/20260829110000_add_lai_puerto_rico_team_entities.sql",
+      "sha256": "29c34bebabd413b7c424ab5f7cdce7385a47ff3e15632e303ecc656bf46243f3",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829130000_add_tfrrs_unattached_team_aliases.sql",
+      "from": "supabase/migrations/20260829130000_add_tfrrs_unattached_team_aliases.sql",
+      "to": "supabase/migrations-held/20260829130000_add_tfrrs_unattached_team_aliases.sql",
+      "sha256": "71ce64ab9611ba8cbf7a79f322bb3321951231dd4fd9113dde90ddd6920c8976",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829140000_add_hammer_throw_event_alias.sql",
+      "from": "supabase/migrations/20260829140000_add_hammer_throw_event_alias.sql",
+      "to": "supabase/migrations-held/20260829140000_add_hammer_throw_event_alias.sql",
+      "sha256": "b43b5f471ec4d31a3ca8a03828aa237aa5ef5608071658fdb5482c397ed4627f",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829150000_add_ccbc_catonsville_athletic_net_alias.sql",
+      "from": "supabase/migrations/20260829150000_add_ccbc_catonsville_athletic_net_alias.sql",
+      "to": "supabase/migrations-held/20260829150000_add_ccbc_catonsville_athletic_net_alias.sql",
+      "sha256": "beb421e9d80f390abb1638d6cbc306d4b49877a905f7b52f47963952eb2e41ff",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829160000_add_semifinal_event_aliases.sql",
+      "from": "supabase/migrations/20260829160000_add_semifinal_event_aliases.sql",
+      "to": "supabase/migrations-held/20260829160000_add_semifinal_event_aliases.sql",
+      "sha256": "dfa734e5bd55927eb266cb7eeac5ec3683589728fdd15d276ef6a78cb14f2f7c",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260829170000_add_athleticlive_3000m_racewalk_alias.sql",
+      "from": "supabase/migrations/20260829170000_add_athleticlive_3000m_racewalk_alias.sql",
+      "to": "supabase/migrations-held/20260829170000_add_athleticlive_3000m_racewalk_alias.sql",
+      "sha256": "5d8bce868534c5ab8006049fdc6f7fba726bb48a7de4c746b748ffaba9fb0cd4",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260831200000_reconcile_partial_event_queue_status.sql",
+      "from": "supabase/migrations/20260831200000_reconcile_partial_event_queue_status.sql",
+      "to": "supabase/migrations-held/20260831200000_reconcile_partial_event_queue_status.sql",
+      "sha256": "de847961b3211551ee1b3fbd9afc262d7717c20a3927fe8348c1e35e24155286",
+      "disposition": "historical_effect_reported_provenance_unresolved",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260902100000_split_invalid_history_claims.sql",
+      "from": "supabase/migrations/20260902100000_split_invalid_history_claims.sql",
+      "to": "supabase/migrations-held/20260902100000_split_invalid_history_claims.sql",
+      "sha256": "35413aae733be21ef9d1167adc1af9daac31b13c7d6765a9b55b4861180d3977",
+      "disposition": "unapplied_repair",
+      "evidence": "MIGRATION_HISTORY_RECONCILIATION_20260902.md, 2026-09-04 classification; current ledger absence rechecked 2026-09-05.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    },
+    {
+      "file": "20260903200000_apply_reviewed_4x100_team_links.sql",
+      "from": "supabase/migrations/20260903200000_apply_reviewed_4x100_team_links.sql",
+      "to": "supabase/migrations-held/20260903200000_apply_reviewed_4x100_team_links.sql",
+      "sha256": "10155aa9da7b05ac3168dbc72249d729eaec760a31e402a80667e8926357d0a8",
+      "disposition": "archive_evidence_present_ledger_unresolved",
+      "evidence": "2026-09-05 live query: 24 archived formerly-null team IDs; all 24 parents survive with nonnull team IDs. This does not prove every current ID equals the original intended mapping.",
+      "nextAction": "Review current state and exact intended delta; never automatically replay this historical file."
+    }
+  ]
+}

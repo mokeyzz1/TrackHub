@@ -12,44 +12,18 @@ const path = require('path');
 
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
+// Mark parsing lives in scrapers/shared/mark_parser.js. Six near-identical copies of these two
+// functions existed across the importers and every one carried the same defects: the seconds regex
+// demanded 2-3 decimals so "10.6" returned null, and none of them stripped a trailing wind reading
+// like "10.24  (2.0)". That is how 1.3M rows ended up with a text mark and no number.
+const { parseMarkSeconds, parseMarkMeters } = require("../../shared/mark_parser");
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 const PRS_FILE = path.join(__dirname, './output/scraped-prs.json');
-
-// Parse mark to seconds (for running events)
-function parseMarkSeconds(mark) {
-  if (!mark) return null;
-
-  // Format: "10.45" (seconds only)
-  const secMatch = mark.match(/^(\d{1,2}\.\d{2,3})$/);
-  if (secMatch) return parseFloat(secMatch[1]);
-
-  // Format: "1:45.67" or "4:32.10" (min:sec)
-  const minSecMatch = mark.match(/^(\d{1,2}):(\d{2}\.\d{2,3})$/);
-  if (minSecMatch) return parseInt(minSecMatch[1]) * 60 + parseFloat(minSecMatch[2]);
-
-  // Format: "1:02:34.56" (hour:min:sec)
-  const hourMatch = mark.match(/^(\d{1,2}):(\d{2}):(\d{2}\.\d{2,3})$/);
-  if (hourMatch) {
-    return parseInt(hourMatch[1]) * 3600 + parseInt(hourMatch[2]) * 60 + parseFloat(hourMatch[3]);
-  }
-
-  return null;
-}
-
-// Parse mark to meters (for field events)
-function parseMarkMeters(mark) {
-  if (!mark) return null;
-
-  // Format: "4.73m" or "15.67m"
-  const meterMatch = mark.match(/(\d+\.\d+)\s*m/i);
-  if (meterMatch) return parseFloat(meterMatch[1]);
-
-  return null;
-}
 
 // Parse date
 function parseDate(dateStr) {

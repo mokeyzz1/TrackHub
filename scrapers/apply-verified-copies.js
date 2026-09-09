@@ -12,9 +12,9 @@
  * of B and B of A). Deleting both erases the results entirely, and four earlier rules all walked
  * into some version of that. A copy whose only container is another condemned meet is SKIPPED.
  *
- * Deleted rows go whole into `results_d1_backup`, with an audit JSON of the meet ids, per
+ * Deleted rows go whole into `archive.results_d1_backup`, with an audit JSON of the meet ids, per
  * CLAUDE.md §7 — an id list alone cannot undo a DELETE.
- *   Rollback: INSERT INTO results SELECT * FROM results_d1_backup;
+ *   Rollback: INSERT INTO results SELECT * FROM archive.results_d1_backup;
  *
  *   node apply-verified-copies.js --ids=123,456           # dry run
  *   node apply-verified-copies.js --ids=123,456 --apply
@@ -70,9 +70,9 @@ const host = 'db.' + new URL(process.env.SUPABASE_URL).host.split('.')[0] + '.su
   require('fs').writeFileSync(auditPath, JSON.stringify(ok, null, 2));
   console.log(`audit log: ${auditPath}`);
 
-  const b = await c.query('INSERT INTO results_d1_backup SELECT * FROM results WHERE meet_id = ANY($1::int[])', [ids]);
+  const b = await c.query('INSERT INTO archive.results_d1_backup SELECT * FROM results WHERE meet_id = ANY($1::int[])', [ids]);
   const d = await c.query('DELETE FROM results WHERE meet_id = ANY($1::int[])', [ids]);
   console.log(`backed up ${b.rowCount.toLocaleString()}, deleted ${d.rowCount.toLocaleString()}`);
-  console.log('rollback: INSERT INTO results SELECT * FROM results_d1_backup;');
+  console.log('rollback: INSERT INTO results SELECT * FROM archive.results_d1_backup;');
   await c.end();
 })().catch(e => { console.error('ERR', e.message); process.exit(1); });

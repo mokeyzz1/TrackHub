@@ -19,9 +19,34 @@ const PARTICLES = new Set([
   'la','le','du','st','san','santa','bin','al','vander'
 ]);
 const SUFFIX = new Set(['jr','sr','ii','iii','iv']);
+const PLACEHOLDER_NAME_KEYS = new Set([
+  'namewithheld',
+  'identitywithheld',
+  'withheld',
+  'unknown',
+  'unknownathlete',
+  'anonymous',
+  'redacted',
+  'unidentified',
+  'noname',
+  'notavailable',
+  'na',
+  'athlete',
+  'unattached',
+]);
+
+function isPlaceholderAthleteName(fullName) {
+  if (fullName == null || String(fullName).trim() === '') return true;
+  const key = String(fullName)
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+  return key !== '' && PLACEHOLDER_NAME_KEYS.has(key);
+}
 
 function parseName(fullName) {
-  if (!fullName) return null;
+  if (!fullName || isPlaceholderAthleteName(fullName)) return null;
   if (/\d/.test(fullName)) return null; // e.g. "Vadim Scherbinin (M63)" age-group tags
   let toks = String(fullName).trim().replace(/\s+/g, ' ').split(' ').filter(Boolean);
   while (toks.length > 2 && SUFFIX.has(toks[toks.length - 1].toLowerCase().replace(/[.,]/g, ''))) {
@@ -41,4 +66,4 @@ function parseName(fullName) {
   return { first_name: first, last_name: last };
 }
 
-module.exports = { parseName };
+module.exports = { isPlaceholderAthleteName, parseName };
