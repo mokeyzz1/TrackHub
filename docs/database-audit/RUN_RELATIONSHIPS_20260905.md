@@ -17,6 +17,17 @@ Both are PT Timing dry runs from August 31 with zero observations:
 They are candidates for interrupted-run review, not proven dead solely by age. There is no
 claim here that a process-liveness check or automatic abort is implemented.
 
+## Follow-up reconciliation (September 9)
+
+The two candidates were rechecked against the live database before any write. Both remained
+`pt_timing` `dry_run` rows with no finish time, zero staged observations and no recovery-queue
+reference. The explicit command in `INTERRUPTED_RUN_RECONCILIATION_20260908.md` then marked only
+these two run IDs `aborted` in an all-or-none transaction, preserving their original scope and
+recording the operator, reason and zero-count assertions in `metrics`. No observation, source
+record, source link, meet, result or relay row changed. A postcondition query confirmed both rows
+are still observation-free and unreferenced. This closes the interrupted-run metadata portion of
+`ING-02h`; the historical meet discrepancies below remain held.
+
 ## Provenance relationships
 
 Across all 156,385 observations: zero source mismatches against their runs (mixed runs allowed),
