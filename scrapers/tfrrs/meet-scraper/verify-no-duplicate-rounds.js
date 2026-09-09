@@ -23,7 +23,7 @@
  * Run before any release that touches the scrapers:
  *   node verify-no-duplicate-rounds.js
  */
-const { fetchMeetEvents, fetchEventResults } = require('./scrape-meet-results');
+const { fetchMeetEvents, fetchEventResults } = require('./sync-weekend-results');
 (async () => {
   const meetUrl = 'https://www.tfrrs.org/results/96875';   // 2026 NCAA DI Outdoor Championships
   console.log('fetching event list...');

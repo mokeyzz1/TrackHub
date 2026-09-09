@@ -11,7 +11,8 @@
  * Usage:
  *   node sync-weekend-results.js                    # Dry run - show matches
  *   node sync-weekend-results.js --scrape           # Find matches + scrape (no import)
- *   node sync-weekend-results.js --commit           # Full pipeline: find + scrape + import
+ *   node sync-weekend-results.js --commit --control-plane
+ *                                                   # Reviewed single-provider controlled import
  *   node sync-weekend-results.js --compare --control-plane --meet <id>
  *                                                   # Private second-source comparison
  *   node sync-weekend-results.js --days 3           # Look back 3 days instead of 7
@@ -191,7 +192,6 @@ function parseArgs(args = process.argv.slice(2)) {
     relaysOnly: args.includes('--relays-only'),
     compare: args.includes('--compare'),
     controlPlane: args.includes('--control-plane'),
-    legacyDirectWrite: args.includes('--legacy-direct-write'),
     eventCode,
     sourceUrl,
     days: Number(rawDays),
@@ -1377,13 +1377,13 @@ async function loadImportAthleteLookup(ids, ingestPool = null) {
 }
 
 // Import results to database
-async function importResults(results, commit, relaysOnly = false, controlPlane = false, ingestPool = null, legacyDirectWrite = false) {
+async function importResults(results, commit, relaysOnly = false, controlPlane = false, ingestPool = null) {
   // Keep the write boundary enforced when this function is imported by another worker. The CLI
   // also checks the flag, but a module caller must not be able to bypass it accidentally.
   requireControlledCommit({
     commit,
     controlPlane,
-    legacyDirectWrite,
+    legacyDirectWrite: false,
     importer: 'TFRRS weekend importer'
   });
 
@@ -2097,12 +2097,9 @@ async function main() {
   requireControlledCommit({
     commit: options.commit,
     controlPlane: options.controlPlane,
-    legacyDirectWrite: options.legacyDirectWrite,
+    legacyDirectWrite: false,
     importer: 'TFRRS weekend importer'
   });
-  if (options.commit && options.legacyDirectWrite) {
-    console.warn('WARNING: explicit legacy direct-write mode enabled; no private ingest transaction will protect this run.');
-  }
 
   console.log('='.repeat(60));
   console.log('SYNC WEEKEND RESULTS');
@@ -2236,8 +2233,7 @@ async function main() {
     options.commit,
     options.relaysOnly,
     options.controlPlane,
-    null,
-    options.legacyDirectWrite
+    null
   );
 
   if (options.commit) {
@@ -2257,8 +2253,8 @@ async function main() {
         results_last_checked_at: new Date().toISOString(),
         results_error: statusError
       };
-      // Controlled promotion derives this summary from all per-result source links. The legacy
-      // bridge still records its one known provider directly because it creates no source links.
+          // Controlled promotion derives this summary from all per-result source links. Keep this
+          // fallback branch dry-run compatible, although commits cannot reach it.
       if (!options.controlPlane) update.results_source = status === 'imported' ? 'tfrrs' : null;
       await supabase
         .from('meets')

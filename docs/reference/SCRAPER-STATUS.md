@@ -1,48 +1,19 @@
-# Scraper Status - Feb 3, 2025
+# Current result-scraper status
 
-## Batch 3 Scraper (Athletes Without Results)
-- **Status**: STOPPED (needs resume)
-- **Progress**: 1,227 / 12,310 athletes (10%)
-- **Results scraped so far**: 3,663
-- **PRs scraped so far**: 1,819
+As of 2026-09-09 there is one production result-ingestion entrypoint:
 
-### To Resume:
 ```bash
-cd /Users/mk/Projects/track-meet-tracker/scrapers/tfrrs
-node scrape-athlete-results.js
-```
-(It will auto-resume from checkpoint)
-
-### To Import After Complete:
-```bash
-node import-results-to-db.js
+node scrapers/results/sync-dual-source-results.js --days 7 --commit
 ```
 
----
+It coordinates the retained TFRRS and Athletic.net source adapters and sends both through one
+normalizer, matcher, and canonical database writer. Matching source rows link to one performance;
+unique rows can create one fact; conflicts remain private for review.
 
-## Known Issues
+TrackScoreboard and timing-site adapters are repair-only. Historical backfill, identity, dedupe,
+merge, and correction scripts are operator-run tools, not alternate scheduled scrapers.
 
-### Transfer Data Bug (NEEDS FIX)
-Old results show athlete's NEW school instead of the school they actually competed for.
-
-**Root cause**: The `team_id` on results may be wrong - pointing to new school instead of old school.
-
-**To investigate**:
-1. Find a transfer athlete in the database
-2. Check if their old results have correct `team_id`
-3. The scraper might be using current team instead of the team from the meet
-
-**Chain**: `results.team_id` → `teams.school_id` → `schools`
-
----
-
-## Database Stats (as of Feb 3)
-- Total athletes: 96,813
-- Athletes with results: 84,503 (87%)
-- Athletes with PRs: 79,862 (82%)
-- Athletes missing results: 12,310 (being scraped in batch 3)
-
-## Recent Changes Pushed
-- Added `competed_for_school` to athlete results display
-- Each meet card now shows which school athlete competed for
-- This will work correctly once the data bug is fixed
+The old Athletic.net batch runner, TFRRS file-based meet pipeline, and direct athlete-result
+importers were retired. Their code is recoverable from Git history but is intentionally absent from
+the active working tree. The enforceable caller checks live in
+`docs/database-audit/workflow_safety.test.js`.

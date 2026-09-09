@@ -88,9 +88,9 @@ the shared source-record/canonical-performance contract, not write competing raw
 |---|---|
 | `scrapers/meets/scrape_meets.js` / `scrape_meets_github.js` | Meet discovery from USTFCCCA (stealth Puppeteer). ⚠ hardcodes `season:'indoor'` (`scrape_meets.js:490`) |
 | `scrapers/meets/update_meet_status.js` | Status flips (uses `end_date` for multi-day) |
-| `scrapers/tfrrs/meet-scraper/sync-weekend-results.js` | **The results engine.** Finds recent meets w/o results; prefers stored `tfrrs_url` (`--fuzzy` enables name-match fallback ≥35% similarity); scrapes TFRRS; imports w/ `meet_id`, relays, dupe checks |
-| `scrapers/athletic-net/import_meet_results.js` + `batch_import.js` | Gap-filler bridge; supports cached/live scrape and opt-in `--control-plane` staging/commit |
-| `scrapers/results/sync-dual-source-results.js` | Runs every available TFRRS/Athletic.net source for a completed meet; the shared writer reconciles each observation into one canonical result |
+| `scrapers/results/sync-dual-source-results.js` | **The one production results entrypoint.** Runs every available TFRRS/Athletic.net source for a completed meet; the shared writer reconciles each observation into one canonical result |
+| `scrapers/tfrrs/meet-scraper/sync-weekend-results.js` | Internal TFRRS source adapter used by the production coordinator; commits require the control plane |
+| `scrapers/athletic-net/import_meet_results.js` | Internal Athletic.net source adapter used by the production coordinator; commits require the control plane and cached evidence remains available for review |
 | `scrapers/meets/backfill_result_links.js` | Off-season tool: re-scrape USTFCCCA/TFRRS listings to fill missing result links on past meets (only fills empty fields) |
 | `scrapers/meets/cleanup_duplicate_meets.js` | Duplicate meet merge tool |
 | `scrapers/meets/fix_meet_urls.js` | One-time `meet_url` junk cleanup (ran 2026-07-09: 182 rewrites, 89 nulls) |
@@ -98,15 +98,14 @@ the shared source-record/canonical-performance contract, not write competing raw
 ### Legacy / one-off (NOT wired; candidates to archive)
 | Path | What it was |
 |---|---|
-| `scrapers/tfrrs/athlete-scraper/` | Bulk historical import via athlete profile pages (Nov 2025–Feb 2026). Produced the 2.2M results with **no `meet_id`**. `import-results-to-db.js:166-184` simply doesn't set the column |
+| `scrapers/tfrrs/athlete-scraper/` | Historical profile/identity/PR and repair tools. Its direct result importers were retired on 2026-09-09. |
 | `scrapers/tools/scrape-and-import.js` + `meet-url-mapping.js` | One-off for Feb 22–Mar 1 2026 championships; hardcoded name→TFRRS-URL map. Predecessor of the stored-`tfrrs_url` idea |
-| `scrapers/tfrrs/meet-scraper/{fetch-meet-list,scrape-meet-results,import-meet-results,import-new-athletes,import-relay-results}.js` | Manual 3-step pipeline superseded by `sync-weekend-results.js` (still usable for bulk backfills) |
+| Retired TFRRS file-based meet pipeline | Superseded files were removed on 2026-09-09 and remain recoverable from Git history. They are no longer usable as a competing bulk importer. |
 | `scrapers/{entries,live,final,platforms,athletic-net}/` | Old athletic.net-era pipeline (entries, live polling, finals). Writes `live_results` (48 rows). Not scheduled |
 | `scrapers/rosters/` | Roster diff/upload tooling (manual) |
 
-Legacy result writers remain in the tree for forensic recovery, but their commit paths now fail
-closed unless the operator explicitly supplies `--legacy-direct-write`. Normal production commits
-must use `--control-plane`.
+Normal production result commits use the coordinator and control plane. Narrow repair programs
+remain operator-run, but the general duplicate result engines are no longer in the working tree.
 
 ---
 

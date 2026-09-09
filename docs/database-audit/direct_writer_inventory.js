@@ -8,6 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '../..');
 const SCAN_ROOTS = ['scrapers'];
@@ -42,7 +43,11 @@ function classify(relativePath, text, writes) {
   if (relativePath === 'scrapers/shared/canonical_fact_writer.js') return 'controlled_canonical_writer';
   if (relativePath === 'scrapers/shared/athlete_resolver.js') return 'legacy_library_no_active_callers';
   if (/collegiate_roster_evidence\.js$/.test(relativePath)) return 'controlled_roster_transaction';
-  if (text.includes('ControlledIngestion')) return 'controlled_adapter_with_legacy_bridge';
+  if (text.includes('ControlledIngestion')) {
+    return text.includes('--legacy-direct-write')
+      ? 'controlled_adapter_with_legacy_bridge'
+      : 'controlled_source_adapter';
+  }
   if (text.includes('requireControlledCommit') || text.includes('i-know-this-is-legacy')) return 'guarded_legacy_or_repair_writer';
   if (/\/(?:backfill|dedup|fix-|delete-|apply-|promote_|merge_|split_|create_reviewed|verify-)/.test(relativePath)) {
     return 'explicit_manual_repair_or_identity_writer';
@@ -51,7 +56,14 @@ function classify(relativePath, text, writes) {
 }
 
 function inventory() {
-  const files = SCAN_ROOTS.flatMap(root => walk(path.join(ROOT, root)));
+  // Inventory the versioned product, not ignored operator scratch files that happen to exist in
+  // one checkout. This keeps the result reproducible in CI and on a clean clone.
+  const tracked = new Set(execFileSync('git', ['ls-files', ...SCAN_ROOTS], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  }).trim().split('\n').filter(Boolean));
+  const files = SCAN_ROOTS.flatMap(root => walk(path.join(ROOT, root)))
+    .filter(file => tracked.has(path.relative(ROOT, file)));
   const entries = [];
   for (const file of files) {
     const text = fs.readFileSync(file, 'utf8');

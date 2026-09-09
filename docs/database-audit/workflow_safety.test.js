@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { inventory } = require('./direct_writer_inventory');
 
 function runScripts(yaml) {
   const lines = yaml.split('\n');
@@ -55,4 +56,40 @@ test('scheduled result sync uses the controlled dual-source coordinator', () => 
   assert.doesNotMatch(workflow, /sync-weekend-results\.js --days/);
   assert.match(coordinator, /'--compare', '--control-plane'/);
   assert.match(coordinator, /String\(meet\.meet_id\), '--source-url', job\.url, '--control-plane'/);
+});
+
+test('superseded general result engines stay retired', () => {
+  const root = path.resolve(__dirname, '../..');
+  for (const file of [
+    'scrapers/athletic-net/batch_import.js',
+    'scrapers/build-scrape-list-2526.js',
+    'scrapers/tfrrs/athlete-scraper/import-results-to-db.js',
+    'scrapers/tfrrs/athlete-scraper/import-retry-data.js',
+    'scrapers/tfrrs/meet-scraper/fetch-meet-list.js',
+    'scrapers/tfrrs/meet-scraper/scrape-meet-results.js',
+    'scrapers/tfrrs/meet-scraper/import-meet-results.js',
+    'scrapers/tfrrs/meet-scraper/import-new-athletes.js',
+    'scrapers/tfrrs/meet-scraper/import-relay-results.js',
+  ]) assert.equal(fs.existsSync(path.join(root, file)), false, file);
+});
+
+test('every retained result source adapter uses controlled ingestion', () => {
+  const root = path.resolve(__dirname, '../..');
+  for (const file of [
+    'scrapers/tfrrs/meet-scraper/sync-weekend-results.js',
+    'scrapers/athletic-net/import_meet_results.js',
+    'scrapers/trackscoreboard/import_meet_results.js',
+    'scrapers/recovery/import_timing_adapter.js',
+  ]) {
+    const source = fs.readFileSync(path.join(root, file), 'utf8');
+    assert.match(source, /ControlledIngestion/, file);
+    assert.doesNotMatch(source, /--legacy-direct-write/, file);
+    assert.doesNotMatch(source, /args\.includes\(['"]--legacy-direct-write['"]\)/, file);
+  }
+});
+
+test('direct-writer inventory is reproducible from tracked files and has no unguarded writer', () => {
+  const entries = inventory();
+  assert.equal(entries.some(entry => entry.classification === 'unguarded_direct_writer'), false);
+  assert.equal(entries.some(entry => entry.path === 'scrapers/tools/scrape-and-import.js'), false);
 });

@@ -60,7 +60,7 @@ const host = 'db.' + new URL(process.env.SUPABASE_URL).host.split('.')[0] + '.su
   for (const [i, m] of list.entries()) {
     process.stdout.write(`[${i + 1}/${list.length}] #${m.meet_id} ${m.name.slice(0, 44).padEnd(44)} `);
     try {
-      const out = execFileSync(NODE, [TFRRS, '--meet', String(m.meet_id), '--relays-only', '--commit'],
+      const out = execFileSync(NODE, [TFRRS, '--meet', String(m.meet_id), '--relays-only', '--commit', '--control-plane'],
         { encoding: 'utf8', timeout: 300000 });
       const n = (out.match(/Relay results imported:\s*([\d,]+)/) || [])[1] || '0';
       relays += parseInt(n.replace(/,/g, ''), 10) || 0;

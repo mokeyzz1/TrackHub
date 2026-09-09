@@ -49,7 +49,7 @@ const host = 'db.' + new URL(process.env.SUPABASE_URL).host.split('.')[0] + '.su
   // -- athletic.net is Cloudflare-protected and does not like back-to-back headless requests.
   // Without this the batch would have reported ~90 false failures across 137 meets.
   const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const runOne = (id) => execFileSync(NODE, [BRIDGE, String(id), '--relays-only', '--commit'],
+  const runOne = (id) => execFileSync(NODE, [BRIDGE, String(id), '--relays-only', '--commit', '--control-plane'],
     { encoding: 'utf8', timeout: 600000 });
 
   let ok = 0, failed = 0, relays = 0, retried = 0;

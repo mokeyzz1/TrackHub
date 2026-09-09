@@ -466,14 +466,13 @@ async function run(meetDbId, {
   limit = 0,
   relaysOnly = false,
   controlPlane = false,
-  legacyDirectWrite = false,
   sourceUrl = null,
 } = {}) {
   if (controlPlane) ensureIngestDatabaseUrl();
   requireControlledCommit({
     commit,
     controlPlane,
-    legacyDirectWrite,
+    legacyDirectWrite: false,
     importer: 'athletic.net importer'
   });
 
@@ -824,10 +823,9 @@ if (require.main === module) {
   const commit = args.includes('--commit');
   const relaysOnly = args.includes('--relays-only');
   const controlPlane = args.includes('--control-plane');
-  const legacyDirectWrite = args.includes('--legacy-direct-write');
   const sIdx = args.indexOf('--source-url'); const sourceUrl = sIdx >= 0 ? args[sIdx + 1] : null;
   const jIdx = args.indexOf('--json'); const jsonFile = jIdx >= 0 ? args[jIdx + 1] : null;
   const lIdx = args.indexOf('--limit'); const limit = lIdx >= 0 ? parseInt(args[lIdx + 1], 10) : 0;
-  if (!meetDbId) { console.log('Usage: node import_meet_results.js <db_meet_id> [--commit --control-plane] [--legacy-direct-write] [--source-url URL] [--json f] [--limit N]'); process.exit(1); }
-  run(meetDbId, { commit, relaysOnly, controlPlane, legacyDirectWrite, sourceUrl, jsonFile, limit }).catch(e => { console.error('ERROR', e.message); process.exit(1); });
+  if (!meetDbId) { console.log('Usage: node import_meet_results.js <db_meet_id> [--commit --control-plane] [--source-url URL] [--json f] [--limit N]'); process.exit(1); }
+  run(meetDbId, { commit, relaysOnly, controlPlane, sourceUrl, jsonFile, limit }).catch(e => { console.error('ERROR', e.message); process.exit(1); });
 }

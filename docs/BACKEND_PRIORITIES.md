@@ -37,11 +37,10 @@ The Dec/Jan deadline below constrains the **scrapers**, not the community build.
 
 ## 🔴 P0 — before the season (Dec/Jan)
 
-**1. U1 — collapse the two scraper engines into one.**
-`scrape-meet-results.js` and `sync-weekend-results.js` are still separate parsers. Both got the
-collapse module and the colon fix, but every future fix must be made twice — and that is exactly
-how the colon bug survived in one file after being fixed in the other. This is the highest-value
-structural work left, and it gets riskier once meets are arriving weekly.
+**1. U1 — collapse the two scraper engines into one. COMPLETE 2026-09-09.**
+The duplicate file-based TFRRS parser/import pipeline and Athletic.net batch runner were retired.
+`scrapers/results/sync-dual-source-results.js` is the one production entrypoint; it calls one
+retained adapter per provider and one canonical writer.
 
 **2. Capture results links during the season.**
 USTFCCCA's directory is a moving window (CLAUDE.md §1b) — miss it and the links are gone forever.
