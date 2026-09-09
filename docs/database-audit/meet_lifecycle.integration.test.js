@@ -74,11 +74,16 @@ test('meet lifecycle migration is deterministic, secure and backward compatible'
 
     await t.test('legacy null ranges are repaired and invalid future input is rejected', async () => {
       assert.equal((await pool.query('SELECT end_date=date AS repaired FROM public.meets WHERE meet_id=910001')).rows[0].repaired, true);
-      await pool.query('BEGIN');
-      await expectSqlState(pool, "UPDATE public.meets SET end_date=date-1 WHERE meet_id=910001", '23514');
-      await expectSqlState(pool, "UPDATE public.meets SET meet_timezone='Not/AZone' WHERE meet_id=910001", '23514');
-      await expectSqlState(pool, "UPDATE public.meets SET status_override='live' WHERE meet_id=910001", '23514');
-      await pool.query('ROLLBACK');
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await expectSqlState(client, "UPDATE public.meets SET end_date=date-1 WHERE meet_id=910001", '23514');
+        await expectSqlState(client, "UPDATE public.meets SET meet_timezone='Not/AZone' WHERE meet_id=910001", '23514');
+        await expectSqlState(client, "UPDATE public.meets SET status_override='live' WHERE meet_id=910001", '23514');
+      } finally {
+        await client.query('ROLLBACK');
+        client.release();
+      }
     });
 
     await t.test('the API view obeys base RLS and exposes no write path', async () => {
