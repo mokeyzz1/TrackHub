@@ -70,6 +70,12 @@ accepted recovery path. *(This is the TFRRS recovery cascade — already sanctio
 athletic.net · `wa_results_url` = World Athletics. **Results links leak into `meet_url`; check
 periodically.**
 
+**Preserve the deferred real-time subsystem (2026-09-09).** The entries scraper, live-results
+poller, and live-finalization scraper are three stages of one system. They are intentionally
+unscheduled because real-time meet tracking is not a current priority. Keep them together and
+separate from Monday's official-results ingestion; do not delete or classify them as duplicate
+final-result scrapers.
+
 **The owner is not reviewing changes individually** ("letting you just cook", 2026-08-10). That is
 only workable while every destructive change is reversible and recorded in `RECOVERY.md`.
 

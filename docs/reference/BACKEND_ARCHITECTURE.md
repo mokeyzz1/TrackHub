@@ -95,13 +95,13 @@ the shared source-record/canonical-performance contract, not write competing raw
 | `scrapers/meets/cleanup_duplicate_meets.js` | Duplicate meet merge tool |
 | `scrapers/meets/fix_meet_urls.js` | One-time `meet_url` junk cleanup (ran 2026-07-09: 182 rewrites, 89 nulls) |
 
-### Legacy / one-off (NOT wired; candidates to archive)
+### Deferred / manual (not scheduled)
 | Path | What it was |
 |---|---|
 | `scrapers/tfrrs/athlete-scraper/` | Historical profile/identity/PR and repair tools. Its direct result importers were retired on 2026-09-09. |
 | `scrapers/tools/scrape-and-import.js` + `meet-url-mapping.js` | One-off for Feb 22–Mar 1 2026 championships; hardcoded name→TFRRS-URL map. Predecessor of the stored-`tfrrs_url` idea |
 | Retired TFRRS file-based meet pipeline | Superseded files were removed on 2026-09-09 and remain recoverable from Git history. They are no longer usable as a competing bulk importer. |
-| `scrapers/{entries,live,final,platforms,athletic-net}/` | Old athletic.net-era pipeline (entries, live polling, finals). Writes `live_results` (48 rows). Not scheduled |
+| `scrapers/entries/`, `scrapers/live/`, `scrapers/final/`, `scrapers/platforms/` | Preserved real-time subsystem: pre-meet entries → live polling → live finalization. Writes `meet_entries`/`live_results`; intentionally unscheduled until real-time tracking becomes a priority. It is separate from official Monday result ingestion. |
 | `scrapers/rosters/` | Roster diff/upload tooling (manual) |
 
 Normal production result commits use the coordinator and control plane. Narrow repair programs

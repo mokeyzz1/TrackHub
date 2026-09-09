@@ -83,7 +83,8 @@ have expired.
 - **DUP-1 pre-2026** — needs the container query indexed first; it timed out repeatedly at 2026
   scale and will not survive 10,105 meets
 - **U3** — per-event source fallback (TFRRS broke on DII 4x100 while athletic.net had it)
-- **U6** — delete the abandoned live-results code
+- **U6** — deferred real-time subsystem. Preserve entries → live polling → live finalization as
+  one unscheduled system; modernize it only when real-time meet tracking becomes a priority.
 
 ## ⚪ P3 — measured, deliberately not fixed
 

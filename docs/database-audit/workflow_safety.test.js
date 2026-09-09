@@ -58,6 +58,20 @@ test('scheduled result sync uses the controlled dual-source coordinator', () => 
   assert.match(coordinator, /String\(meet\.meet_id\), '--source-url', job\.url, '--control-plane'/);
 });
 
+test('deferred real-time subsystem remains outside scheduled workflows', () => {
+  const directory = path.resolve(__dirname, '../../.github/workflows');
+  const workflows = fs.readdirSync(directory)
+    .filter(file => /\.ya?ml$/.test(file))
+    .map(file => fs.readFileSync(path.join(directory, file), 'utf8'))
+    .join('\n');
+  assert.doesNotMatch(workflows, /entries_scraper\.js|live_scraper\.js|final_scraper\.js/);
+  for (const file of [
+    '../../scrapers/entries/entries_scraper.js',
+    '../../scrapers/live/live_scraper.js',
+    '../../scrapers/final/final_scraper.js',
+  ]) assert.equal(fs.existsSync(path.resolve(__dirname, file)), true, file);
+});
+
 test('superseded general result engines stay retired', () => {
   const root = path.resolve(__dirname, '../..');
   for (const file of [

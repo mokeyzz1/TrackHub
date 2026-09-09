@@ -17,6 +17,9 @@ Both normalize source rows and use `ControlledIngestion`; only
 TrackScoreboard and timing adapters are repair-only source adapters. Historical backfill, dedupe,
 merge, and correction programs are operator-run repair tools, not scheduled ingestion.
 
+The separate `entries/` → `live/` → `final/` subsystem supports real-time meet tracking. It is
+preserved but intentionally unscheduled and does not feed this official-results coordinator.
+
 The superseded Athletic.net batch runner, TFRRS file-based meet pipeline, list builder, and legacy
 athlete-result importers were removed on 2026-09-09. Their exact source remains in Git history at
 the parent of checkpoint `ING-04`.

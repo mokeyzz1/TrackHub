@@ -33,6 +33,8 @@ component scores come from the source; never calculate replacement scores. Histo
 affiliations, legitimate rounds, status results, and unattributed history must survive cleanup.
 Identity decisions use reviewed source evidence, not names or conflicting source IDs alone.
 Live tracking and a new UI remain deferred. The entire database, not 4x100, is the workstream.
+The deferred live subsystem consists of entries, live polling, and live finalization; preserve all
+three together, keep them unscheduled, and do not mix them into official final-result ingestion.
 
 ## Ordered checkpoints
 
