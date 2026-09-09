@@ -33,3 +33,14 @@ the identity promotion/merge/split scripts under `scrapers/athletic-net`.
 Definitions and direct source-name references are reviewed. Column semantics, database dependents,
 view ACLs/options, and external API compatibility must be closed before marking the view contracts
 complete. This report makes no claim that inventory alone closes those checks.
+
+## API-01 follow-up (September 9)
+
+The current catalog has eight application-owned views, including the four additive competition and
+athlete-status surfaces introduced after this baseline. The read-contract follow-up in
+`API_CONTRACT_AUDIT_20260909.md` verified all eight definitions, invoker options, role grants,
+row/ID parity and actual frontend consumers. The earlier open items are now resolved or explicitly
+held: `teams_summary` uses a documented distinct all-time athlete count; `v_athlete_prs` preserves
+source-supplied point totals and excludes typed components; `schools_full` and
+`unprocessed_live_results` remain private compatibility/maintenance views; and the new status and
+competition views have additive, one-row-per-key contracts. No schema or data change was required.
