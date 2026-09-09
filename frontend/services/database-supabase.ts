@@ -28,17 +28,19 @@ export async function getTopPerformances(limit: number = 10) {
       team_name,
       participant_name,
       is_final,
-      athletes (
+      athletes!inner (
         full_name,
         gender,
         school_id,
-        schools (
+        schools!inner (
           official_name,
-          division
+          division,
+          institution_type
         )
       )
     `)
     .eq('is_final', true)
+    .eq('athletes.schools.institution_type', 'collegiate')
     .not('athlete_id', 'is', null)
     .lte('place', 3)
     .order('date', { ascending: false })
@@ -75,9 +77,10 @@ export async function getPerformancesByEvent(eventName: string, limit: number = 
       date,
       meet_name,
       place,
-      athletes (
+      athletes!inner (
         full_name,
-        gender
+        gender,
+        schools!inner ( institution_type )
       ),
       teams (
         team_name,
@@ -89,6 +92,7 @@ export async function getPerformancesByEvent(eventName: string, limit: number = 
       )
     `)
     .eq('event_name', eventName)
+    .eq('athletes.schools.institution_type', 'collegiate')
     .gte('date', '2024-01-01')
     .order('mark_seconds', { ascending: true })
     .limit(limit);
@@ -125,12 +129,14 @@ export async function searchAthletes(searchTerm: string, limit: number = 20) {
       gender,
       class_year,
       primary_events,
-      schools (
+      schools!inner (
         official_name,
-        division
+        division,
+        institution_type
       )
     `)
     .eq('is_active', true)
+    .eq('schools.institution_type', 'collegiate')
     .not('full_name', 'is', null)
     .neq('full_name', '')
     .neq('full_name', ',');
@@ -166,6 +172,7 @@ export async function searchSchools(searchTerm: string, limit: number = 20) {
     .from('schools')
     .select('school_id, official_name, short_name, city, state, division')
     .eq('is_active', true)
+    .eq('institution_type', 'collegiate')
     .or(`official_name.ilike.%${searchTerm}%,short_name.ilike.%${searchTerm}%`)
     .order('official_name')
     .limit(limit);
@@ -187,6 +194,7 @@ export async function getSchoolById(schoolId: number) {
       )
     `)
     .eq('school_id', schoolId)
+    .eq('institution_type', 'collegiate')
     .single();
 
   console.log('getSchoolById result:', { data, error });
@@ -548,14 +556,16 @@ export async function getAthleteDetails(athleteId: number) {
     .from('athletes')
     .select(`
       *,
-      schools (
+      schools!inner (
         official_name,
         division,
         city,
-        state
+        state,
+        institution_type
       )
     `)
     .eq('athlete_id', athleteId)
+    .eq('schools.institution_type', 'collegiate')
     .single();
 
   if (error) {
@@ -771,13 +781,15 @@ export async function getAthletes(options: {
       gender,
       class_year,
       primary_events,
-      schools (
+      schools!inner (
         official_name,
         division,
-        state
+        state,
+        institution_type
       )
     `, { count: 'exact' })
     .eq('is_active', true)
+    .eq('schools.institution_type', 'collegiate')
     .not('full_name', 'is', null)
     .neq('full_name', '')
     .neq('full_name', ',');
@@ -844,7 +856,8 @@ export async function getSchools(options: {
         abbreviation
       )
     `, { count: 'exact' })
-    .eq('is_active', true);
+    .eq('is_active', true)
+    .eq('institution_type', 'collegiate');
 
   if (division) {
     query = query.eq('division', division);
@@ -979,12 +992,14 @@ export async function getAthleteComparisonStats(athleteId: number, seasonFilter:
       athlete_id,
       full_name,
       gender,
-      schools (
+      schools!inner (
         official_name,
-        division
+        division,
+        institution_type
       )
     `)
     .eq('athlete_id', athleteId)
+    .eq('schools.institution_type', 'collegiate')
     .single();
 
   if (athleteError || !athlete) {
@@ -1387,13 +1402,17 @@ export async function getEventsByMeetWithGender(meetName: string, date: string, 
         event_name,
         event_type_id,
         event_types ( code ),
-        athletes ( gender )
+        athletes!inner (
+          gender,
+          schools!inner ( institution_type )
+        )
       `),
       meetName,
       date,
       meetId
     );
     const { data, error } = await query
+      .eq('athletes.schools.institution_type', 'collegiate')
       .not('event_name', 'is', null)
       .range(offset, offset + pageSize - 1);
 
@@ -1450,14 +1469,15 @@ export async function getEventResults(meetName: string, eventName: string, date:
         round,
         wind,
         environment,
-        athletes (
+        athletes!inner (
           full_name,
           gender,
           class_year,
           school_id,
-          schools (
+          schools!inner (
             official_name,
-            short_name
+            short_name,
+            institution_type
           )
         )
       `),
@@ -1465,6 +1485,7 @@ export async function getEventResults(meetName: string, eventName: string, date:
       date,
       meetId
     );
+    query = query.eq('athletes.schools.institution_type', 'collegiate');
     if (eventTypeId) query = query.eq('event_type_id', eventTypeId);
     else query = query.eq('event_name', eventName);
     // Keep the source insertion order. Combined-event component rows share the parent event and
@@ -1521,12 +1542,19 @@ export async function getEventResults(meetName: string, eventName: string, date:
 export async function getEventCountsByMeet(meetName: string, date: string, meetId?: number) {
   const query = scopeMeetFactQuery(
     supabase.from('results')
-    .select('event_name, event_type_id, event_types ( code )'),
+    .select(`
+      event_name,
+      event_type_id,
+      event_types ( code ),
+      athletes!inner ( schools!inner ( institution_type ) )
+    `),
     meetName,
     date,
     meetId
   );
-  const { data, error } = await query.not('event_name', 'is', null);
+  const { data, error } = await query
+    .eq('athletes.schools.institution_type', 'collegiate')
+    .not('event_name', 'is', null);
 
   if (error) {
     console.error('Error fetching event counts:', error);

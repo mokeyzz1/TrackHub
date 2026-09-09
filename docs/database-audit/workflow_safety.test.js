@@ -93,6 +93,36 @@ test('the app consumes the calculated meet lifecycle instead of reclassifying da
   assert.match(service, /function getMeetByName[\s\S]*from\('v_meets_lifecycle'\)/);
 });
 
+test('athlete discovery and profile reads expose collegiate athletes only', () => {
+  const root = path.resolve(__dirname, '../..');
+  const service = fs.readFileSync(path.join(root, 'frontend/services/database-supabase.ts'), 'utf8');
+  const collegiateFilters = service.match(/\.eq\('schools\.institution_type', 'collegiate'\)/g) || [];
+  const functionSource = name => {
+    const start = service.indexOf(`export async function ${name}`);
+    assert.notEqual(start, -1, name);
+    const next = service.indexOf('\nexport ', start + 1);
+    return service.slice(start, next === -1 ? service.length : next);
+  };
+
+  assert.equal(collegiateFilters.length, 4);
+  for (const name of ['searchAthletes', 'getAthleteDetails', 'getAthletes', 'getAthleteComparisonStats']) {
+    assert.match(functionSource(name), /schools!inner[\s\S]*\.eq\('schools\.institution_type', 'collegiate'\)/, name);
+  }
+  for (const name of ['getEventsByMeetWithGender', 'getEventResults', 'getEventCountsByMeet']) {
+    assert.match(functionSource(name), /athletes!inner[\s\S]*schools!inner[\s\S]*\.eq\('athletes\.schools\.institution_type', 'collegiate'\)/, name);
+  }
+  for (const name of ['getTopPerformances', 'getPerformancesByEvent']) {
+    assert.match(functionSource(name), /athletes!inner[\s\S]*schools!inner[\s\S]*\.eq\('athletes\.schools\.institution_type', 'collegiate'\)/, name);
+  }
+  for (const name of ['searchSchools', 'getSchoolById', 'getSchools']) {
+    assert.match(functionSource(name), /\.eq\('institution_type', 'collegiate'\)/, name);
+  }
+  const topPerformances = fs.readFileSync(path.join(root, 'frontend/hooks/useTopPerformances.ts'), 'utf8');
+  assert.match(topPerformances, /schools!inner\(institution_type\)[\s\S]*\.eq\('schools\.institution_type', 'collegiate'\)/);
+  assert.match(topPerformances, /visibleAthleteIds\.has\(row\.athlete_id\)/);
+  assert.doesNotMatch(service, /neq\('school_id',\s*1835\)/);
+});
+
 test('scheduled meet workflows use the tested Central-time gate and preserve manual runs', () => {
   const root = path.resolve(__dirname, '../..');
   const expectations = [

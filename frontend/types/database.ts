@@ -933,6 +933,7 @@ export type Database = {
           current_conference_id: number | null
           division: string | null
           division_id: number | null
+          institution_type: "club" | "collegiate" | "high_school" | "other" | "unattached" | "unknown"
           is_active: boolean | null
           logo_file_path: string | null
           logo_source: string | null
@@ -951,6 +952,7 @@ export type Database = {
           current_conference_id?: number | null
           division?: string | null
           division_id?: number | null
+          institution_type?: "club" | "collegiate" | "high_school" | "other" | "unattached" | "unknown"
           is_active?: boolean | null
           logo_file_path?: string | null
           logo_source?: string | null
@@ -969,6 +971,7 @@ export type Database = {
           current_conference_id?: number | null
           division?: string | null
           division_id?: number | null
+          institution_type?: "club" | "collegiate" | "high_school" | "other" | "unattached" | "unknown"
           is_active?: boolean | null
           logo_file_path?: string | null
           logo_source?: string | null
