@@ -11,6 +11,7 @@ const approvals = [
   ...require('./migration_approved_history_20260905.json').entries,
   ...require('./migration_approved_history_20260906.json').entries,
   ...require('./migration_approved_history_20260908.json').entries,
+  ...require('./migration_approved_history_20260909.json').entries,
 ];
 
 async function main() {

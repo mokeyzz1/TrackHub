@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const cheerio = require('cheerio');
 
 const {
+  classifyMeetImportStatus,
   ensureIngestDatabaseUrl,
   extractTfrrsRowIdentity,
   findTeamIdBySourceName,
@@ -17,6 +18,15 @@ const {
   parseDate,
   scrapeMeet,
 } = require('./sync-weekend-results');
+
+test('meet status counts canonical duplicates as represented results', () => {
+  assert.deepEqual(
+    classifyMeetImportStatus({ imported: 0, skipped: 20 }),
+    { status: 'imported', statusError: null }
+  );
+  assert.equal(classifyMeetImportStatus({ imported: 19, errors: 1 }).status, 'partial');
+  assert.equal(classifyMeetImportStatus({}).status, 'pending');
+});
 
 test('meet page dates support full month names and multi-day ranges without inventing invalid dates', () => {
   assert.equal(parseDate('April 23-25, 2026'), '2026-04-23');

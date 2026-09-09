@@ -2242,29 +2242,31 @@ async function main() {
 
   if (options.commit) {
     const importedMeetIds = new Set(allScrapedResults.map(r => r.meet_id).filter(Boolean));
-    const totalImported = imported + (relaysImported || 0);
-    const hasErrors = errors > 0 || relayErrors > 0;
-    const status = hasErrors ? 'partial' : totalImported > 0 ? 'imported' : 'pending';
-    const statusError = hasErrors
-      ? `individual_errors=${errors}; relay_errors=${relayErrors}`
-      : totalImported === 0
-        ? 'Scrape returned rows but wrote no new rows; leaving the meet retryable.'
-        : null;
+    const { status, statusError } = classifyMeetImportStatus({
+      imported,
+      relaysImported,
+      skipped,
+      errors,
+      relayErrors,
+    });
 
     for (const meetId of importedMeetIds) {
+      const update = {
+        results_status: status,
+        results_imported_at: status === 'imported' ? new Date().toISOString() : null,
+        results_last_checked_at: new Date().toISOString(),
+        results_error: statusError
+      };
+      // Controlled promotion derives this summary from all per-result source links. The legacy
+      // bridge still records its one known provider directly because it creates no source links.
+      if (!options.controlPlane) update.results_source = status === 'imported' ? 'tfrrs' : null;
       await supabase
         .from('meets')
-        .update({
-          results_status: status,
-          results_source: status === 'imported' ? 'tfrrs' : null,
-          results_imported_at: status === 'imported' ? new Date().toISOString() : null,
-          results_last_checked_at: new Date().toISOString(),
-          results_error: statusError
-        })
+        .update(update)
         .eq('meet_id', meetId);
     }
 
-    if (hasErrors) process.exitCode = 1;
+    if (status === 'partial') process.exitCode = 1;
   }
 
   console.log('\n' + '='.repeat(60));
@@ -2274,6 +2276,22 @@ async function main() {
   console.log(`Relay results imported: ${(relaysImported || 0).toLocaleString()}`);
   console.log(`Skipped (duplicates): ${skipped.toLocaleString()}`);
   console.log(`Errors: ${errors.toLocaleString()}`);
+}
+
+function classifyMeetImportStatus({ imported = 0, relaysImported = 0, skipped = 0, errors = 0, relayErrors = 0 } = {}) {
+  const totalImported = Number(imported || 0) + Number(relaysImported || 0);
+  const represented = totalImported + Number(skipped || 0);
+  if (Number(errors || 0) > 0 || Number(relayErrors || 0) > 0) {
+    return {
+      status: 'partial',
+      statusError: `individual_errors=${Number(errors || 0)}; relay_errors=${Number(relayErrors || 0)}`,
+    };
+  }
+  if (represented > 0) return { status: 'imported', statusError: null };
+  return {
+    status: 'pending',
+    statusError: 'Scrape returned rows but none are represented canonically.',
+  };
 }
 
 if (require.main === module) {
@@ -2288,6 +2306,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  classifyMeetImportStatus,
   ensureIngestDatabaseUrl,
   extractTfrrsRowIdentity,
   fetchEventResults,
@@ -2295,6 +2314,7 @@ module.exports = {
   findTeamIdBySourceName,
   getGenderFromEventUrl,
   getMeetsNeedingResults,
+  importResults,
   main,
   parseMultiEventSummary,
   normalizeEventName,

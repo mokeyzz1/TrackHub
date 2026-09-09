@@ -1,0 +1,14 @@
+{
+  "snapshotDate": "2026-09-09",
+  "purpose": "Approved migration-history addendum for canonical results backed by multiple providers.",
+  "entries": [
+    {
+      "file": "20260909041600_allow_mixed_result_sources.sql",
+      "version": "20260909041600",
+      "name": "allow_mixed_result_sources",
+      "localSha256": "c45d37b2b229af5f2c6445f87d7e60ffeb70f9d3573b3b1ab1a194268ce61c2a",
+      "ledgerFingerprint": "4ed2d347a32d538a75b4bbcafd2268f3c35f413648cea48866e998cca2b801df",
+      "review": "Additive results-source summary value; exact rollback rehearsed and no result rows rewritten."
+    }
+  ]
+}

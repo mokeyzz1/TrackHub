@@ -2,9 +2,10 @@
 
 ## Current focus and how to use this checklist
 
-Current focus: **CLOSE-01 — reconcile the completed audit pass and carry explicit holds forward**.
-The review pass is complete, but the unresolved source/semantic decisions listed in the closeout
-remain owner-gated work. Follow the checkpoint IDs below, with the owner's direction controlling
+Current focus: **ING-03 — dual-source canonical result ingestion for completed collegiate meets**.
+The first implementation checkpoint is complete in the branch and its additive schema constraint
+is live. The historical audit/repair remains the next separate checkpoint; no historical results
+were changed here. Follow the checkpoint IDs below, with the owner's direction controlling
 progression. Do not substitute an ad hoc list or start unrelated feature work.
 
 This Markdown file controls work order and checkpoint status. [MASTER_CHECKLIST.json](MASTER_CHECKLIST.json)
@@ -80,6 +81,7 @@ Live tracking and a new UI remain deferred. The entire database, not 4x100, is t
 | ING-02f | P1 | Pin promotion isolation required by lock-wait candidate rereads; do not inherit arbitrary session defaults | ING-02e | Complete: PROMOTION_ISOLATION_20260905.md; code-only, alternate-default regression verified |
 | ING-02g | P1 | Preserve primary failures, close owned stores after run creation failure, and distinguish successful work from failed status reporting | ING-02f | Complete: RUN_ERROR_REPORTING_20260905.md; orchestrator code only, crash reconciliation remains open |
 | ING-02h | P1 | Reconcile interrupted-run semantics and historical observed-meet/canonical-meet discrepancies without rewriting evidence | MODEL-01, ING-02g | Complete 2026-09-09: the two explicitly reviewed zero-observation PT Timing dry runs were marked `aborted` with finish times and reconciliation metadata through the existing `ingest.runs` table; all-or-none guards, before-image, rollback path and postconditions passed. The 918 historical discrepancies remain explicitly held because legacy observations lack immutable source versions. Evidence: INTERRUPTED_RUN_RECONCILIATION_20260908.md and RUN_RELATIONSHIPS_20260905.md |
+| ING-03 | P1 | Run every available TFRRS/Athletic.net result source through one canonical path; link matches, retain unique facts, quarantine represented-team conflicts, derive meet provenance, and prove replay/concurrency/rollback | ING-02, ID-01, MODEL-01b | Complete/applied 2026-09-09: deterministic dual-source coordinator and scheduled workflow are in branch; both providers require canonical named-team resolution; cross-provider team conflicts fail closed; meet status handles replays; `mixed` summary constraint is live with exact rollback and ledger entry. 267 ingestion, three workflow, and all PostgreSQL 17 isolated contracts pass. No historical result repair ran. Evidence: DUAL_SOURCE_RESULT_INGESTION_20260909.md |
 | DATA-01 | P1 | Apply source-backed repairs with exact before-images, affected-ID assertions and postconditions; ambiguous groups explicitly held | ID-01, ING-02 | Complete/applied 2026-09-09: every reviewed deterministic repair family is archived and rollback-tested; current timing fallback and source-incomplete collegiate rows are explicitly held. No unreviewed bulk repair was applied. Evidence: DATA_REPAIR_RECONCILIATION_20260909.md |
 | DATA-01-USSU | P1 | Restore verified USSU school and competition affiliations | DATA-01 | Applied 2026-09-06: 16 athletes, 174 results, 4 relay parents; one exact duplicate relay archived with its 4 legs; 199 before-images retained. Rollback rehearsal and live checks passed. Source-key alias verified through shared resolver. Evidence: ussu_verified_results_20260906.json. Wider missing-school search remains open. |
 | DATA-01-USSU-W | P1 | Restore verified USSU women's affiliations | DATA-01-USSU | Applied 2026-09-06: women's team and reviewed source alias created; 4 athletes and 27 exact-source-verified results linked; 31 before-images retained. Rollback rehearsal and live checks passed. Evidence: ussu_women_verified_results_20260906.json. |

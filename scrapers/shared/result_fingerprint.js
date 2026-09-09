@@ -11,7 +11,7 @@
  *
  * So when TFRRS imported into a meet athletic.net had already filled — which is what happened,
  * 31 minutes apart — it compared its own "45.15" against the stored "45.15a", saw no match, and
- * inserted. The trailing `a` (all-weather track) is a SOURCE ANNOTATION, not part of the mark.
+ * inserted. The trailing `a` is a SOURCE ANNOTATION, not part of the numeric mark.
  *
  * The unique indexes could not save us either: both include `round`, and athletic.net supplies no
  * round, so NULL vs 'Finals' reads as two different performances. A database guard cannot

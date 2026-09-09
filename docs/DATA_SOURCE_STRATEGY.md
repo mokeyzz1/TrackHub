@@ -16,16 +16,17 @@ wrong and it misled later work. TFRRS is the **foundation** — it built ~99% of
 | **athletic.net** (incl. AthleticLIVE) | The *timing platform* — where results are born, live. Richest data (wind, splits, year, PB/SB, points). College **and** HS, but we only open our own college meets' stored URLs, so HS is never pulled in. Cloudflare-protected → puppeteer. | **SOURCE / GAP-FILLER** — fills meets TFRRS didn't cover, and the go-forward live feed. Its links are already captured at meet-discovery (2026 meets: ~563 have one). |
 
 **How they coexist — the rules**
-1. **One meet, one source.** Never import a second source into a meet that already has results
-   (that creates duplicates). Import only into *genuinely empty* meets — verify with an exact
-   per-meet count, not `results_status`.
-2. **`meets.results_source`** is the provenance record (`athletic_net` | `tfrrs` | `ustfccca` |
-   `timing_site` | `manual` | `other`; NULL = historical TFRRS/USTFCCCA era). Query it to know
-   which source filled what.
+1. **One canonical performance, every available source.** Import both providers through the
+   private control plane. Matching source observations link to one canonical result; unique
+   performances remain available; conflicts stay in review.
+2. **`meets.results_source`** is a summary (`athletic_net` | `tfrrs` | `mixed` | `ustfccca` |
+   `timing_site` | `manual` | `other`; NULL = unknown historical provenance). Exact per-result
+   provenance lives in `ingest.source_links`.
 3. **Identity is shared:** one internal `athlete_id` = one person; `tfrrs_athlete_id` and
    `athletic_net_url` are pointers to that person, and every confident match backfills the
    missing pointer so the two ID systems converge.
-4. Marks differ by source (`10.35a` vs `10.35`) — **normalize before comparing** for dup checks.
+4. Marks differ by source (`10.35a` vs `10.35`) — preserve the raw source mark and normalize its
+   numeric value before comparing performances.
 
 ## The link columns (each source has its own home)
 
@@ -37,7 +38,7 @@ Set intentionally at meet discovery based on the URL host — no more dumping ev
 | `athletic_net_results_url` | the **athletic.net results** link | discovery / post-meet |
 | `tfrrs_url` | the **TFRRS results** link | post-meet (from USTFCCCA or matched) |
 | `wa_results_url` | World Athletics results link | if applicable |
-| `results_source` | which source we actually imported from (`athletic_net` \| `tfrrs` \| `ustfccca` \| `timing_site` \| `manual` \| `other`) | set by the orchestrator |
+| `results_source` | source summary (`athletic_net` \| `tfrrs` \| `mixed` \| `ustfccca` \| `timing_site` \| `manual` \| `other`) | derived from canonical source links |
 | `results_status` | `pending` \| `tfrrs_available` \| `missing_tfrrs_url` \| `imported` | pipeline state |
 
 Note: an athletic.net *live* link doubles as its results source, so it lives in BOTH `meet_url`
@@ -59,11 +60,10 @@ Per meet needing results:
 
 1. Look at which link columns are filled.
 2. Scrape each available source (athletic.net via puppeteer; TFRRS via its scraper).
-3. **Compare** the outputs: result count, event coverage, richness (wind/splits/PB-SB).
-4. **Pick the winner or merge:** default to athletic.net for completeness + rich marks; fall
-   back to TFRRS if athletic.net is thin/missing; always use TFRRS to stamp the canonical
-   athlete identity (TFRRS ID). Best case: merge — athletic.net marks + TFRRS identity.
-5. Record `results_source` (+ optionally per-source counts) and set `results_status='imported'`.
+3. Normalize both outputs into the same source-observation contract.
+4. Reconcile each performance. Matching rows share one canonical result, rows found by one source
+   are retained, and conflicting teams, places, marks, or identities are reviewed.
+5. Derive `results_source` from the linked result evidence and set `results_status='imported'`.
 
 This makes ingestion **intentional and self-comparing**: every meet records how it got filled
 and which source had more, so coverage/quality is observable over time.
@@ -77,8 +77,9 @@ of source. Node 20+ required (puppeteer + supabase-js).
 ## Status / next
 - ✅ Link columns rationalized; athletic.net links sorted into `athletic_net_results_url` (563).
 - ✅ `results_source` column added.
-- ⏳ Build the athletic.net results scraper→import bridge (reuse `platforms/athletic_net.js`).
-- ⏳ Build the orchestrator (compare + pick + record).
+- ✅ Both TFRRS and Athletic.net use the private controlled ingestion bridge.
+- ✅ The dual-source coordinator runs every available provider for an eligible completed meet.
+- ⏳ Add structured enrichment for qualifying status, splits, and source-specific annotations.
 - See [athletic-net-scraper-plan] memory for the full athletic.net API map.
 
 
@@ -135,17 +136,17 @@ Not a switch. **Scrape the same meet from BOTH sources**, with defined roles:
 Both links stay on the meet row; each meet is reachable from either end; either can act as the
 other's fallback.
 
-**THIS CONFLICTS WITH COEXISTENCE RULE #1** ("one meet, one source — never import a second source
-into a meet that already has results"). That rule exists because a batch was once imported onto
-non-empty meets and had to be rolled back. It is not obsolete — what changes is *how* the second
-source writes:
+The former "one meet, one source" rule existed because a batch was once imported onto non-empty
+meets and had to be rolled back. The control plane now changes *how* every provider writes:
 
-- **exactly one source INSERTS** result rows for a meet (system of record for the performance)
-- **the other only UPDATES** them — attaches Q/q, splits, wind, and backfills the missing athlete
-  pointer (`athletic_net_url` / `tfrrs_athlete_id`)
-- a second INSERT for the same performance is a bug, not a merge strategy
+- a matching observation from another source links to the existing canonical performance;
+- a genuinely unique performance from either source may create one canonical row;
+- disagreement about athlete, represented team, event, or mark is quarantined for review rather
+  than silently overwriting or duplicating the canonical result;
+- future enrichment such as Q/q, splits, wind, and missing source IDs can attach to that canonical
+  fact without creating a second performance.
 
-**BLOCKER — the DB guard cannot see cross-source duplicates yet.** `results_no_exact_duplicate`
+**Defense-in-depth limitation:** `results_no_exact_duplicate`
 keys on `mark_raw`, and the two sources format marks differently:
 
 | source | marks ending `a` (auto-timed) |
@@ -161,8 +162,8 @@ that instead of `mark_raw`.
 `mark_seconds` / `mark_meters` cannot be used for this: **45% of rows (1,483,604) have neither**,
 and 1,319,151 of those have a numeric `mark_raw` that was simply never parsed.
 
-**Order of work:** normalized mark column → re-key the unique index → define which source inserts
-per meet → only then run both scrapers over the same meet.
+The normalized source adapter and canonical matcher now perform the cross-source comparison before
+promotion. The database uniqueness guard remains defense in depth, not the reconciliation engine.
 
 
 ## The recovery cascade for meets with no stored results link (owner's idea, proven 2026-08-14)

@@ -46,3 +46,13 @@ test('schema fixture contains no table data and CI requests the isolated test ru
   assert.match(workflow, /container: postgres:17\.11-bookworm/);
   assert.match(workflow, /run_isolated_postgres_tests\.sh/);
 });
+
+test('scheduled result sync uses the controlled dual-source coordinator', () => {
+  const workflow = fs.readFileSync(path.resolve(__dirname, '../../.github/workflows/sync-results.yml'), 'utf8');
+  const coordinator = fs.readFileSync(path.resolve(__dirname, '../../scrapers/results/sync-dual-source-results.js'), 'utf8');
+  assert.match(workflow, /sync-dual-source-results\.js --days "\$LOOKBACK_DAYS" --commit/);
+  assert.match(workflow, /INGEST_DATABASE_URL is required/);
+  assert.doesNotMatch(workflow, /sync-weekend-results\.js --days/);
+  assert.match(coordinator, /'--compare', '--control-plane'/);
+  assert.match(coordinator, /String\(meet\.meet_id\), '--source-url', job\.url, '--control-plane'/);
+});

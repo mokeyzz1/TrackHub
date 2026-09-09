@@ -300,6 +300,7 @@ class CanonicalFactWriter {
       // fallback for mixed/individual imports.
       if (rows.length && rows.every(row => row.entity_type === 'relay_result' || row.entity_type === 'relay_leg')) {
         await this.commitRelayBatch(client, rows, candidates, linkedSourceKeys, stats);
+        await this.refreshMeetResultSources(client, meetIds);
         await client.query('COMMIT');
         return stats;
       }
@@ -441,6 +442,7 @@ class CanonicalFactWriter {
         candidates.get(key).push(inserted);
       }
 
+      await this.refreshMeetResultSources(client, meetIds);
       await client.query('COMMIT');
       return stats;
     } catch (error) {
@@ -449,6 +451,49 @@ class CanonicalFactWriter {
     } finally {
       client.release();
     }
+  }
+
+  async refreshMeetResultSources(client, meetIds) {
+    const ids = [...new Set((meetIds || []).map(Number).filter(Number.isInteger))];
+    if (!ids.length) return 0;
+    const result = await client.query(
+      `WITH linked_facts AS (
+         SELECT r.meet_id, sr.source
+           FROM ingest.source_links sl
+           JOIN ingest.source_records sr USING (source_record_id)
+           JOIN public.results r ON r.result_id = sl.result_id
+          WHERE sl.link_status = 'linked'
+            AND r.meet_id = ANY($1::integer[])
+         UNION ALL
+         SELECT rr.meet_id, sr.source
+           FROM ingest.source_links sl
+           JOIN ingest.source_records sr USING (source_record_id)
+           JOIN public.relay_results rr ON rr.relay_result_id = sl.relay_result_id
+          WHERE sl.link_status = 'linked'
+            AND rr.meet_id = ANY($1::integer[])
+       ), source_summary AS (
+         SELECT meet_id,
+                CASE
+                  WHEN count(DISTINCT source) > 1 THEN 'mixed'
+                  WHEN max(source) = 'tfrrs' THEN 'tfrrs'
+                  WHEN max(source) = 'athletic_net' THEN 'athletic_net'
+                  WHEN max(source) = 'ustfccca' THEN 'ustfccca'
+                  WHEN max(source) = 'manual' THEN 'manual'
+                  WHEN max(source) IN ('trackscoreboard', 'milesplit', 'pt_timing', 'leonetiming')
+                    THEN 'timing_site'
+                  ELSE 'other'
+                END AS results_source
+           FROM linked_facts
+          GROUP BY meet_id
+       )
+       UPDATE public.meets m
+          SET results_source = summary.results_source
+         FROM source_summary summary
+        WHERE m.meet_id = summary.meet_id
+          AND m.results_source IS DISTINCT FROM summary.results_source`,
+      [ids]
+    );
+    return result.rowCount || 0;
   }
 
   async commitRelayBatch(client, rows, candidates, linkedSourceKeys, stats) {

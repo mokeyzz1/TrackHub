@@ -420,7 +420,7 @@ async function importMeetResults(commit = false) {
   // story. The key used to be `athlete|event_NAME|RAW mark|date`, and it had three defects that
   // together put the NCAA DII 4x100 on an athlete's profile FOUR times (1,252 rows / 243 meets):
   //   1. RAW mark, so the stored athletic.net "45.15a" never matched this importer's "45.15" —
-  //      the trailing `a` is all-weather-track notation, not part of the time;
+  //      the trailing `a` is a source timing annotation, not part of the numeric time;
   //   2. event_NAME, which differs by source ("60mh" vs "60 Meter Hurdles");
   //   3. a bare .select(), capped by PostgREST at 1000 rows, so in meet 13142 (1,937 rows) the
   //      guard could not even see all of its own meet.

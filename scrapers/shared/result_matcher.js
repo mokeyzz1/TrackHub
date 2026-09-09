@@ -58,6 +58,18 @@ function knownRoundsAreDistinct(left, right) {
   return Boolean(leftRound && rightRound && leftRound !== rightRound);
 }
 
+function knownTeamsConflict(observation, existing) {
+  if (observation.entity_type === 'relay_result') return false;
+  return observation.target_team_id != null
+    && existing.team_id != null
+    && Number(observation.target_team_id) !== Number(existing.team_id);
+}
+
+function canonicalTeamMissing(observation, existing) {
+  if (observation.entity_type === 'relay_result') return false;
+  return observation.target_team_id != null && existing.team_id == null;
+}
+
 function normalizeRelayAthleteName(value) {
   return String(value || '')
     .normalize('NFKD')
@@ -141,6 +153,8 @@ function matchObservation(observation, existingRows = [], options = {}) {
     const comparable = asComparableRow(observation, existing);
     const existingPerformanceKey = makePerformanceKey(comparable);
     const existingCanonicalKey = makeCanonicalKey(comparable);
+    const teamConflict = knownTeamsConflict(observation, existing);
+    const needsTeamEnrichment = canonicalTeamMissing(observation, existing);
     if (observation.entity_type === 'relay_result'
         && isStatusCode(observation.mark_raw)
         && isStatusCode(existing.mark_raw)
@@ -149,6 +163,14 @@ function matchObservation(observation, existingRows = [], options = {}) {
       continue;
     }
     if (statusIdentityMatches(observation, existing)) {
+      if (teamConflict || needsTeamEnrichment) {
+        candidates.push({
+          existing,
+          comparable,
+          kind: teamConflict ? 'represented_team_conflict' : 'team_enrichment_required'
+        });
+        continue;
+      }
       const sameCode = String(observation.mark_raw).toLowerCase()
         === String(existing.mark_raw).toLowerCase();
       candidates.push({
@@ -159,7 +181,15 @@ function matchObservation(observation, existingRows = [], options = {}) {
       continue;
     }
     if (canonicalKey && existingCanonicalKey === canonicalKey) {
-      candidates.push({ existing, comparable, kind: 'exact_performance' });
+      candidates.push({
+        existing,
+        comparable,
+        kind: teamConflict
+          ? 'represented_team_conflict'
+          : needsTeamEnrichment
+            ? 'team_enrichment_required'
+            : 'exact_performance'
+      });
       continue;
     }
     if (performanceKey && existingPerformanceKey === performanceKey) {
@@ -242,6 +272,16 @@ function matchObservation(observation, existingRows = [], options = {}) {
       };
     }
 
+    if (candidate.kind === 'represented_team_conflict' || candidate.kind === 'team_enrichment_required') {
+      return {
+        action: 'quarantine',
+        reason: candidate.kind,
+        confidence: candidate.kind === 'represented_team_conflict' ? 0.95 : 0.9,
+        matched: candidate.existing,
+        candidates: [candidate.existing]
+      };
+    }
+
     // Same athlete/team, event, and mark but different places is a source disagreement. Never
     // decide which placing is correct inside the dedupe layer.
     return {
@@ -319,6 +359,8 @@ module.exports = {
   historyKey,
   dateDistanceDays,
   knownRoundsAreDistinct,
+  knownTeamsConflict,
+  canonicalTeamMissing,
   relayLineupKey,
   sameRelayLineup,
   statusIdentityMatches,

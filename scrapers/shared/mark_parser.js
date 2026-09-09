@@ -25,7 +25,7 @@
  *     yet; until there is, these stay unparsed on purpose.
  */
 
-// Only the KNOWN timing suffixes, never "any trailing letter": a=all-weather, h=hand-timed,
+// Only the KNOWN source suffixes, never "any trailing letter": a=source timing annotation, h=hand-timed,
 // c=converted, y=imperial-yard conversion. Stripping letters generically turned the field mark
 // "5.08m" into 5.08 SECONDS, because the metre marker looks like a suffix.
 const TIMING_SUFFIX = /[ahcy]$/i;

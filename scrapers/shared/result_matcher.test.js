@@ -113,6 +113,30 @@ test('skips an exact repeated individual status code', () => {
   assert.equal(match.reason, 'same_status_code_same_performance');
 });
 
+test('holds the same performance when providers resolve different represented teams', () => {
+  const match = matchObservation(
+    individualStatus({ mark_raw: '10.35', mark_seconds: 10.35, place: 1, target_team_id: 8 }),
+    [existingIndividualStatus({
+      mark_raw: '10.35a', mark_seconds: 10.35, place: 1, team_id: 9,
+    })]
+  );
+
+  assert.equal(match.action, 'quarantine');
+  assert.equal(match.reason, 'represented_team_conflict');
+});
+
+test('holds source-backed team enrichment for reviewed historical repair', () => {
+  const match = matchObservation(
+    individualStatus({ mark_raw: '10.35', mark_seconds: 10.35, place: 1, target_team_id: 8 }),
+    [existingIndividualStatus({
+      mark_raw: '10.35a', mark_seconds: 10.35, place: 1, team_id: null,
+    })]
+  );
+
+  assert.equal(match.action, 'quarantine');
+  assert.equal(match.reason, 'team_enrichment_required');
+});
+
 test('prefers one exact current-meet fact over an unlinked legacy history row', () => {
   const row = individualStatus({
     target_meet_id: 11880,

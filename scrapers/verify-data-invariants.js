@@ -148,7 +148,7 @@ const CHECKS = [
          'separate performances. `round` is in those indexes deliberately (185 real prelim/final ' +
          'pairs share mark and place), so it cannot simply be removed. That is exactly why this ' +
          'check exists OUTSIDE the indexes — it is the only thing that can see the gap.\n' +
-         '         The mixed-suffix test is what makes it safe: a trailing `a` (all-weather) or ' +
+         '         The mixed-suffix test is what makes it safe: a trailing `a` (source annotation) or ' +
          '`h` (hand-timed) is a SOURCE annotation, so one row with a suffix and one without, at ' +
          'the same athlete/meet/event/mark, is two sources describing one race — never two races. ' +
          'A genuine prelim and final differ in TIME, so they cannot be caught here.\n' +

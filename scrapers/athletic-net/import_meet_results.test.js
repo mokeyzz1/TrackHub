@@ -3,10 +3,39 @@ const assert = require('node:assert/strict');
 
 const {
   countScrapedObservations,
+  controlledMeetStatus,
+  controlledResolutionOptions,
   eventsForImportMode,
   resolveExistingAthlete,
   resolveIndividualTeam
 } = require('./import_meet_results');
+
+test('controlled outcome treats already-linked source rows as imported', () => {
+  const status = controlledMeetStatus(12, { inserted: 0, skipped: 12 });
+  assert.equal(status.results_status, 'imported');
+  assert.equal(status.results_error, null);
+  assert.ok(status.results_imported_at);
+});
+
+test('controlled outcome keeps quarantined and empty source states honest', () => {
+  assert.deepEqual(
+    Object.fromEntries(Object.entries(controlledMeetStatus(8, { inserted: 7, quarantined: 1 })).filter(([key]) => !key.endsWith('_at'))),
+    { results_status: 'partial', results_error: 'quarantined_observations=1' }
+  );
+  const empty = controlledMeetStatus(0, {});
+  assert.equal(empty.results_status, 'no_results_at_source');
+  assert.equal(empty.results_imported_at, null);
+});
+
+test('controlled Athletic.net imports require named teams to resolve', () => {
+  const teamResolver = { resolve() {} };
+  const athleteResolver = { resolve() {} };
+  assert.deepEqual(controlledResolutionOptions(teamResolver, athleteResolver), {
+    teamResolver,
+    athleteResolver,
+    requireNamedTeam: true,
+  });
+});
 
 test('relay-only mode excludes individual events before athlete lookup', () => {
   const events = [

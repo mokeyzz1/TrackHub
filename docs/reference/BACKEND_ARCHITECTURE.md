@@ -74,7 +74,7 @@ the shared source-record/canonical-performance contract, not write competing raw
 |---|---|---|---|
 | `scrape-meets.yml` | Mon/Thu/Fri 6AM Central | `meets/scrape_meets_github.js all` | `meets` (upsert; links by label: "Timing Site"→`meet_url`, "TFRRS Results"→`tfrrs_url`, AthleticNet/WA final links) |
 | `check-live-status.yml` | hourly Wed–Sun meet hours + daily 6AM | `meets/update_meet_status.js` | `meets.status` (upcoming→completed by `end_date`) |
-| `sync-results.yml` | Sun 10PM + Mon 8AM Central | `scrape_meets_github.js last_week`, then TFRRS `--commit --control-plane` | staged observations, canonical facts/provenance, `athletes` (legacy resolver), `meets.results_status` |
+| `sync-results.yml` | Sun 10PM + Mon 8AM Central | refresh result links, then `results/sync-dual-source-results.js --commit` | TFRRS and Athletic.net observations, canonical facts/provenance, `meets.results_status` |
 | manual recovery queue | operator-run | `recovery/refresh_recovery_queue.js --scope ... --from ... --to ...` | private `ingest.recovery_queue` only; no fact writes |
 
 **Anything not in this table does not run automatically.**
@@ -90,6 +90,7 @@ the shared source-record/canonical-performance contract, not write competing raw
 | `scrapers/meets/update_meet_status.js` | Status flips (uses `end_date` for multi-day) |
 | `scrapers/tfrrs/meet-scraper/sync-weekend-results.js` | **The results engine.** Finds recent meets w/o results; prefers stored `tfrrs_url` (`--fuzzy` enables name-match fallback ≥35% similarity); scrapes TFRRS; imports w/ `meet_id`, relays, dupe checks |
 | `scrapers/athletic-net/import_meet_results.js` + `batch_import.js` | Gap-filler bridge; supports cached/live scrape and opt-in `--control-plane` staging/commit |
+| `scrapers/results/sync-dual-source-results.js` | Runs every available TFRRS/Athletic.net source for a completed meet; the shared writer reconciles each observation into one canonical result |
 | `scrapers/meets/backfill_result_links.js` | Off-season tool: re-scrape USTFCCCA/TFRRS listings to fill missing result links on past meets (only fills empty fields) |
 | `scrapers/meets/cleanup_duplicate_meets.js` | Duplicate meet merge tool |
 | `scrapers/meets/fix_meet_urls.js` | One-time `meet_url` junk cleanup (ran 2026-07-09: 182 rewrites, 89 nulls) |

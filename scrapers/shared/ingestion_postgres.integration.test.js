@@ -38,6 +38,7 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
     await pool.query('BEGIN');
     await pool.query(evidenceMigration);
     await pool.query(fs.readFileSync(path.join(__dirname, '../../supabase/migrations/20260905185312_enforce_source_link_target_kind.sql'), 'utf8'));
+    await pool.query(fs.readFileSync(path.join(__dirname, '../../supabase/migrations/20260909041600_allow_mixed_result_sources.sql'), 'utf8'));
     await pool.query('COMMIT');
     await pool.query("INSERT INTO public.schools(school_id,official_name) VALUES(1,'Synthetic Test School'); INSERT INTO public.teams(team_id,school_id,gender) VALUES(1,1,'M'); INSERT INTO public.athletes(athlete_id,school_id,full_name,gender) VALUES(1,1,'Synthetic Runner','M'); INSERT INTO public.meets(meet_id,name,date) VALUES(1,'Synthetic Meet','2026-09-01'); INSERT INTO public.event_types(event_type_id,code,measure,environment_scope) VALUES(1,'100m','time','both')");
     const store = new IngestionStore({ pool });
@@ -132,6 +133,17 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
       await promote([record('replay', { source: 'athletic_net' })]);
       const result = await pool.query("SELECT count(DISTINCT r.result_id)::int AS facts,count(DISTINCT sl.source_record_id)::int AS links FROM public.results r JOIN ingest.source_links sl ON sl.result_id=r.result_id WHERE r.mark_raw='10.50'");
       assert.deepEqual(result.rows[0], { facts: 1, links: 2 });
+      assert.equal((await pool.query('SELECT results_source FROM public.meets WHERE meet_id=1')).rows[0].results_source, 'mixed');
+    });
+    await t.test('cross-provider team conflicts stay private and do not relabel the fact', async () => {
+      await pool.query("INSERT INTO public.schools(school_id,official_name) VALUES(9002,'Other School'); INSERT INTO public.teams(team_id,school_id,gender) VALUES(9002,9002,'M')");
+      await promote([record('team-conflict', { mark_raw: '10.60' })]);
+      const conflict = await promote([record('team-conflict', {
+        source: 'athletic_net', mark_raw: '10.60', target_team_id: 9002,
+      })]);
+      assert.equal(Number(conflict.quarantined), 1);
+      assert.equal(Number((await pool.query("SELECT team_id FROM public.results WHERE mark_raw='10.60'")).rows[0].team_id), 1);
+      assert.equal((await pool.query("SELECT q.reason_code FROM ingest.quarantine q JOIN ingest.observations o USING(observation_id) WHERE o.run_id=$1", [conflict.runId])).rows[0].reason_code, 'represented_team_conflict');
     });
     await t.test('relay parent promotion and replay retain one team performance', async () => {
       await pool.query("INSERT INTO public.event_types(event_type_id,code,measure,environment_scope) VALUES(3,'4x100m','time','both')");
@@ -239,7 +251,7 @@ test('isolated PostgreSQL ingestion contracts', { skip: !socket }, async t => {
         assert.equal((await client.query('SELECT athlete_count FROM public.teams_summary WHERE team_id=1')).rows[0].athlete_count, '2');
         await client.query(fs.readFileSync(path.join(__dirname, '../../supabase/migrations/20260905190400_count_distinct_team_summary_athletes.sql'), 'utf8'));
         await client.query('SET LOCAL ROLE service_role');
-        assert.deepEqual((await client.query('SELECT athlete_count FROM public.teams_summary ORDER BY team_id')).rows, [{ athlete_count: '1' }, { athlete_count: '0' }]);
+        assert.deepEqual((await client.query('SELECT athlete_count FROM public.teams_summary WHERE team_id IN (1,2) ORDER BY team_id')).rows, [{ athlete_count: '1' }, { athlete_count: '0' }]);
         await client.query('RESET ROLE');
         assert.equal((await client.query('SELECT count(*)::int AS n FROM public.athlete_team_seasons')).rows[0].n, 2);
         assert.equal((await client.query("SELECT has_table_privilege('anon','public.teams_summary','SELECT') AS access")).rows[0].access, false);

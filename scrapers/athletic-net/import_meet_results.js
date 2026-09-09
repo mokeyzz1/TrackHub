@@ -9,7 +9,7 @@
  *     athlete      --athletic_net id / name-->  athlete_id  (found or created)
  *     "10.35a"     --parseMark-->  mark_seconds / mark_meters
  *     meet         -->  meet_id  (the DB meet we're importing)
- *   then stamp results_source='athletic_net', results_status='imported' on the meet.
+ *   then derive meet status from the controlled outcome; exact provenance remains in source_links.
  *
  * Athlete matching: primary key = athletic.net athlete id (athletes.athletic_net_url holds it,
  * 55% populated). No id match -> created (school matching is deferred; new ones land Unattached
@@ -67,6 +67,56 @@ function eventsForImportMode(events, relaysOnly) {
   const sourceEvents = Array.isArray(events) ? events : [];
   if (!relaysOnly) return sourceEvents;
   return sourceEvents.filter(event => (event.results || []).some(result => result.is_relay));
+}
+
+function controlledResolutionOptions(teamResolver, athleteResolver) {
+  return {
+    teamResolver,
+    athleteResolver,
+    // A published team name is affiliation evidence. If it has no reviewed canonical mapping,
+    // keep the observation private for review instead of publishing a teamless college result.
+    requireNamedTeam: true
+  };
+}
+
+function controlledMeetStatus(observed, outcome = {}) {
+  const checkedAt = new Date().toISOString();
+  if (observed === 0) {
+    return {
+      results_status: 'no_results_at_source',
+      results_imported_at: null,
+      results_last_checked_at: checkedAt,
+      results_error: null,
+    };
+  }
+
+  const represented = Number(outcome.inserted || 0)
+    + Number(outcome.claimed || 0)
+    + Number(outcome.skipped || 0)
+    + Number(outcome.relayParents || 0);
+  const quarantined = Number(outcome.quarantined || 0);
+  if (quarantined > 0) {
+    return {
+      results_status: 'partial',
+      results_imported_at: null,
+      results_last_checked_at: checkedAt,
+      results_error: `quarantined_observations=${quarantined}`,
+    };
+  }
+  if (represented > 0) {
+    return {
+      results_status: 'imported',
+      results_imported_at: checkedAt,
+      results_last_checked_at: checkedAt,
+      results_error: null,
+    };
+  }
+  return {
+    results_status: 'pending',
+    results_imported_at: null,
+    results_last_checked_at: checkedAt,
+    results_error: 'Source returned observations but none are represented canonically.',
+  };
 }
 
 /**
@@ -616,10 +666,12 @@ async function run(meetDbId, {
       if (controlled.ownsStore) await controlled.store.close();
       throw error;
     }
-    const records = normalizeSourceRows('athletic_net', sourceRows, events, {
-      teamResolver: teamAliases,
-      athleteResolver: athleteAliases
-    });
+    const records = normalizeSourceRows(
+      'athletic_net',
+      sourceRows,
+      events,
+      controlledResolutionOptions(teamAliases, athleteAliases)
+    );
     const outcome = await controlled.run({
       source: 'athletic_net',
       mode: commitMode ? 'commit' : 'dry_run',
@@ -660,6 +712,9 @@ async function run(meetDbId, {
   // here and bypass the quarantine boundary this mode is designed to enforce.
   if (controlPlane) {
     const outcome = await stageControlPlane(true);
+    const statusUpdate = controlledMeetStatus(countScrapedObservations(scraped, relayStats), outcome);
+    const { error: statusError } = await supabase.from('meets').update(statusUpdate).eq('meet_id', meet.meet_id);
+    if (statusError) throw new Error(`Could not update meet result status: ${statusError.message}`);
     if (outcome.quarantined) process.exitCode = 1;
     return {
       imported: outcome.inserted || 0,
@@ -754,6 +809,8 @@ async function run(meetDbId, {
 
 module.exports = {
   countScrapedObservations,
+  controlledMeetStatus,
+  controlledResolutionOptions,
   eventsForImportMode,
   resolveExistingAthlete,
   run,
