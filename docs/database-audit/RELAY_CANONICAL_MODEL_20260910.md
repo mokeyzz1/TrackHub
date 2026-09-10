@@ -26,9 +26,25 @@ The migration is additive. It adds two private provenance columns, their foreign
 target-consistency checks. It does not update or delete public facts. The 112,724 relay-classified
 rows measured in `public.results` remain unchanged for RELAY-02 classification.
 
+### Live migration checkpoint — 2026-09-10
+
+Migration `20260910114719_add_relay_leg_canonical_provenance.sql` is applied to production and is
+recorded once in `supabase_migrations.schema_migrations`. Live verification confirmed:
+
+- `ingest.observations.canonical_relay_athlete_id` and
+  `ingest.source_links.relay_athlete_id` exist as nullable private columns;
+- both foreign keys are validated and use `ON DELETE RESTRICT` against
+  `public.relay_athletes(relay_athlete_id)`;
+- both partial indexes exist and all four target-consistency checks are validated; and
+- both new columns contain zero non-null values.
+
+The zero values are intentional: the migration prepared the private relationship shape, but no
+updated ingestion run or historical backfill has used it. Existing public result and relay facts
+were not rewritten. Schema readiness therefore does not mean writer activation or RELAY-02 repair.
+
 Do not activate the new writer in production before releasing the updated app reader: installed
 older builds still discover relay events through compatibility rows in `results`. The safe order is
-migration, updated app reader, then canonical writer activation.
+migration (complete), updated app reader, then canonical writer activation.
 
 ## Verification
 
@@ -39,9 +55,9 @@ migration, updated app reader, then canonical writer activation.
 - Focused frontend lint reports zero errors.
 - A read-only anonymous live API probe returned canonical relay codes through the new relationship
   shape for an existing meet.
-- No production schema or data was changed during this checkpoint.
+- Production received only the additive private migration described above; no public fact rows or
+  historical relay relationships were changed.
 
-Rollback before activation is a code revert plus removal of the additive migration from the
-undeployed branch. After schema deployment, the two nullable private columns and indexes can remain
-without affecting existing readers; dropping them requires first confirming no new membership links
-exist.
+Before writer activation, the two nullable private columns and indexes can safely remain without
+affecting existing readers. A schema rollback is not currently necessary; any future removal must
+first confirm that no relay-membership links have been populated.
