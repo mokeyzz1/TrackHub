@@ -2,9 +2,9 @@ name: Validate backend
 
 on:
   push:
-    branches: [backend-rebuild]
+    branches: [main, backend-rebuild]
   pull_request:
-    branches: [backend-rebuild]
+    branches: [main, backend-rebuild]
 
 jobs:
   validate:
