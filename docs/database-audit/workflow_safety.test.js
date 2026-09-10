@@ -48,6 +48,12 @@ test('schema fixture contains no table data and CI requests the isolated test ru
   assert.match(workflow, /run_isolated_postgres_tests\.sh/);
 });
 
+test('backend validation runs for main pull requests and main pushes', () => {
+  const workflow = fs.readFileSync(path.resolve(__dirname, '../../.github/workflows/validate-backend.yml'), 'utf8');
+  assert.match(workflow, /push:\s*\n\s*branches: \[main, backend-rebuild\]/);
+  assert.match(workflow, /pull_request:\s*\n\s*branches: \[main, backend-rebuild\]/);
+});
+
 test('scheduled result sync uses the controlled dual-source coordinator', () => {
   const workflow = fs.readFileSync(path.resolve(__dirname, '../../.github/workflows/sync-results.yml'), 'utf8');
   const coordinator = fs.readFileSync(path.resolve(__dirname, '../../scrapers/results/sync-dual-source-results.js'), 'utf8');
