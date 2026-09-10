@@ -46,6 +46,21 @@ Do not activate the new writer in production before releasing the updated app re
 older builds still discover relay events through compatibility rows in `results`. The safe order is
 migration (complete), updated app reader, then canonical writer activation.
 
+### Product rollout decision — 2026-09-10
+
+The app-reader release is intentionally postponed. The user plans to include this reader change in
+the larger future UI rebuild rather than publish an Expo update now. The reader implementation stays
+committed on this branch and must not be released independently unless the user later requests it.
+
+Until that future app release is confirmed:
+
+- do not publish an Expo update or submit a new mobile build for RELAY-01;
+- do not activate the canonical relay writer in scheduled or manual production ingestion; and
+- do not run RELAY-02 historical reconciliation.
+
+The deployed nullable private schema may remain idle safely. The existing app and compatibility
+relay rows continue operating as they did before this checkpoint.
+
 ## Verification
 
 - 269 ingestion tests pass.
