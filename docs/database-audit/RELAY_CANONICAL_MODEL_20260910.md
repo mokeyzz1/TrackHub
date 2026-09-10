@@ -38,28 +38,34 @@ recorded once in `supabase_migrations.schema_migrations`. Live verification conf
 - both partial indexes exist and all four target-consistency checks are validated; and
 - both new columns contain zero non-null values.
 
-The zero values are intentional: the migration prepared the private relationship shape, but no
-updated ingestion run or historical backfill has used it. Existing public result and relay facts
-were not rewritten. Schema readiness therefore does not mean writer activation or RELAY-02 repair.
-
-Do not activate the new writer in production before releasing the updated app reader: installed
-older builds still discover relay events through compatibility rows in `results`. The safe order is
-migration (complete), updated app reader, then canonical writer activation.
+The zero values were verified immediately after schema deployment: the migration prepared the
+private relationship shape, but no updated ingestion run or historical backfill had used it.
+Existing public result and relay facts were not rewritten. Schema deployment did not perform a
+RELAY-02 repair.
 
 ### Product rollout decision — 2026-09-10
 
-The app-reader release is intentionally postponed. The user plans to include this reader change in
-the larger future UI rebuild rather than publish an Expo update now. The reader implementation stays
-committed on this branch and must not be released independently unless the user later requests it.
+The app-reader release remains intentionally postponed. The user plans to include this reader
+change in the larger future UI rebuild rather than publish an Expo update now. Both reader and
+writer code were merged into `main` at merge commit `5a22cbd` after the exact merged tree passed
+local unit, workflow, migration-history and PostgreSQL integration checks.
 
-Until that future app release is confirmed:
+This makes the writer **code-active but not yet observed data-active**: scheduled ingestion now
+contains the canonical implementation, but the two new provenance columns were still empty at the
+post-migration verification point because no qualifying relay ingestion had populated them. The
+owner accepted merging before the app release because the product is currently in cross-country
+season and expects indoor track to begin around December.
+
+Until the future app release is confirmed:
 
 - do not publish an Expo update or submit a new mobile build for RELAY-01;
-- do not activate the canonical relay writer in scheduled or manual production ingestion; and
 - do not run RELAY-02 historical reconciliation.
 
-The deployed nullable private schema may remain idle safely. The existing app and compatibility
-relay rows continue operating as they did before this checkpoint.
+Existing compatibility relay rows were preserved, so historical relay screens in the installed app
+continue operating as before. If an unexpected relay is ingested before the app update, the new
+canonical fact will not receive a compatibility copy in `public.results` and may therefore be absent
+from the old app's meet-event list. That is an accepted temporary seasonal risk, not a claim that
+the two readers are equivalent.
 
 ## Verification
 
@@ -73,6 +79,6 @@ relay rows continue operating as they did before this checkpoint.
 - Production received only the additive private migration described above; no public fact rows or
   historical relay relationships were changed.
 
-Before writer activation, the two nullable private columns and indexes can safely remain without
-affecting existing readers. A schema rollback is not currently necessary; any future removal must
-first confirm that no relay-membership links have been populated.
+The nullable private columns and indexes can safely remain without affecting existing readers. A
+schema rollback is not currently necessary; any future removal must first confirm whether scheduled
+ingestion has populated relay-membership links.
