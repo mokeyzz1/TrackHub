@@ -17,7 +17,7 @@ import { WebView } from 'react-native-webview';
 import * as Haptics from 'expo-haptics';
 import { colors } from '../../design-system/colors';
 import { supabase } from '../../lib/supabase';
-import { getEventsByMeetWithGender } from '../../services/database-supabase';
+import { getAllEventsByMeetWithGender } from '../../services/database-supabase';
 
 // Helper to check if a date is from Dec 2025+ (clean data from new scraper)
 function isCleanDataSeason(dateString: string): boolean {
@@ -154,7 +154,7 @@ export default function MeetDetailScreen() {
     try {
       setEventsLoading(true);
 
-      const eventsData = await getEventsByMeetWithGender(name, dateStr, meetId);
+      const eventsData = await getAllEventsByMeetWithGender(name, dateStr, meetId);
 
       setMensEvents(sortEvents(eventsData.mens));
       setWomensEvents(sortEvents(eventsData.womens));

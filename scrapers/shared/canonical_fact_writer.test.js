@@ -21,10 +21,18 @@ test('does not put source-specific string event codes into integer legacy event_
 });
 
 test('only accepts one valid canonical source-link target', () => {
-  assert.deepEqual(linkedTarget(123, null), { resultId: 123, relayResultId: null });
-  assert.deepEqual(linkedTarget(null, 456), { resultId: null, relayResultId: 456 });
+  assert.deepEqual(linkedTarget(123, null), {
+    resultId: 123, relayResultId: null, relayAthleteId: null,
+  });
+  assert.deepEqual(linkedTarget(null, 456), {
+    resultId: null, relayResultId: 456, relayAthleteId: null,
+  });
+  assert.deepEqual(linkedTarget(null, null, 789), {
+    resultId: null, relayResultId: null, relayAthleteId: 789,
+  });
   assert.equal(linkedTarget(null, null), null);
   assert.equal(linkedTarget(123, 456), null);
+  assert.equal(linkedTarget(123, null, 789), null);
 });
 
 test('reconciles a resolved relay leg onto its existing parent relay', async () => {
@@ -49,6 +57,30 @@ test('reconciles a resolved relay leg onto its existing parent relay', async () 
 
   assert.equal(updated, 1);
   assert.deepEqual(calls[1].params, [61772, 242867, 4, '9166975']);
+});
+
+test('resolves a relay-leg observation to its membership rather than an individual result', async () => {
+  const calls = [];
+  const client = {
+    query: async (text, params) => {
+      calls.push({ text, params });
+      if (text.includes('SELECT ra.relay_athlete_id')) return { rows: [{ relay_athlete_id: 987 }] };
+      if (text.includes('SELECT sl.relay_result_id')) return { rows: [{ relay_result_id: 654 }] };
+      return { rowCount: 1 };
+    },
+  };
+  const writer = new CanonicalFactWriter({ pool: {}, env: { INGEST_DATABASE_URL: 'postgresql://test' } });
+  const target = await writer.resolveRelayLegTarget(client, {
+    source: 'athletic_net',
+    target_athlete_id: 321,
+    payload: {
+      relay_parent_source_record_key: 'relay-parent',
+      leg: { leg_order: 2, athletic_net_athlete_id: 'anet-321' },
+    },
+  });
+  assert.equal(target, 987);
+  assert.match(calls[0].text, /JOIN public\.relay_athletes/);
+  assert.deepEqual(calls[0].params, ['athletic_net', 'relay-parent', 2]);
 });
 
 test('batches preclassified quarantine bookkeeping', async () => {

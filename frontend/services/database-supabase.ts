@@ -1401,7 +1401,7 @@ export async function getEventsByMeetWithGender(meetName: string, date: string, 
       .select(`
         event_name,
         event_type_id,
-        event_types ( code ),
+        event_types!inner ( code, category ),
         athletes!inner (
           gender,
           schools!inner ( institution_type )
@@ -1413,6 +1413,7 @@ export async function getEventsByMeetWithGender(meetName: string, date: string, 
     );
     const { data, error } = await query
       .eq('athletes.schools.institution_type', 'collegiate')
+      .neq('event_types.category', 'relay')
       .not('event_name', 'is', null)
       .range(offset, offset + pageSize - 1);
 
@@ -1742,17 +1743,24 @@ export async function getAthleteRelays(athleteId: number, limit: number = 50) {
 }
 
 // Get relay events at a meet (for event listing)
-export async function getRelayEventsByMeet(meetName: string, date: string) {
-  const { data, error } = await supabase
-    .from('relay_results')
+export async function getRelayEventsByMeet(meetName: string, date: string, meetId?: number) {
+  const query = scopeMeetFactQuery(
+    supabase.from('relay_results')
     .select(`
       event_name,
-      teams (
-        gender
+      event_type_id,
+      event_types ( code ),
+      teams!inner (
+        gender,
+        schools!inner ( institution_type )
       )
-    `)
-    .eq('meet_name', meetName)
-    .eq('date', date)
+    `),
+    meetName,
+    date,
+    meetId
+  );
+  const { data, error } = await query
+    .eq('teams.schools.institution_type', 'collegiate')
     .not('event_name', 'is', null);
 
   if (error) {
@@ -1764,12 +1772,13 @@ export async function getRelayEventsByMeet(meetName: string, date: string) {
   const mensEvents = new Set<string>();
   const womensEvents = new Set<string>();
 
-  data?.forEach(r => {
+  data?.forEach((r: any) => {
     const gender = (r.teams as any)?.gender;
+    const eventName = (r.event_types as any)?.code || r.event_name;
     if (gender === 'M') {
-      mensEvents.add(r.event_name);
+      mensEvents.add(eventName);
     } else if (gender === 'F') {
-      womensEvents.add(r.event_name);
+      womensEvents.add(eventName);
     }
   });
 
@@ -1780,12 +1789,12 @@ export async function getRelayEventsByMeet(meetName: string, date: string) {
 }
 
 // Get combined events (individual + relay) for a meet
-export async function getAllEventsByMeetWithGender(meetName: string, date: string) {
+export async function getAllEventsByMeetWithGender(meetName: string, date: string, meetId?: number) {
   // Get individual events
-  const individualEvents = await getEventsByMeetWithGender(meetName, date);
+  const individualEvents = await getEventsByMeetWithGender(meetName, date, meetId);
 
   // Get relay events
-  const relayEvents = await getRelayEventsByMeet(meetName, date);
+  const relayEvents = await getRelayEventsByMeet(meetName, date, meetId);
 
   // Combine and dedupe
   return {
