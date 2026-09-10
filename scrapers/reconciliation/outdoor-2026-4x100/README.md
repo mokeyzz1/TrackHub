@@ -62,3 +62,9 @@ node scrapers/reconciliation/outdoor-2026-4x100/cli.js summary
 The first version deliberately has no public `apply` command. Public promotion will be added only
 after the MIAA truth case, no-event cases, combined-event relationships, status-only results, and
 the full season dry run all pass review.
+
+Candidate discovery first prefers one exact normalized name. When TFRRS publishes a longer name,
+it may use a contained-token candidate only if the meet/date page verifies it. Indoor/outdoor and
+session words remain identifying. A candidate is held when it is ambiguous, when several local
+meets claim the same source page, or when that source URL already belongs to another public meet.
+Staging writes only the private queue; it never fills `public.meets.tfrrs_url`.

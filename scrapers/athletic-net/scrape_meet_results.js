@@ -100,10 +100,36 @@ function sourceStatus({ status = null, hasEvents = false } = {}) {
   return hasEvents ? 'results_available' : 'empty';
 }
 
+// Recovery jobs can ask the scraper for one canonical event. The source uses several equivalent
+// spellings (4x100, 4x100mR, 4 x 100 Relay, and display text such as "Results Women 4x100mR").
+// Keep this filter intentionally narrow: it is only a request boundary, not an event resolver.
+function normalizeEventCodeForScope(value) {
+  const text = String(value || '')
+    .replace(/\u00d7/g, 'x')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (/\b4\s*x\s*100\s*(?:m(?:eters?)?r?|r(?:elay)?)?\b/i.test(text)) return '4x100m';
+  return text.toLowerCase();
+}
+
+function matchesEventCode(event, eventCode) {
+  if (!eventCode) return true;
+  const requested = normalizeEventCodeForScope(eventCode);
+  return [event?.eventCode, event?.rowText]
+    .filter(Boolean)
+    .some(value => normalizeEventCodeForScope(value) === requested);
+}
+
+function filterEventsByCode(events, eventCode) {
+  const sourceEvents = Array.isArray(events) ? events : [];
+  return eventCode ? sourceEvents.filter(event => matchesEventCode(event, eventCode)) : sourceEvents;
+}
+
 function athleticLiveEventCode(source = {}) {
   let code = source.n || source.sn || source.ab || '';
   code = String(code).replace(/\s+/g, ' ').trim()
-    .replace(/^(?:Men|Women)\s+/i, '')
+    .replace(/^(?:Men|Women|Boys|Girls)\s+/i, '')
+    .replace(/\s+(?:High School|Collegiate|College)\s*$/i, '')
     .replace(/\s+-\s+(?:Prelims?|Finals?|Semifinals?|Timed Final)\s*$/i, '')
     .replace(/^(?:Heptathlon|Hept|Decathlon|Dec|Pentathlon|Pent)\s+/i, '')
     .replace(/\s+Relay$/i, '')
@@ -500,7 +526,7 @@ class AthleticNetMeetScraper {
   }
 
   /** Scrape every event of a meet. Accepts a www URL/id or a live.athletic.net URL. */
-  async scrapeMeet(target, { limit = 0 } = {}) {
+  async scrapeMeet(target, { limit = 0, eventCode = null } = {}) {
     if (!this.browser) await this.init();
     let meetId = null;
 
@@ -508,10 +534,11 @@ class AthleticNetMeetScraper {
 
     if (isAthleticLive) {
       const live = await this.getAthleticLiveEventLinks(target);
-      let events = live.events;
+      const allEvents = live.events;
+      let events = filterEventsByCode(allEvents, eventCode);
       if (limit) events = events.slice(0, limit);
 
-      console.log(`AthleticLIVE meet ${live.meetId}: found ${live.events.length} completed event links`);
+      console.log(`AthleticLIVE meet ${live.meetId}: found ${allEvents.length} completed event links${eventCode ? `; selected ${events.length} for ${eventCode}` : ''}`);
       if (live.canceled) console.log('  SOURCE STATUS: CANCELED');
       else if (live.sourceStatus === 'not_found') console.log('  SOURCE STATUS: NOT_FOUND');
       else if (!live.events.length) console.log('  SOURCE STATUS: EMPTY');
@@ -520,6 +547,7 @@ class AthleticNetMeetScraper {
         meet_id_athletic_live: live.meetId,
         meet_id_athletic_net: live.athleticNetMeetId,
         source_status: live.canceled ? 'canceled' : (live.sourceStatus || sourceStatus({ hasEvents: live.events.length > 0 })),
+        requested_event_code: eventCode,
         scraped_at: new Date().toISOString(),
         events: [],
       };
@@ -548,8 +576,9 @@ class AthleticNetMeetScraper {
       console.log(`  -> athletic.net meet ${meetId}`);
     } else throw new Error(`Unrecognized meet target: ${target}`);
 
-    let events = await this.getEventLinks(meetId);
-    console.log(`Meet ${meetId}: found ${events.length} event-result links`);
+    const allEvents = await this.getEventLinks(meetId);
+    let events = filterEventsByCode(allEvents, eventCode);
+    console.log(`Meet ${meetId}: found ${allEvents.length} event-result links${eventCode ? `; selected ${events.length} for ${eventCode}` : ''}`);
     if (this.lastSourceStatus === 'not_found') console.log('  SOURCE STATUS: NOT_FOUND');
     else if (!events.length) console.log('  SOURCE STATUS: EMPTY');
     if (limit) events = events.slice(0, limit);
@@ -557,6 +586,7 @@ class AthleticNetMeetScraper {
     const out = {
       meet_id_athletic_net: meetId,
       source_status: this.lastSourceStatus || sourceStatus({ hasEvents: events.length > 0 }),
+      requested_event_code: eventCode,
       scraped_at: new Date().toISOString(),
       events: []
     };
@@ -586,6 +616,9 @@ module.exports = {
   athleticLiveEventCode,
   athleticLiveGender,
   parseAthleticLivePayload,
+  normalizeEventCodeForScope,
+  matchesEventCode,
+  filterEventsByCode,
 };
 
 if (require.main === module) {

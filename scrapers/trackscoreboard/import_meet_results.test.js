@@ -60,6 +60,14 @@ test('allows only an explicit 4x100 event scope', () => {
   );
 });
 
+test('normalizes verified TrackScoreboard compact status codes', () => {
+  const { trackScoreboardMark } = require('./import_meet_results');
+  assert.equal(trackScoreboardMark({ status: 'D' }), 'DNF');
+  assert.equal(trackScoreboardMark({ status: 'Q', note: 'Zone Violation' }), 'DQ');
+  assert.equal(trackScoreboardMark({ status: 'S' }), 'SCR');
+  assert.equal(trackScoreboardMark({ mark: '41.51', status: '' }), '41.51');
+});
+
 test('prefers a verified private athlete alias over exact public-name lookup', () => {
   const result = toRows({
     sourceMeetId: 734,
