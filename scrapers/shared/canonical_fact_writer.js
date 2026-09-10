@@ -60,11 +60,19 @@ function nullableInteger(value) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
-function linkedTarget(resultId, relayResultId) {
+function linkedTarget(resultId, relayResultId, relayAthleteId = null) {
   const result = nullableInteger(resultId);
   const relay = nullableInteger(relayResultId);
-  if (result && !relay) return { resultId: result, relayResultId: null };
-  if (relay && !result) return { resultId: null, relayResultId: relay };
+  const relayAthlete = nullableInteger(relayAthleteId);
+  if (result && !relay && !relayAthlete) {
+    return { resultId: result, relayResultId: null, relayAthleteId: null };
+  }
+  if (relay && !result && !relayAthlete) {
+    return { resultId: null, relayResultId: relay, relayAthleteId: null };
+  }
+  if (relayAthlete && !result && !relay) {
+    return { resultId: null, relayResultId: null, relayAthleteId: relayAthlete };
+  }
   return null;
 }
 
@@ -173,8 +181,19 @@ class CanonicalFactWriter {
                 sl.result_id AS linked_result_id,
                 sl.entity_type AS linked_entity_type,
                 sl.relay_result_id AS linked_relay_result_id,
+                sl.relay_athlete_id AS linked_relay_athlete_id,
                 CASE WHEN sl.result_id IS NOT NULL THEN to_jsonb(linked_individual)
                      WHEN sl.relay_result_id IS NOT NULL THEN to_jsonb(linked_relay)
+                     WHEN sl.relay_athlete_id IS NOT NULL THEN
+                       to_jsonb(linked_relay_athlete) || jsonb_build_object(
+                         'meet_id', linked_member_parent.meet_id,
+                         'team_id', linked_member_parent.team_id,
+                         'event_type_id', linked_member_parent.event_type_id,
+                         'mark_raw', linked_member_parent.mark_raw,
+                         'mark_seconds', linked_member_parent.mark_seconds,
+                         'place', linked_member_parent.place,
+                         'date', linked_member_parent.date
+                       )
                 END AS linked_fact
            FROM ingest.observations o
            JOIN ingest.source_records sr ON sr.source_record_id = o.source_record_id
@@ -185,6 +204,10 @@ class CanonicalFactWriter {
            LEFT JOIN ingest.source_links sl ON sl.source_record_id = o.source_record_id
            LEFT JOIN public.results linked_individual ON linked_individual.result_id = sl.result_id
            LEFT JOIN public.relay_results linked_relay ON linked_relay.relay_result_id = sl.relay_result_id
+           LEFT JOIN public.relay_athletes linked_relay_athlete
+             ON linked_relay_athlete.relay_athlete_id = sl.relay_athlete_id
+           LEFT JOIN public.relay_results linked_member_parent
+             ON linked_member_parent.relay_result_id = linked_relay_athlete.relay_result_id
           WHERE o.run_id = $1
             AND o.decision IN ('pending', 'insert', 'claim', 'quarantine')
           ORDER BY o.observation_id
@@ -203,9 +226,10 @@ class CanonicalFactWriter {
       for (let index = rows.length - 1; index >= 0; index--) {
         const row = rows[index];
         if (row.source_snapshot_hash !== null) continue;
-        if (row.linked_result_id || row.linked_relay_result_id) {
+        if (row.linked_result_id || row.linked_relay_result_id || row.linked_relay_athlete_id) {
           await this.markObservation(client, row.observation_id, 'skip_duplicate',
-            'source_record_already_linked', 1, row.linked_result_id || null, row.linked_relay_result_id || null);
+            'source_record_already_linked', 1, row.linked_result_id || null,
+            row.linked_relay_result_id || null, row.linked_relay_athlete_id || null);
           stats.skipped++;
         } else {
           await this.quarantine(client, row.observation_id, 'missing_source_snapshot', null);
@@ -221,7 +245,7 @@ class CanonicalFactWriter {
       // the linked public fact and both evidence versions; require explicit correction review.
       for (let index = rows.length - 1; index >= 0; index--) {
         const row = rows[index];
-        if (row.decision === 'quarantine' || !(row.linked_result_id || row.linked_relay_result_id)) continue;
+        if (row.decision === 'quarantine' || !(row.linked_result_id || row.linked_relay_result_id || row.linked_relay_athlete_id)) continue;
         const differences = sourceCorrectionFields(row);
         if (!differences.length) continue;
         await this.quarantine(client, row.observation_id, 'source_correction_required', 0);
@@ -288,7 +312,7 @@ class CanonicalFactWriter {
 
       const linkedSourceKeys = new Set();
       for (const row of rows) {
-        if (row.linked_result_id || row.linked_relay_result_id) {
+        if (row.linked_result_id || row.linked_relay_result_id || row.linked_relay_athlete_id) {
           rememberLinkedSource(linkedSourceKeys, row);
         }
       }
@@ -316,15 +340,40 @@ class CanonicalFactWriter {
 
         // A replay of a source record that was linked by an earlier run must resolve to the exact
         // prior fact, even if the source parser now emits a different annotation or round label.
-        if (row.linked_result_id || row.linked_relay_result_id) {
-          const resultId = row.linked_result_id || null;
-          const relayId = row.linked_relay_result_id || null;
+        if (row.linked_result_id || row.linked_relay_result_id || row.linked_relay_athlete_id) {
+          const target = linkedTarget(
+            row.linked_result_id,
+            row.linked_relay_result_id,
+            row.linked_relay_athlete_id
+          );
+          if (!target) {
+            await this.quarantine(client, row.observation_id, 'linked_without_target', 0);
+            stats.quarantined++;
+            continue;
+          }
           if (observation.entity_type === 'relay_leg') {
             await this.reconcileRelayLeg(client, row);
           }
           await this.markObservation(client, row.observation_id, 'skip_duplicate',
-            'source_record_already_linked', 1, resultId, relayId);
+            'source_record_already_linked', 1, target.resultId, target.relayResultId,
+            target.relayAthleteId);
           stats.skipped++;
+          rememberLinkedSource(linkedSourceKeys, row);
+          continue;
+        }
+
+        if (observation.entity_type === 'relay_leg') {
+          const relayAthleteId = await this.resolveRelayLegTarget(client, row);
+          if (!relayAthleteId) {
+            await this.quarantine(client, row.observation_id, 'relay_parent_or_leg_missing', 0);
+            stats.quarantined++;
+            continue;
+          }
+          await this.linkSource(client, row, null, null, relayAthleteId);
+          await this.markObservation(client, row.observation_id, 'insert',
+            'new_canonical_relay_leg', 1, null, null, relayAthleteId);
+          stats.inserted++;
+          stats.relayLegs++;
           rememberLinkedSource(linkedSourceKeys, row);
           continue;
         }
@@ -366,9 +415,9 @@ class CanonicalFactWriter {
           if (observation.entity_type === 'relay_leg') {
             await this.reconcileRelayLeg(client, row);
           }
-          await this.linkSource(client, row, target.resultId, target.relayResultId);
+          await this.linkSource(client, row, target.resultId, target.relayResultId, null);
           await this.markObservation(client, row.observation_id, match.action, match.reason,
-            match.confidence, target.resultId, target.relayResultId);
+            match.confidence, target.resultId, target.relayResultId, null);
           rememberLinkedSource(linkedSourceKeys, row);
           continue;
         }
@@ -380,9 +429,9 @@ class CanonicalFactWriter {
             stats.quarantined++;
             continue;
           }
-          await this.linkSource(client, row, null, relayId);
+          await this.linkSource(client, row, null, relayId, null);
           await this.markObservation(client, row.observation_id, 'insert', 'new_canonical_relay',
-            1, null, relayId);
+            1, null, relayId, null);
           stats.inserted++;
           stats.relayParents++;
           rememberLinkedSource(linkedSourceKeys, row);
@@ -413,15 +462,10 @@ class CanonicalFactWriter {
           continue;
         }
 
-        await this.linkSource(client, row, resultId, null);
-        if (observation.entity_type === 'relay_leg') {
-          await this.reconcileRelayLeg(client, row);
-        }
+        await this.linkSource(client, row, resultId, null, null);
         await this.markObservation(client, row.observation_id, 'insert',
-          observation.entity_type === 'relay_leg' ? 'new_relay_leg_result' : 'new_canonical_result',
-          1, resultId, null);
+          'new_canonical_result', 1, resultId, null, null);
         stats.inserted++;
-        if (observation.entity_type === 'relay_leg') stats.relayLegs++;
         rememberLinkedSource(linkedSourceKeys, row);
 
         const inserted = {
@@ -504,10 +548,11 @@ class CanonicalFactWriter {
     const reconcileLegs = [];
     const newParents = [];
     const newLegs = [];
+    const unresolvedLegs = [];
     const pendingParentKeys = new Set();
     const pendingLegKeys = new Set();
 
-    const mark = (row, decision, reason, confidence, resultId = null, relayId = null) => {
+    const mark = (row, decision, reason, confidence, resultId = null, relayId = null, relayAthleteId = null) => {
       marks.push({
         observation_id: row.observation_id,
         decision,
@@ -515,15 +560,17 @@ class CanonicalFactWriter {
         confidence,
         result_id: resultId,
         relay_result_id: relayId,
+        relay_athlete_id: relayAthleteId,
       });
     };
 
-    const link = (row, resultId = null, relayId = null) => {
+    const link = (row, resultId = null, relayId = null, relayAthleteId = null) => {
       links.push({
         source_record_id: row.source_record_id,
         entity_type: row.entity_type,
         result_id: resultId,
         relay_result_id: relayId,
+        relay_athlete_id: relayAthleteId,
       });
     };
 
@@ -539,31 +586,49 @@ class CanonicalFactWriter {
       row.round || null,
     ].map(value => value == null ? '' : String(value)).join('|');
 
-    const legIdentity = row => [
-      row.target_athlete_id,
-      row.target_team_id,
-      row.event_type_id,
-      row.mark_raw,
-      row.mark_seconds,
-      row.target_meet_id,
-      row.event_id || null,
-      row.result_date,
-      row.round || null,
-    ].map(value => value == null ? '' : String(value)).join('|');
+    const legIdentity = row => {
+      const payload = sourcePayload(row);
+      const leg = payload.leg || {};
+      return [
+        row.source,
+        payload.relay_parent_source_record_key,
+        leg.leg_order,
+        row.target_athlete_id,
+        leg.tfrrs_athlete_id || leg.athletic_net_athlete_id || null,
+      ].map(value => value == null ? '' : String(value)).join('|');
+    };
 
     for (const row of rows) {
       if (row.decision === 'quarantine') continue;
       const observation = asObservation(row);
 
-      if (row.linked_result_id || row.linked_relay_result_id) {
-        const target = linkedTarget(row.linked_result_id, row.linked_relay_result_id);
+      if (row.linked_result_id || row.linked_relay_result_id || row.linked_relay_athlete_id) {
+        const target = linkedTarget(
+          row.linked_result_id,
+          row.linked_relay_result_id,
+          row.linked_relay_athlete_id
+        );
         if (!target) {
           quarantines.push({ observation_id: row.observation_id, reason: 'linked_without_target', confidence: 0 });
           continue;
         }
-        mark(row, 'skip_duplicate', 'source_record_already_linked', 1, target.resultId, target.relayResultId);
+        mark(row, 'skip_duplicate', 'source_record_already_linked', 1,
+          target.resultId, target.relayResultId, target.relayAthleteId);
         if (row.entity_type === 'relay_leg') reconcileLegs.push(row);
         stats.skipped++;
+        continue;
+      }
+
+      // A relay leg is membership/provenance for its parent relay, never an individual result
+      // candidate. Resolve it after parent inserts/claims are known for this transaction.
+      if (row.entity_type === 'relay_leg') {
+        const key = legIdentity(row);
+        if (pendingLegKeys.has(key)) {
+          quarantines.push({ observation_id: row.observation_id, reason: 'duplicate_within_run', confidence: 1 });
+          continue;
+        }
+        pendingLegKeys.add(key);
+        newLegs.push(row);
         continue;
       }
 
@@ -612,13 +677,7 @@ class CanonicalFactWriter {
         continue;
       }
 
-      const key = legIdentity(row);
-      if (pendingLegKeys.has(key)) {
-        quarantines.push({ observation_id: row.observation_id, reason: 'duplicate_within_run', confidence: 1 });
-        continue;
-      }
-      pendingLegKeys.add(key);
-      newLegs.push(row);
+      throw new Error(`Unsupported relay batch entity type: ${row.entity_type}`);
     }
 
     if (quarantines.length) {
@@ -751,100 +810,89 @@ class CanonicalFactWriter {
       }
     }
 
-    const legBySourceKey = new Map();
     if (newLegs.length) {
-      await client.query(
-        `CREATE TEMP TABLE pg_temp.recovery_relay_legs (
-           observation_id bigint PRIMARY KEY,
-           source_record_id bigint,
-           athlete_id integer,
-           team_id integer,
-           event_name text,
-           mark_raw text,
-           mark_seconds numeric,
-           mark_meters numeric,
-           place integer,
-           meet_name text,
-           meet_id integer,
-           event_id integer,
-           result_date date,
-           round text,
-           event_type_id integer
-         ) ON COMMIT DROP`
-      );
-      const legPayload = newLegs.map(row => ({
-        observation_id: row.observation_id,
-        source_record_id: row.source_record_id,
-        athlete_id: row.target_athlete_id,
-        team_id: row.target_team_id,
-        event_name: row.event_code || row.raw_event_name,
-        mark_raw: row.mark_raw,
-        mark_seconds: row.mark_seconds,
-        mark_meters: row.mark_meters,
-        place: row.place,
-        meet_name: row.meet_name,
-        meet_id: row.target_meet_id,
-        event_id: nullableInteger(sourcePayload(row).event_id),
-        result_date: row.result_date,
-        round: row.round,
-        event_type_id: row.event_type_id,
-      }));
-      await client.query(
-        `INSERT INTO pg_temp.recovery_relay_legs
-           (observation_id, source_record_id, athlete_id, team_id, event_name, mark_raw,
-            mark_seconds, mark_meters, place, meet_name, meet_id, event_id, result_date,
-            round, event_type_id)
-         SELECT observation_id, source_record_id, athlete_id, team_id, event_name, mark_raw,
-                mark_seconds, mark_meters, place, meet_name, meet_id, event_id, result_date,
-                round, event_type_id
+      const parentReferences = newLegs.map(row => ({
+        source: row.source,
+        source_record_key: sourcePayload(row).relay_parent_source_record_key,
+      })).filter(row => row.source_record_key);
+      const { rows: parentRows } = await client.query(
+        `SELECT sr.source_record_id, sr.source, sr.source_record_key, sl.relay_result_id
            FROM jsonb_to_recordset($1::jsonb)
-             AS v(observation_id bigint, source_record_id bigint, athlete_id integer,
-                 team_id integer, event_name text, mark_raw text, mark_seconds numeric,
-                 mark_meters numeric, place integer, meet_name text, meet_id integer,
-                 event_id integer, result_date date, round text, event_type_id integer)`,
-        [JSON.stringify(legPayload)]
+             AS requested(source text, source_record_key text)
+           JOIN ingest.source_records sr
+             ON sr.source = requested.source
+            AND sr.source_record_key = requested.source_record_key
+           LEFT JOIN ingest.source_links sl ON sl.source_record_id = sr.source_record_id`,
+        [JSON.stringify(parentReferences)]
       );
-      await client.query(
-        `INSERT INTO public.results
-           (athlete_id, team_id, event_name, mark_raw, mark_seconds, mark_meters, mark_feet,
-            wind, round, date, season_code, meet_name, meet_location, place, total_competitors,
-            is_pr, is_season_best, meet_id, event_id, event_type_id, environment)
-         SELECT athlete_id, team_id, event_name, mark_raw, mark_seconds, mark_meters, NULL,
-                NULL, round, result_date, NULL, meet_name, NULL, place, NULL,
-                false, false, meet_id, event_id, event_type_id, NULL
-           FROM pg_temp.recovery_relay_legs
-         ON CONFLICT DO NOTHING`
-      );
-      const { rows: legIds } = await client.query(
-        `SELECT l.source_record_id, l.observation_id, r.result_id
-           FROM pg_temp.recovery_relay_legs l
-           JOIN public.results r
-             ON r.meet_id = l.meet_id
-            AND r.event_type_id = l.event_type_id
-            AND r.athlete_id = l.athlete_id
-            AND r.mark_raw = l.mark_raw
-            AND (r.team_id = l.team_id OR (r.team_id IS NULL AND l.team_id IS NULL))
-            AND (r.mark_seconds = l.mark_seconds
-              OR (r.mark_seconds IS NULL AND l.mark_seconds IS NULL))
-            AND (r.mark_meters = l.mark_meters
-              OR (r.mark_meters IS NULL AND l.mark_meters IS NULL))
-            AND (r.place = l.place OR (r.place IS NULL AND l.place IS NULL))
-            AND (r.event_id = l.event_id OR (r.event_id IS NULL AND l.event_id IS NULL))
-            AND (r.round = l.round OR (r.round IS NULL AND l.round IS NULL))`,
-      );
-      if (legIds.length !== newLegs.length) {
-        throw new Error(`relay leg batch insert returned ${legIds.length} of ${newLegs.length} result IDs`);
+      const parentRelayIds = new Map(parentRows.map(parent => [
+        `${parent.source}|${parent.source_record_key}`,
+        parentBySourceKey.get(String(parent.source_record_id)) || nullableInteger(parent.relay_result_id),
+      ]));
+      const relayIds = [...new Set([...parentRelayIds.values()].filter(Boolean))];
+      const { rows: relayAthletes } = relayIds.length
+        ? await client.query(
+          `SELECT relay_athlete_id, relay_result_id, leg_order, athlete_id, tfrrs_athlete_id
+             FROM public.relay_athletes
+            WHERE relay_result_id = ANY($1::integer[])`,
+          [relayIds]
+        )
+        : { rows: [] };
+      const membershipBySlot = new Map();
+      for (const member of relayAthletes) {
+        const key = `${member.relay_result_id}|${member.leg_order}`;
+        // Historical duplicate slots are explicitly held for reconciliation. Selecting whichever
+        // row happened to arrive last would attach provenance to an arbitrary membership.
+        membershipBySlot.set(key, membershipBySlot.has(key) ? null : member);
       }
-      for (const row of legIds) legBySourceKey.set(String(row.source_record_id), Number(row.result_id));
+
       for (const row of newLegs) {
-        const resultId = legBySourceKey.get(String(row.source_record_id));
-        link(row, resultId, null);
-        mark(row, 'insert', 'new_relay_leg_result', 1, resultId, null);
+        const payload = sourcePayload(row);
+        const leg = payload.leg || {};
+        const relayId = parentRelayIds.get(`${row.source}|${payload.relay_parent_source_record_key}`);
+        const member = membershipBySlot.get(`${relayId}|${nullableInteger(leg.leg_order)}`);
+        if (!member) {
+          unresolvedLegs.push({
+            observation_id: row.observation_id,
+            reason: 'relay_parent_or_leg_missing',
+            confidence: 0,
+          });
+          continue;
+        }
+        link(row, null, null, Number(member.relay_athlete_id));
+        mark(row, 'insert', 'new_canonical_relay_leg', 1, null, null,
+          Number(member.relay_athlete_id));
         stats.inserted++;
         stats.relayLegs++;
         rememberLinkedSource(linkedSourceKeys, row);
         reconcileLegs.push(row);
       }
+    }
+
+    if (unresolvedLegs.length) {
+      const payload = JSON.stringify(unresolvedLegs);
+      await client.query(
+        `UPDATE ingest.observations o
+            SET decision = 'quarantine',
+                decision_reason = v.reason,
+                confidence = v.confidence
+           FROM jsonb_to_recordset($1::jsonb)
+             AS v(observation_id bigint, reason text, confidence numeric)
+          WHERE o.observation_id = v.observation_id`,
+        [payload]
+      );
+      await client.query(
+        `INSERT INTO ingest.quarantine (observation_id, reason_code, status)
+         SELECT v.observation_id, v.reason, 'open'
+           FROM jsonb_to_recordset($1::jsonb)
+             AS v(observation_id bigint, reason text, confidence numeric)
+         ON CONFLICT (observation_id) DO UPDATE
+           SET reason_code = EXCLUDED.reason_code,
+               status = 'open',
+               resolved_at = NULL`,
+        [payload]
+      );
+      stats.quarantined += unresolvedLegs.length;
     }
 
     if (claims.length) {
@@ -864,15 +912,18 @@ class CanonicalFactWriter {
     if (links.length) {
       await client.query(
         `INSERT INTO ingest.source_links
-           (source_record_id, entity_type, result_id, relay_result_id, link_status,
+           (source_record_id, entity_type, result_id, relay_result_id, relay_athlete_id, link_status,
             first_linked_at, last_seen_at)
-         SELECT source_record_id, entity_type, result_id, relay_result_id, 'linked', now(), now()
+         SELECT source_record_id, entity_type, result_id, relay_result_id, relay_athlete_id,
+                'linked', now(), now()
            FROM jsonb_to_recordset($1::jsonb)
-             AS v(source_record_id bigint, entity_type text, result_id bigint, relay_result_id bigint)
+             AS v(source_record_id bigint, entity_type text, result_id bigint,
+                  relay_result_id bigint, relay_athlete_id integer)
          ON CONFLICT (source_record_id) DO UPDATE
            SET entity_type = EXCLUDED.entity_type,
                result_id = EXCLUDED.result_id,
                relay_result_id = EXCLUDED.relay_result_id,
+               relay_athlete_id = EXCLUDED.relay_athlete_id,
                link_status = 'linked',
                last_seen_at = now()`,
         [JSON.stringify(links)]
@@ -921,10 +972,11 @@ class CanonicalFactWriter {
                 decision_reason = v.reason,
                 confidence = v.confidence,
                 canonical_result_id = v.result_id,
-                canonical_relay_id = v.relay_result_id
+                canonical_relay_id = v.relay_result_id,
+                canonical_relay_athlete_id = v.relay_athlete_id
            FROM jsonb_to_recordset($1::jsonb)
              AS v(observation_id bigint, decision text, reason text, confidence numeric,
-                 result_id bigint, relay_result_id bigint)
+                 result_id bigint, relay_result_id bigint, relay_athlete_id integer)
           WHERE o.observation_id = v.observation_id`,
         [JSON.stringify(marks)]
       );
@@ -1047,31 +1099,56 @@ class CanonicalFactWriter {
     return rowCount;
   }
 
-  async linkSource(client, row, resultId, relayResultId) {
+  async resolveRelayLegTarget(client, row) {
+    const payload = sourcePayload(row);
+    const parentSourceRecordKey = payload.relay_parent_source_record_key;
+    const legOrder = nullableInteger(payload.leg?.leg_order);
+    if (!parentSourceRecordKey || !legOrder) return null;
+
+    const { rows } = await client.query(
+      `SELECT ra.relay_athlete_id
+         FROM ingest.source_records sr
+         JOIN ingest.source_links sl ON sl.source_record_id = sr.source_record_id
+         JOIN public.relay_athletes ra ON ra.relay_result_id = sl.relay_result_id
+        WHERE sr.source = $1
+          AND sr.source_record_key = $2
+          AND ra.leg_order = $3`,
+      [row.source, parentSourceRecordKey, legOrder]
+    );
+    if (rows.length !== 1) return null;
+    await this.reconcileRelayLeg(client, row);
+    return Number(rows[0].relay_athlete_id);
+  }
+
+  async linkSource(client, row, resultId, relayResultId, relayAthleteId = null) {
     await client.query(
       `INSERT INTO ingest.source_links
-        (source_record_id, entity_type, result_id, relay_result_id, link_status, first_linked_at, last_seen_at)
-       VALUES ($1, $2, $3, $4, 'linked', now(), now())
+        (source_record_id, entity_type, result_id, relay_result_id, relay_athlete_id,
+         link_status, first_linked_at, last_seen_at)
+       VALUES ($1, $2, $3, $4, $5, 'linked', now(), now())
        ON CONFLICT (source_record_id) DO UPDATE
          SET entity_type = EXCLUDED.entity_type,
              result_id = EXCLUDED.result_id,
              relay_result_id = EXCLUDED.relay_result_id,
+             relay_athlete_id = EXCLUDED.relay_athlete_id,
              link_status = 'linked',
              last_seen_at = now()`,
-      [row.source_record_id, row.entity_type, resultId, relayResultId]
+      [row.source_record_id, row.entity_type, resultId, relayResultId, relayAthleteId]
     );
   }
 
-  async markObservation(client, observationId, decision, reason, confidence, resultId, relayId) {
+  async markObservation(client, observationId, decision, reason, confidence, resultId, relayId,
+    relayAthleteId = null) {
     await client.query(
       `UPDATE ingest.observations
           SET decision = $2,
               decision_reason = $3,
               confidence = $4,
               canonical_result_id = $5,
-              canonical_relay_id = $6
+              canonical_relay_id = $6,
+              canonical_relay_athlete_id = $7
         WHERE observation_id = $1`,
-      [observationId, decision, reason, confidence, resultId, relayId]
+      [observationId, decision, reason, confidence, resultId, relayId, relayAthleteId]
     );
   }
 
