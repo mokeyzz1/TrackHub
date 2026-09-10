@@ -12,6 +12,9 @@ const {
   athleticLiveGender,
   parseAthleticLivePayload,
   sourceStatus,
+  normalizeEventCodeForScope,
+  matchesEventCode,
+  filterEventsByCode,
 } = require('./scrape_meet_results');
 const { isAthleticLiveHost, isAthleticLiveUrl } = require('./athletic_live_host');
 
@@ -113,8 +116,10 @@ test('parses AthleticLIVE result links and excludes scheduled rows', () => {
 test('recognizes verified AthleticLIVE tenant hosts without accepting arbitrary live domains', () => {
   assert.equal(isAthleticLiveHost('live.mastiming.net'), true);
   assert.equal(isAthleticLiveHost('live.mountaintiming.com'), true);
+  assert.equal(isAthleticLiveHost('blueridgetiming.live'), true);
   assert.equal(isAthleticLiveHost('tenant.anet.live'), true);
   assert.equal(isAthleticLiveUrl('https://live.mastiming.net/meets/69709'), true);
+  assert.equal(isAthleticLiveUrl('https://blueridgetiming.live/meets/66890'), true);
   assert.equal(isAthleticLiveUrl('https://example.com/meets/69709'), false);
 });
 
@@ -128,6 +133,21 @@ test('normalizes AthleticLIVE event abbreviations and gender', () => {
   assert.equal(athleticLiveGender({ g: 'Female', gl: 'Women' }), 'f');
 });
 
+test('filters equivalent 4x100 source spellings before fetching event pages', () => {
+  assert.equal(normalizeEventCodeForScope('4x100mR'), '4x100m');
+  assert.equal(normalizeEventCodeForScope('Results Women 4 x 100 Relay'), '4x100m');
+  assert.equal(matchesEventCode({ eventCode: '4x100' }, '4x100m'), true);
+  assert.equal(matchesEventCode({ rowText: 'Official Men 4x400mR' }, '4x100m'), false);
+  assert.deepEqual(
+    filterEventsByCode([
+      { eventCode: '4x100m' },
+      { rowText: 'Results Women 4x100mR' },
+      { rowText: 'Results Men 4x400mR' },
+    ], '4x100m'),
+    [{ eventCode: '4x100m' }, { rowText: 'Results Women 4x100mR' }]
+  );
+});
+
 test('maps AthleticLIVE open labels into verified event aliases', () => {
   assert.equal(athleticLiveEventCode({ n: '60m Hurdles Open' }), '60 Meter Hurdles Open');
   assert.equal(athleticLiveEventCode({ n: '60m Open' }), '60 Meters Open');
@@ -137,6 +157,8 @@ test('maps AthleticLIVE open labels into verified event aliases', () => {
   assert.equal(athleticLiveEventCode({ n: '800m Open' }), '800 Meters Open');
   assert.equal(athleticLiveEventCode({ n: '3000m Open' }), '3000 Meters Open');
   assert.equal(athleticLiveEventCode({ n: '4x400m Relay Open' }), '4 x 400 Relay Open');
+  assert.equal(athleticLiveEventCode({ n: 'Boys 4x100m Relay High School' }), '4x100m');
+  assert.equal(athleticLiveEventCode({ n: 'Girls 4x100m Relay High School' }), '4x100m');
 });
 
 test('maps AthleticLIVE individual payloads with source keys, not guessed profile IDs', () => {

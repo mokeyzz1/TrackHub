@@ -24,7 +24,7 @@ const fs = require('fs');
 const { createClient } = require('@supabase/supabase-js');
 const { EventResolver } = require('../shared/event_resolver');
 const { parseName } = require('../shared/name_parser');
-const { AthleticNetMeetScraper } = require('./scrape_meet_results');
+const { AthleticNetMeetScraper, filterEventsByCode } = require('./scrape_meet_results');
 const { ControlledIngestion } = require('../shared/controlled_ingestion');
 const { normalizeSourceRows } = require('../shared/source_observation_adapter');
 const { TeamAliasResolver } = require('../shared/team_alias_resolver');
@@ -63,10 +63,11 @@ function environmentFor(season) {
 
 const chunk = (arr, n) => { const out = []; for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; };
 
-function eventsForImportMode(events, relaysOnly) {
+function eventsForImportMode(events, relaysOnly, eventCode = null) {
   const sourceEvents = Array.isArray(events) ? events : [];
-  if (!relaysOnly) return sourceEvents;
-  return sourceEvents.filter(event => (event.results || []).some(result => result.is_relay));
+  const scopedEvents = filterEventsByCode(sourceEvents, eventCode);
+  if (!relaysOnly) return scopedEvents;
+  return scopedEvents.filter(event => (event.results || []).some(result => result.is_relay));
 }
 
 function controlledResolutionOptions(teamResolver, athleteResolver) {
@@ -467,7 +468,11 @@ async function run(meetDbId, {
   relaysOnly = false,
   controlPlane = false,
   sourceUrl = null,
+  eventCode = null,
 } = {}) {
+  if (eventCode && eventCode !== '4x100m') {
+    throw new Error('eventCode currently supports only 4x100m');
+  }
   if (controlPlane) ensureIngestDatabaseUrl();
   requireControlledCommit({
     commit,
@@ -491,13 +496,13 @@ async function run(meetDbId, {
   if (jsonFile) { scraped = JSON.parse(fs.readFileSync(jsonFile, 'utf8')); }
   else {
     const s = new AthleticNetMeetScraper();
-    try { scraped = await s.scrapeMeet(target, { limit }); } finally { await s.close(); }
+    try { scraped = await s.scrapeMeet(target, { limit, eventCode }); } finally { await s.close(); }
   }
 
   // Relay-only recovery must not preload or resolve the meet's individual athletes. Apart from
   // wasting work, doing so made large relay candidates hit the database statement timeout before
   // the relay rows were even translated.
-  const importEvents = eventsForImportMode(scraped.events, relaysOnly);
+  const importEvents = eventsForImportMode(scraped.events, relaysOnly, eventCode);
 
   // 3. preload translators + athlete lookups scoped to this meet
   const events = new EventResolver(); await events.load(supabase);
@@ -823,9 +828,10 @@ if (require.main === module) {
   const commit = args.includes('--commit');
   const relaysOnly = args.includes('--relays-only');
   const controlPlane = args.includes('--control-plane');
+  const eIdx = args.indexOf('--event-code'); const eventCode = eIdx >= 0 ? args[eIdx + 1] : null;
   const sIdx = args.indexOf('--source-url'); const sourceUrl = sIdx >= 0 ? args[sIdx + 1] : null;
   const jIdx = args.indexOf('--json'); const jsonFile = jIdx >= 0 ? args[jIdx + 1] : null;
   const lIdx = args.indexOf('--limit'); const limit = lIdx >= 0 ? parseInt(args[lIdx + 1], 10) : 0;
-  if (!meetDbId) { console.log('Usage: node import_meet_results.js <db_meet_id> [--commit --control-plane] [--source-url URL] [--json f] [--limit N]'); process.exit(1); }
-  run(meetDbId, { commit, relaysOnly, controlPlane, sourceUrl, jsonFile, limit }).catch(e => { console.error('ERROR', e.message); process.exit(1); });
+  if (!meetDbId) { console.log('Usage: node import_meet_results.js <db_meet_id> [--commit --control-plane] [--source-url URL] [--event-code 4x100m] [--json f] [--limit N]'); process.exit(1); }
+  run(meetDbId, { commit, relaysOnly, controlPlane, sourceUrl, eventCode, jsonFile, limit }).catch(e => { console.error('ERROR', e.message); process.exit(1); });
 }

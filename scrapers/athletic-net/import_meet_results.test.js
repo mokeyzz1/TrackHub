@@ -48,6 +48,17 @@ test('relay-only mode excludes individual events before athlete lookup', () => {
   assert.deepEqual(eventsForImportMode(events, false), events);
 });
 
+test('4x100 scoped mode excludes every other event before athlete lookup', () => {
+  const events = [
+    { eventCode: '100m', results: [{ athlete_name: 'Runner', is_relay: false }] },
+    { eventCode: '4x100m', results: [{ team_name: 'Relay Team', is_relay: true }] },
+    { eventCode: '4x400m', results: [{ team_name: 'Long Relay Team', is_relay: true }] },
+  ];
+
+  assert.deepEqual(eventsForImportMode(events, true, '4x100m'), [events[1]]);
+  assert.deepEqual(eventsForImportMode(events, false, '4x100m'), [events[1]]);
+});
+
 test('counts published observations independently of new inserts', () => {
   assert.equal(
     countScrapedObservations({

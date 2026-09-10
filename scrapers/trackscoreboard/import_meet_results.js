@@ -86,6 +86,13 @@ function meetDate(value) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
 }
 
+function trackScoreboardMark(result = {}) {
+  const mark = String(result.mark || '').trim();
+  if (mark) return mark;
+  const status = String(result.status || '').trim().toUpperCase();
+  return ({ D: 'DNF', Q: 'DQ', S: 'SCR' })[status] || status || null;
+}
+
 function parseSourceUrl(value) {
   if (!value) return null;
   const url = new URL(value);
@@ -302,7 +309,9 @@ function toRows({
         delete athlete._alias;
         delete athlete._candidates;
       }
-      const markRaw = result.mark || result.status || null;
+      // The Firebase payload uses compact status codes while the public UI/writer contract uses
+      // canonical track statuses. Preserve the compact value in payload.raw_result for provenance.
+      const markRaw = trackScoreboardMark(result);
       const parsed = parseMark(markRaw);
       rows.push({
         is_relay: true,
@@ -446,5 +455,6 @@ module.exports = {
   parseSourceUrl,
   run,
   sourceEventName,
+  trackScoreboardMark,
   toRows,
 };

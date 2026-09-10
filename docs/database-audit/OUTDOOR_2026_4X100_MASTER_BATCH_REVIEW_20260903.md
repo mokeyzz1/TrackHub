@@ -47,6 +47,33 @@ meet/context where the same display name can legitimately recur):
 The family totals sum to all 536 unresolved actions. They are triage buckets, not automatic
 mapping approvals.
 
+## 2026-09-10 targeted recovery checkpoint
+
+The owner resumed the narrow Outdoor 2026 4x100 recovery while leaving the broader historical
+relay/UI migration postponed. Discovery was consolidated into this supported private workflow;
+the unfinished `--missing-4x100` mode in the legacy public-link matcher was not retained.
+
+All 265 blocked meets were checked against the cached TFRRS catalog and live candidate pages.
+Candidates had to pass name and date verification and one-page/one-meet ownership checks. The
+result was 101 privately staged candidates, 38 page-verification rejections, 26 ambiguous names,
+91 with no candidate, four local multi-claims, and five URLs already owned by another meet. The
+101 staged candidates have fingerprint `a5acc3564b4e06207ec9de557ee66450`.
+
+The source-vs-local audit processed all 101 staged candidates: 27 matched, 56 became repair-ready,
+and 18 require review. The current full private queue is:
+
+| Outcome | Meets | Source results | Missing | Extra | Broken-team |
+|---|---:|---:|---:|---:|---:|
+| Matched | 254 | 2,584 | 0 | 0 | 0 |
+| Repair-ready | 186 | 2,537 | 563 | 482 | 78 |
+| Needs review | 106 | 2,311 | 361 | 220 | 202 |
+| Not contested | 37 | 0 | 0 | 0 | 0 |
+| Blocked | 164 | 0 | 0 | 0 | 0 |
+
+No public meet, result, relay, athlete, team, or alias row changed. Public promotion still needs
+before-images, exact affected-ID assertions, a rollback rehearsal, and explicit review of held
+identity cases.
+
 ## Review packets
 
 - [Overall unresolved source-team profile](OUTDOOR_2026_4X100_UNRESOLVED_TEAM_REVIEW_20260903.md)
